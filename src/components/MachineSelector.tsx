@@ -204,21 +204,6 @@ export default function MachineSelector({ onSelectionChange }: MachineSelectorPr
 
   return (
     <div>
-      {/* Info Card */}
-      <div className="md-secondary-container rounded-2xl p-4 mb-4 sm:mb-6">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 md-surface rounded-xl flex items-center justify-center md-elevation-1">
-            <Activity className="w-5 h-5 text-purple-600" />
-          </div>
-          <div className="flex-1">
-            <h2 className="md-title-medium font-semibold mb-1" style={{ color: 'var(--md-on-surface)' }}>マシン設備を選択</h2>
-            <p className="md-body-small" style={{ color: 'var(--md-on-surface-variant)' }}>
-              希望するマシンを選んで、条件に合うジムを見つけましょう
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Categories */}
       <div className="space-y-4">
         {machineCategories.map((category) => (

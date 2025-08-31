@@ -2,20 +2,23 @@
 
 import { Search, MapPin, SlidersHorizontal, User, Calendar, ChevronRight, Plus, Dumbbell } from 'lucide-react'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import ConditionSelector from '@/components/ConditionSelector'
 
 export default function Home() {
-  const router = useRouter()
   const [activeTab, setActiveTab] = useState('condition')
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
   const [selectedMakers, setSelectedMakers] = useState<string[]>([])
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
-  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set())
+
+
+
+  const hasAnySelection = () => {
+    return selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size > 0
+  }
 
   const muscles = ['胸', '背中', '脚', '肩', '腕']
   const makers = [
@@ -175,10 +178,7 @@ export default function Home() {
                 {/* Condition Tab */}
                 {activeTab === 'condition' && (
                   <ConditionSelector 
-                    onSelectionChange={(facilities, areas) => {
-                      setSelectedFacilities(facilities)
-                      setSelectedAreas(areas)
-                    }} 
+                    onSelectionChange={setSelectedFacilities} 
                   />
                 )}
                 
@@ -300,42 +300,70 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg font-bold text-slate-900">選択した条件</h3>
                     <p className="text-xs text-slate-600">
-                      {selectedMuscles.length + selectedMakers.length}個の条件を選択中
+                      {selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size}個の条件を選択中
                     </p>
                   </div>
                 </div>
               </div>
 
-              {selectedMuscles.length === 0 && selectedMakers.length === 0 ? (
+              {!hasAnySelection() ? (
                 <div className="text-center py-12">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Calendar className="w-7 h-7 text-slate-400" />
                   </div>
                   <p className="text-slate-700 font-medium mb-2">条件を選択してください</p>
                   <p className="text-xs text-slate-500">
-                    マシンや施設条件を選択して<br />
+                    マシン・設備・施設条件を選択して<br />
                     理想のジムを見つけましょう
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {selectedMuscles.map((muscle) => (
-                    <div key={muscle} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
-                      <span className="text-sm font-medium text-blue-700">{muscle}</span>
+                  {/* マシン条件 */}
+                  {Array.from(selectedMachines).map((machine) => (
+                    <div key={`machine-${machine}`} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                      <span className="text-sm font-medium text-purple-700">{machine}</span>
                       <button
-                        onClick={() => setSelectedMuscles(prev => prev.filter(m => m !== muscle))}
+                        onClick={() => {
+                          const newMachines = new Set(selectedMachines)
+                          newMachines.delete(machine)
+                          setSelectedMachines(newMachines)
+                        }}
+                        className="text-purple-500 hover:text-purple-700"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* フリーウェイト条件 */}
+                  {Array.from(selectedFreeWeights).map((weight) => (
+                    <div key={`weight-${weight}`} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                      <span className="text-sm font-medium text-blue-700">{weight}</span>
+                      <button
+                        onClick={() => {
+                          const newWeights = new Set(selectedFreeWeights)
+                          newWeights.delete(weight)
+                          setSelectedFreeWeights(newWeights)
+                        }}
                         className="text-blue-500 hover:text-blue-700"
                       >
                         ×
                       </button>
                     </div>
                   ))}
-                  {selectedMakers.map((maker) => (
-                    <div key={maker} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
-                      <span className="text-sm font-medium text-purple-700">{maker}</span>
+                  
+                  {/* 施設条件 */}
+                  {Array.from(selectedFacilities).map((facility) => (
+                    <div key={`facility-${facility}`} className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
+                      <span className="text-sm font-medium text-green-700">{facility}</span>
                       <button
-                        onClick={() => setSelectedMakers(prev => prev.filter(m => m !== maker))}
-                        className="text-purple-500 hover:text-purple-700"
+                        onClick={() => {
+                          const newFacilities = new Set(selectedFacilities)
+                          newFacilities.delete(facility)
+                          setSelectedFacilities(newFacilities)
+                        }}
+                        className="text-green-500 hover:text-green-700"
                       >
                         ×
                       </button>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MapPin, Upload, Settings, LogOut, Star, User, Dumbbell, Plus, Trash2 } from 'lucide-react'
+import { MapPin, Upload, Settings, LogOut, User, Dumbbell, Plus, Trash2, Send, Heart, Users } from 'lucide-react'
 
 interface Equipment {
   id: string
@@ -11,6 +11,23 @@ interface Equipment {
   maker: string
   count?: number
   maxWeight?: number
+}
+
+interface Review {
+  id: string
+  author: {
+    name: string
+    avatar?: string
+    initial?: string
+  }
+  date: string
+  content: string
+  reply?: {
+    storeName: string
+    role: string
+    content: string
+    date: string
+  }
 }
 
 export default function AdminPage() {
@@ -53,6 +70,59 @@ export default function AdminPage() {
     { id: '4', category: 'パワーラック', name: 'モンスターラック', maker: 'ROGUE', count: 2 },
     { id: '5', category: 'ベンチプレス', name: 'オリンピックベンチ', maker: 'Life Fitness', count: 3 }
   ])
+
+  // レビュー管理用のステート
+  const [reviews, setReviews] = useState<Review[]>([
+    {
+      id: '1',
+      author: { name: '筋トレ愛好家', initial: '筋' },
+      date: '2024年1月15日',
+      content: 'ROGUEのパワーラックが4台もあって、待ち時間ほぼゼロ！\nフリーウェイトエリアも広くて、混雑時でも快適にトレーニングできます。\n24時間営業なのも最高です。'
+    },
+    {
+      id: '2',
+      author: { name: 'フィットネス女子', initial: 'フ' },
+      date: '2024年1月14日',
+      content: '設備は充実していて文句なし！\nただ、女性更衣室がもう少し広いと嬉しいです。\nスタッフの対応は親切で、初心者にも優しく教えてくれます。',
+      reply: {
+        storeName: 'ハンマーストレングス渋谷',
+        role: 'オーナー',
+        content: 'ご利用ありがとうございます！\n女性更衣室の件、貴重なご意見として検討させていただきます。\n今後ともよろしくお願いいたします。',
+        date: '2024年1月14日'
+      }
+    },
+    {
+      id: '3',
+      author: { name: 'ベンチプレス戦士', avatar: '/avatar3.jpg', initial: 'ベ' },
+      date: '2024年1月13日',
+      content: 'ベンチプレス台が5台もある！\nしかも全部ELEIKO製で最高の環境です。\nプレートも豊富で、高重量トレーニングにも対応できます。',
+      reply: {
+        storeName: 'ハンマーストレングス渋谷',
+        role: 'オーナー',
+        content: 'お褒めの言葉ありがとうございます！\nELEIKO製品は特にこだわって導入しました。\n今後も快適なトレーニング環境を提供できるよう努めます。',
+        date: '2024年1月13日'
+      }
+    },
+    {
+      id: '4',
+      author: { name: 'カーディオ派', initial: 'カ' },
+      date: '2024年1月12日',
+      content: 'トレッドミルとバイクの台数が多くて良い！\n有酸素エリアも広々としています。\nシャワールームも清潔で快適です。'
+    },
+    {
+      id: '5',
+      author: { name: 'パワーリフター', avatar: '/avatar5.jpg', initial: 'パ' },
+      date: '2024年1月11日',
+      content: 'パワーリフティング3種目に特化した設備が完璧！\nチョークも使えるし、プラットフォームも複数あります。\n本格的にトレーニングしたい人には最高の環境です。',
+      reply: {
+        storeName: 'ハンマーストレングス渋谷',
+        role: 'オーナー',
+        content: 'ありがとうございます！\nパワーリフターの方にも満足いただける設備を心がけています。\n大会前のトレーニングなど、ぜひご活用ください。',
+        date: '2024年1月11日'
+      }
+    }
+  ])
+  const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({})
 
   const categories = ['パワーラック', 'ベンチプレス', 'ダンベル', 'ケーブルマシン', 'スミスマシン']
   const makers = ['ROGUE', 'Hammer Strength', 'Prime Fitness', 'Cybex', 'Life Fitness', 'Technogym']
@@ -118,6 +188,50 @@ export default function AdminPage() {
     setEquipmentList(equipmentList.filter(item => item.id !== id))
   }
 
+  // レビュー管理用のハンドラー
+  const handleReplyChange = (reviewId: string, text: string) => {
+    setReplyTexts(prev => ({
+      ...prev,
+      [reviewId]: text
+    }))
+  }
+
+  const handleReplySubmit = (reviewId: string) => {
+    const replyText = replyTexts[reviewId]
+    if (!replyText || replyText.trim() === '') return
+
+    setReviews(prev => prev.map(review => {
+      if (review.id === reviewId) {
+        return {
+          ...review,
+          reply: {
+            storeName: 'ハンマーストレングス渋谷',
+            role: 'オーナー',
+            content: replyText,
+            date: new Date().toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          }
+        }
+      }
+      return review
+    }))
+
+    setReplyTexts(prev => ({
+      ...prev,
+      [reviewId]: ''
+    }))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent, reviewId: string) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      handleReplySubmit(reviewId)
+    }
+  }
+
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* ヘッダー */}
@@ -136,7 +250,7 @@ export default function AdminPage() {
       </header>
 
       {/* メインコンテンツ */}
-      <div className="max-w-[1008px] mx-auto px-0 py-[73.5px]">
+      <div className="max-w-[1008px] mx-auto px-0 py-4 sm:py-6">
         <div className="bg-white">
           {/* ページヘッダー */}
           <div className="px-3.5 py-4 border-b border-slate-200">
@@ -147,12 +261,8 @@ export default function AdminPage() {
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                  <span className="text-[12.3px] text-slate-600">4.8</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-slate-600" />
-                  <span className="text-[12.3px] text-slate-600">128 イキタイ</span>
+                  <Heart className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-[12.3px] text-slate-600">342 イキタイ</span>
                 </div>
               </div>
             </div>
@@ -562,6 +672,113 @@ export default function AdminPage() {
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* レビュー管理タブ */}
+            {activeTab === 'review' && (
+              <div>
+                <h3 className="text-[14px] font-bold text-slate-900 mb-6">レビュー管理</h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-slate-50 rounded-[8.5px] p-4 text-center">
+                    <div className="text-2xl font-bold text-slate-900 mb-1">{reviews.length}</div>
+                    <div className="text-[12.3px] text-slate-600">レビュー件数</div>
+                  </div>
+                  <div className="bg-slate-50 rounded-[8.5px] p-4 text-center">
+                    <div className="text-2xl font-bold text-slate-900 mb-1">342</div>
+                    <div className="text-[12.3px] text-slate-600">イキタイ数</div>
+                  </div>
+                </div>
+
+                {/* 全レビューリスト */}
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-white rounded-[8.5px] p-4 border border-slate-200 hover:shadow-sm transition"
+                    >
+                      {/* Review Header */}
+                      <div className="flex items-start gap-3 mb-3">
+                        {/* Avatar */}
+                        <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          {review.author.avatar ? (
+                            <img
+                              src={review.author.avatar}
+                              alt={review.author.name}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-[12.3px] font-medium text-indigo-600">
+                              {review.author.initial}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Meta Info */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="font-semibold text-[12.3px] text-slate-900">
+                              {review.author.name}
+                            </span>
+                            <span className="text-[11px] text-slate-500">{review.date}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Review Content */}
+                      <div className="ml-13 mb-4">
+                        <p className="text-[12.3px] text-slate-700 whitespace-pre-wrap">{review.content}</p>
+                      </div>
+
+                      {/* Reply Section */}
+                      <div className="ml-13">
+                        {review.reply ? (
+                          /* Replied State */
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] rounded-full font-medium">
+                                {review.reply.storeName}
+                              </span>
+                              <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] rounded-full">
+                                {review.reply.role}
+                              </span>
+                            </div>
+                            <div className="p-3 bg-blue-50 rounded-[8.5px]">
+                              <p className="text-[12.3px] text-slate-700 whitespace-pre-wrap">
+                                {review.reply.content}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Reply Input State */
+                          <div className="space-y-3">
+                            <textarea
+                              value={replyTexts[review.id] || ''}
+                              onChange={(e) => handleReplyChange(review.id, e.target.value)}
+                              onKeyDown={(e) => handleKeyDown(e, review.id)}
+                              placeholder="このレビューに返信..."
+                              className="w-full px-3 py-2 border border-slate-200 rounded-[8.5px] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-[12.3px]"
+                              rows={3}
+                            />
+                            <button
+                              onClick={() => handleReplySubmit(review.id)}
+                              disabled={!replyTexts[review.id] || replyTexts[review.id].trim() === ''}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-[8.5px] font-medium transition text-[12.3px] ${
+                                replyTexts[review.id] && replyTexts[review.id].trim()
+                                  ? 'bg-indigo-500 text-white hover:bg-indigo-600'
+                                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                              }`}
+                            >
+                              <Send className="w-3 h-3" />
+                              返信
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

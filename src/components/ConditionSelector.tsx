@@ -23,7 +23,7 @@ interface ConditionItem {
 }
 
 interface ConditionSelectorProps {
-  onSelectionChange: (facilities: Set<string>, areas: Set<string>) => void
+  onSelectionChange: (facilities: Set<string>) => void
 }
 
 const facilityConditions: ConditionCategory[] = [
@@ -80,27 +80,9 @@ const facilityConditions: ConditionCategory[] = [
   }
 ]
 
-const areaOptions = [
-  { id: 'shibuya', name: '渋谷', description: '渋谷区全域' },
-  { id: 'shinjuku', name: '新宿', description: '新宿区全域' },
-  { id: 'ikebukuro', name: '池袋', description: '豊島区全域' },
-  { id: 'roppongi', name: '六本木', description: '港区六本木' },
-  { id: 'ginza', name: '銀座', description: '中央区銀座' },
-  { id: 'ueno', name: '上野', description: '台東区上野' },
-  { id: 'akihabara', name: '秋葉原', description: '千代田区秋葉原' },
-  { id: 'shinagawa', name: '品川', description: '品川区全域' },
-  { id: 'meguro', name: '目黒', description: '目黒区全域' },
-  { id: 'setagaya', name: '世田谷', description: '世田谷区全域' },
-  { id: 'nakano', name: '中野', description: '中野区全域' },
-  { id: 'kichijoji', name: '吉祥寺', description: '武蔵野市吉祥寺' },
-  { id: 'tachikawa', name: '立川', description: '立川市全域' },
-  { id: 'yokohama', name: '横浜', description: '横浜市全域' },
-  { id: 'kawasaki', name: '川崎', description: '川崎市全域' },
-]
 
 export default function ConditionSelector({ onSelectionChange }: ConditionSelectorProps) {
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
-  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set())
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['basic']))
 
   const handleFacilityToggle = (itemId: string) => {
@@ -111,18 +93,7 @@ export default function ConditionSelector({ onSelectionChange }: ConditionSelect
       newSelected.add(itemId)
     }
     setSelectedFacilities(newSelected)
-    onSelectionChange(newSelected, selectedAreas)
-  }
-
-  const handleAreaToggle = (areaId: string) => {
-    const newSelected = new Set(selectedAreas)
-    if (newSelected.has(areaId)) {
-      newSelected.delete(areaId)
-    } else {
-      newSelected.add(areaId)
-    }
-    setSelectedAreas(newSelected)
-    onSelectionChange(selectedFacilities, newSelected)
+    onSelectionChange(newSelected)
   }
 
   const toggleExpandCategory = (categoryId: string) => {
@@ -137,40 +108,8 @@ export default function ConditionSelector({ onSelectionChange }: ConditionSelect
 
   return (
     <div>
-      {/* Area Selection */}
-      <div className="mb-6">
-        <h4 className="md-title-small font-bold mb-3" style={{ color: 'var(--md-on-surface)' }}>エリアを選択</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {areaOptions.map((area) => (
-            <button
-              key={area.id}
-              onClick={() => handleAreaToggle(area.id)}
-              className={`p-3 rounded-xl md-transition-standard md-ripple ${
-                selectedAreas.has(area.id)
-                  ? 'md-button-filled'
-                  : 'md-surface md-elevation-1 border-2 border-slate-200 text-slate-700 hover:md-elevation-2'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-left">
-                  <p className="md-label-large">{area.name}</p>
-                  <p className="md-label-small opacity-75 mt-0.5">{area.description}</p>
-                </div>
-                {selectedAreas.has(area.id) && (
-                  <Check className="w-4 h-4 ml-2 flex-shrink-0" />
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="h-px bg-slate-200 my-6" />
-
       {/* Facility Conditions */}
       <div>
-        <h4 className="md-title-small font-bold mb-4" style={{ color: 'var(--md-on-surface)' }}>施設条件を選択</h4>
         <div className="space-y-4">
           {facilityConditions.map((category) => (
             <div 
@@ -257,7 +196,7 @@ export default function ConditionSelector({ onSelectionChange }: ConditionSelect
       </div>
 
       {/* Selected Count */}
-      {(selectedFacilities.size > 0 || selectedAreas.size > 0) && (
+      {selectedFacilities.size > 0 && (
         <div className="mt-6 p-4 md-primary-container rounded-xl">
           <div className="flex items-center justify-between">
             <div>
@@ -265,14 +204,13 @@ export default function ConditionSelector({ onSelectionChange }: ConditionSelect
                 選択中の条件
               </p>
               <p className="md-label-small mt-1" style={{ color: 'var(--md-on-primary)' }}>
-                エリア: {selectedAreas.size}件 / 施設: {selectedFacilities.size}件
+                施設: {selectedFacilities.size}件
               </p>
             </div>
             <button
               onClick={() => {
                 setSelectedFacilities(new Set())
-                setSelectedAreas(new Set())
-                onSelectionChange(new Set(), new Set())
+                onSelectionChange(new Set())
               }}
               className="text-sm text-blue-600 font-medium hover:text-blue-700"
             >

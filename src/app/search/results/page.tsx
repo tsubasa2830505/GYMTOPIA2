@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, MapPin, List, Filter, ChevronDown, Heart, Plus, Minus, Map, TrendingUp, DollarSign, Clock, Star } from 'lucide-react'
+import { Search, MapPin, List, Filter, ChevronDown, Heart, Plus, Minus, Map, TrendingUp, DollarSign, Clock, Star, ArrowLeft, X } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'

@@ -107,7 +107,7 @@ const achievements = [
   { icon: '🏆', name: '初回記録', date: '2023年6月' },
   { icon: '🔥', name: '100日連続ジム通い', date: '2023年8月' },
   { icon: '💪', name: 'ジム新人100突破', date: '2023年10月' },
-  { icon: '⭐', name: 'ベンチプレス100kg達成', date: '2023年12月' }
+  { icon: '🏋️', name: 'ベンチプレス100kg達成', date: '2023年12月' }
 ];
 
 const personalRecords = [
@@ -437,10 +437,10 @@ export default function ProfilePage() {
           {activeTab === 'favorites' && (
             <div className="space-y-4">
               {[
-                { name: 'ハンマーストレングス渋谷', area: '渋谷', rating: 4.8, users: 234, image: '/gym1.jpg' },
-                { name: 'ROGUEクロストレーニング新宿', area: '新宿', rating: 4.7, users: 189, image: '/gym2.jpg' },
-                { name: 'プレミアムフィットネス銀座', area: '銀座', rating: 4.9, users: 456, image: '/gym3.jpg' },
-                { name: 'スーパーパワージム池袋', area: '池袋', rating: 4.6, users: 321, image: '/gym4.jpg' },
+                { name: 'ハンマーストレングス渋谷', area: '渋谷', users: 234, image: '/gym1.jpg' },
+                { name: 'ROGUEクロストレーニング新宿', area: '新宿', users: 189, image: '/gym2.jpg' },
+                { name: 'プレミアムフィットネス銀座', area: '銀座', users: 456, image: '/gym3.jpg' },
+                { name: 'スーパーパワージム池袋', area: '池袋', users: 321, image: '/gym4.jpg' },
               ].map((gym, index) => (
                 <div key={index} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition">
                   <div className="flex gap-4">
@@ -450,10 +450,9 @@ export default function ProfilePage() {
                       <p className="text-sm text-gray-600 mb-2">📍 {gym.area}</p>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
-                          <span className="text-yellow-500">⭐</span>
-                          <span className="text-sm font-medium">{gym.rating}</span>
+                          <span className="text-red-500">❤️</span>
+                          <span className="text-sm font-medium">{gym.users}人</span>
                         </div>
-                        <span className="text-sm text-gray-500">{gym.users}人が利用</span>
                       </div>
                     </div>
                   </div>
