@@ -208,7 +208,6 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
             </div>
             <button
               onClick={() => {
-                setSelectedFacilities(new Set())
                 onSelectionChange(new Set())
               }}
               className="text-sm text-blue-600 font-medium hover:text-blue-700"

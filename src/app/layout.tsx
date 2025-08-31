@@ -12,10 +12,11 @@ const inter = Inter({
 });
 
 const notoJP = Noto_Sans_JP({
-  subsets: ["japanese"],
+  subsets: ["latin"],
   display: "swap",
   variable: "--font-jp",
-  weight: ["300", "400", "500", "700"]
+  weight: ["300", "400", "500", "700"],
+  preload: false
 });
 
 export const metadata: Metadata = {

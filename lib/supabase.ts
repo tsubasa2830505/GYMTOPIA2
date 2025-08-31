@@ -1,13 +1,12 @@
 // Supabaseクライアント設定
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 
 // 環境変数から取得
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
 // Supabaseクライアントの作成
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -148,7 +147,7 @@ export const db = {
     gymId: string
     content: string
     crowdStatus?: 'empty' | 'normal' | 'crowded'
-    trainingDetails?: any
+    trainingDetails?: Record<string, unknown>
     imageUrls?: string[]
   }) {
     const { data, error } = await supabase
@@ -276,7 +275,7 @@ export const db = {
     display_name?: string
     bio?: string
     avatar_url?: string
-    personal_records?: any
+    personal_records?: Record<string, unknown>
   }) {
     const { data, error } = await supabase
       .from('profiles')
@@ -296,7 +295,7 @@ export const db = {
 
 export const realtime = {
   // 投稿のリアルタイム購読
-  subscribeToFeed(callback: (payload: any) => void) {
+  subscribeToFeed(callback: (payload: Record<string, unknown>) => void) {
     return supabase
       .channel('feed_posts')
       .on(
@@ -312,7 +311,7 @@ export const realtime = {
   },
 
   // いいねのリアルタイム購読
-  subscribesToLikes(postId: string, callback: (payload: any) => void) {
+  subscribesToLikes(postId: string, callback: (payload: Record<string, unknown>) => void) {
     return supabase
       .channel(`likes:${postId}`)
       .on(
@@ -329,7 +328,7 @@ export const realtime = {
   },
 
   // チャット/コメントのリアルタイム購読
-  subscribeToComments(postId: string, callback: (payload: any) => void) {
+  subscribeToComments(postId: string, callback: (payload: Record<string, unknown>) => void) {
     return supabase
       .channel(`comments:${postId}`)
       .on(
@@ -346,7 +345,7 @@ export const realtime = {
   },
 
   // 購読解除
-  unsubscribe(channel: any) {
+  unsubscribe(channel: ReturnType<typeof supabase.channel>) {
     supabase.removeChannel(channel)
   },
 }
