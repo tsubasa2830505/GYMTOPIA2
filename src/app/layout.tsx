@@ -17,17 +17,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ジムトピア",
   description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
+  keywords: ["ジム", "フィットネス", "トレーニング", "筋トレ", "ワークアウト"],
   openGraph: {
     title: "ジムトピア",
     description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
     siteName: "ジムトピア",
     locale: "ja_JP",
     type: "website",
+    url: "https://gymtopia.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
     title: "ジムトピア",
     description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
+    site: "@gymtopia",
+  },
+  alternates: {
+    canonical: "https://gymtopia.vercel.app",
   },
 };
 
