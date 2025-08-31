@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Heart, Share2, MapPin, Calendar, ChevronDown, Activity, Dumbbell, Plus, Edit } from 'lucide-react';
+// Material Design icons used inline
 
 interface FeedPost {
   id: string;
@@ -157,7 +157,9 @@ export default function FeedPage() {
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-              <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
+              </svg>
             </div>
             <div>
               <h1 className="text-lg sm:text-[21px] font-bold text-slate-900">ジムトピア</h1>
@@ -193,7 +195,7 @@ export default function FeedPage() {
               }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
               </svg>
               すべて
             </button>
@@ -303,7 +305,9 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center">
-                      <Activity className="w-3 h-3 text-white" />
+                      <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                      </svg>
                     </div>
                   </div>
 
@@ -337,11 +341,15 @@ export default function FeedPage() {
                     </div>
                     <div className="flex items-center gap-4 mt-2">
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
-                        <MapPin className="w-3 h-3 text-indigo-900" />
+                        <svg className="w-3 h-3 text-indigo-900" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
                         <span className="text-xs text-indigo-900">{post.gymName}</span>
                       </div>
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-violet-200 rounded-full">
-                        <Calendar className="w-3 h-3 text-indigo-900" />
+                        <svg className="w-3 h-3 text-indigo-900" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
                         <span className="text-xs text-indigo-900 font-medium">{post.date}</span>
                       </div>
                     </div>
@@ -356,7 +364,9 @@ export default function FeedPage() {
                   <div className="mt-4 p-4 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Activity className="w-5 h-5 text-white" />
+                        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
                       </div>
                       <h4 className="font-semibold text-gray-900">今日のトレーニング</h4>
                     </div>
@@ -388,11 +398,15 @@ export default function FeedPage() {
               <div className="px-4 sm:px-6 py-3 border-t border-gray-100">
                 <div className="flex items-center gap-4 sm:gap-6">
                   <button className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition">
-                    <Heart className="w-4 h-4" />
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
                     <span className="text-sm">いいね</span>
                   </button>
                   <button className="flex items-center gap-2 text-gray-500 hover:text-green-500 transition ml-auto">
-                    <Share2 className="w-4 h-4" />
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.50-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                    </svg>
                     <span className="text-sm">シェア</span>
                   </button>
                 </div>
@@ -411,7 +425,9 @@ export default function FeedPage() {
             backdropFilter: 'blur(10px)'
           }}
         >
-          <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-90 transition-transform duration-200" />
+          <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-90 transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
         </button>
       </div>
     </div>
