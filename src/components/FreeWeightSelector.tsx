@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { 
   ChevronRight, Check, Dumbbell, Weight, 
-  Circle, Disc, Package, Armchair, Home
+  Circle, Disc, Package, Armchair, Home,
+  Plus, Minus
 } from 'lucide-react'
 
 interface FreeWeightCategory {
@@ -21,8 +22,8 @@ interface FreeWeightItem {
 }
 
 interface FreeWeightSelectorProps {
-  selectedFreeWeights: Set<string>
-  onSelectionChange: (selected: Set<string>) => void
+  selectedFreeWeights: Map<string, number>
+  onSelectionChange: (selected: Map<string, number>) => void
 }
 
 const freeWeightCategories: FreeWeightCategory[] = [
@@ -111,40 +112,34 @@ const freeWeightCategories: FreeWeightCategory[] = [
 export default function FreeWeightSelector({ selectedFreeWeights, onSelectionChange }: FreeWeightSelectorProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['barbell']))
 
-  const handleCategoryToggle = (categoryId: string) => {
-    const category = freeWeightCategories.find(c => c.id === categoryId)
-    if (!category) return
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    const newSelected = new Map(selectedFreeWeights)
     
-    const categoryItems = category.items.map(item => item.id)
-    const allSelected = categoryItems.every(id => selectedFreeWeights.has(id))
-    
-    const newSelected = new Set(selectedFreeWeights)
-    
-    if (allSelected) {
-      categoryItems.forEach(id => newSelected.delete(id))
-    } else {
-      categoryItems.forEach(id => newSelected.add(id))
-    }
-    
-    onSelectionChange(newSelected)
-  }
-
-  const handleItemToggle = (itemId: string) => {
-    const newSelected = new Set(selectedFreeWeights)
-    
-    if (newSelected.has(itemId)) {
+    if (quantity === 0) {
       newSelected.delete(itemId)
     } else {
-      newSelected.add(itemId)
+      newSelected.set(itemId, quantity)
     }
     
     onSelectionChange(newSelected)
   }
   
-  const isCategorySelected = (categoryId: string) => {
+  const incrementQuantity = (itemId: string) => {
+    const currentQty = selectedFreeWeights.get(itemId) || 0
+    handleQuantityChange(itemId, Math.min(currentQty + 1, 99))
+  }
+  
+  const decrementQuantity = (itemId: string) => {
+    const currentQty = selectedFreeWeights.get(itemId) || 0
+    handleQuantityChange(itemId, Math.max(currentQty - 1, 0))
+  }
+  
+  const getCategoryItemCount = (categoryId: string) => {
     const category = freeWeightCategories.find(c => c.id === categoryId)
-    if (!category) return false
-    return category.items.every(item => selectedFreeWeights.has(item.id))
+    if (!category) return 0
+    return category.items.reduce((total, item) => {
+      return total + (selectedFreeWeights.get(item.id) || 0)
+    }, 0)
   }
 
   const toggleExpandCategory = (categoryId: string) => {
@@ -181,10 +176,10 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {isCategorySelected(category.id) && (
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
+                {getCategoryItemCount(category.id) > 0 && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {getCategoryItemCount(category.id)}個
+                  </span>
                 )}
                 <ChevronRight 
                   className={`w-5 h-5 text-slate-400 transition-transform ${
@@ -197,57 +192,55 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
             {/* Category Items */}
             {expandedCategories.has(category.id) && (
               <div className="border-t border-slate-100 p-4 space-y-2">
-                {/* Select All */}
-                <button
-                  onClick={() => handleCategoryToggle(category.id)}
-                  className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard md-ripple ${
-                    isCategorySelected(category.id)
-                      ? 'md-primary-container border-2 border-blue-500'
-                      : 'md-surface-variant border-2 border-transparent hover:md-elevation-1'
-                  }`}
-                >
-                  <span className="md-label-large">
-                    すべて選択
-                  </span>
-                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    isCategorySelected(category.id)
-                      ? 'bg-blue-500 border-blue-500'
-                      : 'border-slate-300'
-                  }`}>
-                    {isCategorySelected(category.id) && (
-                      <Check className="w-3 h-3 text-white" />
-                    )}
-                  </div>
-                </button>
-
                 {/* Individual Items */}
-                {category.items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleItemToggle(item.id)}
-                    className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard md-ripple ${
-                      selectedFreeWeights.has(item.id)
-                        ? 'md-primary-container border-2 border-blue-500'
-                        : 'md-surface border-2 border-slate-200 hover:md-elevation-1'
-                    }`}
-                  >
-                    <div className="text-left">
-                      <p className="md-label-large" style={{ color: 'var(--md-on-surface)' }}>{item.name}</p>
-                      {item.description && (
-                        <p className="md-label-small mt-0.5" style={{ color: 'var(--md-on-surface-variant)' }}>{item.description}</p>
-                      )}
+                {category.items.map((item) => {
+                  const quantity = selectedFreeWeights.get(item.id) || 0
+                  return (
+                    <div
+                      key={item.id}
+                      className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard ${
+                        quantity > 0
+                          ? 'md-primary-container border-2 border-blue-500'
+                          : 'md-surface border-2 border-slate-200'
+                      }`}
+                    >
+                      <div className="text-left flex-1">
+                        <p className="md-label-large" style={{ color: 'var(--md-on-surface)' }}>{item.name}</p>
+                        {item.description && (
+                          <p className="md-label-small mt-0.5" style={{ color: 'var(--md-on-surface-variant)' }}>{item.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => decrementQuantity(item.id)}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                            quantity > 0
+                              ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                          }`}
+                          disabled={quantity === 0}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <div className="w-12 text-center">
+                          <span className={`font-medium ${
+                            quantity > 0 ? 'text-blue-600' : 'text-slate-400'
+                          }`}>
+                            {quantity}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => incrementQuantity(item.id)}
+                          className="w-8 h-8 rounded-lg bg-blue-500 text-white hover:bg-blue-600 flex items-center justify-center transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      selectedFreeWeights.has(item.id)
-                        ? 'bg-blue-500 border-blue-500'
-                        : 'border-slate-300'
-                    }`}>
-                      {selectedFreeWeights.has(item.id) && (
-                        <Check className="w-3 h-3 text-white" />
-                      )}
-                    </div>
-                  </button>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

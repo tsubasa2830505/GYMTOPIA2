@@ -39,7 +39,7 @@ function AddGymPostContent() {
   
   // 機器登録用の状態
   const [equipmentGymName, setEquipmentGymName] = useState('')
-  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
+  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
 
@@ -110,7 +110,7 @@ function AddGymPostContent() {
     // ここで機器登録処理を実装
     console.log({
       gymName: equipmentGymName,
-      freeWeights: Array.from(selectedFreeWeights),
+      freeWeights: Array.from(selectedFreeWeights.entries()),
       machines: Array.from(selectedMachines),
       timestamp: new Date().toISOString()
     })

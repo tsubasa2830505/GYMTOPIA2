@@ -324,7 +324,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab('favorites')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-blue-600' : 'text-slate-600'} hover:text-slate-900 transition`}
             >
-              <span className="text-sm sm:text-base font-medium">お気に入り</span>
+              <span className="text-sm sm:text-base font-medium">イキタイ</span>
               <div className="text-xs text-slate-600 font-medium mt-0.5 sm:mt-1">12ジム</div>
               {activeTab === 'favorites' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>

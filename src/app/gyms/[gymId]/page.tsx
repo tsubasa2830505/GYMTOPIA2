@@ -176,7 +176,7 @@ export default function GymDetailPage() {
         <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-4 sm:mb-6 overflow-x-auto">
           {[
             { id: 'equipment', label: '設備', icon: Dumbbell },
-            { id: 'muscle', label: '筋肉', icon: Activity },
+            { id: 'muscle', label: 'アクセス', icon: Activity },
             { id: 'facility', label: '施設', icon: Building },
             { id: 'crowding', label: '混雑', icon: Users },
             { id: 'posts', label: 'ジム活', icon: MessageSquare }

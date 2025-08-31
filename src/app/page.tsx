@@ -13,7 +13,7 @@ export default function Home() {
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
   const [selectedMakers, setSelectedMakers] = useState<string[]>([])
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
-  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
+  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
   const conditionSectionRef = useRef<HTMLDivElement>(null)
 
@@ -111,7 +111,7 @@ export default function Home() {
         {/* Main Content */}
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="md-headline-medium sm:md-display-small font-black mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--md-on-background)', fontWeight: '900', textShadow: '0 0 1px rgba(0,0,0,0.3)' }}>
-            理想のジムトピアを<br className="sm:hidden" />見つけよう
+            理想のジムトピアが<br className="sm:hidden" />ここにある
           </h2>
           <p className="text-slate-600 text-sm sm:text-lg px-4 sm:px-0">
             マシンや設備から条件を選んで、<br />
@@ -246,12 +246,12 @@ export default function Home() {
                   </button>
                   <button 
                     onClick={() => setActiveTab('freeweight')}
-                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl md-label-medium font-medium md-transition-standard md-ripple ${
+                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl md-label-medium font-medium md-transition-standard md-ripple whitespace-nowrap ${
                       activeTab === 'freeweight' 
                         ? 'md-surface md-elevation-1' 
                         : 'text-slate-600 hover:bg-white/50'
                     }`}>
-                    フリー
+                    フリーウェイト
                   </button>
                   <button 
                     onClick={() => setActiveTab('condition')}

@@ -210,7 +210,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-4 overflow-x-auto">
                 {[
                   { id: 'equipment', label: '設備', icon: Dumbbell },
-                  { id: 'muscle', label: '筋肉', icon: Activity },
+                  { id: 'muscle', label: 'アクセス', icon: Activity },
                   { id: 'facility', label: '施設', icon: Building }
                 ].map((tab) => (
                   <button

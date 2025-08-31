@@ -20,6 +20,40 @@ function SearchResultsContent() {
     facilities: string[]
   }>({ machines: [], freeWeights: [], facilities: [] })
 
+  const removeCondition = (type: 'machines' | 'freeWeights' | 'facilities', value: string) => {
+    const newConditions = {
+      ...selectedConditions,
+      [type]: selectedConditions[type].filter(item => item !== value)
+    }
+    setSelectedConditions(newConditions)
+    
+    // Update URL with new conditions
+    const params = new URLSearchParams()
+    if (newConditions.machines.length > 0) {
+      params.set('machines', newConditions.machines.join(','))
+    }
+    if (newConditions.freeWeights.length > 0) {
+      params.set('freeWeights', newConditions.freeWeights.join(','))
+    }
+    if (newConditions.facilities.length > 0) {
+      params.set('facilities', newConditions.facilities.join(','))
+    }
+    
+    // Get current tab if it exists
+    const currentTab = searchParams.get('tab')
+    if (currentTab) {
+      params.set('tab', currentTab)
+    }
+    
+    const newUrl = params.toString() ? `?${params.toString()}` : '/search/results'
+    router.push(`/search/results${newUrl}`)
+  }
+
+  const clearAllConditions = () => {
+    setSelectedConditions({ machines: [], freeWeights: [], facilities: [] })
+    router.push('/search/results')
+  }
+
   useEffect(() => {
     const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
     const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
@@ -114,24 +148,54 @@ function SearchResultsContent() {
           {/* Selected Conditions Display */}
           {getTotalConditionsCount() > 0 && (
             <div className="mb-4 sm:mb-6 p-3 bg-slate-50 rounded-xl">
-              <h3 className="text-sm font-semibold text-slate-700 mb-2">検索条件</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-slate-700">検索条件</h3>
+                <button
+                  onClick={clearAllConditions}
+                  className="text-xs text-red-600 hover:text-red-700 font-medium"
+                >
+                  すべてクリア
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {selectedConditions.machines.map((machine) => (
-                  <span key={`machine-${machine}`} className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                  <button
+                    key={`machine-${machine}`}
+                    onClick={() => removeCondition('machines', machine)}
+                    className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
+                  >
                     {machine}
-                  </span>
+                    <X className="w-3 h-3" />
+                  </button>
                 ))}
                 {selectedConditions.freeWeights.map((weight) => (
-                  <span key={`weight-${weight}`} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                  <button
+                    key={`weight-${weight}`}
+                    onClick={() => removeCondition('freeWeights', weight)}
+                    className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                  >
                     {weight}
-                  </span>
+                    <X className="w-3 h-3" />
+                  </button>
                 ))}
                 {selectedConditions.facilities.map((facility) => (
-                  <span key={`facility-${facility}`} className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                  <button
+                    key={`facility-${facility}`}
+                    onClick={() => removeCondition('facilities', facility)}
+                    className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200 transition-colors flex items-center gap-1"
+                  >
                     {facility}
-                  </span>
+                    <X className="w-3 h-3" />
+                  </button>
                 ))}
               </div>
+              {getTotalConditionsCount() > 1 && (
+                <div className="mt-3 pt-2 border-t border-slate-200">
+                  <p className="text-xs text-slate-500">
+                    条件が多すぎる場合は、いくつか削除してみてください
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
