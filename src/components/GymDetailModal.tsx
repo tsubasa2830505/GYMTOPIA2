@@ -175,7 +175,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                 <button 
                   onClick={() => {
                     onClose()
-                    router.push(`/posts/new?gymId=${gymData.id}`)
+                    router.push(`/add?gymId=${gymData.id}&gymName=${encodeURIComponent(gymData.name)}`)
                   }}
                   className="flex items-center justify-center gap-2 py-3 bg-blue-500 text-white rounded-2xl font-medium"
                 >

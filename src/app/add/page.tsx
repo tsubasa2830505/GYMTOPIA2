@@ -4,8 +4,8 @@ import {
   Save, X, MapPin, Camera, Plus, Minus, Users, 
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon 
 } from 'lucide-react'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Exercise {
   id: string
@@ -15,8 +15,11 @@ interface Exercise {
   reps: string
 }
 
-export default function AddGymPostPage() {
+import { Suspense } from 'react'
+
+function AddGymPostContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [gymName, setGymName] = useState('')
   const [content, setContent] = useState('')
   const [crowdStatus, setCrowdStatus] = useState<'empty' | 'normal' | 'crowded'>('normal')
@@ -40,6 +43,14 @@ export default function AddGymPostPage() {
     'ティップネス池袋',
     'コナミスポーツクラブ品川',
   ]
+
+  // URLパラメータからジム情報を取得
+  useEffect(() => {
+    const gymNameParam = searchParams.get('gymName')
+    if (gymNameParam) {
+      setGymName(decodeURIComponent(gymNameParam))
+    }
+  }, [searchParams])
 
   const crowdOptions = [
     { value: 'empty' as const, label: '空いている', emoji: '😊', color: 'bg-green-100 text-green-700' },
@@ -319,5 +330,20 @@ export default function AddGymPostPage() {
         </form>
       </main>
     </div>
+  )
+}
+
+export default function AddGymPostPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">読み込み中...</p>
+        </div>
+      </div>
+    }>
+      <AddGymPostContent />
+    </Suspense>
   )
 }
