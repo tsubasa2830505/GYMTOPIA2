@@ -2,11 +2,13 @@
 
 import { Search, MapPin, SlidersHorizontal, User, Calendar, ChevronRight, Plus, Dumbbell } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import ConditionSelector from '@/components/ConditionSelector'
 
 export default function Home() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('condition')
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
   const [selectedMakers, setSelectedMakers] = useState<string[]>([])
