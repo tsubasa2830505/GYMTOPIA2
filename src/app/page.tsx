@@ -375,6 +375,35 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+              {/* Always visible search button */}
+              <div className="p-4 sm:p-6 border-t bg-slate-50">
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams()
+                    
+                    if (selectedMachines.size > 0) {
+                      params.set('machines', Array.from(selectedMachines).join(','))
+                    }
+                    if (selectedFreeWeights.size > 0) {
+                      params.set('freeWeights', Array.from(selectedFreeWeights).join(','))
+                    }
+                    if (selectedFacilities.size > 0) {
+                      params.set('facilities', Array.from(selectedFacilities).join(','))
+                    }
+                    params.set('tab', activeTab)
+
+                    router.push(`/search/results?${params.toString()}`)
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Search className="w-5 h-5" />
+                  {(selectedMachines.size > 0 || selectedFreeWeights.size > 0 || selectedFacilities.size > 0) 
+                    ? `ジムを検索する (${selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size}件の条件)` 
+                    : 'すべてのジムを検索'
+                  }
+                </button>
+              </div>
             </div>
           </div>
 

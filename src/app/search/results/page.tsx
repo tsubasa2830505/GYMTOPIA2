@@ -2,11 +2,11 @@
 
 import { Search, MapPin, List, Filter, ChevronDown, Heart, Plus, Minus, Map, TrendingUp, DollarSign, Clock, Star, ArrowLeft, X } from 'lucide-react'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 
-export default function SearchResultsPage() {
+function SearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
@@ -327,5 +327,20 @@ export default function SearchResultsPage() {
         gymId={selectedGymId || ''}
       />
     </div>
+  )
+}
+
+export default function SearchResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">検索結果を読み込み中...</p>
+        </div>
+      </div>
+    }>
+      <SearchResultsContent />
+    </Suspense>
   )
 }
