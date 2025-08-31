@@ -258,7 +258,7 @@ export default function FeedPage() {
                     初めてのデッドリフト100kg達成！みなさんのアドバイスのおかげです🎉
                   </p>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span>GOLD'S GYM 渋谷</span>
+                    <span>GOLD&apos;S GYM 渋谷</span>
                     <span>1時間前</span>
                     <button className="text-blue-600 hover:text-blue-700 font-medium">
                       フォローする

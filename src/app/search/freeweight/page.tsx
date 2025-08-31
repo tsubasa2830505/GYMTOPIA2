@@ -11,7 +11,7 @@ interface FreeWeightCategory {
   id: string
   name: string
   description: string
-  icon: string
+  icon: string | React.ReactNode
   items: FreeWeightItem[]
 }
 
