@@ -21,7 +21,7 @@ interface FeedPost {
     summary: string;
     condition: 'empty' | 'normal' | 'crowded';
     conditionText: string;
-    conditionEmoji: string;
+    conditionIcon?: React.ReactNode;
   };
   image?: string;
   hasLiked?: boolean;
@@ -47,7 +47,11 @@ const feedPosts: FeedPost[] = [
       summary: '4種目 • 計13セット',
       condition: 'normal',
       conditionText: '普通',
-      conditionEmoji: 'normal'
+      conditionIcon: (
+        <svg className="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+        </svg>
+      )
     },
     image: '/training1.jpg',
     isGymFriend: false,
@@ -69,7 +73,11 @@ const feedPosts: FeedPost[] = [
       summary: '4種目 • 計15セット',
       condition: 'empty',
       conditionText: '空いている',
-      conditionEmoji: '😊'
+      conditionIcon: (
+        <svg className="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
+        </svg>
+      )
     },
     image: '/training2.jpg',
     isGymFriend: true,
@@ -91,7 +99,11 @@ const feedPosts: FeedPost[] = [
       summary: '4種目 • 計16セット',
       condition: 'empty',
       conditionText: '空いている',
-      conditionEmoji: '😊'
+      conditionIcon: (
+        <svg className="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
+        </svg>
+      )
     },
     isGymFriend: false,
     isFollowing: true,
@@ -112,7 +124,11 @@ const feedPosts: FeedPost[] = [
       summary: '4種目 • 計14セット',
       condition: 'empty',
       conditionText: '空いている',
-      conditionEmoji: '😊'
+      conditionIcon: (
+        <svg className="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
+        </svg>
+      )
     },
     isGymFriend: true,
     isFollowing: true,
@@ -376,7 +392,7 @@ export default function FeedPage() {
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-medium ${getConditionColor(post.training.condition)}`}>
-                          {post.training.conditionEmoji === 'normal' ? '😐' : post.training.conditionEmoji} {post.training.conditionText}
+                          {post.training.conditionIcon} {post.training.conditionText}
                         </span>
                       </div>
                       <div className="px-3 py-1.5 bg-gray-50 rounded-full">

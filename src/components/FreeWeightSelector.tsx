@@ -21,6 +21,7 @@ interface FreeWeightItem {
 }
 
 interface FreeWeightSelectorProps {
+  selectedFreeWeights: Set<string>
   onSelectionChange: (selected: Set<string>) => void
 }
 
@@ -107,54 +108,43 @@ const freeWeightCategories: FreeWeightCategory[] = [
   }
 ]
 
-export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSelectorProps) {
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+export default function FreeWeightSelector({ selectedFreeWeights, onSelectionChange }: FreeWeightSelectorProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['barbell']))
 
   const handleCategoryToggle = (categoryId: string) => {
-    const newSelected = new Set(selectedCategories)
     const category = freeWeightCategories.find(c => c.id === categoryId)
+    if (!category) return
     
-    if (newSelected.has(categoryId)) {
-      newSelected.delete(categoryId)
-      category?.items.forEach(item => {
-        selectedItems.delete(item.id)
-      })
+    const categoryItems = category.items.map(item => item.id)
+    const allSelected = categoryItems.every(id => selectedFreeWeights.has(id))
+    
+    const newSelected = new Set(selectedFreeWeights)
+    
+    if (allSelected) {
+      categoryItems.forEach(id => newSelected.delete(id))
     } else {
-      newSelected.add(categoryId)
-      const newItems = new Set(selectedItems)
-      category?.items.forEach(item => {
-        newItems.add(item.id)
-      })
-      setSelectedItems(newItems)
+      categoryItems.forEach(id => newSelected.add(id))
     }
-    setSelectedCategories(newSelected)
-    onSelectionChange(selectedItems)
+    
+    onSelectionChange(newSelected)
   }
 
-  const handleItemToggle = (itemId: string, categoryId: string) => {
-    const newSelected = new Set(selectedItems)
+  const handleItemToggle = (itemId: string) => {
+    const newSelected = new Set(selectedFreeWeights)
     
     if (newSelected.has(itemId)) {
       newSelected.delete(itemId)
-      selectedCategories.delete(categoryId)
-      setSelectedCategories(new Set(selectedCategories))
     } else {
       newSelected.add(itemId)
-      const category = freeWeightCategories.find(c => c.id === categoryId)
-      if (category) {
-        const allSelected = category.items.every(item => 
-          newSelected.has(item.id)
-        )
-        if (allSelected) {
-          selectedCategories.add(categoryId)
-          setSelectedCategories(new Set(selectedCategories))
-        }
-      }
     }
-    setSelectedItems(newSelected)
+    
     onSelectionChange(newSelected)
+  }
+  
+  const isCategorySelected = (categoryId: string) => {
+    const category = freeWeightCategories.find(c => c.id === categoryId)
+    if (!category) return false
+    return category.items.every(item => selectedFreeWeights.has(item.id))
   }
 
   const toggleExpandCategory = (categoryId: string) => {
@@ -191,7 +181,7 @@ export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSele
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {selectedCategories.has(category.id) && (
+                {isCategorySelected(category.id) && (
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <Check className="w-4 h-4 text-white" />
                   </div>
@@ -211,7 +201,7 @@ export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSele
                 <button
                   onClick={() => handleCategoryToggle(category.id)}
                   className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard md-ripple ${
-                    selectedCategories.has(category.id)
+                    isCategorySelected(category.id)
                       ? 'md-primary-container border-2 border-blue-500'
                       : 'md-surface-variant border-2 border-transparent hover:md-elevation-1'
                   }`}
@@ -220,11 +210,11 @@ export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSele
                     すべて選択
                   </span>
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    selectedCategories.has(category.id)
+                    isCategorySelected(category.id)
                       ? 'bg-blue-500 border-blue-500'
                       : 'border-slate-300'
                   }`}>
-                    {selectedCategories.has(category.id) && (
+                    {isCategorySelected(category.id) && (
                       <Check className="w-3 h-3 text-white" />
                     )}
                   </div>
@@ -234,9 +224,9 @@ export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSele
                 {category.items.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => handleItemToggle(item.id, category.id)}
+                    onClick={() => handleItemToggle(item.id)}
                     className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard md-ripple ${
-                      selectedItems.has(item.id)
+                      selectedFreeWeights.has(item.id)
                         ? 'md-primary-container border-2 border-blue-500'
                         : 'md-surface border-2 border-slate-200 hover:md-elevation-1'
                     }`}
@@ -248,11 +238,11 @@ export default function FreeWeightSelector({ onSelectionChange }: FreeWeightSele
                       )}
                     </div>
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      selectedItems.has(item.id)
+                      selectedFreeWeights.has(item.id)
                         ? 'bg-blue-500 border-blue-500'
                         : 'border-slate-300'
                     }`}>
-                      {selectedItems.has(item.id) && (
+                      {selectedFreeWeights.has(item.id) && (
                         <Check className="w-3 h-3 text-white" />
                       )}
                     </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { Search, MapPin, SlidersHorizontal, User, Calendar, ChevronRight, Plus, Dumbbell } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
@@ -15,6 +15,20 @@ export default function Home() {
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
+  const conditionSectionRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to condition section when items are selected
+  useEffect(() => {
+    const hasSelection = selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size > 0
+    
+    if (hasSelection && conditionSectionRef.current) {
+      // Scroll to the condition section with smooth animation
+      conditionSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start'
+      })
+    }
+  }, [selectedMachines.size, selectedFreeWeights.size, selectedFacilities.size])
 
 
 
@@ -110,7 +124,7 @@ export default function Home() {
           <div className="col-span-1 lg:col-span-2">
             <div className="md-card rounded-3xl">
               {/* Search Header */}
-              <div className="bg-slate-100 p-2 sm:p-3">
+              <div className="bg-slate-100 p-2 sm:p-3" ref={conditionSectionRef}>
                 <div className="flex items-center gap-2 sm:gap-3 mb-2">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -122,7 +136,7 @@ export default function Home() {
 
                 {/* Selected Tags Display */}
                 {(selectedMachines.size > 0 || selectedFreeWeights.size > 0 || selectedFacilities.size > 0) && (
-                  <div className="mt-4 p-3 bg-white rounded-xl border border-slate-200">
+                  <div className="mt-4 p-3 bg-white rounded-xl border-2 border-blue-400 shadow-lg animate-pulse-once">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-sm font-medium text-slate-700">選択中の条件:</span>
                       <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
@@ -255,17 +269,24 @@ export default function Home() {
               <div className="p-4 sm:p-6 max-h-[600px] overflow-y-auto">
                 {/* Machine Tab */}
                 {activeTab === 'machine' && (
-                  <MachineSelector onSelectionChange={setSelectedMachines} />
+                  <MachineSelector 
+                    selectedMachines={selectedMachines}
+                    onSelectionChange={setSelectedMachines} 
+                  />
                 )}
                 
                 {/* Free Weight Tab */}
                 {activeTab === 'freeweight' && (
-                  <FreeWeightSelector onSelectionChange={setSelectedFreeWeights} />
+                  <FreeWeightSelector 
+                    selectedFreeWeights={selectedFreeWeights}
+                    onSelectionChange={setSelectedFreeWeights} 
+                  />
                 )}
                 
                 {/* Condition Tab */}
                 {activeTab === 'condition' && (
                   <ConditionSelector 
+                    selectedFacilities={selectedFacilities}
                     onSelectionChange={setSelectedFacilities} 
                   />
                 )}

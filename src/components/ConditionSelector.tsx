@@ -23,6 +23,7 @@ interface ConditionItem {
 }
 
 interface ConditionSelectorProps {
+  selectedFacilities: Set<string>
   onSelectionChange: (facilities: Set<string>) => void
 }
 
@@ -81,8 +82,7 @@ const facilityConditions: ConditionCategory[] = [
 ]
 
 
-export default function ConditionSelector({ onSelectionChange }: ConditionSelectorProps) {
-  const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
+export default function ConditionSelector({ selectedFacilities, onSelectionChange }: ConditionSelectorProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['basic']))
 
   const handleFacilityToggle = (itemId: string) => {
@@ -92,7 +92,6 @@ export default function ConditionSelector({ onSelectionChange }: ConditionSelect
     } else {
       newSelected.add(itemId)
     }
-    setSelectedFacilities(newSelected)
     onSelectionChange(newSelected)
   }
 

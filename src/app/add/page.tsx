@@ -2,10 +2,12 @@
 
 import { 
   Save, X, MapPin, Camera, Plus, Minus, Users, 
-  Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon 
+  Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,
+  Settings, Package, Building
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import FreeWeightSelector from '@/components/FreeWeightSelector'
 
 interface Exercise {
   id: string
@@ -20,6 +22,7 @@ import { Suspense } from 'react'
 function AddGymPostContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<'post' | 'equipment'>('post')
   const [gymName, setGymName] = useState('')
   const [content, setContent] = useState('')
   const [crowdStatus, setCrowdStatus] = useState<'empty' | 'normal' | 'crowded'>('normal')
@@ -32,6 +35,12 @@ function AddGymPostContent() {
     sets: '',
     reps: ''
   })
+  
+  // 機器登録用の状態
+  const [equipmentGymName, setEquipmentGymName] = useState('')
+  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
+  const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
+  const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
 
   // ジムリスト（実際はAPIから取得）
   const gymList = [
@@ -53,13 +62,21 @@ function AddGymPostContent() {
   }, [searchParams])
 
   const crowdOptions = [
-    { value: 'empty' as const, label: '空いている', emoji: '😊', color: 'bg-green-100 text-green-700' },
+    { value: 'empty' as const, label: '空いている', icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
+      </svg>
+    ), color: 'bg-green-100 text-green-700' },
     { value: 'normal' as const, label: '普通', icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M9 14h6v1.5H9zm0-3h6v1.5H9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
       </svg>
     ), color: 'bg-yellow-100 text-yellow-700' },
-    { value: 'crowded' as const, label: '混雑', emoji: '😰', color: 'bg-red-100 text-red-700' }
+    { value: 'crowded' as const, label: '混雑', icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H5V16h-.97c-.02-.49-.39-.94-.88-1.1zM12 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H15V16h-.97c-.02-.49-.39-.94-.88-1.1zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H23V16h-.97c-.02-.49-.39-.94-.88-1.1z"/>
+      </svg>
+    ), color: 'bg-red-100 text-red-700' }
   ]
 
   const handleAddExercise = () => {
@@ -86,6 +103,22 @@ function AddGymPostContent() {
     })
     router.push('/feed')
   }
+  
+  const handleEquipmentSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // ここで機器登録処理を実装
+    console.log({
+      gymName: equipmentGymName,
+      freeWeights: Array.from(selectedFreeWeights),
+      machines: Array.from(selectedMachines),
+      timestamp: new Date().toISOString()
+    })
+    setShowEquipmentConfirmation(true)
+    // 2秒後に画面遷移
+    setTimeout(() => {
+      router.push('/search')
+    }, 2000)
+  }
 
   const currentDate = new Date().toLocaleDateString('ja-JP', {
     year: 'numeric',
@@ -103,29 +136,86 @@ function AddGymPostContent() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => router.back()}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-900">ジム活を投稿</h1>
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.back()}
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h1 className="text-xl font-bold text-slate-900">
+                {activeTab === 'post' ? 'ジム活を投稿' : 'ジム機器を登録'}
+              </h1>
+            </div>
+            {activeTab === 'post' ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!gymName || !content}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              >
+                <Save className="w-4 h-4" />
+                投稿する
+              </button>
+            ) : (
+              <button
+                onClick={handleEquipmentSubmit}
+                disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0)}
+                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              >
+                <Settings className="w-4 h-4" />
+                登録する
+              </button>
+            )}
           </div>
-          <button
-            onClick={handleSubmit}
-            disabled={!gymName || !content}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-          >
-            <Save className="w-4 h-4" />
-            投稿する
-          </button>
+          
+          {/* タブ */}
+          <div className="flex border-t border-slate-200">
+            <button
+              onClick={() => setActiveTab('post')}
+              className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
+                activeTab === 'post'
+                  ? 'border-blue-500 text-blue-600 font-medium'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              ジム活投稿
+            </button>
+            <button
+              onClick={() => setActiveTab('equipment')}
+              className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
+                activeTab === 'equipment'
+                  ? 'border-green-500 text-green-600 font-medium'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              機器登録
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 登録完了メッセージ */}
+        {showEquipmentConfirmation && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-8 max-w-sm mx-4 shadow-2xl">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Settings className="w-8 h-8 text-green-600" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 mb-2">登録完了！</h2>
+                <p className="text-slate-600">ジム機器の登録が完了しました</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {activeTab === 'post' ? (
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* 日時表示 */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-4 text-sm text-slate-600">
@@ -296,7 +386,7 @@ function AddGymPostContent() {
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{option.emoji}</div>
+                  <div className="mb-1">{option.icon}</div>
                   <p className={`text-sm font-medium ${
                     crowdStatus === option.value ? 'text-blue-700' : 'text-slate-700'
                   }`}>
@@ -331,7 +421,97 @@ function AddGymPostContent() {
             <Save className="w-5 h-5" />
             ジム活を投稿する
           </button>
-        </form>
+          </form>
+        ) : (
+          <form onSubmit={handleEquipmentSubmit} className="space-y-6">
+            {/* ジム選択（機器登録用） */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                <Building className="w-4 h-4 inline mr-2" />
+                登録するジム <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={equipmentGymName}
+                onChange={(e) => setEquipmentGymName(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-slate-900"
+                required
+              >
+                <option value="">ジムを選択してください</option>
+                {gymList.map((gym) => (
+                  <option key={gym} value={gym}>{gym}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-2">
+                ジムオーナーまたは管理者の方のみ登録をお願いします
+              </p>
+            </div>
+            
+            {/* フリーウェイト選択 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <Dumbbell className="w-4 h-4" />
+                フリーウェイト機器
+                <span className="text-xs text-slate-500 font-normal">（該当するものを選択）</span>
+              </h3>
+              <FreeWeightSelector
+                selectedFreeWeights={selectedFreeWeights}
+                onSelectionChange={setSelectedFreeWeights}
+              />
+            </div>
+            
+            {/* マシン選択（仮） */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                トレーニングマシン
+                <span className="text-xs text-slate-500 font-normal">（該当するものを選択）</span>
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  'チェストプレスマシン',
+                  'ラットプルダウン',
+                  'レッグプレス',
+                  'レッグカール',
+                  'レッグエクステンション',
+                  'ケーブルマシン',
+                  'スミスマシン',
+                  'ペックフライ'
+                ].map((machine) => (
+                  <button
+                    key={machine}
+                    type="button"
+                    onClick={() => {
+                      const newSet = new Set(selectedMachines)
+                      if (newSet.has(machine)) {
+                        newSet.delete(machine)
+                      } else {
+                        newSet.add(machine)
+                      }
+                      setSelectedMachines(newSet)
+                    }}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      selectedMachines.has(machine)
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                    }`}
+                  >
+                    {machine}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* 登録ボタン（モバイル用） */}
+            <button
+              type="submit"
+              disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0)}
+              className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden"
+            >
+              <Settings className="w-5 h-5" />
+              ジム機器を登録する
+            </button>
+          </form>
+        )}
       </main>
     </div>
   )
