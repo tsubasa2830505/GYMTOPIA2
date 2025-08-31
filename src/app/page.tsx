@@ -96,7 +96,7 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="text-center mb-6 sm:mb-8">
-          <h2 className="md-headline-medium sm:md-display-small font-bold mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--md-on-background)' }}>
+          <h2 className="md-headline-medium sm:md-display-small font-black mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--md-on-background)', fontWeight: '900', textShadow: '0 0 1px rgba(0,0,0,0.3)' }}>
             理想のジムトピアを<br className="sm:hidden" />見つけよう
           </h2>
           <p className="text-slate-600 text-sm sm:text-lg px-4 sm:px-0">
@@ -110,14 +110,13 @@ export default function Home() {
           <div className="col-span-1 lg:col-span-2">
             <div className="md-card rounded-3xl">
               {/* Search Header */}
-              <div className="bg-slate-100 p-4 sm:p-6">
-                <div className="flex items-center gap-3 sm:gap-4 mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md">
-                    <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="bg-slate-100 p-2 sm:p-3">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">施設条件を選択</h3>
-                    <p className="text-xs sm:text-sm text-slate-600">理想のジム環境を構築しよう</p>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">施設条件を選択</h3>
                   </div>
                 </div>
 

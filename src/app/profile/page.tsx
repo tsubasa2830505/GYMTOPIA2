@@ -275,14 +275,20 @@ export default function ProfilePage() {
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">89</span>
                   <span className="text-xs text-slate-600 font-medium">ジム友</span>
                 </button>
-                <div className="flex flex-col items-center min-w-[60px] px-2 py-2">
+                <button 
+                  onClick={() => router.push('/following')}
+                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">345</span>
                   <span className="text-xs text-slate-600 font-medium">フォロー</span>
-                </div>
-                <div className="flex flex-col items-center min-w-[60px] px-2 py-2">
+                </button>
+                <button 
+                  onClick={() => router.push('/followers')}
+                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">89</span>
                   <span className="text-xs text-slate-600 font-medium">フォロワー</span>
-                </div>
+                </button>
               </div>
             </div>
 

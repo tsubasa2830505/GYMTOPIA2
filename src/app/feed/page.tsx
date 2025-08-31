@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Heart, MessageCircle, Share2, MapPin, Calendar, ChevronDown, Activity, Dumbbell, Plus, Edit } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, ChevronDown, Activity, Dumbbell, Plus, Edit } from 'lucide-react';
 
 interface FeedPost {
   id: string;
@@ -183,63 +183,70 @@ export default function FeedPage() {
           </div>
           
           {/* Filter Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="grid grid-cols-4 gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${
                 filter === 'all'
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+              </svg>
               すべて
             </button>
             <button
               onClick={() => setFilter('following')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${
                 filter === 'following'
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7C14.5 7 14.1 7.2 13.9 7.5L13 8.7C12.6 9.2 12.1 9.5 11.5 9.5S10.4 9.2 10 8.7L9.1 7.5C8.9 7.2 8.5 7 8 7H2V9H7.2L8.5 10.5C9.2 11.4 10.4 12 11.5 12S13.8 11.4 14.5 10.5L15.8 9H21Z"/>
+              </svg>
               フォロー中
             </button>
             <button
               onClick={() => setFilter('gym-friends')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${
                 filter === 'gym-friends'
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              🤝 ジム友
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+              </svg>
+              ジム友
             </button>
             <button
               onClick={() => setFilter('same-gym')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${
                 filter === 'same-gym'
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              📍 同じジム
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+              同じジム
             </button>
           </div>
         </div>
 
-        {/* Post Button - Fixed Position */}
-        <button 
-          onClick={() => router.push('/add')}
-          className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center z-40 group"
-        >
-          <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-90 transition-transform duration-200" />
-        </button>
 
         {/* Recommended Posts Section - Only show when "all" filter is selected */}
         {filter === 'all' && (
           <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-              <span className="text-lg">✨</span>
+              <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 1z"/>
+              </svg>
               おすすめの投稿
             </h3>
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
@@ -260,7 +267,7 @@ export default function FeedPage() {
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span>GOLD&apos;S GYM 渋谷</span>
                     <span>1時間前</span>
-                    <button className="text-blue-600 hover:text-blue-700 font-medium">
+                    <button className="text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap">
                       フォローする
                     </button>
                   </div>
@@ -302,25 +309,33 @@ export default function FeedPage() {
 
                   {/* Author Info */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900">{post.author.name}</h3>
-                      {post.isGymFriend && (
-                        <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-medium">
-                          🤝 ジム友
-                        </span>
-                      )}
-                      {post.isSameGym && (
-                        <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full font-medium">
-                          📍 同じジム
-                        </span>
-                      )}
-                      {!post.isFollowing && (
-                        <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded-full">
-                          おすすめ
-                        </span>
-                      )}
+                    <div className="flex items-center gap-2 overflow-x-auto">
+                      <h3 className="font-semibold text-gray-900 flex-shrink-0">{post.author.name}</h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {post.isGymFriend && (
+                          <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-medium whitespace-nowrap">
+                            <svg className="w-3 h-3 inline mr-1" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                            ジム友
+                          </span>
+                        )}
+                        {post.isSameGym && (
+                          <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full font-medium whitespace-nowrap">
+                            <svg className="w-3 h-3 inline mr-1" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                            同じジム
+                          </span>
+                        )}
+                        {!post.isFollowing && (
+                          <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded-full whitespace-nowrap">
+                            おすすめ
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 flex-wrap">
+                    <div className="flex items-center gap-4 mt-2">
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
                         <MapPin className="w-3 h-3 text-indigo-900" />
                         <span className="text-xs text-indigo-900">{post.gymName}</span>
@@ -376,10 +391,6 @@ export default function FeedPage() {
                     <Heart className="w-4 h-4" />
                     <span className="text-sm">いいね</span>
                   </button>
-                  <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="text-sm">コメント</span>
-                  </button>
                   <button className="flex items-center gap-2 text-gray-500 hover:text-green-500 transition ml-auto">
                     <Share2 className="w-4 h-4" />
                     <span className="text-sm">シェア</span>
@@ -389,6 +400,19 @@ export default function FeedPage() {
             </div>
           ))}
         </div>
+        
+        {/* Post Button - Fixed Position */}
+        <button 
+          onClick={() => router.push('/add')}
+          className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
+          style={{ 
+            zIndex: 9999,
+            background: 'linear-gradient(to right, #3b82f6, #9333ea)',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-90 transition-transform duration-200" />
+        </button>
       </div>
     </div>
   );

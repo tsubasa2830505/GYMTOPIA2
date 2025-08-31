@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ArrowLeft, UserPlus, Dumbbell, Calendar, MapPin, Search } from 'lucide-react'
+import { ArrowLeft, UserPlus, MapPin, Calendar, Search, UserMinus } from 'lucide-react'
 
-interface GymFriend {
+interface Following {
   id: string
   name: string
   username: string
@@ -15,17 +15,13 @@ interface GymFriend {
   bio: string
   location: string
   joinedDate: string
-  trainingFrequency: string
-  personalRecords: {
-    benchPress?: string
-    squat?: string
-    deadlift?: string
-  }
-  isFollowing: boolean
+  isGymFriend: boolean
   mutualFriends: number
+  postsCount: number
+  lastActive: string
 }
 
-const gymFriends: GymFriend[] = [
+const followingList: Following[] = [
   {
     id: '1',
     name: '山田太郎',
@@ -35,14 +31,10 @@ const gymFriends: GymFriend[] = [
     bio: '週3回一緒にトレーニング｜ベンチプレス100kg目標｜筋トレ歴3年',
     location: '東京',
     joinedDate: '2023年6月',
-    trainingFrequency: '週3-4回',
-    personalRecords: {
-      benchPress: '90kg',
-      squat: '110kg',
-      deadlift: '130kg'
-    },
-    isFollowing: true,
-    mutualFriends: 12
+    isGymFriend: true,
+    mutualFriends: 12,
+    postsCount: 45,
+    lastActive: '2時間前'
   },
   {
     id: '2',
@@ -53,14 +45,10 @@ const gymFriends: GymFriend[] = [
     bio: '朝トレ仲間｜パワーリフター｜女性の筋トレ応援',
     location: '東京',
     joinedDate: '2023年8月',
-    trainingFrequency: '週5-6回',
-    personalRecords: {
-      benchPress: '65kg',
-      squat: '95kg',
-      deadlift: '110kg'
-    },
-    isFollowing: true,
-    mutualFriends: 8
+    isGymFriend: true,
+    mutualFriends: 8,
+    postsCount: 32,
+    lastActive: '5時間前'
   },
   {
     id: '3',
@@ -71,14 +59,10 @@ const gymFriends: GymFriend[] = [
     bio: 'バルクアップ中｜プロテイン愛好家｜筋肉は裏切らない',
     location: '神奈川',
     joinedDate: '2023年5月',
-    trainingFrequency: '週6-7回',
-    personalRecords: {
-      benchPress: '140kg',
-      squat: '180kg',
-      deadlift: '200kg'
-    },
-    isFollowing: true,
-    mutualFriends: 25
+    isGymFriend: true,
+    mutualFriends: 25,
+    postsCount: 78,
+    lastActive: '1日前'
   },
   {
     id: '4',
@@ -89,14 +73,10 @@ const gymFriends: GymFriend[] = [
     bio: 'フィットネスインストラクター｜ボディメイク専門｜健康第一',
     location: '東京',
     joinedDate: '2023年7月',
-    trainingFrequency: '週4-5回',
-    personalRecords: {
-      benchPress: '45kg',
-      squat: '70kg',
-      deadlift: '85kg'
-    },
-    isFollowing: true,
-    mutualFriends: 18
+    isGymFriend: false,
+    mutualFriends: 18,
+    postsCount: 56,
+    lastActive: '3時間前'
   },
   {
     id: '5',
@@ -107,30 +87,67 @@ const gymFriends: GymFriend[] = [
     bio: 'パワーリフティング選手｜大会準備中｜限界への挑戦',
     location: '埼玉',
     joinedDate: '2023年4月',
-    trainingFrequency: '週5-6回',
-    personalRecords: {
-      benchPress: '165kg',
-      squat: '210kg',
-      deadlift: '240kg'
-    },
-    isFollowing: true,
-    mutualFriends: 30
+    isGymFriend: false,
+    mutualFriends: 30,
+    postsCount: 23,
+    lastActive: '6時間前'
+  },
+  {
+    id: '6',
+    name: '小林まい',
+    username: 'mai_yoga',
+    avatarBg: '#f472b6',
+    avatarText: '小',
+    bio: 'ヨガインストラクター｜心身のバランス重視｜毎日瞑想',
+    location: '東京',
+    joinedDate: '2023年9月',
+    isGymFriend: false,
+    mutualFriends: 7,
+    postsCount: 41,
+    lastActive: '2日前'
+  },
+  {
+    id: '7',
+    name: '中村ゆうた',
+    username: 'yuta_cardio',
+    avatarBg: '#22d3ee',
+    avatarText: '中',
+    bio: 'マラソンランナー｜サブ3目標｜週5ランニング',
+    location: '千葉',
+    joinedDate: '2023年3月',
+    isGymFriend: false,
+    mutualFriends: 15,
+    postsCount: 67,
+    lastActive: '4時間前'
+  },
+  {
+    id: '8',
+    name: '林さくら',
+    username: 'sakura_dance',
+    avatar: '/muscle-taro-avatar.svg',
+    bio: 'ダンサー｜週4ダンスレッスン｜表現力向上中',
+    location: '大阪',
+    joinedDate: '2023年10月',
+    isGymFriend: false,
+    mutualFriends: 3,
+    postsCount: 29,
+    lastActive: '1時間前'
   }
 ]
 
-export default function GymFriendsPage() {
+export default function FollowingPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
 
-  const filteredFriends = gymFriends.filter(friend => {
-    const matchesSearch = friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          friend.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          friend.bio.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFollowing = followingList.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          user.bio.toLowerCase().includes(searchQuery.toLowerCase())
     
     if (selectedFilter === 'all') return matchesSearch
-    if (selectedFilter === 'morning') return matchesSearch && friend.bio.includes('朝トレ')
-    if (selectedFilter === 'frequent') return matchesSearch && (friend.trainingFrequency.includes('週5') || friend.trainingFrequency.includes('週6'))
+    if (selectedFilter === 'gym-friends') return matchesSearch && user.isGymFriend
+    if (selectedFilter === 'recent') return matchesSearch && (user.lastActive.includes('時間前') || user.lastActive.includes('分前'))
     return matchesSearch
   })
 
@@ -141,15 +158,28 @@ export default function GymFriendsPage() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => router.back()}
+              onClick={() => router.push('/profile')}
               className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold text-slate-900">ジム友</h1>
-            <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-medium">
-              89人
-            </span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <h1 className="text-xl font-bold text-blue-600">フォロー</h1>
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-medium">
+                  345人
+                </span>
+              </div>
+              <button 
+                onClick={() => router.push('/followers')}
+                className="flex items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                <span className="text-lg font-bold">フォロワー</span>
+                <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-full font-medium">
+                  89人
+                </span>
+              </button>
+            </div>
           </div>
           <button className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
             <UserPlus className="w-5 h-5" />
@@ -183,24 +213,24 @@ export default function GymFriendsPage() {
                 すべて
               </button>
               <button
-                onClick={() => setSelectedFilter('morning')}
+                onClick={() => setSelectedFilter('gym-friends')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'morning' 
+                  selectedFilter === 'gym-friends' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                朝トレ仲間
+                ジム友
               </button>
               <button
-                onClick={() => setSelectedFilter('frequent')}
+                onClick={() => setSelectedFilter('recent')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'frequent' 
+                  selectedFilter === 'recent' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                高頻度
+                最近アクティブ
               </button>
             </div>
           </div>
@@ -210,49 +240,51 @@ export default function GymFriendsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">総ジム友</span>
+              <span className="text-sm text-slate-700">総フォロー数</span>
               <UserPlus className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">89人</div>
-            <div className="text-xs text-slate-600 mt-1">先月より +5人</div>
+            <div className="text-2xl font-bold text-slate-900">345人</div>
+            <div className="text-xs text-slate-600 mt-1">今月 +12人</div>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">共通のジム</span>
+              <span className="text-sm text-slate-700">ジム友</span>
               <MapPin className="w-5 h-5 text-green-600" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">12ヶ所</div>
-            <div className="text-xs text-slate-600 mt-1">最多: ハンマーストレングス渋谷</div>
+            <div className="text-2xl font-bold text-slate-900">89人</div>
+            <div className="text-xs text-slate-600 mt-1">フォロー中の25.8%</div>
           </div>
           <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">週間アクティブ</span>
-              <Dumbbell className="w-5 h-5 text-purple-600" />
+              <span className="text-sm text-slate-700">今日アクティブ</span>
+              <Calendar className="w-5 h-5 text-purple-600" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">45人</div>
-            <div className="text-xs text-slate-600 mt-1">今週トレーニング済み</div>
+            <div className="text-2xl font-bold text-slate-900">23人</div>
+            <div className="text-xs text-slate-600 mt-1">過去24時間以内</div>
           </div>
         </div>
 
-        {/* Friends List */}
+        {/* Following List */}
         <div className="space-y-4">
-          {filteredFriends.map((friend) => (
-            <div key={friend.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          {filteredFollowing.map((user) => (
+            <div key={user.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  {friend.avatar ? (
-                    <img 
-                      src={friend.avatar}
-                      alt={friend.name}
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.name}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 rounded-full object-cover"
                     />
                   ) : (
                     <div 
                       className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
-                      style={{ backgroundColor: friend.avatarBg }}
+                      style={{ backgroundColor: user.avatarBg }}
                     >
-                      {friend.avatarText}
+                      {user.avatarText}
                     </div>
                   )}
                 </div>
@@ -261,58 +293,44 @@ export default function GymFriendsPage() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-bold text-lg text-slate-900">{friend.name}</h3>
-                      <p className="text-sm text-slate-600">@{friend.username}</p>
-                      <p className="text-sm text-slate-700 mt-1">{friend.bio}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-lg text-slate-900">{user.name}</h3>
+                        {user.isGymFriend && (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                            ジム友
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-600">@{user.username}</p>
+                      <p className="text-sm text-slate-700 mt-1">{user.bio}</p>
                       
                       {/* Stats */}
                       <div className="flex flex-wrap gap-3 mt-3">
                         <div className="flex items-center gap-1 text-xs text-slate-600">
                           <MapPin className="w-3 h-3" />
-                          <span>{friend.location}</span>
+                          <span>{user.location}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-600">
                           <Calendar className="w-3 h-3" />
-                          <span>{friend.joinedDate}から</span>
+                          <span>{user.joinedDate}から</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-600">
-                          <Dumbbell className="w-3 h-3" />
-                          <span>{friend.trainingFrequency}</span>
+                          <span>{user.postsCount}投稿</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-600">
-                          <UserPlus className="w-3 h-3" />
-                          <span>共通の友達 {friend.mutualFriends}人</span>
+                          <span>共通の友達 {user.mutualFriends}人</span>
                         </div>
-                      </div>
-
-                      {/* Personal Records */}
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {friend.personalRecords.benchPress && (
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">
-                            BP: {friend.personalRecords.benchPress}
-                          </span>
-                        )}
-                        {friend.personalRecords.squat && (
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">
-                            SQ: {friend.personalRecords.squat}
-                          </span>
-                        )}
-                        {friend.personalRecords.deadlift && (
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">
-                            DL: {friend.personalRecords.deadlift}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1 text-xs text-slate-600">
+                          <span>最終アクティブ: {user.lastActive}</span>
+                        </div>
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex gap-2">
-                      <button className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        friend.isFollowing 
-                          ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
-                          : 'bg-blue-500 text-white hover:bg-blue-600'
-                      }`}>
-                        {friend.isFollowing ? 'フォロー中' : 'フォロー'}
+                      <button className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1">
+                        <UserMinus className="w-3 h-3" />
+                        フォロー解除
                       </button>
                     </div>
                   </div>
