@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
+import MachineSelector from '@/components/MachineSelector'
 
 interface Exercise {
   id: string
@@ -459,46 +460,17 @@ function AddGymPostContent() {
               />
             </div>
             
-            {/* マシン選択（仮） */}
+            {/* マシン選択 */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 トレーニングマシン
-                <span className="text-xs text-slate-500 font-normal">（該当するものを選択）</span>
+                <span className="text-xs text-slate-500 font-normal">（3軸フィルターで絞り込み）</span>
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  'チェストプレスマシン',
-                  'ラットプルダウン',
-                  'レッグプレス',
-                  'レッグカール',
-                  'レッグエクステンション',
-                  'ケーブルマシン',
-                  'スミスマシン',
-                  'ペックフライ'
-                ].map((machine) => (
-                  <button
-                    key={machine}
-                    type="button"
-                    onClick={() => {
-                      const newSet = new Set(selectedMachines)
-                      if (newSet.has(machine)) {
-                        newSet.delete(machine)
-                      } else {
-                        newSet.add(machine)
-                      }
-                      setSelectedMachines(newSet)
-                    }}
-                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                      selectedMachines.has(machine)
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    {machine}
-                  </button>
-                ))}
-              </div>
+              <MachineSelector
+                selectedMachines={selectedMachines}
+                onSelectionChange={setSelectedMachines}
+              />
             </div>
             
             {/* 登録ボタン（モバイル用） */}
