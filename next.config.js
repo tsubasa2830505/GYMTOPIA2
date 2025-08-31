@@ -6,8 +6,6 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  // 本番環境での出力設定
-  output: 'standalone',
 }
 
 module.exports = nextConfig
