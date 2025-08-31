@@ -116,19 +116,106 @@ export default function Home() {
                     <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">施設条件・エリアを検索</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">施設条件を選択</h3>
                     <p className="text-xs sm:text-sm text-slate-600">理想のジム環境を構築しよう</p>
                   </div>
                 </div>
-                
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="マシン名、メーカーで検索..."
-                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                  />
-                </div>
+
+                {/* Selected Tags Display */}
+                {(selectedMachines.size > 0 || selectedFreeWeights.size > 0 || selectedFacilities.size > 0) && (
+                  <div className="mt-4 p-3 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium text-slate-700">選択中の条件:</span>
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                        {selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Machine Tags */}
+                      {Array.from(selectedMachines).map((machine) => (
+                        <div key={`machine-${machine}`} className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs">
+                          <span>{machine}</span>
+                          <button
+                            onClick={() => {
+                              const newMachines = new Set(selectedMachines)
+                              newMachines.delete(machine)
+                              setSelectedMachines(newMachines)
+                            }}
+                            className="text-purple-500 hover:text-purple-700 font-semibold"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      {/* Free Weight Tags */}
+                      {Array.from(selectedFreeWeights).map((weight) => (
+                        <div key={`weight-${weight}`} className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs">
+                          <span>{weight}</span>
+                          <button
+                            onClick={() => {
+                              const newWeights = new Set(selectedFreeWeights)
+                              newWeights.delete(weight)
+                              setSelectedFreeWeights(newWeights)
+                            }}
+                            className="text-blue-500 hover:text-blue-700 font-semibold"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      {/* Facility Tags */}
+                      {Array.from(selectedFacilities).map((facility) => (
+                        <div key={`facility-${facility}`} className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">
+                          <span>{facility}</span>
+                          <button
+                            onClick={() => {
+                              const newFacilities = new Set(selectedFacilities)
+                              newFacilities.delete(facility)
+                              setSelectedFacilities(newFacilities)
+                            }}
+                            className="text-green-500 hover:text-green-700 font-semibold"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <button
+                        onClick={() => {
+                          setSelectedMachines(new Set())
+                          setSelectedFreeWeights(new Set())
+                          setSelectedFacilities(new Set())
+                        }}
+                        className="text-xs text-slate-500 hover:text-slate-700 font-medium"
+                      >
+                        すべてクリア
+                      </button>
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams()
+                          
+                          if (selectedMachines.size > 0) {
+                            params.set('machines', Array.from(selectedMachines).join(','))
+                          }
+                          if (selectedFreeWeights.size > 0) {
+                            params.set('freeWeights', Array.from(selectedFreeWeights).join(','))
+                          }
+                          if (selectedFacilities.size > 0) {
+                            params.set('facilities', Array.from(selectedFacilities).join(','))
+                          }
+                          params.set('tab', activeTab)
+
+                          router.push(`/search/results?${params.toString()}`)
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        <Search className="w-4 h-4" />
+                        検索 ({selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size})
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Filter Tabs */}
