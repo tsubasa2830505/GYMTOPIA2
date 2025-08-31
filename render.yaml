@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: gymtopia-app
+    runtime: node
+    region: singapore  # 東京に近いリージョン
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000

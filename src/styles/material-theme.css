@@ -1,0 +1,382 @@
+/* Material Design 3 Theme Variables */
+:root {
+  /* Primary Colors */
+  --md-primary: #1976d2;
+  --md-primary-variant: #1565c0;
+  --md-on-primary: #ffffff;
+  
+  /* Secondary Colors */
+  --md-secondary: #673ab7;
+  --md-secondary-variant: #5e35b1;
+  --md-on-secondary: #ffffff;
+  
+  /* Surface Colors */
+  --md-surface: #ffffff;
+  --md-surface-variant: #f5f5f5;
+  --md-on-surface: #1c1c1c;
+  --md-on-surface-variant: #49454f;
+  
+  /* Background Colors */
+  --md-background: #fafafa;
+  --md-on-background: #1c1c1c;
+  
+  /* Error Colors */
+  --md-error: #ba1a1a;
+  --md-on-error: #ffffff;
+  
+  /* Neutral Colors */
+  --md-outline: #79747e;
+  --md-outline-variant: #cac4d0;
+  
+  /* Elevation Shadows (Material Design 3) */
+  --md-elevation-0: none;
+  --md-elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --md-elevation-2: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --md-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
+  --md-elevation-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px rgba(0, 0, 0, 0.3);
+  --md-elevation-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px rgba(0, 0, 0, 0.3);
+  
+  /* Border Radius */
+  --md-radius-xs: 4px;
+  --md-radius-sm: 8px;
+  --md-radius-md: 12px;
+  --md-radius-lg: 16px;
+  --md-radius-xl: 24px;
+  --md-radius-full: 999px;
+  
+  /* Spacing */
+  --md-spacing-xs: 4px;
+  --md-spacing-sm: 8px;
+  --md-spacing-md: 16px;
+  --md-spacing-lg: 24px;
+  --md-spacing-xl: 32px;
+  
+  /* Typography Scale */
+  --md-font-display-large: 3.5rem;
+  --md-font-display-medium: 2.8125rem;
+  --md-font-display-small: 2.25rem;
+  
+  --md-font-headline-large: 2rem;
+  --md-font-headline-medium: 1.75rem;
+  --md-font-headline-small: 1.5rem;
+  
+  --md-font-title-large: 1.375rem;
+  --md-font-title-medium: 1rem;
+  --md-font-title-small: 0.875rem;
+  
+  --md-font-body-large: 1rem;
+  --md-font-body-medium: 0.875rem;
+  --md-font-body-small: 0.75rem;
+  
+  --md-font-label-large: 0.875rem;
+  --md-font-label-medium: 0.75rem;
+  --md-font-label-small: 0.6875rem;
+}
+
+/* Material Design Typography Classes */
+.md-display-large {
+  font-size: var(--md-font-display-large);
+  line-height: 1.14;
+  letter-spacing: -0.25px;
+  font-weight: 400;
+}
+
+.md-display-medium {
+  font-size: var(--md-font-display-medium);
+  line-height: 1.15;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-display-small {
+  font-size: var(--md-font-display-small);
+  line-height: 1.22;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-headline-large {
+  font-size: var(--md-font-headline-large);
+  line-height: 1.25;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-headline-medium {
+  font-size: var(--md-font-headline-medium);
+  line-height: 1.28;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-headline-small {
+  font-size: var(--md-font-headline-small);
+  line-height: 1.33;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-title-large {
+  font-size: var(--md-font-title-large);
+  line-height: 1.27;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.md-title-medium {
+  font-size: var(--md-font-title-medium);
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  font-weight: 500;
+}
+
+.md-title-small {
+  font-size: var(--md-font-title-small);
+  line-height: 1.42;
+  letter-spacing: 0.1px;
+  font-weight: 500;
+}
+
+.md-body-large {
+  font-size: var(--md-font-body-large);
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+
+.md-body-medium {
+  font-size: var(--md-font-body-medium);
+  line-height: 1.42;
+  letter-spacing: 0.25px;
+  font-weight: 400;
+}
+
+.md-body-small {
+  font-size: var(--md-font-body-small);
+  line-height: 1.33;
+  letter-spacing: 0.4px;
+  font-weight: 400;
+}
+
+.md-label-large {
+  font-size: var(--md-font-label-large);
+  line-height: 1.42;
+  letter-spacing: 0.1px;
+  font-weight: 500;
+}
+
+.md-label-medium {
+  font-size: var(--md-font-label-medium);
+  line-height: 1.33;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.md-label-small {
+  font-size: var(--md-font-label-small);
+  line-height: 1.45;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Material Design Elevation Classes */
+.md-elevation-0 {
+  box-shadow: var(--md-elevation-0);
+}
+
+.md-elevation-1 {
+  box-shadow: var(--md-elevation-1);
+}
+
+.md-elevation-2 {
+  box-shadow: var(--md-elevation-2);
+}
+
+.md-elevation-3 {
+  box-shadow: var(--md-elevation-3);
+}
+
+.md-elevation-4 {
+  box-shadow: var(--md-elevation-4);
+}
+
+.md-elevation-5 {
+  box-shadow: var(--md-elevation-5);
+}
+
+/* Material Design Surface Classes */
+.md-surface {
+  background-color: var(--md-surface);
+  color: var(--md-on-surface);
+  border-radius: var(--md-radius-md);
+}
+
+.md-surface-variant {
+  background-color: var(--md-surface-variant);
+  color: var(--md-on-surface-variant);
+  border-radius: var(--md-radius-md);
+}
+
+.md-primary-container {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.md-secondary-container {
+  background-color: #f3e5f5;
+  color: #4a148c;
+}
+
+.md-tertiary-container {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+
+/* Material Design Button Styles */
+.md-button {
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 10px 24px;
+  border-radius: var(--md-radius-full);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  font-size: var(--md-font-label-large);
+}
+
+.md-button-filled {
+  background-color: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elevation-1);
+}
+
+.md-button-filled:hover {
+  box-shadow: var(--md-elevation-2);
+  background-color: var(--md-primary-variant);
+}
+
+.md-button-outlined {
+  background-color: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+}
+
+.md-button-text {
+  background-color: transparent;
+  color: var(--md-primary);
+}
+
+.md-button-elevated {
+  background-color: var(--md-surface);
+  color: var(--md-primary);
+  box-shadow: var(--md-elevation-1);
+}
+
+.md-button-tonal {
+  background-color: #e3f2fd;
+  color: var(--md-primary);
+}
+
+/* Material Design Card */
+.md-card {
+  background-color: var(--md-surface);
+  border-radius: var(--md-radius-md);
+  box-shadow: var(--md-elevation-1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.md-card:hover {
+  box-shadow: var(--md-elevation-2);
+}
+
+.md-card-outlined {
+  background-color: var(--md-surface);
+  border-radius: var(--md-radius-md);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: none;
+}
+
+.md-card-filled {
+  background-color: var(--md-surface-variant);
+  border-radius: var(--md-radius-md);
+  box-shadow: none;
+}
+
+/* Material Design FAB */
+.md-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md-radius-lg);
+  background-color: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elevation-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+}
+
+.md-fab:hover {
+  box-shadow: var(--md-elevation-4);
+}
+
+.md-fab-small {
+  width: 40px;
+  height: 40px;
+}
+
+.md-fab-large {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--md-radius-xl);
+}
+
+/* Ripple Effect */
+.md-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.md-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.md-ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Material Design Transitions */
+.md-transition-standard {
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.md-transition-emphasized {
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.md-transition-decelerated {
+  transition-duration: 400ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.md-transition-accelerated {
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
