@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Heart, MessageCircle, Share2, MapPin, Calendar, ChevronDown, Activity, Dumbbell, Plus, Edit } from 'lucide-react';
 
 interface FeedPost {
@@ -26,6 +27,9 @@ interface FeedPost {
   hasLiked?: boolean;
   hasCommented?: boolean;
   hasShared?: boolean;
+  isGymFriend?: boolean;
+  isFollowing?: boolean;
+  isSameGym?: boolean;
 }
 
 const feedPosts: FeedPost[] = [
@@ -33,19 +37,22 @@ const feedPosts: FeedPost[] = [
     id: '1',
     author: {
       name: '筋トレマニア太郎',
-      avatar: '/avatar1.jpg'
+      avatar: '/muscle-taro-avatar.svg'
     },
     gymName: 'ハンマーストレングス渋谷',
     date: '2024年1月20日 18:30',
-    content: '今日は胸トレ！新しいHammer Strengthのチェストプレス最高でした💪 フォームが安定して重量も上がりました。このジムのマシンは本当に質が高い！',
+    content: '今日は胸トレ！新しいHammer Strengthのチェストプレス最高でした。フォームが安定して重量も上がりました。このジムのマシンは本当に質が高い！',
     training: {
       exercises: 'ベンチプレス 100kg × 4セット × 8回 • インクラインベンチ 80kg × 3セット × 10回 • ダンベルフライ 25kg × 3セット × 12回 • ディップス 自重 × 3セット × 15回',
       summary: '4種目 • 計13セット',
       condition: 'normal',
       conditionText: '普通',
-      conditionEmoji: '😐'
+      conditionEmoji: 'normal'
     },
-    image: '/training1.jpg'
+    image: '/training1.jpg',
+    isGymFriend: false,
+    isFollowing: false,
+    isSameGym: false
   },
   {
     id: '2',
@@ -64,13 +71,17 @@ const feedPosts: FeedPost[] = [
       conditionText: '空いている',
       conditionEmoji: '😊'
     },
-    image: '/training2.jpg'
+    image: '/training2.jpg',
+    isGymFriend: true,
+    isFollowing: true,
+    isSameGym: false
   },
   {
     id: '3',
     author: {
       name: 'デッドリフト職人',
-      avatar: '/avatar3.jpg'
+      avatarBg: '#ef4444',
+      avatarText: 'デ'
     },
     gymName: 'プレミアムフィットネス銀座',
     date: '2024年1月19日 14:20',
@@ -81,13 +92,17 @@ const feedPosts: FeedPost[] = [
       condition: 'empty',
       conditionText: '空いている',
       conditionEmoji: '😊'
-    }
+    },
+    isGymFriend: false,
+    isFollowing: true,
+    isSameGym: false
   },
   {
     id: '4',
     author: {
       name: '朝トレ戦士',
-      avatar: '/avatar4.jpg'
+      avatarBg: '#f59e0b',
+      avatarText: '朝'
     },
     gymName: 'ハンマーストレングス渋谷',
     date: '2024年1月18日 6:45',
@@ -98,13 +113,16 @@ const feedPosts: FeedPost[] = [
       condition: 'empty',
       conditionText: '空いている',
       conditionEmoji: '😊'
-    }
+    },
+    isGymFriend: true,
+    isFollowing: true,
+    isSameGym: true
   }
 ];
 
 export default function FeedPage() {
   const router = useRouter();
-  const [filter, setFilter] = useState('すべて');
+  const [filter, setFilter] = useState<'all' | 'following' | 'gym-friends' | 'same-gym'>('all');
 
   const getConditionColor = (condition: string) => {
     switch (condition) {
@@ -118,6 +136,19 @@ export default function FeedPage() {
         return 'text-gray-600';
     }
   };
+
+  const filteredPosts = feedPosts.filter(post => {
+    switch (filter) {
+      case 'following':
+        return post.isFollowing;
+      case 'gym-friends':
+        return post.isGymFriend;
+      case 'same-gym':
+        return post.isSameGym;
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -140,12 +171,58 @@ export default function FeedPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Feed Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm text-gray-600 hover:bg-gray-200">
-              <span>すべて</span>
-              <ChevronDown className="w-4 h-4" />
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
+            <span className="text-sm text-gray-500">
+              {filter === 'all' && `${filteredPosts.length}件の投稿`}
+              {filter === 'following' && `フォロー中: ${filteredPosts.length}件`}
+              {filter === 'gym-friends' && `ジム友: ${filteredPosts.length}件`}
+              {filter === 'same-gym' && `同じジム: ${filteredPosts.length}件`}
+            </span>
+          </div>
+          
+          {/* Filter Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === 'all'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              すべて
+            </button>
+            <button
+              onClick={() => setFilter('following')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === 'following'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              フォロー中
+            </button>
+            <button
+              onClick={() => setFilter('gym-friends')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === 'gym-friends'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              🤝 ジム友
+            </button>
+            <button
+              onClick={() => setFilter('same-gym')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === 'same-gym'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              📍 同じジム
             </button>
           </div>
         </div>
@@ -158,9 +235,44 @@ export default function FeedPage() {
           <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-90 transition-transform duration-200" />
         </button>
 
+        {/* Recommended Posts Section - Only show when "all" filter is selected */}
+        {filter === 'all' && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <span className="text-lg">✨</span>
+              おすすめの投稿
+            </h3>
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                  新
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-900">新人トレーニー</span>
+                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">
+                      人気上昇中
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    初めてのデッドリフト100kg達成！みなさんのアドバイスのおかげです🎉
+                  </p>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span>GOLD'S GYM 渋谷</span>
+                    <span>1時間前</span>
+                    <button className="text-blue-600 hover:text-blue-700 font-medium">
+                      フォローする
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Feed Posts */}
         <div className="space-y-4">
-          {feedPosts.map((post) => (
+          {filteredPosts.map((post) => (
             <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               {/* Post Header */}
               <div className="p-4 sm:p-6">
@@ -168,7 +280,13 @@ export default function FeedPage() {
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     {post.author.avatar ? (
-                      <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                      <Image 
+                        src={post.author.avatar}
+                        alt={post.author.name}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                      />
                     ) : (
                       <div 
                         className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium"
@@ -186,9 +304,21 @@ export default function FeedPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-gray-900">{post.author.name}</h3>
-                      <span className="px-2 py-0.5 bg-indigo-500 text-white text-xs rounded-full">
-                        ジム活
-                      </span>
+                      {post.isGymFriend && (
+                        <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-medium">
+                          🤝 ジム友
+                        </span>
+                      )}
+                      {post.isSameGym && (
+                        <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full font-medium">
+                          📍 同じジム
+                        </span>
+                      )}
+                      {!post.isFollowing && (
+                        <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded-full">
+                          おすすめ
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-4 mt-2 flex-wrap">
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
@@ -210,21 +340,18 @@ export default function FeedPage() {
                 {post.training && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Activity className="w-5 h-5 text-white" />
                       </div>
                       <h4 className="font-semibold text-gray-900">今日のトレーニング</h4>
                     </div>
-                    <div className="bg-white p-3 rounded-xl mb-3">
-                      <p className="text-sm text-gray-600 leading-relaxed">{post.training.exercises}</p>
+                    <div className="bg-white p-3 rounded-xl mb-3 max-h-20 overflow-y-auto">
+                      <p className="text-sm text-gray-600 leading-relaxed break-words">{post.training.exercises}</p>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
-                          <span className="text-xs">💪</span>
-                        </div>
-                        <span className={`text-xs font-medium ${getConditionColor(post.training.condition)}`}>
-                          {post.training.conditionEmoji} {post.training.conditionText}
+                        <span className={`text-sm font-medium ${getConditionColor(post.training.condition)}`}>
+                          {post.training.conditionEmoji === 'normal' ? '😐' : post.training.conditionEmoji} {post.training.conditionText}
                         </span>
                       </div>
                       <div className="px-3 py-1.5 bg-gray-50 rounded-full">

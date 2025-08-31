@@ -54,7 +54,11 @@ function AddGymPostContent() {
 
   const crowdOptions = [
     { value: 'empty' as const, label: '空いている', emoji: '😊', color: 'bg-green-100 text-green-700' },
-    { value: 'normal' as const, label: '普通', emoji: '😐', color: 'bg-yellow-100 text-yellow-700' },
+    { value: 'normal' as const, label: '普通', icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 14h6v1.5H9zm0-3h6v1.5H9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+      </svg>
+    ), color: 'bg-yellow-100 text-yellow-700' },
     { value: 'crowded' as const, label: '混雑', emoji: '😰', color: 'bg-red-100 text-red-700' }
   ]
 

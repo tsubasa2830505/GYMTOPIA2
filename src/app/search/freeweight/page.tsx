@@ -40,7 +40,11 @@ const freeWeightCategories: FreeWeightCategory[] = [
     id: 'dumbbell',
     name: 'ダンベル',
     description: '固定式・可変式ダンベル',
-    icon: '💪',
+    icon: (
+      <svg className="w-6 h-6 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
+      </svg>
+    ),
     items: [
       { id: 'fixed_dumbbell', name: '固定式ダンベル（1-50kg）', description: 'ラバーコーティング' },
       { id: 'adjustable_dumbbell', name: '可変式ダンベル', description: 'PowerBlock、Bowflexなど' },

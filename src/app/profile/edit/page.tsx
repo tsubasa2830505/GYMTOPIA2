@@ -1,0 +1,372 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2 } from 'lucide-react'
+
+interface PersonalRecord {
+  id: string
+  exercise: string
+  weight: string
+  reps: string
+}
+
+export default function ProfileEditPage() {
+  const router = useRouter()
+  
+  // Basic Info
+  const [name, setName] = useState('筋トレマニア太郎')
+  const [username, setUsername] = useState('muscle_taro')
+  const [bio, setBio] = useState('筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジム歴が最高場が無料です')
+  const [location, setLocation] = useState('東京')
+  
+  // Personal Records
+  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([
+    { id: '1', exercise: 'ベンチプレス', weight: '120', reps: '1回' },
+    { id: '2', exercise: 'スクワット', weight: '130', reps: '5回×3セット' },
+    { id: '3', exercise: 'デッドリフト', weight: '150', reps: '1回' },
+    { id: '4', exercise: 'ショルダープレス', weight: '60', reps: '8回×3セット' }
+  ])
+  
+  const [showRecordForm, setShowRecordForm] = useState(false)
+  const [newRecord, setNewRecord] = useState<PersonalRecord>({
+    id: '',
+    exercise: '',
+    weight: '',
+    reps: ''
+  })
+
+  const handleAddRecord = () => {
+    if (newRecord.exercise && newRecord.weight && newRecord.reps) {
+      setPersonalRecords([...personalRecords, { ...newRecord, id: Date.now().toString() }])
+      setNewRecord({ id: '', exercise: '', weight: '', reps: '' })
+      setShowRecordForm(false)
+    }
+  }
+
+  const handleRemoveRecord = (id: string) => {
+    setPersonalRecords(personalRecords.filter(record => record.id !== id))
+  }
+
+  const handleSave = () => {
+    // ここで保存処理を実装
+    console.log({
+      name,
+      username,
+      bio,
+      location,
+      personalRecords
+    })
+    router.push('/profile')
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => router.back()}
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h1 className="text-xl font-bold text-slate-900">プロフィール編集</h1>
+          </div>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            保存
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 py-6">
+        <div className="space-y-6">
+          {/* アバター編集 */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <label className="block text-sm font-bold text-slate-900 mb-4">
+              <Camera className="w-4 h-4 inline mr-2" />
+              プロフィール画像
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Image 
+                  src="/muscle-taro-avatar.svg" 
+                  alt="筋トレマニア太郎" 
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+                <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors">
+                  <Camera className="w-4 h-4 text-white" />
+                </button>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-slate-600 mb-2">プロフィール画像を変更</p>
+                <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
+                  画像を選択
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 基本情報 */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-900 mb-4">基本情報</h3>
+            
+            {/* 名前 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <User className="w-4 h-4 inline mr-1" />
+                名前
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                placeholder="表示名を入力"
+              />
+            </div>
+
+            {/* ユーザー名 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <AtSign className="w-4 h-4 inline mr-1" />
+                ユーザー名
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">@</span>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                  placeholder="username"
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">半角英数字とアンダースコアのみ使用可能</p>
+            </div>
+
+            {/* 位置情報 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-1" />
+                位置情報
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                placeholder="都市名を入力"
+              />
+            </div>
+
+            {/* 自己紹介 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <FileText className="w-4 h-4 inline mr-1" />
+                自己紹介
+              </label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 resize-none"
+                placeholder="自己紹介を入力"
+              />
+              <p className="text-xs text-slate-500 mt-1">{bio.length} / 150文字</p>
+            </div>
+          </div>
+
+          {/* パーソナルレコード */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Dumbbell className="w-4 h-4" />
+                パーソナルレコード
+              </h3>
+              {!showRecordForm && (
+                <button
+                  onClick={() => setShowRecordForm(true)}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  追加
+                </button>
+              )}
+            </div>
+
+            {/* 既存のレコード */}
+            <div className="space-y-2 mb-4">
+              {personalRecords.map((record) => (
+                <div key={record.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-900">{record.exercise}</p>
+                    <p className="text-sm text-slate-600">
+                      {record.weight}kg × {record.reps}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveRecord(record.id)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* レコード追加フォーム */}
+            {showRecordForm && (
+              <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
+                <input
+                  type="text"
+                  placeholder="種目名（例：ベンチプレス）"
+                  value={newRecord.exercise}
+                  onChange={(e) => setNewRecord({ ...newRecord, exercise: e.target.value })}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="重量(kg)"
+                    value={newRecord.weight}
+                    onChange={(e) => setNewRecord({ ...newRecord, weight: e.target.value })}
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="回数（例：5回×3セット）"
+                    value={newRecord.reps}
+                    onChange={(e) => setNewRecord({ ...newRecord, reps: e.target.value })}
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAddRecord}
+                    className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                  >
+                    追加
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRecordForm(false)
+                      setNewRecord({ id: '', exercise: '', weight: '', reps: '' })
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* トレーニング設定 */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-900 mb-4">トレーニング設定</h3>
+            
+            {/* トレーニング頻度 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                トレーニング頻度
+              </label>
+              <select 
+                defaultValue="週5-6回"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              >
+                <option>週1-2回</option>
+                <option>週3-4回</option>
+                <option>週5-6回</option>
+                <option>毎日</option>
+              </select>
+            </div>
+
+            {/* 主なトレーニング時間帯 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                主なトレーニング時間帯
+              </label>
+              <select 
+                defaultValue="夜（17:00-22:00）"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              >
+                <option>早朝（5:00-8:00）</option>
+                <option>午前（8:00-12:00）</option>
+                <option>午後（12:00-17:00）</option>
+                <option>夜（17:00-22:00）</option>
+                <option>深夜（22:00-5:00）</option>
+              </select>
+            </div>
+
+            {/* 目標 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                トレーニング目標
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input type="checkbox" className="mr-2 rounded" defaultChecked />
+                  <span className="text-sm">筋力向上</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" className="mr-2 rounded" defaultChecked />
+                  <span className="text-sm">筋肥大</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" className="mr-2 rounded" />
+                  <span className="text-sm">ダイエット</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" className="mr-2 rounded" />
+                  <span className="text-sm">健康維持</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* プライバシー設定 */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-900 mb-4">プライバシー設定</h3>
+            
+            <div className="space-y-3">
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-700">プロフィールを公開</span>
+                <input type="checkbox" className="toggle" defaultChecked />
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-700">ジム活を公開</span>
+                <input type="checkbox" className="toggle" defaultChecked />
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-700">パーソナルレコードを公開</span>
+                <input type="checkbox" className="toggle" defaultChecked />
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-700">位置情報を表示</span>
+                <input type="checkbox" className="toggle" defaultChecked />
+              </label>
+            </div>
+          </div>
+
+          {/* 保存ボタン（モバイル用） */}
+          <button
+            onClick={handleSave}
+            className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden"
+          >
+            <Save className="w-5 h-5" />
+            プロフィールを保存
+          </button>
+        </div>
+      </main>
+    </div>
+  )
+}

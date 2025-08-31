@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 // Material Design icons are now inline SVGs
 
 interface Post {
@@ -212,7 +213,13 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-300 rounded-full"></div>
+              <Image 
+                src="/muscle-taro-avatar.svg" 
+                alt="筋トレマニア太郎" 
+                width={96}
+                height={96}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-lg"
+              />
               <div className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center">
                 <svg width="14" height="14" className="sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="white">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
@@ -223,21 +230,24 @@ export default function ProfilePage() {
             {/* Profile Info */}
             <div className="flex-1 w-full text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                <h1 className="text-xl sm:text-2xl font-bold">筋トレマニア太郎</h1>
-                <span className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-600 text-xs sm:text-sm rounded-full font-medium">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">筋トレマニア太郎</h1>
+                <button 
+                  onClick={() => router.push('/profile/edit')}
+                  className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 text-xs sm:text-sm rounded-full font-medium transition-colors cursor-pointer"
+                >
                   プロフィール編集
-                </span>
+                </button>
               </div>
-              <div className="flex flex-row items-center justify-center sm:justify-start gap-3 text-gray-600 mb-1 sm:mb-3">
-                <p className="text-xs sm:text-base text-gray-600">@muscle_taro</p>
-                <span className="text-gray-400">•</span>
+              <div className="flex flex-row items-center justify-center sm:justify-start gap-3 text-slate-700 mb-1 sm:mb-3">
+                <p className="text-xs sm:text-base text-slate-700 font-medium">@muscle_taro</p>
+                <span className="text-slate-400">•</span>
                 <div className="flex items-center gap-1">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                   </svg>
                   <span className="text-xs sm:text-sm">2023年4月</span>
                 </div>
-                <span className="text-gray-400">•</span>
+                <span className="text-slate-400">•</span>
                 <div className="flex items-center gap-1">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -245,31 +255,33 @@ export default function ProfilePage() {
                   <span className="text-xs sm:text-sm">東京</span>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-800 mb-2 sm:mb-4 px-4 sm:px-0">
+              <p className="text-xs sm:text-sm text-slate-900 mb-2 sm:mb-4 px-4 sm:px-0">
                 筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジム歴が最高場が無料です
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 sm:flex gap-4 sm:gap-8 w-full sm:w-auto">
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold">108</div>
-                  <div className="text-xs sm:text-sm text-gray-500">ジム通い</div>
+              <div className="flex gap-4 sm:gap-8 w-full sm:w-auto justify-center sm:justify-start">
+                <button 
+                  onClick={() => router.push('/gym-stats')}
+                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                >
+                  <span className="text-xl sm:text-2xl font-bold text-slate-900">108</span>
+                  <span className="text-xs text-slate-600 font-medium">ジム通い</span>
+                </button>
+                <button 
+                  onClick={() => router.push('/gym-friends')}
+                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                >
+                  <span className="text-xl sm:text-2xl font-bold text-slate-900">89</span>
+                  <span className="text-xs text-slate-600 font-medium">ジム友</span>
+                </button>
+                <div className="flex flex-col items-center min-w-[60px] px-2 py-2">
+                  <span className="text-xl sm:text-2xl font-bold text-slate-900">345</span>
+                  <span className="text-xs text-slate-600 font-medium">フォロー</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold">89</div>
-                  <div className="text-xs sm:text-sm text-gray-500">ジム友</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold">23</div>
-                  <div className="text-xs sm:text-sm text-gray-500">オススメ</div>
-                </div>
-                <div className="text-center hidden sm:block">
-                  <div className="text-lg sm:text-2xl font-bold">345</div>
-                  <div className="text-xs sm:text-sm text-gray-500">フォロー</div>
-                </div>
-                <div className="text-center hidden sm:block">
-                  <div className="text-lg sm:text-2xl font-bold">89</div>
-                  <div className="text-xs sm:text-sm text-gray-500">フォロワー</div>
+                <div className="flex flex-col items-center min-w-[60px] px-2 py-2">
+                  <span className="text-xl sm:text-2xl font-bold text-slate-900">89</span>
+                  <span className="text-xs text-slate-600 font-medium">フォロワー</span>
                 </div>
               </div>
             </div>
@@ -279,35 +291,35 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-4 sm:gap-8">
             <button 
               onClick={() => setActiveTab('gym-activity')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'gym-activity' ? 'text-blue-600' : 'text-gray-600'} hover:text-gray-900 transition`}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'gym-activity' ? 'text-blue-600' : 'text-slate-600'} hover:text-slate-900 transition`}
             >
               <span className="text-sm sm:text-base font-medium">ジム活</span>
-              <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">16投稿</div>
+              <div className="text-xs text-slate-600 font-medium mt-0.5 sm:mt-1">16投稿</div>
               {activeTab === 'gym-activity' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
               )}
             </button>
             <button 
               onClick={() => setActiveTab('achievements')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'achievements' ? 'text-blue-600' : 'text-gray-600'} hover:text-gray-900 transition`}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'achievements' ? 'text-blue-600' : 'text-slate-600'} hover:text-slate-900 transition`}
             >
               <span className="text-sm sm:text-base font-medium">達成記録</span>
-              <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">4達成</div>
+              <div className="text-xs text-slate-600 font-medium mt-0.5 sm:mt-1">4達成</div>
               {activeTab === 'achievements' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
               )}
             </button>
             <button 
               onClick={() => setActiveTab('favorites')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-blue-600' : 'text-gray-600'} hover:text-gray-900 transition`}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-blue-600' : 'text-slate-600'} hover:text-slate-900 transition`}
             >
               <span className="text-sm sm:text-base font-medium">お気に入り</span>
-              <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">12ジム</div>
+              <div className="text-xs text-slate-600 font-medium mt-0.5 sm:mt-1">12ジム</div>
               {activeTab === 'favorites' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
               )}
@@ -320,40 +332,45 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
         {/* Gym Activity Tab */}
         {activeTab === 'gym-activity' && (
-          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
-            <div className="flex-1 order-2 lg:order-1 space-y-4">
-              {/* 新規投稿ボタン */}
-              <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors">
-                <button 
-                  onClick={() => router.push('/add')}
-                  className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-blue-600 transition-colors"
-                >
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                  </div>
-                  <span className="font-medium">新しいジム活を投稿する</span>
-                </button>
-              </div>
-              
-              {posts.map((post) => (
+          <div className="space-y-4">
+            {/* 新規投稿ボタン */}
+            <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors">
+              <button 
+                onClick={() => router.push('/add')}
+                className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-blue-600 transition-colors"
+              >
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+                <span className="font-medium">新しいジム活を投稿する</span>
+              </button>
+            </div>
+            
+            {posts.map((post) => (
                 <div key={post.id} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
                   {/* Post Header */}
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div className="flex gap-2 sm:gap-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 rounded-full flex-shrink-0"></div>
+                      <Image 
+                        src="/muscle-taro-avatar.svg" 
+                        alt="筋トレマニア太郎" 
+                        width={48}
+                        height={48}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow"
+                      />
                       <div>
                         <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                          <span className="text-sm sm:text-base font-semibold">{post.author.name}</span>
+                          <span className="text-sm sm:text-base font-bold text-slate-900">{post.author.name}</span>
                           {post.author.isVerified && (
                             <span className="px-1.5 sm:px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">認証済</span>
                           )}
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-500">{post.author.username}</p>
+                        <p className="text-xs sm:text-sm text-slate-600">{post.author.username}</p>
                       </div>
                     </div>
-                    <button className="text-gray-400 hover:text-gray-600 p-1">
+                    <button className="text-slate-500 hover:text-slate-700 p-1">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                       </svg>
@@ -361,41 +378,41 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Post Content */}
-                  <p className="text-sm sm:text-base text-gray-800 mb-3">{post.content}</p>
+                  <p className="text-sm sm:text-base text-slate-900 mb-3">{post.content}</p>
                   
                   {/* Training Details */}
                   {post.training && (
-                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                      <h4 className="font-semibold text-xs sm:text-sm mb-1.5 sm:mb-2">{post.training.type}</h4>
-                      <p className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">{post.training.details}</p>
+                    <div className="bg-slate-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                      <h4 className="font-bold text-xs sm:text-sm mb-1.5 sm:mb-2 text-slate-900">{post.training.type}</h4>
+                      <p className="text-xs sm:text-sm text-slate-700 whitespace-pre-line">{post.training.details}</p>
                     </div>
                   )}
 
                   {/* Post Image */}
                   {post.image && (
                     <div className="mb-3 sm:mb-4">
-                      <div className="h-48 sm:h-64 bg-gray-200 rounded-lg"></div>
+                      <div className="h-48 sm:h-64 bg-slate-200 rounded-lg"></div>
                     </div>
                   )}
 
                   {/* Post Date */}
-                  <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{post.date}</p>
+                  <p className="text-xs sm:text-sm text-slate-600 mb-2 sm:mb-3">{post.date}</p>
 
                   {/* Post Actions */}
-                  <div className="flex items-center gap-3 sm:gap-6 pt-2 sm:pt-3 border-t border-gray-100">
-                    <button className="flex items-center gap-1 sm:gap-2 text-gray-500 hover:text-red-500 transition">
+                  <div className="flex items-center gap-3 sm:gap-6 pt-2 sm:pt-3 border-t border-slate-100">
+                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-red-500 transition">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                       </svg>
                       <span className="text-xs sm:text-sm">いいね {post.likes}</span>
                     </button>
-                    <button className="flex items-center gap-1 sm:gap-2 text-gray-500 hover:text-blue-500 transition">
+                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-blue-500 transition">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                       </svg>
                       <span className="text-xs sm:text-sm">コメント {post.comments}</span>
                     </button>
-                    <button className="flex items-center gap-1 sm:gap-2 text-gray-500 hover:text-green-500 transition">
+                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-green-500 transition">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
                       </svg>
@@ -404,82 +421,70 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Sidebar - ジム活タブ専用 */}
-            <div className="w-full lg:w-80 space-y-4 order-1 lg:order-2">
-              {/* Recent Activities */}
-              <div className="bg-white rounded-lg p-4 sm:p-5 shadow-sm">
-                <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 inline" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
-                  </svg>
-                  今週の活動
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-1.5">
-                    <span className="text-xs sm:text-sm text-gray-600">トレーニング回数</span>
-                    <span className="text-xs sm:text-sm font-bold">5回</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1.5">
-                    <span className="text-xs sm:text-sm text-gray-600">総重量</span>
-                    <span className="text-xs sm:text-sm font-bold">12,450kg</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1.5">
-                    <span className="text-xs sm:text-sm text-gray-600">平均滞在時間</span>
-                    <span className="text-xs sm:text-sm font-bold">1時間45分</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Gym Friends */}
-              <div className="bg-white rounded-lg p-4 sm:p-5 shadow-sm">
-                <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 inline" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                  </svg>
-                  ジム友
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 py-1">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="text-xs sm:text-sm font-medium">山田太郎</div>
-                      <div className="text-xs text-gray-500">週3回一緒にトレーニング</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 py-1">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="text-xs sm:text-sm font-medium">佐藤花子</div>
-                      <div className="text-xs text-gray-500">朝トレ仲間</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
         {/* Achievements Tab */}
         {activeTab === 'achievements' && (
           <div className="space-y-4">
+            {/* Recent Activities */}
+            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+              <h3 className="font-bold text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 inline" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+                </svg>
+                <span className="text-slate-900">今週の活動</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-slate-700">トレーニング回数</span>
+                    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
+                    </svg>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">5回</div>
+                  <div className="text-xs text-slate-600 mt-1">週目標: 5回</div>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-slate-700">総重量</span>
+                    <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/>
+                    </svg>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">12,450kg</div>
+                  <div className="text-xs text-slate-600 mt-1">前週比: +850kg</div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-slate-700">平均滞在時間</span>
+                    <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">1時間45分</div>
+                  <div className="text-xs text-slate-600 mt-1">理想的な時間</div>
+                </div>
+              </div>
+            </div>
+
             {/* Personal Records */}
             <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
               <h3 className="font-bold text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 inline" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
                 </svg>
-                パーソナルレコード
+                <span className="text-slate-900">パーソナルレコード</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {personalRecords.map((record, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                  <div key={index} className="bg-slate-50 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-sm sm:text-base font-semibold text-gray-700">{record.exercise}</span>
+                      <span className="text-sm sm:text-base font-semibold text-slate-800">{record.exercise}</span>
                       <span className="text-lg sm:text-xl font-bold text-blue-600">{record.weight}</span>
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-600">{record.reps}</div>
+                    <div className="text-xs sm:text-sm text-slate-700">{record.reps}</div>
                   </div>
                 ))}
               </div>
@@ -495,10 +500,10 @@ export default function ProfilePage() {
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {achievements.map((achievement, index) => (
-                  <div key={index} className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                  <div key={index} className="text-center p-3 sm:p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition cursor-pointer">
                     <div className="mb-2 flex justify-center">{achievement.icon}</div>
-                    <div className="text-sm font-medium text-gray-700">{achievement.name}</div>
-                    <div className="text-xs text-gray-500 mt-1">{achievement.date}</div>
+                    <div className="text-sm font-medium text-slate-800">{achievement.name}</div>
+                    <div className="text-xs text-slate-600 mt-1">{achievement.date}</div>
                   </div>
                 ))}
               </div>
@@ -517,16 +522,21 @@ export default function ProfilePage() {
               ].map((gym, index) => (
                 <div key={index} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition">
                   <div className="flex gap-4">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-200 rounded-lg flex-shrink-0"></div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-base sm:text-lg mb-1">{gym.name}</h4>
-                      <p className="text-sm text-gray-600 mb-2">📍 {gym.area}</p>
+                      <h4 className="font-bold text-base sm:text-lg mb-1 text-slate-900">{gym.name}</h4>
+                      <p className="text-sm text-slate-700 mb-2 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        {gym.area}
+                      </p>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <svg className="w-4 h-4 text-red-500 inline" viewBox="0 0 24 24" fill="currentColor">
                             <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                           </svg>
-                          <span className="text-sm font-medium">{gym.users}人</span>
+                          <span className="text-sm font-bold text-slate-900">{gym.users}人</span>
                         </div>
                       </div>
                     </div>
