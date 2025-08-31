@@ -15,8 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GYMTOPIA",
-  description: "Your fitness companion app",
+  title: "ジムトピア",
+  description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
+  openGraph: {
+    title: "ジムトピア",
+    description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
+    siteName: "ジムトピア",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ジムトピア",
+    description: "理想のジムを見つけよう - あなたのフィットネスライフをサポート",
+  },
 };
 
 export default function RootLayout({
