@@ -83,7 +83,7 @@ const facilityConditions: ConditionCategory[] = [
 
 
 export default function ConditionSelector({ selectedFacilities, onSelectionChange }: ConditionSelectorProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['basic']))
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
 
   const handleFacilityToggle = (itemId: string) => {
     const newSelected = new Set(selectedFacilities)

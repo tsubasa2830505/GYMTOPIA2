@@ -110,7 +110,7 @@ const freeWeightCategories: FreeWeightCategory[] = [
 ]
 
 export default function FreeWeightSelector({ selectedFreeWeights, onSelectionChange }: FreeWeightSelectorProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['barbell']))
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     const newSelected = new Map(selectedFreeWeights)

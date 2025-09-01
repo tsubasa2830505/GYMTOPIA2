@@ -9,7 +9,7 @@ import ConditionSelector from '@/components/ConditionSelector'
 
 export default function Home() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('condition')
+  const [activeTab, setActiveTab] = useState('machine')
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
   const [selectedMakers, setSelectedMakers] = useState<string[]>([])
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())

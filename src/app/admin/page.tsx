@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MapPin, Upload, Settings, LogOut, User, Dumbbell, Plus, Trash2, Send, Heart, Users } from 'lucide-react'
+import { MapPin, Upload, Settings, LogOut, User, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
 
 interface Equipment {
   id: string
@@ -32,7 +32,7 @@ interface Review {
 
 export default function AdminPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('facility')
+  const [activeTab, setActiveTab] = useState('basic')
   const [formData, setFormData] = useState({
     basicInfo: {
       name: 'ハンマーストレングス渋谷',
@@ -671,6 +671,215 @@ export default function AdminPage() {
                         設備が登録されていません
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 統計情報タブ */}
+            {activeTab === 'stats' && (
+              <div className="space-y-6">
+                {/* 統計概要 */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[12.3px] text-slate-700">今月の投稿数</span>
+                      <Users className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">234件</div>
+                    <div className="text-[10px] text-slate-600 mt-1">前月比: +18.2%</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[12.3px] text-slate-700">イキタイ数</span>
+                      <Heart className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">342人</div>
+                    <div className="text-[10px] text-slate-600 mt-1">前月比: +12.5%</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[12.3px] text-slate-700">混雑報告</span>
+                      <Activity className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">72件</div>
+                    <div className="text-[10px] text-slate-600 mt-1">空き: 23件, 混雑: 49件</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[12.3px] text-slate-700">設備言及</span>
+                      <Users className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">288回</div>
+                    <div className="text-[10px] text-slate-600 mt-1">5種類の設備</div>
+                  </div>
+                </div>
+
+                {/* 時間帯別投稿分析 */}
+                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">時間帯別ジム活投稿</h3>
+                  <div className="space-y-3">
+                    {[
+                      { time: '5:00-9:00', posts: 28, percentage: 12.0, color: 'bg-blue-500', crowd: '空いてる' },
+                      { time: '9:00-12:00', posts: 15, percentage: 6.4, color: 'bg-green-500', crowd: '空いてる' },
+                      { time: '12:00-15:00', posts: 42, percentage: 17.9, color: 'bg-yellow-500', crowd: '普通' },
+                      { time: '15:00-18:00', posts: 67, percentage: 28.6, color: 'bg-orange-500', crowd: '混雑' },
+                      { time: '18:00-22:00', posts: 72, percentage: 30.8, color: 'bg-red-500', crowd: '混雑' },
+                      { time: '22:00-24:00', posts: 10, percentage: 4.3, color: 'bg-purple-500', crowd: '空いてる' },
+                    ].map((slot, index) => (
+                      <div key={index} className="flex items-center gap-4">
+                        <div className="w-20 text-[12.3px] font-medium text-slate-700">{slot.time}</div>
+                        <div className="flex-1">
+                          <div className="relative h-6 bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                              className={`absolute top-0 left-0 h-full ${slot.color} rounded-full transition-all duration-500`}
+                              style={{ width: `${slot.percentage}%` }}
+                            />
+                            <div className="absolute inset-0 flex items-center px-3">
+                              <span className="text-[11px] font-medium text-slate-700">
+                                {slot.posts}件
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-slate-600">
+                          {slot.crowd}
+                        </div>
+                        <div className="text-[12.3px] text-slate-600 w-12 text-right">
+                          {slot.percentage}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 投稿で言及された設備 */}
+                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">投稿で言及された設備</h3>
+                  <div className="space-y-3">
+                    {[
+                      { name: 'パワーラック', mentions: 87, sentiment: '好評', trend: '+12件' },
+                      { name: 'ベンチプレス', mentions: 76, sentiment: '好評', trend: '+8件' },
+                      { name: 'ダンベル', mentions: 63, sentiment: '普通', trend: '+5件' },
+                      { name: 'ケーブルマシン', mentions: 34, sentiment: '要改善', trend: '-3件' },
+                      { name: 'スミスマシン', mentions: 28, sentiment: '普通', trend: '+2件' },
+                    ].map((equipment, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-[11px]">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="text-[12.3px] font-medium text-slate-900">{equipment.name}</div>
+                            <div className="text-[10px] text-slate-600">
+                              言及数: {equipment.mentions}回
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                            equipment.sentiment === '好評' ? 'bg-green-100 text-green-700' :
+                            equipment.sentiment === '要改善' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {equipment.sentiment}
+                          </span>
+                          <div className={`text-[11px] font-medium ${
+                            equipment.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {equipment.trend}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 投稿者分析 */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
+                    <h3 className="text-[14px] font-bold text-slate-900 mb-4">頻繁な投稿者</h3>
+                    <div className="space-y-3">
+                      {[
+                        { name: '筋トレ愛好家', posts: 23, likes: 156, lastPost: '2日前' },
+                        { name: 'ベンチプレスサー', posts: 18, likes: 98, lastPost: '昨日' },
+                        { name: 'フィットネス女子', posts: 15, likes: 134, lastPost: '3日前' },
+                        { name: 'パワーリフター', posts: 12, likes: 87, lastPost: '今日' },
+                        { name: 'カーディオ派', posts: 9, likes: 45, lastPost: '5日前' },
+                      ].map((user, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                              {user.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="text-[12.3px] font-medium text-slate-900">{user.name}</div>
+                              <div className="text-[10px] text-slate-600">投稿: {user.posts}件 • ♥ {user.likes}</div>
+                            </div>
+                          </div>
+                          <div className="text-[10px] text-slate-600">
+                            {user.lastPost}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
+                    <h3 className="text-[14px] font-bold text-slate-900 mb-4">月別投稿推移</h3>
+                    <div className="space-y-3">
+                      {[
+                        { month: '8月', posts: 167, growth: '+8.4%' },
+                        { month: '9月', posts: 182, growth: '+9.0%' },
+                        { month: '10月', posts: 195, growth: '+7.1%' },
+                        { month: '11月', posts: 203, growth: '+4.1%' },
+                        { month: '12月', posts: 198, growth: '-2.5%' },
+                        { month: '1月', posts: 234, growth: '+18.2%' },
+                      ].map((data, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="text-[12.3px] text-slate-700 w-10">{data.month}</div>
+                          <div className="flex-1 px-3">
+                            <div className="text-[12.3px] font-medium text-slate-900">
+                              {data.posts}件
+                            </div>
+                          </div>
+                          <div className={`text-[11px] font-medium ${
+                            data.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {data.growth}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 運営アドバイス */}
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-indigo-600" />
+                    運営改善提案
+                  </h3>
+                  <div className="space-y-3 text-[12.3px] text-slate-700">
+                    <div className="flex items-start gap-2">
+                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <p><strong>混雑情報の活用:</strong> 18-22時の投稿が多く「混雑」報告多数。混雑状況の可視化で利用者分散を促進</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <p><strong>設備改善の優先順位:</strong> ケーブルマシンへの言及が「要改善」評価。メンテナンスや配置見直しを検討</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <p><strong>コミュニティ活性化:</strong> 頻繁な投稿者をアンバサダーに。ジム活投稿キャンペーンで新規投稿者を増やす</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <p><strong>投稿の活用:</strong> イキタイ数342人は高い関心度。ジム活投稿を公式SNSでシェアして更なる認知拡大</p>
+                    </div>
                   </div>
                 </div>
               </div>
