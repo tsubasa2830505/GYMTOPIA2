@@ -117,7 +117,7 @@ function AddGymPostContent() {
     setShowEquipmentConfirmation(true)
     // 2秒後に画面遷移
     setTimeout(() => {
-      router.push('/search')
+      router.push('/')
     }, 2000)
   }
 
