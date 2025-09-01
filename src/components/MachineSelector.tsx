@@ -254,20 +254,14 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
         </div>
 
         {/* タイプ */}
-        <div className={`md-card overflow-hidden transition-opacity ${
-          filter.target.length === 0 ? 'opacity-50 pointer-events-none' : ''
-        }`}>
+        <div className="md-card overflow-hidden">
           <button
             onClick={() => toggleSection('type')}
             className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard"
-            disabled={filter.target.length === 0}
           >
             <div className="flex items-center gap-3">
               <Settings className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-slate-900">タイプ</h3>
-              {filter.target.length === 0 && (
-                <span className="text-xs text-slate-500">（ターゲットを選択してください）</span>
-              )}
               {filter.type.length > 0 && (
                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                   {filter.type.length}
@@ -310,20 +304,14 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
         </div>
 
         {/* メーカー */}
-        <div className={`md-card overflow-hidden transition-opacity ${
-          filter.type.length === 0 ? 'opacity-50 pointer-events-none' : ''
-        }`}>
+        <div className="md-card overflow-hidden">
           <button
             onClick={() => toggleSection('maker')}
             className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard"
-            disabled={filter.type.length === 0}
           >
             <div className="flex items-center gap-3">
               <Factory className="w-5 h-5 text-purple-600" />
               <h3 className="font-semibold text-slate-900">メーカー</h3>
-              {filter.type.length === 0 && (
-                <span className="text-xs text-slate-500">（タイプを選択してください）</span>
-              )}
               {filter.maker.length > 0 && (
                 <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
                   {filter.maker.length}
