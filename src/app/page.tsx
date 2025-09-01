@@ -161,13 +161,13 @@ export default function Home() {
                         </div>
                       ))}
                       {/* Free Weight Tags */}
-                      {Array.from(selectedFreeWeights).map((weight) => (
-                        <div key={`weight-${weight}`} className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs">
-                          <span>{weight}</span>
+                      {Array.from(selectedFreeWeights).map(([weightId, count]) => (
+                        <div key={`weight-${weightId}`} className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs">
+                          <span>{weightId} ({count}個)</span>
                           <button
                             onClick={() => {
-                              const newWeights = new Set(selectedFreeWeights)
-                              newWeights.delete(weight)
+                              const newWeights = new Map(selectedFreeWeights)
+                              newWeights.delete(weightId)
                               setSelectedFreeWeights(newWeights)
                             }}
                             className="text-blue-500 hover:text-blue-700 font-semibold"
@@ -197,7 +197,7 @@ export default function Home() {
                       <button
                         onClick={() => {
                           setSelectedMachines(new Set())
-                          setSelectedFreeWeights(new Set())
+                          setSelectedFreeWeights(new Map())
                           setSelectedFacilities(new Set())
                         }}
                         className="text-xs text-slate-500 hover:text-slate-700 font-medium"
@@ -475,13 +475,13 @@ export default function Home() {
                   ))}
                   
                   {/* フリーウェイト条件 */}
-                  {Array.from(selectedFreeWeights).map((weight) => (
-                    <div key={`weight-${weight}`} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
-                      <span className="text-sm font-medium text-blue-700">{weight}</span>
+                  {Array.from(selectedFreeWeights).map(([weightId, count]) => (
+                    <div key={`weight-${weightId}`} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                      <span className="text-sm font-medium text-blue-700">{weightId} ({count}個)</span>
                       <button
                         onClick={() => {
-                          const newWeights = new Set(selectedFreeWeights)
-                          newWeights.delete(weight)
+                          const newWeights = new Map(selectedFreeWeights)
+                          newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}
                         className="text-blue-500 hover:text-blue-700"
