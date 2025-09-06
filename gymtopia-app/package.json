@@ -8,10 +8,12 @@
     "dev:clean": "./scripts/dev-reset.sh --clean",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "system:test": "node ../scripts/system-test.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.56.1",
+    "@supabase/supabase-js": "^2.57.2",
+    "dotenv": "^17.2.2",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
     "react": "19.1.0",
@@ -25,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
+    "puppeteer": "^24.17.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

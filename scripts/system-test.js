@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+const path = require('path');
 
 async function waitForServer(url, timeoutMs = 120000, intervalMs = 1000) {
   const start = Date.now();
@@ -14,7 +15,15 @@ async function waitForServer(url, timeoutMs = 120000, intervalMs = 1000) {
 
 function runNode(scriptPath, cwd = process.cwd()) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [scriptPath], { cwd, stdio: 'inherit' });
+    const child = spawn(process.execPath, [scriptPath], {
+      cwd,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        // Ensure modules installed in the app (single package.json) are resolvable
+        NODE_PATH: path.join(cwd, 'gymtopia-app', 'node_modules')
+      }
+    });
     child.on('exit', (code) => {
       if (code === 0) resolve();
       else reject(new Error(`${scriptPath} exited with code ${code}`));
@@ -25,8 +34,13 @@ function runNode(scriptPath, cwd = process.cwd()) {
 
 async function main() {
   console.log('🚀 Starting Next.js dev server (port 3000)...');
+
+  // Resolve repo root and app directory regardless of where this script is launched from
+  const repoRoot = path.resolve(__dirname, '..');
+  const appDir = path.join(repoRoot, 'gymtopia-app');
+
   const dev = spawn('npm', ['run', 'dev'], {
-    cwd: 'gymtopia-app',
+    cwd: appDir,
     stdio: 'pipe',
     env: { ...process.env },
   });
@@ -58,14 +72,14 @@ async function main() {
 
     // Run fast route checks first
     try {
-      await runNode('gymtopia-app/test_routes.js');
+      await runNode(path.join(appDir, 'test_routes.js'), repoRoot);
     } catch (e) {
       console.warn('⚠️ Route test failed:', e.message);
     }
 
     // Run headless Puppeteer-based tests
-    await runNode('simple_test.js');
-    await runNode('interaction_test.js');
+    await runNode(path.join(repoRoot, 'simple_test.js'), repoRoot);
+    await runNode(path.join(repoRoot, 'interaction_test.js'), repoRoot);
 
     console.log('\n🎉 System tests finished.');
   } catch (err) {

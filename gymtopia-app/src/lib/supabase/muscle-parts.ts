@@ -50,46 +50,45 @@ export async function getMuscleParts(): Promise<MusclePart[]> {
 function formatMuscleParts(data: Record<string, unknown>[]): MusclePart[] {
   console.log('Raw muscle_groups data from Supabase:', data)
   
-  // muscle_groupsテーブルの構造に基づいてマッピング
-  // テーブル構造: id, name, category, parts (配列またはJSON)
-  const formattedParts: MusclePart[] = data.map((item, index) => {
-    // カテゴリー名の取得
-    const categoryName = String(item.name || item.group_name || item.category || 'その他')
-    const categoryKey = String(item.category || item.key || categoryName.toLowerCase().replace(/\s+/g, '_'))
+  // 新しいデータ構造（各部位1行）をカテゴリごとにグループ化
+  const groupedByCategory = new Map<string, { name: string, parts: string[] }>()
+  
+  data.forEach((item) => {
+    // categoryから番号を除去（例: "肩_1" -> "肩"）
+    const rawCategory = String(item.category || '')
+    const category = rawCategory.replace(/_\d+$/, '')
+    const partName = String(item.name || '')
     
-    // パーツの取得（配列、JSON文字列、カンマ区切り文字列に対応）
-    let parts: string[] = []
-    
-    if (item.parts) {
-      if (Array.isArray(item.parts)) {
-        parts = item.parts.map(p => String(p))
-      } else if (typeof item.parts === 'string') {
-        // JSON文字列またはカンマ区切り文字列として解析
-        try {
-          const parsed = JSON.parse(item.parts as string)
-          parts = Array.isArray(parsed) ? parsed.map(p => String(p)) : []
-        } catch {
-          // JSON解析に失敗した場合はカンマ区切りとして処理
-          parts = (item.parts as string).split(',').map(p => p.trim()).filter(p => p)
-        }
-      } else if (typeof item.parts === 'object' && item.parts !== null) {
-        // オブジェクトの場合、値を配列として取得
-        parts = Object.values(item.parts as object).map(p => String(p))
-      }
+    if (!groupedByCategory.has(category)) {
+      groupedByCategory.set(category, {
+        name: category,
+        parts: []
+      })
     }
     
-    // muscle_detailsフィールドがある場合の処理
-    if (!parts.length && item.muscle_details) {
-      if (Array.isArray(item.muscle_details)) {
-        parts = item.muscle_details.map(d => String(d))
-      }
+    const group = groupedByCategory.get(category)!
+    if (!group.parts.includes(partName)) {
+      group.parts.push(partName)
     }
-    
+  })
+  
+  // カテゴリIDマッピング
+  const categoryIdMap: Record<string, string> = {
+    '胸': 'chest',
+    '背中': 'back',
+    '肩': 'shoulder',
+    '脚': 'legs',
+    '腕': 'arms',
+    '腹': 'core'
+  }
+  
+  // グループ化されたデータをMusclePart形式に変換
+  const formattedParts: MusclePart[] = Array.from(groupedByCategory.entries()).map(([category, data], index) => {
     return {
-      id: Number(item.id) || index + 1,
-      category: categoryKey,
-      name: categoryName,
-      parts: parts
+      id: index + 1,
+      category: categoryIdMap[category] || category.toLowerCase(),
+      name: category,
+      parts: data.parts
     }
   })
   

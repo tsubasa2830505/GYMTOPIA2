@@ -3,6 +3,8 @@ import { Inter, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import "@/styles/material-theme.css";
 import BottomNavigation from "@/components/BottomNavigation";
+import Header from "@/components/Header";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,10 +52,13 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${inter.variable} ${notoJP.variable}`}>
       <body className="antialiased">
-        <div className="min-h-screen pb-20">
-          {children}
-        </div>
-        <BottomNavigation />
+        <AuthProvider>
+          <Header />
+          <div className="min-h-screen pt-16 pb-20">
+            {children}
+          </div>
+          <BottomNavigation />
+        </AuthProvider>
       </body>
     </html>
   );
