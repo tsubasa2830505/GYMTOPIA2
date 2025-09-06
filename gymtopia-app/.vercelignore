@@ -1,0 +1,31 @@
+# Test files
+test_*.js
+*_test.js
+*.test.js
+*.spec.js
+
+# Development files
+.env.local
+.env.development
+
+# Documentation
+docs/
+*.md
+
+# Scripts
+scripts/
+
+# Git
+.git/
+.gitignore
+
+# Node modules (Vercel will install fresh)
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

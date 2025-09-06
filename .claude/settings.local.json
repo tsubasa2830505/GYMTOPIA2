@@ -53,7 +53,8 @@
       "Bash(pkill:*)",
       "Bash(for file in src/components/*.tsx)",
       "Bash(git rm:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []
