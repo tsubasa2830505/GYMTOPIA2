@@ -54,7 +54,8 @@
       "Bash(for file in src/components/*.tsx)",
       "Bash(git rm:*)",
       "Bash(rm:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 4000",
+    "dev": "next dev --turbopack",
     "dev:reset": "./scripts/dev-reset.sh",
     "dev:clean": "./scripts/dev-reset.sh --clean",
     "build": "next build",

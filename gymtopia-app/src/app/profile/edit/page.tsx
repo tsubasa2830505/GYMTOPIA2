@@ -18,7 +18,7 @@ export default function ProfileEditPage() {
   // Basic Info
   const [name, setName] = useState('筋トレマニア太郎')
   const [username, setUsername] = useState('muscle_taro')
-  const [bio, setBio] = useState('筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジム歴が最高場が無料です')
+  const [bio, setBio] = useState('筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジムで最高の一日を')
   const [location, setLocation] = useState('東京')
   
   // Personal Records
