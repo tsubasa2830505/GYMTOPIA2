@@ -93,3 +93,35 @@
    - TypeScriptの型定義を最大限活用
    - Supabaseの自動生成型を使用
    - 実行時の型チェックも実装
+
+## デプロイメント管理
+
+### GitHub & Vercelの統合
+1. **バックアップとバージョン管理**：
+   - すべての変更は必ずGitHubにプッシュ
+   - 意味のある小さなコミットに分割
+   - コミットメッセージは明確に
+
+2. **Vercelデプロイメント**：
+   - GitHubへのプッシュで自動デプロイ
+   - 本番環境への反映を常に確認
+   - 環境変数はVercelダッシュボードで管理
+
+3. **強制デプロイ手順**：
+   ```bash
+   # 変更をコミット
+   git add -A
+   git commit -m "明確なコミットメッセージ"
+   git push origin main
+   
+   # 強制デプロイが必要な場合
+   echo "Force deploy: $(date)" > force-deploy.txt
+   git add force-deploy.txt
+   git commit -m "Force Vercel deployment"
+   git push origin main
+   ```
+
+### 重要な原則
+- **即座の反映確認** - デプロイ後は必ず本番環境で動作確認
+- **ロールバック準備** - 問題が発生した場合に備えて前のバージョンを把握
+- **段階的リリース** - 大きな変更は段階的にデプロイ
