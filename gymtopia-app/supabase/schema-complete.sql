@@ -2,6 +2,9 @@
 -- Supabase (PostgreSQL) Database Design
 -- Created: 2025-01-06
 
+-- Ensure UUID functions are available
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- ========================================
 -- 1. USERS & AUTHENTICATION
 -- ========================================
@@ -52,6 +55,62 @@ CREATE TABLE IF NOT EXISTS public.gyms (
 -- Create index for location-based queries
 CREATE INDEX idx_gyms_location ON public.gyms(latitude, longitude);
 CREATE INDEX idx_gyms_area ON public.gyms(area);
+
+-- ========================================
+-- 2.5 POSTS & SOCIAL (App compatibility)
+-- ========================================
+
+-- Posts (gym activity feed)
+CREATE TABLE IF NOT EXISTS public.posts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    gym_id UUID NOT NULL REFERENCES public.gyms(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    crowd_status TEXT CHECK (crowd_status IN ('empty', 'normal', 'crowded')),
+    training_details JSONB DEFAULT '{}',
+    image_urls TEXT[] DEFAULT '{}',
+    likes_count INTEGER DEFAULT 0,
+    comments_count INTEGER DEFAULT 0,
+    shares_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Likes on posts
+CREATE TABLE IF NOT EXISTS public.likes (
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, post_id)
+);
+
+-- Comments on posts
+CREATE TABLE IF NOT EXISTS public.comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Favorite gyms (aka Ikitai)
+CREATE TABLE IF NOT EXISTS public.favorite_gyms (
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    gym_id UUID REFERENCES public.gyms(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, gym_id)
+);
+
+-- User memberships in gyms (for same-gym checks)
+CREATE TABLE IF NOT EXISTS public.user_gym_memberships (
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    gym_id UUID REFERENCES public.gyms(id) ON DELETE CASCADE,
+    membership_type TEXT,
+    joined_at DATE DEFAULT CURRENT_DATE,
+    expires_at DATE,
+    is_active BOOLEAN DEFAULT true,
+    PRIMARY KEY (user_id, gym_id)
+);
 
 -- ========================================
 -- 3. EQUIPMENT & MACHINES
@@ -250,6 +309,11 @@ CREATE TABLE IF NOT EXISTS public.gym_managers (
 CREATE INDEX idx_gym_reviews_gym_id ON public.gym_reviews(gym_id);
 CREATE INDEX idx_gym_reviews_user_id ON public.gym_reviews(user_id);
 CREATE INDEX idx_gym_equipment_gym_id ON public.gym_equipment(gym_id);
+CREATE INDEX IF NOT EXISTS idx_posts_gym_created ON public.posts(gym_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_user_created ON public.posts(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_created ON public.posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_post ON public.comments(post_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_likes_post ON public.likes(post_id);
 CREATE INDEX idx_workout_sessions_user_id ON public.workout_sessions(user_id);
 CREATE INDEX idx_activities_user_id ON public.activities(user_id);
 CREATE INDEX idx_activities_created_at ON public.activities(created_at DESC);
@@ -268,6 +332,10 @@ ALTER TABLE public.gym_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workout_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gym_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.favorite_gyms ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles
@@ -279,6 +347,43 @@ CREATE POLICY "Users can update own profile" ON public.profiles
 -- Gyms policies (public read)
 CREATE POLICY "Gyms are viewable by everyone" ON public.gyms
     FOR SELECT USING (true);
+
+-- Posts policies (public read, owner write)
+CREATE POLICY "Posts are viewable by everyone" ON public.posts
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can create own posts" ON public.posts
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own posts" ON public.posts
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Likes policies
+CREATE POLICY "Likes are viewable by everyone" ON public.likes
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can like" ON public.likes
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can unlike own" ON public.likes
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Comments policies
+CREATE POLICY "Comments are viewable by everyone" ON public.comments
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can comment" ON public.comments
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Favorite gyms policies
+CREATE POLICY "Favorite gyms are viewable by everyone" ON public.favorite_gyms
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can toggle favorites" ON public.favorite_gyms
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can remove own favorites" ON public.favorite_gyms
+    FOR DELETE USING (auth.uid() = user_id);
 
 -- Reviews policies
 CREATE POLICY "Reviews are viewable by everyone" ON public.gym_reviews
@@ -320,6 +425,39 @@ CREATE TRIGGER update_gyms_updated_at BEFORE UPDATE ON public.gyms
 CREATE TRIGGER update_gym_equipment_updated_at BEFORE UPDATE ON public.gym_equipment
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+-- Update likes/comments counters on posts
+CREATE OR REPLACE FUNCTION update_likes_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE public.posts SET likes_count = likes_count + 1 WHERE id = NEW.post_id;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE public.posts SET likes_count = likes_count - 1 WHERE id = OLD.post_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_likes_count
+AFTER INSERT OR DELETE ON public.likes
+    FOR EACH ROW EXECUTE FUNCTION update_likes_count();
+
+CREATE OR REPLACE FUNCTION update_comments_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE public.posts SET comments_count = comments_count + 1 WHERE id = NEW.post_id;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE public.posts SET comments_count = comments_count - 1 WHERE id = OLD.post_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_comments_count
+AFTER INSERT OR DELETE ON public.comments
+    FOR EACH ROW EXECUTE FUNCTION update_comments_count();
+
 -- Function to update gym rating
 CREATE OR REPLACE FUNCTION update_gym_rating()
 RETURNS TRIGGER AS $$
@@ -344,6 +482,115 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_gym_rating_trigger
 AFTER INSERT OR UPDATE OR DELETE ON public.gym_reviews
     FOR EACH ROW EXECUTE FUNCTION update_gym_rating();
+
+-- Nearby gyms (Haversine, lat/lng columns)
+CREATE OR REPLACE FUNCTION public.find_nearby_gyms(
+  user_lat DOUBLE PRECISION,
+  user_lng DOUBLE PRECISION,
+  radius_km DOUBLE PRECISION DEFAULT 5
+)
+RETURNS TABLE (
+  id UUID,
+  name TEXT,
+  address TEXT,
+  distance_km DOUBLE PRECISION,
+  business_hours JSONB,
+  facilities JSONB
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    g.id,
+    g.name,
+    g.address,
+    (2 * 6371 * ASIN(SQRT(
+      POWER(SIN(RADIANS(g.latitude - user_lat) / 2), 2) +
+      COS(RADIANS(user_lat)) * COS(RADIANS(g.latitude)) *
+      POWER(SIN(RADIANS(g.longitude - user_lng) / 2), 2)
+    ))) AS distance_km,
+    g.business_hours,
+    g.facilities
+  FROM public.gyms g
+  WHERE g.latitude IS NOT NULL AND g.longitude IS NOT NULL
+  HAVING (2 * 6371 * ASIN(SQRT(
+      POWER(SIN(RADIANS(g.latitude - user_lat) / 2), 2) +
+      COS(RADIANS(user_lat)) * COS(RADIANS(g.latitude)) *
+      POWER(SIN(RADIANS(g.longitude - user_lng) / 2), 2)
+    ))) <= radius_km
+  ORDER BY distance_km;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Personalized feed (aligns with app queries)
+CREATE OR REPLACE FUNCTION public.get_personalized_feed(
+  current_user_id UUID,
+  feed_type TEXT DEFAULT 'all',
+  limit_count INTEGER DEFAULT 20,
+  offset_count INTEGER DEFAULT 0
+)
+RETURNS TABLE (
+  post_id UUID,
+  user_id UUID,
+  username TEXT,
+  display_name TEXT,
+  avatar_url TEXT,
+  gym_id UUID,
+  gym_name TEXT,
+  content TEXT,
+  crowd_status TEXT,
+  training_details JSONB,
+  image_urls TEXT[],
+  likes_count INTEGER,
+  comments_count INTEGER,
+  is_liked BOOLEAN,
+  is_gym_friend BOOLEAN,
+  is_following BOOLEAN,
+  is_same_gym BOOLEAN,
+  created_at TIMESTAMP WITH TIME ZONE
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    p.id AS post_id,
+    p.user_id,
+    pr.username,
+    pr.display_name,
+    pr.avatar_url,
+    p.gym_id,
+    g.name AS gym_name,
+    p.content,
+    p.crowd_status,
+    p.training_details,
+    p.image_urls,
+    p.likes_count,
+    p.comments_count,
+    EXISTS(SELECT 1 FROM public.likes WHERE user_id = current_user_id AND post_id = p.id) AS is_liked,
+    EXISTS(SELECT 1 FROM public.gym_friends WHERE user_id = current_user_id AND friend_id = p.user_id AND status = 'accepted') AS is_gym_friend,
+    EXISTS(SELECT 1 FROM public.follows WHERE follower_id = current_user_id AND following_id = p.user_id) AS is_following,
+    EXISTS(SELECT 1 FROM public.user_gym_memberships ugm1 
+           JOIN public.user_gym_memberships ugm2 ON ugm1.gym_id = ugm2.gym_id 
+           WHERE ugm1.user_id = current_user_id AND ugm2.user_id = p.user_id) AS is_same_gym,
+    p.created_at
+  FROM public.posts p
+  JOIN public.profiles pr ON p.user_id = pr.id
+  JOIN public.gyms g ON p.gym_id = g.id
+  WHERE 
+    CASE 
+      WHEN feed_type = 'following' THEN 
+        EXISTS(SELECT 1 FROM public.follows WHERE follower_id = current_user_id AND following_id = p.user_id)
+      WHEN feed_type = 'gym_friends' THEN 
+        EXISTS(SELECT 1 FROM public.gym_friends WHERE user_id = current_user_id AND friend_id = p.user_id AND status = 'accepted')
+      WHEN feed_type = 'same_gym' THEN 
+        EXISTS(SELECT 1 FROM public.user_gym_memberships ugm1 
+               JOIN public.user_gym_memberships ugm2 ON ugm1.gym_id = ugm2.gym_id 
+               WHERE ugm1.user_id = current_user_id AND ugm2.user_id = p.user_id)
+      ELSE true
+    END
+  ORDER BY p.created_at DESC
+  LIMIT limit_count
+  OFFSET offset_count;
+END;
+$$ LANGUAGE plpgsql;
 
 -- ========================================
 -- END OF SCHEMA

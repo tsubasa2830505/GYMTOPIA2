@@ -5,7 +5,8 @@ import { Search, MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft,
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
-import { db } from '@/lib/supabase'
+import SearchResultMap from '@/components/SearchResultMap'
+import { getGyms } from '@/lib/supabase/gyms'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -65,14 +66,15 @@ function SearchResultsContent() {
       setError(null)
       
       const keyword = searchParams.get('keyword') || undefined
-      const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
-      const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
+      const prefecture = searchParams.get('prefecture') || undefined
+      const city = searchParams.get('city') || undefined
       
-      const data = await db.searchGyms({
-        keyword,
-        machines,
-        freeWeights
-      })
+      const filters: any = {}
+      if (keyword) filters.search = keyword
+      if (prefecture) filters.prefecture = prefecture
+      if (city) filters.city = city
+      
+      const data = await getGyms(filters)
       
       if (data) {
         // Transform data to match component format
@@ -82,9 +84,9 @@ function SearchResultsContent() {
           location: gym.city || gym.prefecture || '場所未設定',
           distance: '徒歩5分', // Placeholder - would calculate from actual location
           likes: gym.review_count || 0,
-          tags: gym.facilities ? Object.keys(gym.facilities).filter(key => gym.facilities[key]) : [],
+          tags: gym.equipment_types || [],
           image: '/gym1.jpg', // Placeholder
-          price: gym.price_info || '¥10,000～',
+          price: '¥10,000～', // Placeholder
           isLiked: false,
           rating: gym.rating || 0,
           address: gym.address || ''
@@ -185,6 +187,7 @@ function SearchResultsContent() {
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <button 
               onClick={() => router.back()}
+              aria-label="戻る"
               className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md hover:bg-slate-200 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
@@ -294,7 +297,7 @@ function SearchResultsContent() {
                   リスト
                 </button>
               </div>
-              <button className="p-1.5 sm:p-2 bg-slate-100 rounded-xl sm:rounded-2xl">
+              <button aria-label="フィルター" className="p-1.5 sm:p-2 bg-slate-100 rounded-xl sm:rounded-2xl">
                 <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700" />
               </button>
             </div>
@@ -311,77 +314,19 @@ function SearchResultsContent() {
         <div className="relative">
           {/* Map Container */}
           {viewMode === 'map' && (
-            <div className="bg-slate-100/30 rounded-xl sm:rounded-2xl h-[400px] sm:h-[600px] relative overflow-hidden mb-4 sm:mb-6">
-              {/* Map Placeholder with Circles */}
-              <div className="absolute inset-0">
-                <div className="absolute w-[70px] h-[70px] bg-green-300/20 rounded-full" style={{ left: '322px', top: '150px' }} />
-                <div className="absolute w-14 h-14 bg-blue-300/20 rounded-full" style={{ right: '241px', top: '50%' }} />
-                <div className="absolute w-[42px] h-[42px] bg-yellow-300/20 rounded-full" style={{ left: '241px', bottom: '200px' }} />
+            <div className="h-[400px] sm:h-[600px] mb-4 sm:mb-6 bg-red-100 p-4">
+              <div className="mb-2 text-sm">
+                <p>Debug: ViewMode = {viewMode}</p>
+                <p>Debug: Gyms count = {gyms.length}</p>
+                <p>Debug: First gym = {gyms[0]?.name || 'No gyms'}</p>
               </div>
-
-              {/* Gym Markers */}
-              <button className="absolute w-7 h-7 bg-blue-500 rounded-full shadow-lg flex items-center justify-center ring-2 ring-white ring-offset-2 ring-offset-blue-300" style={{ left: '28%', top: '22%' }}>
-                <MapPin className="w-3.5 h-3.5 text-white" />
-              </button>
-              <button className="absolute w-7 h-7 bg-blue-500 rounded-full shadow-lg flex items-center justify-center" style={{ left: '58%', top: '37%' }}>
-                <MapPin className="w-3.5 h-3.5 text-white" />
-              </button>
-              <button className="absolute w-7 h-7 bg-blue-500 rounded-full shadow-lg flex items-center justify-center" style={{ left: '23%', top: '57%' }}>
-                <MapPin className="w-3.5 h-3.5 text-white" />
-              </button>
-
-              {/* Zoom Controls */}
-              <div className="absolute top-4 right-4 flex flex-col gap-1">
-                <button className="w-7 h-7 bg-violet-200 rounded-lg flex items-center justify-center text-indigo-900 font-medium text-xs">
-                  +
-                </button>
-                <button className="w-7 h-7 bg-violet-200 rounded-lg flex items-center justify-center text-indigo-900 font-medium text-xs">
-                  −
-                </button>
+              <div className="h-full bg-blue-100">
+                <SearchResultMap 
+                  gyms={gyms}
+                  onGymSelect={(gymId) => setSelectedGymId(String(gymId))}
+                  height="100%"
+                />
               </div>
-
-              {/* Copyright */}
-              <div className="absolute bottom-2 right-2 bg-white/80 rounded px-2 py-1">
-                <span className="text-[10px] text-slate-600">© 2024 ジムトピア</span>
-              </div>
-
-              {/* Gym Card Overlay - Show first gym if available */}
-              {gyms.length > 0 && (
-                <div className="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-auto bg-white rounded-xl sm:rounded-2xl shadow-xl p-3 sm:p-4 sm:w-[280px] border border-slate-200">
-                  <div className="flex gap-2 sm:gap-3">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-pink-400 to-purple-500 rounded-lg flex-shrink-0" />
-                    <div className="flex-1">
-                      <h3 className="text-xs sm:text-sm font-bold text-slate-900">{gyms[0].name}</h3>
-                      <div className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-600 mt-1">
-                        <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        <span>{gyms[0].location} • {gyms[0].distance}</span>
-                      </div>
-                      <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-slate-900 mt-1">
-                        <Heart className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${gyms[0].isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
-                        <span>{gyms[0].likes}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3">
-                    {gyms[0].tags.slice(0, 2).map((tag, index) => (
-                      <span key={index} className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-violet-200 text-indigo-900 rounded-md sm:rounded-lg text-[9px] sm:text-[10px]">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3">
-                    <button className="flex-1 py-1 sm:py-1.5 border border-slate-200 rounded-lg text-[10px] sm:text-xs font-medium text-slate-900 flex items-center justify-center gap-0.5 sm:gap-1 bg-white">
-                      <Heart className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${gyms[0].isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                      {gyms[0].isLiked ? 'イキタイ済み' : 'イキタイ'}
-                    </button>
-                    <button 
-                      onClick={() => setSelectedGymId(gyms[0].id)}
-                      className="flex-1 py-1 sm:py-1.5 bg-blue-500 text-white rounded-lg text-[10px] sm:text-xs font-medium">
-                      詳細を見る
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -440,7 +385,7 @@ function SearchResultsContent() {
                         </div>
                         {gym.tags.length > 0 && (
                           <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3">
-                            {gym.tags.map((tag, index) => (
+                            {gym.tags.map((tag: string, index: number) => (
                               <span key={index} className="px-2 sm:px-3 py-0.5 sm:py-1 bg-violet-100 text-indigo-900 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium">
                                 {tag}
                               </span>

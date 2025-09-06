@@ -64,7 +64,10 @@
       "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search\" \"/search/results\" \"/search/machine\" \"/search/freeweight\" \"/add\" \"/gym-stats\" \"/gym-friends\" \"/followers\" \"/following\" \"/admin\" \"/admin/reviews\" \"/workout\" \"/stats\" \"/profile/edit\")",
       "Bash(do echo:*)",
       "Bash(npm run lint:*)",
-      "Bash(NODE_ENV=production npm run build)"
+      "Bash(NODE_ENV=production npm run build)",
+      "Bash(for page in \"/\" \"/search/results\" \"/feed\" \"/profile\")",
+      "WebFetch(domain:supabase.com)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

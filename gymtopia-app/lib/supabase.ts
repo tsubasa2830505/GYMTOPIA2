@@ -35,7 +35,7 @@ export const auth = {
     // プロファイル作成
     if (data.user) {
       const { error: profileError } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .insert({
           id: data.user.id,
           username,
@@ -86,28 +86,8 @@ export const db = {
     lng?: number
     radius?: number
   }) {
-    let query = supabase.from('gyms').select('*')
-    
-    // キーワード検索
-    if (params.keyword) {
-      query = query.or(`name.ilike.%${params.keyword}%,address.ilike.%${params.keyword}%`)
-    }
-    
-    // マシン検索
-    if (params.machines && params.machines.length > 0) {
-      query = query.contains('facilities', { machines: params.machines })
-    }
-    
-    // フリーウェイト検索
-    if (params.freeWeights && params.freeWeights.length > 0) {
-      query = query.contains('facilities', { free_weights: params.freeWeights })
-    }
-    
-    const { data, error } = await query
-    if (error) throw error
-    
-    // 位置情報がある場合は距離でソート
-    if (params.lat && params.lng && data) {
+    // 位置情報がある場合は近傍検索（他条件は今後の拡張でRPCへ統合）
+    if (params.lat && params.lng) {
       const { data: nearbyGyms, error: locationError } = await supabase
         .rpc('find_nearby_gyms', {
           user_lat: params.lat,
@@ -118,7 +98,51 @@ export const db = {
       if (locationError) throw locationError
       return nearbyGyms
     }
-    
+
+    // 正規化テーブルに基づくJOIN検索（タイプベース）
+    const types: string[] = []
+    if (params.machines && params.machines.length > 0) types.push('machine')
+    if (params.freeWeights && params.freeWeights.length > 0) types.push('free_weight')
+
+    if (types.length > 0) {
+      // gyms ←(inner) gym_equipment ←(inner) equipment
+      // PostgRESTの埋め込みリレーションを利用
+      let geQuery = supabase
+        .from('gyms')
+        .select('id,name,area,address,latitude,longitude,facilities, gym_equipment!inner(equipment!inner(type))')
+        .in('gym_equipment.equipment.type', types)
+
+      if (params.keyword) {
+        geQuery = geQuery.or(`name.ilike.%${params.keyword}%,address.ilike.%${params.keyword}%,area.ilike.%${params.keyword}%`)
+      }
+
+      const { data: gymsByJoin, error: geError } = await geQuery
+      if (geError) {
+        // フォールバック: JSON facilities contains（後方互換）
+        let fb = supabase.from('gyms').select('*')
+        if (params.keyword) {
+          fb = fb.or(`name.ilike.%${params.keyword}%,address.ilike.%${params.keyword}%`)
+        }
+        if (types.includes('machine')) {
+          fb = fb.contains('facilities', { machines: params.machines || [] })
+        }
+        if (types.includes('free_weight')) {
+          fb = fb.contains('facilities', { free_weights: params.freeWeights || [] })
+        }
+        const { data: fbData, error: fbError } = await fb
+        if (fbError) throw fbError
+        return fbData
+      }
+      return gymsByJoin
+    }
+
+    // タイプ指定がない場合は基本のキーワード検索
+    let query = supabase.from('gyms').select('*')
+    if (params.keyword) {
+      query = query.or(`name.ilike.%${params.keyword}%,address.ilike.%${params.keyword}%,area.ilike.%${params.keyword}%`)
+    }
+    const { data, error } = await query
+    if (error) throw error
     return data
   },
 
@@ -278,7 +302,7 @@ export const db = {
     personal_records?: Record<string, unknown>
   }) {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update(updates)
       .eq('id', userId)
       .select()

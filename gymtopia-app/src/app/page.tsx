@@ -212,7 +212,8 @@ export default function Home() {
                             params.set('machines', Array.from(selectedMachines).join(','))
                           }
                           if (selectedFreeWeights.size > 0) {
-                            params.set('freeWeights', Array.from(selectedFreeWeights).join(','))
+                            // 伝搬はIDのみ（Mapの値=個数はURLに載せない）
+                            params.set('freeWeights', Array.from(selectedFreeWeights.keys()).join(','))
                           }
                           if (selectedFacilities.size > 0) {
                             params.set('facilities', Array.from(selectedFacilities).join(','))
@@ -406,7 +407,8 @@ export default function Home() {
                       params.set('machines', Array.from(selectedMachines).join(','))
                     }
                     if (selectedFreeWeights.size > 0) {
-                      params.set('freeWeights', Array.from(selectedFreeWeights).join(','))
+                      // 伝搬はIDのみ（Mapの値=個数はURLに載せない）
+                      params.set('freeWeights', Array.from(selectedFreeWeights.keys()).join(','))
                     }
                     if (selectedFacilities.size > 0) {
                       params.set('facilities', Array.from(selectedFacilities).join(','))
