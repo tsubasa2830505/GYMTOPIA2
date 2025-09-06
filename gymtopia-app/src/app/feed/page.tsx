@@ -15,12 +15,13 @@ export default function FeedPage() {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [filter]); // Reload when filter changes
 
   const loadPosts = async () => {
     setIsLoading(true);
     try {
-      const feedPosts = await getFeedPosts();
+      // Pass filter and user ID to getFeedPosts
+      const feedPosts = await getFeedPosts(20, 0, filter, user?.id);
       setPosts(feedPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
@@ -88,7 +89,7 @@ export default function FeedPage() {
     }
   };
 
-  const filteredPosts = posts; // TODO: フィルタリングロジックを実装
+  const filteredPosts = posts; // Filtering is now handled in getFeedPosts
 
   return (
     <div className="min-h-screen bg-slate-50">

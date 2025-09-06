@@ -36,7 +36,7 @@ export default function BottomNavigation() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 sm:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[60] sm:hidden shadow-lg">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white">
           <div className="flex">
@@ -44,15 +44,15 @@ export default function BottomNavigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex-1 relative`}
+                className={`flex-1 relative block hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150`}
               >
-                <div className={`flex flex-col items-center justify-center py-2 transition-all ${
+                <div className={`flex flex-col items-center justify-center py-3 px-2 min-h-[60px] transition-all ${
                   item.isActive
-                    ? ''
-                    : ''
+                    ? 'transform scale-105'
+                    : 'transform scale-100'
                 }`}>
                   <div className="relative">
-                    <item.icon className={`w-5 h-5 ${
+                    <item.icon className={`w-5 h-5 transition-colors duration-150 ${
                       item.isActive ? 'text-blue-600' : 'text-slate-500'
                     }`} />
                     {item.badge && (
@@ -61,13 +61,13 @@ export default function BottomNavigation() {
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] mt-1 font-medium ${
+                  <span className={`text-[10px] mt-1 font-medium transition-colors duration-150 ${
                     item.isActive ? 'text-blue-600' : 'text-slate-500'
                   }`}>
                     {item.label}
                   </span>
                   {item.isActive && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full" />
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full animate-pulse" />
                   )}
                 </div>
               </Link>

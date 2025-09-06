@@ -7,10 +7,20 @@ import { useRouter } from 'next/navigation'
 import { LogOut, User } from 'lucide-react'
 
 export default function Header() {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, mockSignOut } = useAuth()
   const router = useRouter()
 
   const handleSignOut = async () => {
+    // Check if we're in development mode with mock auth
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const useMockAuth = isDevelopment
+    
+    if (useMockAuth) {
+      console.log('📱 Header: Mock logout - using mockSignOut')
+      mockSignOut()
+      return
+    }
+    
     await signOut()
     router.push('/')
   }

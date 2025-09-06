@@ -27,6 +27,16 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sqlite", "path/to/your/database.db"],
       "description": "Provides SQLite database access"
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_0622a2ed06c3e151bda6b13fb4c6af70c10f5137"
+      ],
+      "description": "Provides Supabase database access"
     }
   }
 }

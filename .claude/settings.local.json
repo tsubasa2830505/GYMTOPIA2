@@ -68,9 +68,20 @@
       "Bash(for page in \"/\" \"/search/results\" \"/feed\" \"/profile\")",
       "WebFetch(domain:supabase.com)",
       "Bash(cat:*)",
-      "Bash(for page in \"/\" \"/feed\" \"/admin\" \"/search\" \"/add\")"
+      "Bash(for page in \"/\" \"/feed\" \"/admin\" \"/search\" \"/add\")",
+      "Bash(brew install:*)",
+      "Read(//Users/tsubasa/Library/Application Support/Claude/**)",
+      "Bash(export:*)",
+      "Bash(SUPABASE_URL=https://htytewqvkgwyuvcsvjwm.supabase.co SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMzQyNDYsImV4cCI6MjA3MjcxMDI0Nn0.xltaH28adx1dIhsqaWllLDPEjw8iDrSglDIwj19rXnA npx @supabase/mcp-server-supabase --project-ref=htytewqvkgwyuvcsvjwm)",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "Bash(PORT=3000 npm run dev)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

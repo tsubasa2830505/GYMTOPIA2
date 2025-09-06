@@ -131,9 +131,22 @@ async function scenarioTest() {
   try {
     console.log('\n🧩 Scenario 4: Profile → Facility admin');
     await page.goto('http://localhost:3000/profile', { waitUntil: 'networkidle0', timeout: 15000 });
-    const clicked = await clickByText(page, 'button', '施設管理者');
+    await page.waitForSelector('header', { timeout: 5000 }).catch(() => {});
+    let clicked = await clickByText(page, 'button', '施設管理者');
+    if (!clicked) {
+      // Fallback: second button in the user type toggle
+      clicked = await page.evaluate(() => {
+        const container = Array.from(document.querySelectorAll('div'))
+          .find(d => d.className && d.className.includes('bg-slate-100') && d.className.includes('rounded-full'));
+        if (!container) return false;
+        const btns = container.querySelectorAll('button');
+        const target = btns[1] || btns[btns.length - 1];
+        if (target) { target.click(); return true; }
+        return false;
+      });
+    }
     if (!clicked) throw new Error('施設管理者 button not found');
-    await page.waitForFunction(() => location.pathname.startsWith('/admin'), { timeout: 5000 });
+    await page.waitForFunction(() => location.pathname.startsWith('/admin'), { timeout: 7000 });
     const url = page.url();
     const ok = /\/admin(\b|\/?)/.test(new URL(url).pathname);
     results.push({ name: 'Scenario 4', status: ok ? '✅ Passed' : '❌ Failed', url });

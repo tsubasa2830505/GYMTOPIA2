@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
+import * as mock from '@/lib/mock/gyms'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE || 'real'
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -50,6 +52,9 @@ export async function getGyms(filters?: {
   city?: string
   search?: string
 }) {
+  if (DATA_MODE === 'mock') {
+    return mock.mockGetGyms(filters)
+  }
   try {
     let query = supabase
       .from('gyms')
@@ -179,6 +184,7 @@ export async function getGyms(filters?: {
 
 // ジム詳細を取得
 export async function getGymById(id: string) {
+  if (DATA_MODE === 'mock') return mock.mockGetGymById(id)
   try {
     const { data, error } = await supabase
       .from('gyms')
@@ -196,6 +202,7 @@ export async function getGymById(id: string) {
 
 // ジムのマシン一覧を取得
 export async function getGymMachines(gymId: string) {
+  if (DATA_MODE === 'mock') return mock.mockGetGymMachines(gymId)
   try {
     const { data, error } = await supabase
       .from('gym_machines')
@@ -216,6 +223,7 @@ export async function getGymMachines(gymId: string) {
 
 // ジムのレビューを取得
 export async function getGymReviews(gymId: string) {
+  if (DATA_MODE === 'mock') return mock.mockGetGymReviews(gymId)
   try {
     const { data, error } = await supabase
       .from('gym_reviews')

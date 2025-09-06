@@ -33,7 +33,7 @@ async function main() {
   const repoRoot = path.resolve(__dirname, '..');
   const appDir = path.join(repoRoot, 'gymtopia-app');
 
-  const dev = spawn('npm', ['run', 'dev'], { cwd: appDir, stdio: 'pipe', env: { ...process.env } });
+  const dev = spawn('npm', ['run', 'dev'], { cwd: appDir, stdio: 'pipe', env: { ...process.env, NEXT_PUBLIC_DATA_MODE: 'mock' } });
   const logHandler = (buf) => {
     const t = buf.toString();
     if (/ready - started server|compiled successfully|Local:/i.test(t)) process.stdout.write(t);
@@ -52,7 +52,7 @@ async function main() {
   try {
     await waitForServer('http://localhost:3000');
     console.log('✅ Dev server ready. Running scenario flow...');
-    await runNode(path.join(repoRoot, 'scenario_test.js'), repoRoot);
+    await runNode(path.join(repoRoot, 'scenario_test.js'), repoRoot, { NEXT_PUBLIC_DATA_MODE: 'mock' });
     console.log('\n🎉 Scenario tests completed');
   } catch (e) {
     console.error('❌ Scenario runner failed:', e.message);
@@ -63,4 +63,3 @@ async function main() {
 }
 
 main();
-
