@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 export default function WorkoutPage() {
   const [isRunning, setIsRunning] = useState(false)
-  const [selectedExercises, setSelectedExercises] = useState([
+  const [selectedExercises] = useState([
     { name: 'ベンチプレス', sets: 3, reps: 10, weight: 60 },
     { name: 'インクラインダンベルプレス', sets: 3, reps: 12, weight: 20 },
     { name: 'ケーブルフライ', sets: 3, reps: 15, weight: 15 },

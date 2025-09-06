@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Star, Send, Heart, Users } from 'lucide-react';
+import Image from 'next/image';
 
 interface Review {
   id: string;
@@ -291,10 +292,12 @@ export default function AdminReviewsPage() {
                   {/* Avatar */}
                   <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
                     {review.author.avatar ? (
-                      <img
+                      <Image
                         src={review.author.avatar}
                         alt={review.author.name}
-                        className="w-full h-full rounded-full object-cover"
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
                       />
                     ) : (
                       <span className="text-sm font-medium text-indigo-600">

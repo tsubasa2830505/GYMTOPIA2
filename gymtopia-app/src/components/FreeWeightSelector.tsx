@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { 
-  ChevronRight, Check, Dumbbell, Weight, 
-  Circle, Disc, Package, Armchair, Home,
+  ChevronRight, Dumbbell, Weight, 
+  Circle, Armchair, Home,
   Plus, Minus
 } from 'lucide-react'
 
@@ -28,55 +28,17 @@ interface FreeWeightSelectorProps {
 
 const freeWeightCategories: FreeWeightCategory[] = [
   {
-    id: 'barbell',
-    name: 'バーベル',
-    description: 'オリンピックバー、カールバーなど',
-    icon: Weight,
+    id: 'rack',
+    name: 'パワーラック',
+    description: 'スクワット・ベンチプレス対応',
+    icon: Home,
     items: [
-      { id: 'olympic_bar', name: 'オリンピックバー（20kg）', description: '長さ220cm、直径28mm' },
-      { id: 'olympic_bar_15', name: 'オリンピックバー（15kg）', description: '女性用、直径25mm' },
-      { id: 'ez_curl_bar', name: 'EZカールバー', description: '腕のトレーニング特化' },
-      { id: 'straight_bar', name: 'ストレートバー', description: '短めのバーベル' },
-      { id: 'trap_bar', name: 'トラップバー（ヘックスバー）', description: 'デッドリフト用六角形バー' },
-      { id: 'safety_squat_bar', name: 'セーフティスクワットバー', description: '肩への負担軽減' },
-    ]
-  },
-  {
-    id: 'dumbbell',
-    name: 'ダンベル',
-    description: '固定式・可変式ダンベル',
-    icon: Dumbbell,
-    items: [
-      { id: 'fixed_dumbbell', name: '固定式ダンベル（1-50kg）', description: 'ラバーコーティング' },
-      { id: 'adjustable_dumbbell', name: '可変式ダンベル', description: 'PowerBlock、Bowflexなど' },
-      { id: 'hex_dumbbell', name: 'ヘックスダンベル', description: '六角形、転がり防止' },
-      { id: 'round_dumbbell', name: 'ラウンドダンベル', description: '丸型プロ仕様' },
-      { id: 'vinyl_dumbbell', name: 'ビニールダンベル（軽量）', description: '1-10kg、初心者向け' },
-    ]
-  },
-  {
-    id: 'plate',
-    name: 'プレート',
-    description: 'オリンピックプレート',
-    icon: Disc,
-    items: [
-      { id: 'olympic_plate', name: 'オリンピックプレート', description: '穴径50mm' },
-      { id: 'bumper_plate', name: 'バンパープレート', description: 'ラバー製、落下OK' },
-      { id: 'calibrated_plate', name: 'キャリブレーテッドプレート', description: '競技用高精度' },
-      { id: 'fractional_plate', name: 'フラクショナルプレート', description: '0.5kg、1kg、1.25kg' },
-      { id: 'standard_plate', name: 'スタンダードプレート', description: '穴径28mm' },
-    ]
-  },
-  {
-    id: 'kettlebell',
-    name: 'ケトルベル',
-    description: 'ファンクショナルトレーニング',
-    icon: Circle,
-    items: [
-      { id: 'cast_iron_kb', name: 'キャストアイアンケトルベル', description: '4-48kg' },
-      { id: 'competition_kb', name: 'コンペティションケトルベル', description: '統一サイズ' },
-      { id: 'adjustable_kb', name: '可変式ケトルベル', description: '重量調整可能' },
-      { id: 'vinyl_kb', name: 'ビニールケトルベル', description: '軽量、初心者向け' },
+      { id: 'power_rack', name: 'パワーラック', description: 'フルケージ、安全バー付き' },
+      { id: 'half_rack', name: 'ハーフラック', description: '省スペース型' },
+      { id: 'squat_rack', name: 'スクワットラック', description: 'スクワット特化' },
+      { id: 'combo_rack', name: 'コンボラック', description: 'プルアップバー付き' },
+      { id: 'wall_mount_rack', name: 'ウォールマウントラック', description: '壁設置型' },
+      { id: 'portable_rack', name: 'ポータブルラック', description: '移動可能' },
     ]
   },
   {
@@ -94,17 +56,42 @@ const freeWeightCategories: FreeWeightCategory[] = [
     ]
   },
   {
-    id: 'rack',
-    name: 'パワーラック',
-    description: 'スクワット・ベンチプレス対応',
-    icon: Home,
+    id: 'dumbbell',
+    name: 'ダンベル',
+    description: '固定式・可変式ダンベル',
+    icon: Dumbbell,
     items: [
-      { id: 'power_rack', name: 'パワーラック', description: 'フルケージ、安全バー付き' },
-      { id: 'half_rack', name: 'ハーフラック', description: '省スペース型' },
-      { id: 'squat_rack', name: 'スクワットラック', description: 'スクワット特化' },
-      { id: 'combo_rack', name: 'コンボラック', description: 'プルアップバー付き' },
-      { id: 'wall_mount_rack', name: 'ウォールマウントラック', description: '壁設置型' },
-      { id: 'portable_rack', name: 'ポータブルラック', description: '移動可能' },
+      { id: 'fixed_dumbbell', name: '固定式ダンベル（1-50kg）', description: 'ラバーコーティング' },
+      { id: 'adjustable_dumbbell', name: '可変式ダンベル', description: 'PowerBlock、Bowflexなど' },
+      { id: 'hex_dumbbell', name: 'ヘックスダンベル', description: '六角形、転がり防止' },
+      { id: 'round_dumbbell', name: 'ラウンドダンベル', description: '丸型プロ仕様' },
+      { id: 'vinyl_dumbbell', name: 'ビニールダンベル（軽量）', description: '1-10kg、初心者向け' },
+    ]
+  },
+  {
+    id: 'barbell',
+    name: 'バーベル',
+    description: 'オリンピックバー、カールバーなど',
+    icon: Weight,
+    items: [
+      { id: 'olympic_bar', name: 'オリンピックバー（20kg）', description: '長さ220cm、直径28mm' },
+      { id: 'olympic_bar_15', name: 'オリンピックバー（15kg）', description: '女性用、直径25mm' },
+      { id: 'ez_curl_bar', name: 'EZカールバー', description: '腕のトレーニング特化' },
+      { id: 'straight_bar', name: 'ストレートバー', description: '短めのバーベル' },
+      { id: 'trap_bar', name: 'トラップバー（ヘックスバー）', description: 'デッドリフト用六角形バー' },
+      { id: 'safety_squat_bar', name: 'セーフティスクワットバー', description: '肩への負担軽減' },
+    ]
+  },
+  {
+    id: 'kettlebell',
+    name: 'ケトルベル',
+    description: 'ファンクショナルトレーニング',
+    icon: Circle,
+    items: [
+      { id: 'cast_iron_kb', name: 'キャストアイアンケトルベル', description: '4-48kg' },
+      { id: 'competition_kb', name: 'コンペティションケトルベル', description: '統一サイズ' },
+      { id: 'adjustable_kb', name: '可変式ケトルベル', description: '重量調整可能' },
+      { id: 'vinyl_kb', name: 'ビニールケトルベル', description: '軽量、初心者向け' },
     ]
   }
 ]

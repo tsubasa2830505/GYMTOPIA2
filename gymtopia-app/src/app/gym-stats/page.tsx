@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, TrendingUp, Calendar, Clock, MapPin, 
-  Activity, Target, Award, BarChart3, Users, 
+  Activity, Award, 
   Dumbbell, Flame, ChevronRight
 } from 'lucide-react'
 
@@ -28,7 +28,7 @@ interface GymRanking {
 export default function GymStatsPage() {
   const router = useRouter()
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month')
-  const [selectedMetric, setSelectedMetric] = useState<'visits' | 'weight' | 'duration'>('visits')
+  // const [selectedMetric, setSelectedMetric] = useState<'visits' | 'weight' | 'duration'>('visits') // 未使用のため一時的にコメントアウト
 
   // ダミーデータ
   const totalVisits = 108

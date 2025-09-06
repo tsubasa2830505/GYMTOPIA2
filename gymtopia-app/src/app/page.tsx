@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, MapPin, SlidersHorizontal, User, Calendar, ChevronRight, Plus, Dumbbell } from 'lucide-react'
+import { MapPin, Calendar, ChevronRight, Dumbbell, Search } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'

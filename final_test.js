@@ -5,7 +5,7 @@ async function finalTest() {
   const page = await browser.newPage();
   
   console.log('🔍 GYMTOPIA COMPREHENSIVE FUNCTIONALITY REPORT');
-  console.log('=' .repeat(80));
+  console.log('='.repeat(80));
 
   const pages = [
     { path: '/', name: 'Home Page', key: 'home' },
@@ -34,7 +34,7 @@ async function finalTest() {
     try {
       console.log(`\n📄 Testing ${pageInfo.name}...`);
       
-      const response = await page.goto(`http://localhost:4000${pageInfo.path}`, { 
+      const response = await page.goto(`http://localhost:3000${pageInfo.path}`, { 
         waitUntil: 'networkidle0',
         timeout: 10000
       });
@@ -124,7 +124,7 @@ async function finalTest() {
   console.log('\n🧭 Testing Navigation Links...');
   
   try {
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle0' });
     
     const navLinks = await page.evaluate(() => {
       const nav = document.querySelector('nav');

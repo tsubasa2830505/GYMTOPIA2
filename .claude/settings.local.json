@@ -55,7 +55,16 @@
       "Bash(git rm:*)",
       "Bash(rm:*)",
       "Bash(git branch:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search/results\" \"/add\" \"/gym-stats\")",
+      "Bash(do echo \"Testing $page...\")",
+      "Bash(chmod:*)",
+      "Bash(./fix-warnings.sh)",
+      "Bash(./fix-all-warnings.sh:*)",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search\" \"/search/results\" \"/search/machine\" \"/search/freeweight\" \"/add\" \"/gym-stats\" \"/gym-friends\" \"/followers\" \"/following\" \"/admin\" \"/admin/reviews\" \"/workout\" \"/stats\" \"/profile/edit\")",
+      "Bash(do echo:*)",
+      "Bash(npm run lint:*)",
+      "Bash(NODE_ENV=production npm run build)"
     ],
     "deny": [],
     "ask": []

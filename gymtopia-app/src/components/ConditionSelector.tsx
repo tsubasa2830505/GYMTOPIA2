@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { 
-  Check, Building, MapPin, Clock, Droplets, 
+  Check, Building, Clock, Droplets, 
   Car, Sparkles, Waves, Wifi, Coffee, Lock,
   Users, Accessibility, Music, Thermometer
 } from 'lucide-react'

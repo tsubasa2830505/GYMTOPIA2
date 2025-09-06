@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { 
-  MapPin, Clock, Heart, Phone, Globe, ChevronLeft, X, 
+  MapPin, Clock, Heart, Phone, Globe, ChevronLeft, 
   Share2, Users, Dumbbell, Building, Activity, MessageSquare,
-  Star, ChevronRight, Check
+  Star, ChevronRight
 } from 'lucide-react'
-import Image from 'next/image'
+// import Image from 'next/image'
 
 // サンプルデータ
 const gymData = {
@@ -39,7 +39,7 @@ const gymData = {
 }
 
 export default function GymDetailPage() {
-  const params = useParams()
+  // const params = useParams() // 未使用のため一時的にコメントアウト
   const router = useRouter()
   const [liked, setLiked] = useState(gymData.likedByMe)
   const [likesCount, setLikesCount] = useState(gymData.likesCount)

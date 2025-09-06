@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { MapPin, Upload, Settings, LogOut, User, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
+// import { useRouter } from 'next/navigation'
+import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
+import Image from 'next/image'
 
 interface Equipment {
   id: string
@@ -31,7 +32,7 @@ interface Review {
 }
 
 export default function AdminPage() {
-  const router = useRouter()
+  // const router = useRouter() // 未使用のため一時的にコメントアウト
   const [activeTab, setActiveTab] = useState('basic')
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -913,10 +914,12 @@ export default function AdminPage() {
                         {/* Avatar */}
                         <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
                           {review.author.avatar ? (
-                            <img
+                            <Image
                               src={review.author.avatar}
                               alt={review.author.name}
-                              className="w-full h-full rounded-full object-cover"
+                              width={40}
+                              height={40}
+                              className="rounded-full object-cover"
                             />
                           ) : (
                             <span className="text-[12.3px] font-medium text-indigo-600">

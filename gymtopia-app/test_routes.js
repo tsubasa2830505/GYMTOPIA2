@@ -22,7 +22,7 @@ async function testRoutes() {
   
   for (const route of routes) {
     try {
-      const url = `http://localhost:4000${route}`;
+      const url = `http://localhost:3000${route}`;
       const response = await fetch(url, {
         method: 'HEAD',
         redirect: 'manual'
@@ -59,11 +59,11 @@ async function testRoutes() {
 }
 
 // Check if server is running
-fetch('http://localhost:4000')
+fetch('http://localhost:3000')
   .then(() => {
     testRoutes();
   })
   .catch(() => {
-    console.log('❌ Server is not running on http://localhost:4000');
+    console.log('❌ Server is not running on http://localhost:3000');
     console.log('Please start the dev server with: npm run dev');
   });

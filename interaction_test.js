@@ -11,7 +11,7 @@ async function testInteractions() {
   try {
     // Home page filter interaction
     console.log('📍 Testing Home Page Filters...');
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle0' });
     
     // Test clicking filter tabs
     const filterTabs = await page.$$('button[class*="tab"], div > button');
@@ -54,7 +54,7 @@ async function testInteractions() {
     
     // Profile page interactions
     console.log('📍 Testing Profile Page...');
-    await page.goto('http://localhost:4000/profile', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/profile', { waitUntil: 'networkidle0' });
     
     const profileButtons = await page.$$('button');
     if (profileButtons.length > 0) {
@@ -68,7 +68,7 @@ async function testInteractions() {
     
     // Search functionality
     console.log('📍 Testing Search...');
-    await page.goto('http://localhost:4000/search', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search', { waitUntil: 'networkidle0' });
     
     const searchInput = await page.$('input');
     if (searchInput) {
@@ -83,7 +83,7 @@ async function testInteractions() {
     
     // Machine selection
     console.log('📍 Testing Machine Selection...');
-    await page.goto('http://localhost:4000/search/machine', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search/machine', { waitUntil: 'networkidle0' });
     
     const machineButtons = await page.$$('button');
     let clickableButtons = 0;
@@ -103,7 +103,7 @@ async function testInteractions() {
     
     // Form interactions
     console.log('📍 Testing Add Page Form...');
-    await page.goto('http://localhost:4000/add', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/add', { waitUntil: 'networkidle0' });
     
     const formElements = await page.$$('input, textarea, select');
     let workingInputs = 0;

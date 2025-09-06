@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { 
   MapPin, Clock, Heart, Phone, Globe, X, 
   Share2, Users, Dumbbell, Building, Activity, MessageSquare,
-  Star, ChevronRight, Check
+  Star, ChevronRight
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -30,8 +30,7 @@ const gymData = {
   equipment: [
     { name: 'RML-490 パワーラック', brand: 'ROGUE', count: 6, condition: '優良' },
     { name: 'SML-2 スクワットラック', brand: 'ROGUE', count: 4, condition: '優良' },
-    { name: 'オハイオバー（オリンピックバー）', brand: 'ROGUE', count: 8, condition: '優良' },
-    { name: 'オリンピックプレートセット', brand: 'Eleiko', count: 1, condition: '優良' },
+    { name: 'オハイオバー', brand: 'ROGUE', count: 8, condition: '優良' },
     { name: 'アジャスタブルベンチ', brand: 'ROGUE', count: 4, condition: '優良' }
   ],
   contact: { phone: '03-1234-5678', website: 'https://example.com' },

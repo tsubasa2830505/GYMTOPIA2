@@ -242,10 +242,12 @@ export default function GymFriendsPage() {
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                   {friend.avatar ? (
-                    <img 
+                    <Image 
                       src={friend.avatar}
                       alt={friend.name}
-                      className="w-16 h-16 rounded-full object-cover"
+                      width={64}
+                      height={64}
+                      className="rounded-full object-cover"
                     />
                   ) : (
                     <div 

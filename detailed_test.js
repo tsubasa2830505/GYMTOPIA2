@@ -37,7 +37,7 @@ async function detailedTest() {
     console.log(`\n📍 Testing ${pageInfo.name} (${pageInfo.path})`);
     
     try {
-      const response = await page.goto(`http://localhost:4000${pageInfo.path}`, { 
+      const response = await page.goto(`http://localhost:3000${pageInfo.path}`, { 
         waitUntil: 'networkidle2',
         timeout: 10000
       });
@@ -131,7 +131,7 @@ async function detailedTest() {
       
       // Test navigation links (check if they lead to valid pages)
       const internalLinks = pageData.links.filter(link => 
-        link.href.includes('localhost:4000') || link.href.startsWith('/')
+        link.href.includes('localhost:3000') || link.href.startsWith('/')
       );
       
       if (internalLinks.length > 0) {
@@ -144,7 +144,7 @@ async function detailedTest() {
             if (testResponse.ok()) {
               console.log(`   ✅ Link to ${linkHref} works`);
               // Go back to original page
-              await page.goto(`http://localhost:4000${pageInfo.path}`, { waitUntil: 'networkidle2' });
+              await page.goto(`http://localhost:3000${pageInfo.path}`, { waitUntil: 'networkidle2' });
             }
           } catch (error) {
             console.log(`   ❌ Link navigation failed: ${error.message}`);
@@ -173,7 +173,7 @@ async function detailedTest() {
   console.log('\n🏠 Testing homepage specific functionality...');
   
   try {
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle2' });
     
     // Test search input
     const searchInput = await page.$('input[placeholder*="検索"], input[placeholder*="search"]');

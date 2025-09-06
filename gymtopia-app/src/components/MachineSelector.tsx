@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   ChevronRight, Check, Settings, Target, Factory,
-  Zap, Activity, Cpu, Dumbbell
+  Activity, Dumbbell
 } from 'lucide-react'
+import { getMuscleParts } from '@/lib/supabase/muscle-parts'
+// import type { MusclePart } from '@/lib/types/muscle-parts'
 
 interface MachineSelectorProps {
   selectedMachines: Set<string>
@@ -12,12 +14,14 @@ interface MachineSelectorProps {
 }
 
 interface MachineFilter {
-  target: string[]
+  targetCategory: string | null  // 選択されたカテゴリー
+  targetParts: string[]  // 選択された詳細部位
   type: string[]
   maker: string[]
 }
 
-const targetOptions = [
+// デフォルトの部位データ（Supabaseから取得できない場合のフォールバック）
+const defaultTargetOptions = [
   { id: 'chest', name: '胸', parts: ['上部', '中部', '下部'] },
   { id: 'back', name: '背中', parts: ['上部', '中部', '下部', '僧帽筋'] },
   { id: 'shoulder', name: '肩', parts: ['前部', '中部', '後部'] },
@@ -27,11 +31,8 @@ const targetOptions = [
 ]
 
 const typeOptions = [
-  { id: 'plate-loaded', name: 'プレートロード', icon: Dumbbell },
-  { id: 'selectorized', name: 'セレクタライズ（重量スタック）', icon: Activity },
-  { id: 'cable', name: 'ケーブル（可動プーリー含む）', icon: Zap },
-  { id: 'smith', name: 'スミスマシン', icon: Cpu },
-  { id: 'leg-press', name: 'レッグプレス（ハック/スレッド/垂直等）', icon: Settings },
+  { id: 'free-weight', name: 'フリーウェイト', icon: Dumbbell },
+  { id: 'machine', name: 'マシン', icon: Activity },
 ]
 
 const makerOptions = [
@@ -49,68 +50,97 @@ const makerOptions = [
 
 const machines = [
   // 胸
-  { id: 'iso-lateral-incline-press', name: 'Iso-Lateral Incline Press', target: 'chest-upper', type: 'plate-loaded', maker: 'hammer' },
-  { id: 'iso-lateral-decline-press', name: 'Iso-Lateral Decline Press', target: 'chest-lower', type: 'plate-loaded', maker: 'hammer' },
-  { id: 'chest-press', name: 'Chest Press', target: 'chest-middle', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'pec-deck', name: 'Pec Deck', target: 'chest-middle', type: 'selectorized', maker: 'technogym' },
-  { id: 'cable-crossover', name: 'Cable Crossover', target: 'chest-middle', type: 'cable', maker: 'cybex' },
+  { id: 'iso-lateral-incline-press', name: 'Iso-Lateral Incline Press', target: 'chest-upper', type: 'free-weight', maker: 'hammer' },
+  { id: 'iso-lateral-decline-press', name: 'Iso-Lateral Decline Press', target: 'chest-lower', type: 'free-weight', maker: 'hammer' },
+  { id: 'chest-press', name: 'Chest Press', target: 'chest-middle', type: 'machine', maker: 'life-fitness' },
+  { id: 'pec-deck', name: 'Pec Deck', target: 'chest-middle', type: 'machine', maker: 'technogym' },
+  { id: 'cable-crossover', name: 'Cable Crossover', target: 'chest-middle', type: 'free-weight', maker: 'cybex' },
   
   // 背中
-  { id: 'iso-lateral-row', name: 'Iso-Lateral Row', target: 'back-middle', type: 'plate-loaded', maker: 'hammer' },
-  { id: 'iso-lateral-pulldown', name: 'Iso-Lateral Pulldown', target: 'back-upper', type: 'plate-loaded', maker: 'hammer' },
-  { id: 'lat-pulldown', name: 'Lat Pulldown', target: 'back-upper', type: 'cable', maker: 'life-fitness' },
-  { id: 'seated-row', name: 'Seated Row', target: 'back-middle', type: 'cable', maker: 'cybex' },
-  { id: 'pullover', name: 'Pullover Machine', target: 'back-upper', type: 'selectorized', maker: 'nautilus' },
+  { id: 'iso-lateral-row', name: 'Iso-Lateral Row', target: 'back-middle', type: 'free-weight', maker: 'hammer' },
+  { id: 'iso-lateral-pulldown', name: 'Iso-Lateral Pulldown', target: 'back-upper', type: 'free-weight', maker: 'hammer' },
+  { id: 'lat-pulldown', name: 'Lat Pulldown', target: 'back-upper', type: 'free-weight', maker: 'life-fitness' },
+  { id: 'seated-row', name: 'Seated Row', target: 'back-middle', type: 'free-weight', maker: 'cybex' },
+  { id: 'pullover', name: 'Pullover Machine', target: 'back-upper', type: 'machine', maker: 'nautilus' },
   
   // 肩
-  { id: 'shoulder-press', name: 'Shoulder Press', target: 'shoulder-middle', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'lateral-raise', name: 'Lateral Raise Machine', target: 'shoulder-middle', type: 'selectorized', maker: 'technogym' },
-  { id: 'rear-delt-fly', name: 'Rear Delt Fly', target: 'shoulder-rear', type: 'selectorized', maker: 'cybex' },
+  { id: 'shoulder-press', name: 'Shoulder Press', target: 'shoulder-middle', type: 'machine', maker: 'life-fitness' },
+  { id: 'lateral-raise', name: 'Lateral Raise Machine', target: 'shoulder-middle', type: 'machine', maker: 'technogym' },
+  { id: 'rear-delt-fly', name: 'Rear Delt Fly', target: 'shoulder-rear', type: 'machine', maker: 'cybex' },
   
   // 脚
-  { id: 'leg-extension', name: 'Leg Extension', target: 'legs-quad', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'seated-leg-curl', name: 'Seated Leg Curl', target: 'legs-hamstring', type: 'selectorized', maker: 'cybex' },
-  { id: 'lying-leg-curl', name: 'Lying Leg Curl', target: 'legs-hamstring', type: 'selectorized', maker: 'technogym' },
-  { id: 'hip-thrust', name: 'Hip Thrust Machine', target: 'legs-glutes', type: 'plate-loaded', maker: 'hammer' },
-  { id: 'leg-press', name: '45° Leg Press', target: 'legs-quad', type: 'leg-press', maker: 'hammer' },
-  { id: 'hack-squat', name: 'Hack Squat', target: 'legs-quad', type: 'leg-press', maker: 'cybex' },
-  { id: 'calf-raise', name: 'Calf Raise', target: 'legs-calf', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'hip-abduction', name: 'Hip Abduction', target: 'legs-abductor', type: 'selectorized', maker: 'technogym' },
-  { id: 'hip-adduction', name: 'Hip Adduction', target: 'legs-adductor', type: 'selectorized', maker: 'technogym' },
+  { id: 'leg-extension', name: 'Leg Extension', target: 'legs-quad', type: 'machine', maker: 'life-fitness' },
+  { id: 'seated-leg-curl', name: 'Seated Leg Curl', target: 'legs-hamstring', type: 'machine', maker: 'cybex' },
+  { id: 'lying-leg-curl', name: 'Lying Leg Curl', target: 'legs-hamstring', type: 'machine', maker: 'technogym' },
+  { id: 'hip-thrust', name: 'Hip Thrust Machine', target: 'legs-glutes', type: 'free-weight', maker: 'hammer' },
+  { id: 'leg-press', name: '45° Leg Press', target: 'legs-quad', type: 'machine', maker: 'hammer' },
+  { id: 'hack-squat', name: 'Hack Squat', target: 'legs-quad', type: 'machine', maker: 'cybex' },
+  { id: 'calf-raise', name: 'Calf Raise', target: 'legs-calf', type: 'machine', maker: 'life-fitness' },
+  { id: 'hip-abduction', name: 'Hip Abduction', target: 'legs-abductor', type: 'machine', maker: 'technogym' },
+  { id: 'hip-adduction', name: 'Hip Adduction', target: 'legs-adductor', type: 'machine', maker: 'technogym' },
   
   // 腕
-  { id: 'preacher-curl', name: 'Preacher Curl Machine', target: 'arms-biceps', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'tricep-extension', name: 'Tricep Extension', target: 'arms-triceps', type: 'selectorized', maker: 'cybex' },
-  { id: 'cable-curl', name: 'Cable Curl', target: 'arms-biceps', type: 'cable', maker: 'matrix' },
+  { id: 'preacher-curl', name: 'Preacher Curl Machine', target: 'arms-biceps', type: 'machine', maker: 'life-fitness' },
+  { id: 'tricep-extension', name: 'Tricep Extension', target: 'arms-triceps', type: 'machine', maker: 'cybex' },
+  { id: 'cable-curl', name: 'Cable Curl', target: 'arms-biceps', type: 'free-weight', maker: 'matrix' },
   
   // 体幹
-  { id: 'ab-crunch', name: 'Ab Crunch Machine', target: 'core-abs', type: 'selectorized', maker: 'life-fitness' },
-  { id: 'rotary-torso', name: 'Rotary Torso', target: 'core-obliques', type: 'selectorized', maker: 'technogym' },
-  { id: 'back-extension', name: 'Back Extension', target: 'core-lower-back', type: 'selectorized', maker: 'cybex' },
+  { id: 'ab-crunch', name: 'Ab Crunch Machine', target: 'core-abs', type: 'machine', maker: 'life-fitness' },
+  { id: 'rotary-torso', name: 'Rotary Torso', target: 'core-obliques', type: 'machine', maker: 'technogym' },
+  { id: 'back-extension', name: 'Back Extension', target: 'core-lower-back', type: 'machine', maker: 'cybex' },
   
-  // スミスマシン
-  { id: 'smith-machine', name: 'Smith Machine', target: 'multiple', type: 'smith', maker: 'hammer' },
-  { id: 'smith-machine-3d', name: '3D Smith Machine', target: 'multiple', type: 'smith', maker: 'matrix' },
+  // スミスマシン（フリーウェイトに分類）
+  { id: 'smith-machine', name: 'Smith Machine', target: 'multiple', type: 'free-weight', maker: 'hammer' },
+  { id: 'smith-machine-3d', name: '3D Smith Machine', target: 'multiple', type: 'free-weight', maker: 'matrix' },
 ]
 
 export default function MachineSelector({ selectedMachines, onSelectionChange }: MachineSelectorProps) {
   const [filter, setFilter] = useState<MachineFilter>({
-    target: [],
+    targetCategory: null,
+    targetParts: [],
     type: [],
     maker: []
   })
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
+  const [targetOptions, setTargetOptions] = useState(defaultTargetOptions)
+  const [isLoadingParts, setIsLoadingParts] = useState(true)
+  const [showPartsDetail, setShowPartsDetail] = useState(false)
+
+  // Supabaseから筋肉部位データを取得
+  useEffect(() => {
+    async function fetchMuscleParts() {
+      setIsLoadingParts(true)
+      try {
+        const parts = await getMuscleParts()
+        if (parts && parts.length > 0) {
+          // Supabaseのデータ形式をコンポーネントの形式に変換
+          const formattedParts = parts.map(part => ({
+            id: part.category,
+            name: part.name,
+            parts: part.parts
+          }))
+          setTargetOptions(formattedParts)
+        }
+      } catch (error) {
+        console.error('Failed to fetch muscle parts:', error)
+        // エラーの場合はデフォルトデータを使用
+      } finally {
+        setIsLoadingParts(false)
+      }
+    }
+
+    fetchMuscleParts()
+  }, [])
   
   // ターゲットに基づいて関連するタイプを取得
   const getRelatedTypes = () => {
-    if (filter.target.length === 0) return []
+    if (!filter.targetCategory) return []
     
     const relatedTypes = new Set<string>()
     
     // 選択されたターゲットに該当するマシンのタイプを収集
     machines.forEach(machine => {
-      const isTargetMatch = filter.target.some(t => machine.target.startsWith(t))
-      if (isTargetMatch) {
+      if (filter.targetCategory && machine.target.startsWith(filter.targetCategory)) {
         relatedTypes.add(machine.type)
       }
     })
@@ -120,14 +150,14 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   
   // ターゲットとタイプに基づいて関連するメーカーを取得
   const getRelatedMakers = () => {
-    if (filter.target.length === 0 && filter.type.length === 0) return []
+    if (!filter.targetCategory && filter.type.length === 0) return []
     
     const relatedMakers = new Set<string>()
     
     // フィルターに該当するマシンのメーカーを収集
     machines.forEach(machine => {
-      const targetMatch = filter.target.length === 0 || 
-        filter.target.some(t => machine.target.startsWith(t))
+      const targetMatch = !filter.targetCategory || 
+        machine.target.startsWith(filter.targetCategory)
       const typeMatch = filter.type.length === 0 || 
         filter.type.includes(machine.type)
       
@@ -149,7 +179,31 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
     setExpandedSections(newExpanded)
   }
 
-  const toggleFilter = (category: 'target' | 'type' | 'maker', value: string) => {
+  // カテゴリー選択
+  const selectCategory = (categoryId: string) => {
+    setFilter({
+      ...filter,
+      targetCategory: filter.targetCategory === categoryId ? null : categoryId,
+      targetParts: []  // カテゴリー変更時は詳細部位をリセット
+    })
+    setShowPartsDetail(filter.targetCategory !== categoryId && categoryId !== null)
+  }
+
+  // 詳細部位選択
+  const togglePart = (part: string) => {
+    const newParts = [...filter.targetParts]
+    const index = newParts.indexOf(part)
+    
+    if (index > -1) {
+      newParts.splice(index, 1)
+    } else {
+      newParts.push(part)
+    }
+    
+    setFilter({ ...filter, targetParts: newParts })
+  }
+
+  const toggleFilter = (category: 'type' | 'maker', value: string) => {
     const newFilter = { ...filter }
     const index = newFilter[category].indexOf(value)
     
@@ -159,12 +213,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       newFilter[category] = [...newFilter[category], value]
     }
     
-    // ターゲットを選択したら自動的にタイプセクションを開く
-    if (category === 'target' && newFilter.target.length > 0) {
-      setExpandedSections(new Set(['type']))
-    }
     // タイプを選択したら自動的にメーカーセクションを開く
-    else if (category === 'type' && newFilter.type.length > 0) {
+    if (category === 'type' && newFilter.type.length > 0) {
       setExpandedSections(new Set(['type', 'maker']))
     }
     
@@ -172,8 +222,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   }
 
   const filteredMachines = machines.filter(machine => {
-    const targetMatch = filter.target.length === 0 || 
-      filter.target.some(t => machine.target.startsWith(t.split('-')[0]))
+    const targetMatch = !filter.targetCategory || 
+      machine.target.startsWith(filter.targetCategory)
     const typeMatch = filter.type.length === 0 || filter.type.includes(machine.type)
     const makerMatch = filter.maker.length === 0 || filter.maker.includes(machine.maker)
     
@@ -219,9 +269,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             <div className="flex items-center gap-3">
               <Target className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold text-slate-900">ターゲット（部位）</h3>
-              {filter.target.length > 0 && (
+              {filter.targetCategory && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                  {filter.target.length}
+                  {targetOptions.find(t => t.id === filter.targetCategory)?.name}
+                  {filter.targetParts.length > 0 && ` (${filter.targetParts.length})`}
                 </span>
               )}
             </div>
@@ -234,21 +285,63 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           
           {expandedSections.has('target') && (
             <div className="border-t border-slate-100 p-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {targetOptions.map((target) => (
-                  <button
-                    key={target.id}
-                    onClick={() => toggleFilter('target', target.id)}
-                    className={`p-2 rounded-lg text-sm font-medium transition-all ${
-                      filter.target.includes(target.id)
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {target.name}
-                  </button>
-                ))}
-              </div>
+              {isLoadingParts ? (
+                <div className="text-center py-4">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <p className="text-sm text-slate-500 mt-2">部位データを読み込み中...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* カテゴリー選択 */}
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 mb-2">1. 部位カテゴリーを選択</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {targetOptions.map((target) => (
+                        <button
+                          key={target.id}
+                          onClick={() => selectCategory(target.id)}
+                          className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                            filter.targetCategory === target.id
+                              ? 'bg-blue-500 text-white shadow-md'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          }`}
+                        >
+                          {target.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 詳細部位選択 */}
+                  {filter.targetCategory && showPartsDetail && (
+                    <div className="animate-fadeIn">
+                      <p className="text-sm font-medium text-slate-700 mb-2">
+                        2. {targetOptions.find(t => t.id === filter.targetCategory)?.name}の詳細部位を選択（任意）
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {targetOptions
+                          .find(t => t.id === filter.targetCategory)
+                          ?.parts.map((part) => (
+                            <button
+                              key={part}
+                              onClick={() => togglePart(part)}
+                              className={`p-2 rounded-lg text-xs font-medium transition-all ${
+                                filter.targetParts.includes(part)
+                                  ? 'bg-blue-400 text-white'
+                                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                              }`}
+                            >
+                              {part}
+                            </button>
+                          ))}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2">
+                        ※ 詳細部位を選択しない場合は、{targetOptions.find(t => t.id === filter.targetCategory)?.name}全体が対象になります
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -289,7 +382,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
                       isSelected
                         ? 'bg-green-500 text-white'
-                        : isRelated && filter.target.length > 0
+                        : isRelated && filter.targetCategory
                         ? 'bg-green-50 text-green-700 border-2 border-green-300 hover:bg-green-100'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
@@ -340,7 +433,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       className={`p-2 rounded-lg text-sm font-medium transition-all ${
                         isSelected
                           ? 'bg-purple-500 text-white'
-                          : isRelated && (filter.target.length > 0 || filter.type.length > 0)
+                          : isRelated && (filter.targetCategory || filter.type.length > 0)
                           ? 'bg-purple-50 text-purple-700 border-2 border-purple-300 hover:bg-purple-100'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}

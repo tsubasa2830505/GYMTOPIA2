@@ -32,11 +32,11 @@ async function testPages() {
   };
 
   for (const route of pages) {
-    console.log(`\n📍 Testing: http://localhost:4000${route}`);
+  console.log(`\n📍 Testing: http://localhost:3000${route}`);
     
     try {
       // Navigate to page
-      const response = await page.goto(`http://localhost:4000${route}`, { 
+      const response = await page.goto(`http://localhost:3000${route}`, { 
         waitUntil: 'networkidle2',
         timeout: 10000
       });
@@ -113,7 +113,7 @@ async function testPages() {
   console.log('\n📍 Testing dynamic gym page...');
   try {
     // First check if there are any gym IDs available
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle2' });
     
     const gymLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('a[href*="/gyms/"]'));

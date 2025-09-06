@@ -23,7 +23,7 @@ async function testButtonFunctionality() {
   try {
     // Test Home Page Interactions
     console.log('📍 Testing Home Page Interactions...');
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle0' });
     
     // Test filter tabs
     console.log('   Testing filter tabs...');
@@ -62,12 +62,12 @@ async function testButtonFunctionality() {
       }
       
       // Go back to home
-      await page.goto('http://localhost:4000/', { waitUntil: 'networkidle0' });
+      await page.goto('http://localhost:3000/', { waitUntil: 'networkidle0' });
     }
     
     // Test Profile Page Interactions
     console.log('📍 Testing Profile Page...');
-    await page.goto('http://localhost:4000/profile', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/profile', { waitUntil: 'networkidle0' });
     
     const profileButtons = await page.$$('button');
     if (profileButtons.length > 0) {
@@ -84,7 +84,7 @@ async function testButtonFunctionality() {
     
     // Test Search Functionality
     console.log('📍 Testing Search Page...');
-    await page.goto('http://localhost:4000/search', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search', { waitUntil: 'networkidle0' });
     
     const searchInput = await page.$('input[type="search"], input[placeholder*="search"], input[placeholder*="検索"]');
     if (searchInput) {
@@ -94,7 +94,7 @@ async function testButtonFunctionality() {
     
     // Test Machine Search Page
     console.log('📍 Testing Machine Search...');
-    await page.goto('http://localhost:4000/search/machine', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search/machine', { waitUntil: 'networkidle0' });
     
     const machineButtons = await page.$$('button');
     if (machineButtons.length > 5) {
@@ -108,7 +108,7 @@ async function testButtonFunctionality() {
     
     // Test Add Page Form
     console.log('📍 Testing Add Page Form...');
-    await page.goto('http://localhost:4000/add', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/add', { waitUntil: 'networkidle0' });
     
     const formInputs = await page.$$('input, textarea, select');
     if (formInputs.length > 0) {

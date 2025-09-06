@@ -24,7 +24,7 @@ function runNode(scriptPath, cwd = process.cwd()) {
 }
 
 async function main() {
-  console.log('🚀 Starting Next.js dev server (port 4000)...');
+  console.log('🚀 Starting Next.js dev server (port 3000)...');
   const dev = spawn('npm', ['run', 'dev'], {
     cwd: 'gymtopia-app',
     stdio: 'pipe',
@@ -53,7 +53,7 @@ async function main() {
 
   try {
     // Wait for server to be reachable
-    await waitForServer('http://localhost:4000');
+    await waitForServer('http://localhost:3000');
     console.log('✅ Dev server is up. Running system tests...\n');
 
     // Run fast route checks first
@@ -82,4 +82,3 @@ async function main() {
 }
 
 main();
-

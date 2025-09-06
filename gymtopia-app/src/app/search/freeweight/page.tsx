@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  ChevronLeft, Search, Filter, ChevronRight, Check,
-  Dumbbell, MapPin, Info, X
+  ChevronLeft, Search, ChevronRight, Check,
+  Dumbbell
 } from 'lucide-react'
 
 interface FreeWeightCategory {
@@ -23,17 +23,31 @@ interface FreeWeightItem {
 
 const freeWeightCategories: FreeWeightCategory[] = [
   {
-    id: 'barbell',
-    name: 'バーベル',
-    description: 'オリンピックバー、カールバーなど',
-    icon: '🏋️',
+    id: 'rack',
+    name: 'パワーラック',
+    description: 'スクワット・ベンチプレス対応',
+    icon: '🏗️',
     items: [
-      { id: 'olympic_bar', name: 'オリンピックバー（20kg）', description: '長さ220cm、直径28mm' },
-      { id: 'olympic_bar_15', name: 'オリンピックバー（15kg）', description: '女性用、直径25mm' },
-      { id: 'ez_curl_bar', name: 'EZカールバー', description: '腕のトレーニング特化' },
-      { id: 'straight_bar', name: 'ストレートバー', description: '短めのバーベル' },
-      { id: 'trap_bar', name: 'トラップバー（ヘックスバー）', description: 'デッドリフト用六角形バー' },
-      { id: 'safety_squat_bar', name: 'セーフティスクワットバー', description: '肩への負担軽減' },
+      { id: 'power_rack', name: 'パワーラック', description: 'フルケージ、安全バー付き' },
+      { id: 'half_rack', name: 'ハーフラック', description: '省スペース型' },
+      { id: 'squat_rack', name: 'スクワットラック', description: 'スクワット特化' },
+      { id: 'combo_rack', name: 'コンボラック', description: 'プルアップバー付き' },
+      { id: 'wall_mount_rack', name: 'ウォールマウントラック', description: '壁設置型' },
+      { id: 'portable_rack', name: 'ポータブルラック', description: '移動可能' },
+    ]
+  },
+  {
+    id: 'bench',
+    name: 'ベンチ',
+    description: 'フラット・インクライン・デクライン',
+    icon: '🪑',
+    items: [
+      { id: 'flat_bench', name: 'フラットベンチ', description: '基本的なベンチプレス用' },
+      { id: 'adjustable_bench', name: 'アジャスタブルベンチ', description: '角度調整可能' },
+      { id: 'olympic_bench', name: 'オリンピックベンチ', description: 'ラック付き' },
+      { id: 'decline_bench', name: 'デクラインベンチ', description: '下部胸筋用' },
+      { id: 'preacher_bench', name: 'プリーチャーベンチ', description: 'アームカール専用' },
+      { id: 'utility_bench', name: 'ユーティリティベンチ', description: '多目的使用' },
     ]
   },
   {
@@ -54,16 +68,17 @@ const freeWeightCategories: FreeWeightCategory[] = [
     ]
   },
   {
-    id: 'plate',
-    name: 'プレート',
-    description: 'オリンピックプレート',
-    icon: '⭕',
+    id: 'barbell',
+    name: 'バーベル',
+    description: 'オリンピックバー、カールバーなど',
+    icon: '🏋️',
     items: [
-      { id: 'olympic_plate', name: 'オリンピックプレート', description: '穴径50mm' },
-      { id: 'bumper_plate', name: 'バンパープレート', description: 'ラバー製、落下OK' },
-      { id: 'calibrated_plate', name: 'キャリブレーテッドプレート', description: '競技用高精度' },
-      { id: 'fractional_plate', name: 'フラクショナルプレート', description: '0.5kg、1kg、1.25kg' },
-      { id: 'standard_plate', name: 'スタンダードプレート', description: '穴径28mm' },
+      { id: 'olympic_bar', name: 'オリンピックバー（20kg）', description: '長さ220cm、直径28mm' },
+      { id: 'olympic_bar_15', name: 'オリンピックバー（15kg）', description: '女性用、直径25mm' },
+      { id: 'ez_curl_bar', name: 'EZカールバー', description: '腕のトレーニング特化' },
+      { id: 'straight_bar', name: 'ストレートバー', description: '短めのバーベル' },
+      { id: 'trap_bar', name: 'トラップバー（ヘックスバー）', description: 'デッドリフト用六角形バー' },
+      { id: 'safety_squat_bar', name: 'セーフティスクワットバー', description: '肩への負担軽減' },
     ]
   },
   {
@@ -76,34 +91,6 @@ const freeWeightCategories: FreeWeightCategory[] = [
       { id: 'competition_kb', name: 'コンペティションケトルベル', description: '統一サイズ' },
       { id: 'adjustable_kb', name: '可変式ケトルベル', description: '重量調整可能' },
       { id: 'vinyl_kb', name: 'ビニールケトルベル', description: '軽量、初心者向け' },
-    ]
-  },
-  {
-    id: 'bench',
-    name: 'ベンチ',
-    description: 'フラット・インクライン・デクライン',
-    icon: '🪑',
-    items: [
-      { id: 'flat_bench', name: 'フラットベンチ', description: '基本的なベンチプレス用' },
-      { id: 'adjustable_bench', name: 'アジャスタブルベンチ', description: '角度調整可能' },
-      { id: 'olympic_bench', name: 'オリンピックベンチ', description: 'ラック付き' },
-      { id: 'decline_bench', name: 'デクラインベンチ', description: '下部胸筋用' },
-      { id: 'preacher_bench', name: 'プリーチャーベンチ', description: 'アームカール専用' },
-      { id: 'utility_bench', name: 'ユーティリティベンチ', description: '多目的使用' },
-    ]
-  },
-  {
-    id: 'rack',
-    name: 'パワーラック',
-    description: 'スクワット・ベンチプレス対応',
-    icon: '🏗️',
-    items: [
-      { id: 'power_rack', name: 'パワーラック', description: 'フルケージ、安全バー付き' },
-      { id: 'half_rack', name: 'ハーフラック', description: '省スペース型' },
-      { id: 'squat_rack', name: 'スクワットラック', description: 'スクワット特化' },
-      { id: 'combo_rack', name: 'コンボラック', description: 'プルアップバー付き' },
-      { id: 'wall_mount_rack', name: 'ウォールマウントラック', description: '壁設置型' },
-      { id: 'portable_rack', name: 'ポータブルラック', description: '移動可能' },
     ]
   }
 ]

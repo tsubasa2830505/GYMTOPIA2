@@ -31,7 +31,7 @@ async function simpleTest() {
     try {
       console.log(`Testing ${pageInfo.name}...`);
       
-      const response = await page.goto(`http://localhost:4000${pageInfo.path}`, { 
+      const response = await page.goto(`http://localhost:3000${pageInfo.path}`, { 
         waitUntil: 'networkidle2',
         timeout: 8000
       });
@@ -87,7 +87,7 @@ async function simpleTest() {
   console.log('\nTesting navigation links...');
   
   try {
-    await page.goto('http://localhost:4000/', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle2' });
     
     const navLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('nav a, [role="navigation"] a'));

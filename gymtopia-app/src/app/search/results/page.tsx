@@ -1,7 +1,7 @@
 'use client'
 
-import { Search, MapPin, List, Filter, ChevronDown, Heart, Plus, Minus, Map, TrendingUp, DollarSign, Clock, Star, ArrowLeft, X } from 'lucide-react'
-import Image from 'next/image'
+import { Search, MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
+// import Image from 'next/image'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
@@ -10,7 +10,7 @@ function SearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
-  const [sortBy, setSortBy] = useState('popular')
+  // const [sortBy, setSortBy] = useState('popular')
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   
   // Parse URL parameters for selected conditions

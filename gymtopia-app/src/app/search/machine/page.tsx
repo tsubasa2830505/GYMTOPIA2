@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  ChevronLeft, Search, Filter, ChevronRight, Check,
-  Dumbbell, MapPin, Info, X, Activity
+  ChevronLeft, Search, ChevronRight, Check,
+  Dumbbell, Activity
 } from 'lucide-react'
 
 interface MachineCategory {
