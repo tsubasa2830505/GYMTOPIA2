@@ -1,4 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
+import type {
+  WorkoutSession as EnhancedWorkoutSession,
+  WorkoutExercise as EnhancedWorkoutExercise,
+  ExerciseSet,
+  ExerciseTemplate,
+  PersonalRecord,
+  BodyMeasurement,
+  FitnessGoal,
+  CreateWorkoutSessionInput,
+  CreateExerciseInput,
+  CreateSetInput,
+  CreateBodyMeasurementInput,
+  CreateFitnessGoalInput,
+  WorkoutStats as EnhancedWorkoutStats
+} from '@/lib/types/workout'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -283,5 +298,411 @@ export async function getWorkoutStats(userId?: string, period = 30) {
   } catch (error) {
     console.error('Error fetching workout stats:', error)
     return null
+  }
+}
+
+// ========================================
+// ENHANCED WORKOUT TRACKING
+// ========================================
+
+// Enhanced workout session functions using new schema
+export async function createEnhancedWorkoutSession(input: CreateWorkoutSessionInput) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .insert({
+        user_id: user.id,
+        gym_id: input.gym_id,
+        started_at: input.started_at || new Date().toISOString(),
+        notes: input.notes,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error creating enhanced workout session:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+// Add exercise sets with detailed tracking
+export async function addDetailedSetToExercise(workoutExerciseId: string, input: CreateSetInput) {
+  try {
+    // Get current set count
+    const { data: existingSets } = await supabase
+      .from('exercise_sets')
+      .select('set_number')
+      .eq('workout_exercise_id', workoutExerciseId)
+      .order('set_number', { ascending: false })
+      .limit(1)
+
+    const setNumber = existingSets?.[0]?.set_number ? existingSets[0].set_number + 1 : 1
+
+    const { data, error } = await supabase
+      .from('exercise_sets')
+      .insert({
+        workout_exercise_id: workoutExerciseId,
+        set_number: setNumber,
+        reps: input.reps,
+        weight: input.weight,
+        rest_seconds: input.rest_seconds,
+        is_failure: input.is_failure || false,
+        is_warmup: input.is_warmup || false,
+        notes: input.notes,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error adding detailed set:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+// Get exercise templates
+export async function getExerciseTemplates(category?: string) {
+  try {
+    let query = supabase
+      .from('exercise_templates')
+      .select('*')
+      .order('name')
+
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return { data: data as ExerciseTemplate[], error: null }
+  } catch (error: any) {
+    console.error('Error fetching exercise templates:', error)
+    return { data: [], error: error.message }
+  }
+}
+
+// Personal Records
+export async function updatePersonalRecord(
+  exerciseName: string,
+  recordType: string,
+  weight?: number,
+  reps?: number,
+  gymId?: string
+) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const recordData = {
+      user_id: user.id,
+      exercise_name: exerciseName,
+      record_type: recordType,
+      weight,
+      reps,
+      volume_kg: weight && reps ? weight * reps : undefined,
+      achieved_at: new Date().toISOString().split('T')[0],
+      gym_id: gymId,
+    }
+
+    const { data, error } = await supabase
+      .from('personal_records')
+      .upsert(recordData, {
+        onConflict: 'user_id,exercise_name,record_type'
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error updating personal record:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+export async function getPersonalRecords(exerciseName?: string) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    let query = supabase
+      .from('personal_records')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('achieved_at', { ascending: false })
+
+    if (exerciseName) {
+      query = query.eq('exercise_name', exerciseName)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return { data: data as PersonalRecord[], error: null }
+  } catch (error: any) {
+    console.error('Error fetching personal records:', error)
+    return { data: [], error: error.message }
+  }
+}
+
+// Body Measurements
+export async function addBodyMeasurement(input: CreateBodyMeasurementInput) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .insert({
+        user_id: user.id,
+        ...input,
+        measured_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error adding body measurement:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+export async function getBodyMeasurements(limit: number = 50) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('measured_at', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+    return { data: data as BodyMeasurement[], error: null }
+  } catch (error: any) {
+    console.error('Error fetching body measurements:', error)
+    return { data: [], error: error.message }
+  }
+}
+
+// Fitness Goals
+export async function createFitnessGoal(input: CreateFitnessGoalInput) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('fitness_goals')
+      .insert({
+        user_id: user.id,
+        ...input,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error creating fitness goal:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+export async function getFitnessGoals(includeAchieved: boolean = false) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    let query = supabase
+      .from('fitness_goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (!includeAchieved) {
+      query = query.eq('is_achieved', false)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return { data: data as FitnessGoal[], error: null }
+  } catch (error: any) {
+    console.error('Error fetching fitness goals:', error)
+    return { data: [], error: error.message }
+  }
+}
+
+export async function updateFitnessGoal(goalId: string, updates: Partial<FitnessGoal>) {
+  try {
+    const { data, error } = await supabase
+      .from('fitness_goals')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', goalId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error updating fitness goal:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+// Enhanced workout statistics
+export async function getEnhancedWorkoutStats(days: number = 30): Promise<{ data: EnhancedWorkoutStats | null, error: string | null }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const dateFrom = new Date()
+    dateFrom.setDate(dateFrom.getDate() - days)
+
+    // Get workout sessions with exercises
+    const { data: sessions } = await supabase
+      .from('workout_sessions')
+      .select(`
+        id,
+        started_at,
+        ended_at,
+        total_weight_lifted,
+        workout_exercises(
+          exercise_name,
+          exercise_sets(reps, weight)
+        )
+      `)
+      .eq('user_id', user.id)
+      .gte('started_at', dateFrom.toISOString())
+      .order('started_at', { ascending: false })
+
+    if (!sessions) {
+      return { data: null, error: null }
+    }
+
+    // Calculate detailed stats
+    let totalDuration = 0
+    let totalWeightLifted = 0
+    const exerciseCount: Record<string, number> = {}
+
+    sessions.forEach(session => {
+      if (session.started_at && session.ended_at) {
+        const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()
+        totalDuration += duration / (1000 * 60) // Convert to minutes
+      }
+
+      totalWeightLifted += session.total_weight_lifted || 0
+
+      session.workout_exercises?.forEach(exercise => {
+        exerciseCount[exercise.exercise_name] = (exerciseCount[exercise.exercise_name] || 0) + 1
+      })
+    })
+
+    const favoriteExercises = Object.entries(exerciseCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }))
+
+    const stats: EnhancedWorkoutStats = {
+      total_workouts: sessions.length,
+      total_duration_minutes: Math.round(totalDuration),
+      total_weight_lifted_kg: totalWeightLifted,
+      avg_workout_duration: sessions.length > 0 ? Math.round(totalDuration / sessions.length) : 0,
+      current_streak_days: await calculateWorkoutStreak(user.id),
+      longest_streak_days: await calculateLongestStreak(user.id),
+      favorite_exercises: favoriteExercises,
+      muscle_group_distribution: [], // TODO: Implement based on exercise templates
+      strength_progress: [], // TODO: Implement based on personal records
+    }
+
+    return { data: stats, error: null }
+  } catch (error: any) {
+    console.error('Error calculating enhanced workout stats:', error)
+    return { data: null, error: error.message }
+  }
+}
+
+async function calculateWorkoutStreak(userId: string): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from('workout_sessions')
+      .select('started_at')
+      .eq('user_id', userId)
+      .order('started_at', { ascending: false })
+
+    if (!data || data.length === 0) return 0
+
+    let streak = 0
+    let currentDate = new Date()
+    currentDate.setHours(0, 0, 0, 0)
+
+    // Group workouts by date
+    const workoutDates = new Set(
+      data.map(session => new Date(session.started_at).toDateString())
+    )
+
+    // Count consecutive workout days
+    while (workoutDates.has(currentDate.toDateString())) {
+      streak++
+      currentDate.setDate(currentDate.getDate() - 1)
+    }
+
+    return streak
+  } catch (error) {
+    console.error('Error calculating workout streak:', error)
+    return 0
+  }
+}
+
+async function calculateLongestStreak(userId: string): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from('workout_sessions')
+      .select('started_at')
+      .eq('user_id', userId)
+      .order('started_at', { ascending: true })
+
+    if (!data || data.length === 0) return 0
+
+    // Group workouts by date and calculate longest streak
+    const workoutDates = Array.from(
+      new Set(data.map(session => new Date(session.started_at).toDateString()))
+    ).sort()
+
+    let longestStreak = 0
+    let currentStreak = 1
+
+    for (let i = 1; i < workoutDates.length; i++) {
+      const currentDate = new Date(workoutDates[i])
+      const prevDate = new Date(workoutDates[i - 1])
+      const diffTime = currentDate.getTime() - prevDate.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+      if (diffDays === 1) {
+        currentStreak++
+      } else {
+        longestStreak = Math.max(longestStreak, currentStreak)
+        currentStreak = 1
+      }
+    }
+
+    return Math.max(longestStreak, currentStreak)
+  } catch (error) {
+    console.error('Error calculating longest streak:', error)
+    return 0
   }
 }

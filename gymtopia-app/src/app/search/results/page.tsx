@@ -314,18 +314,10 @@ function SearchResultsContent() {
         <div className="relative">
           {/* Map Container */}
           {viewMode === 'map' && (
-            <div className="h-[400px] sm:h-[600px] mb-4 sm:mb-6 bg-red-100 p-4">
-              <div className="mb-2 text-sm">
-                <p>Debug: ViewMode = {viewMode}</p>
-                <p>Debug: Gyms count = {gyms.length}</p>
-                <p>Debug: First gym = {gyms[0]?.name || 'No gyms'}</p>
-              </div>
-              <div className="h-full bg-blue-100">
-                <SearchResultMap 
-                  gyms={gyms}
-                  onGymSelect={(gymId) => setSelectedGymId(String(gymId))}
-                  height="100%"
-                />
+            <div className="h-[400px] sm:h-[600px] mb-4 sm:mb-6 bg-slate-100 rounded-xl flex items-center justify-center">
+              <div className="text-center text-slate-600">
+                <p className="text-lg font-semibold mb-2">マップ機能は開発中です</p>
+                <p className="text-sm">現在はリスト表示をご利用ください</p>
               </div>
             </div>
           )}
