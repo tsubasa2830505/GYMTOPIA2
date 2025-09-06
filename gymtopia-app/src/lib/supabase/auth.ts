@@ -168,28 +168,33 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
-    const { data: userData, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-    if (error || !userData) {
-      return {
-        id: user.id,
-        email: user.email!,
-        username: undefined,
-        displayName: undefined,
-        avatarUrl: undefined
+      if (userData && !error) {
+        return {
+          id: userData.id,
+          email: userData.email,
+          username: userData.username || undefined,
+          displayName: userData.display_name || undefined,
+          avatarUrl: userData.avatar_url || undefined
+        }
       }
+    } catch (dbError) {
+      console.log('users table not found, using auth user data')
     }
 
+    // Fallback to auth user data if database query fails
     return {
-      id: userData.id,
-      email: userData.email,
-      username: userData.username || undefined,
-      displayName: userData.display_name || undefined,
-      avatarUrl: userData.avatar_url || undefined
+      id: user.id,
+      email: user.email!,
+      username: user.user_metadata?.username || undefined,
+      displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || undefined,
+      avatarUrl: user.user_metadata?.avatar_url || undefined
     }
   } catch (error) {
     console.error('Get current user error:', error)

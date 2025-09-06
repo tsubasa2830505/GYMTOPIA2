@@ -52,8 +52,8 @@
 
 ## 🔧 環境変数
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://htytewqvkgwyuvcsvjwm.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=（設定済み）
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
 ## 📁 重要ファイル

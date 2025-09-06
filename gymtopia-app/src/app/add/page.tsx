@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import MachineSelector from '@/components/MachineSelector'
+import { createPost } from '@/lib/supabase/posts'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Exercise {
   id: string
@@ -23,7 +25,9 @@ import { Suspense } from 'react'
 function AddGymPostContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<'post' | 'equipment'>('post')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [gymName, setGymName] = useState('')
   const [content, setContent] = useState('')
   const [crowdStatus, setCrowdStatus] = useState<'empty' | 'normal' | 'crowded'>('normal')
@@ -92,17 +96,51 @@ function AddGymPostContent() {
     setExercises(exercises.filter(ex => ex.id !== id))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // ここで投稿処理を実装
-    console.log({
-      gymName,
-      content,
-      crowdStatus,
-      exercises,
-      timestamp: new Date().toISOString()
-    })
-    router.push('/feed')
+    
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    if (!content.trim()) {
+      alert('投稿内容を入力してください')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      // 投稿データを作成
+      const postData = {
+        content: content.trim(),
+        post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
+        // exercises があれば achievement_data に含める
+        achievement_data: exercises.length > 0 ? {
+          exercises: exercises.map(ex => ({
+            name: ex.name,
+            weight: parseFloat(ex.weight) || 0,
+            sets: parseInt(ex.sets) || 1,
+            reps: parseInt(ex.reps) || 1
+          })),
+          gym_name: gymName,
+          crowd_status: crowdStatus
+        } : undefined,
+        visibility: 'public' as const
+      }
+
+      await createPost(postData)
+      
+      // 投稿成功
+      alert('投稿しました！')
+      router.push('/feed')
+    } catch (error) {
+      console.error('投稿エラー:', error)
+      alert('投稿に失敗しました。もう一度お試しください。')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   
   const handleEquipmentSubmit = (e: React.FormEvent) => {
@@ -152,12 +190,22 @@ function AddGymPostContent() {
             </div>
             {activeTab === 'post' ? (
               <button
-                onClick={handleSubmit}
-                disabled={!gymName || !content}
+                type="submit"
+                form="post-form"
+                disabled={!gymName || !content || isSubmitting}
                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
-                <Save className="w-4 h-4" />
-                投稿する
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    投稿中
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    投稿する
+                  </>
+                )}
               </button>
             ) : (
               <button
@@ -216,7 +264,7 @@ function AddGymPostContent() {
         )}
         
         {activeTab === 'post' ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form id="post-form" onSubmit={handleSubmit} className="space-y-6">
           {/* 日時表示 */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-4 text-sm text-slate-600">
@@ -416,11 +464,20 @@ function AddGymPostContent() {
           {/* 投稿ボタン（モバイル用） */}
           <button
             type="submit"
-            disabled={!gymName || !content}
+            disabled={!gymName || !content || isSubmitting}
             className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden"
           >
-            <Save className="w-5 h-5" />
-            ジム活を投稿する
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                投稿中...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                ジム活を投稿する
+              </>
+            )}
           </button>
           </form>
         ) : (

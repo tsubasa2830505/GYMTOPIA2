@@ -67,7 +67,8 @@
       "Bash(NODE_ENV=production npm run build)",
       "Bash(for page in \"/\" \"/search/results\" \"/feed\" \"/profile\")",
       "WebFetch(domain:supabase.com)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(for page in \"/\" \"/feed\" \"/admin\" \"/search\" \"/add\")"
     ],
     "deny": [],
     "ask": []

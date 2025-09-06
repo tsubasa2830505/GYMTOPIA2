@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "system:test": "node ../scripts/system-test.js"
+    "system:test": "node ../scripts/system-test.js",
+    "scenario:test": "node ../scripts/scenario-test.js",
+    "user:make-muscle-taro": "node scripts/make-me-muscle-taro.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.2",
@@ -31,7 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "puppeteer": "^24.17.1",
+    "puppeteer": "^24.19.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
