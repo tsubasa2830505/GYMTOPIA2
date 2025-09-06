@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "gymtopia": {
+      "command": "node",
+      "args": ["/Users/tsubasa/GYMTOPIA2.0/src/server.js"],
+      "description": "Custom GYMTOPIA workout and fitness tools"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/tsubasa/GYMTOPIA2.0"],
+      "description": "Provides filesystem access to the project directory"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
+      },
+      "description": "Provides GitHub integration"
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"],
+      "description": "Provides PostgreSQL database access"
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "path/to/your/database.db"],
+      "description": "Provides SQLite database access"
+    }
+  }
+}
