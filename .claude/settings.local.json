@@ -87,7 +87,13 @@
       "Bash(git clone:*)",
       "Bash(pip install:*)",
       "Bash(pip3 install:*)",
-      "Bash(claude-code-log --help)"
+      "Bash(claude-code-log --help)",
+      "Bash(ccusage --help)",
+      "Bash(ccusage monthly:*)",
+      "Bash(ccusage session:*)",
+      "Bash(ccusage blocks:*)",
+      "Bash(ccusage:*)",
+      "Bash(./fix-supabase-env.sh:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,11 +1,8 @@
 // Profile and social features API functions for GYMTOPIA 2.0
 // PRODUCTION VERSION - DATABASE ONLY (No mock data)
 
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 import type {
   UserProfile,
   UserProfileStats,
