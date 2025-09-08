@@ -11,6 +11,7 @@ import FreeWeightSelector from '@/components/FreeWeightSelector'
 import MachineSelector from '@/components/MachineSelector'
 import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
+import { getGyms } from '@/lib/supabase/gyms'
 
 interface Exercise {
   id: string
@@ -46,25 +47,41 @@ function AddGymPostContent() {
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
+  
+  // ジムリスト（Supabaseから取得）
+  const [gymList, setGymList] = useState<string[]>([])
+  const [gymData, setGymData] = useState<any[]>([])
 
-  // ジムリスト（実際はAPIから取得）
-  const gymList = [
-    'ハンマーストレングス渋谷',
-    'ROGUEクロストレーニング新宿',
-    'プレミアムフィットネス銀座',
-    'GOLD\'S GYM 渋谷',
-    'エニタイムフィットネス新宿',
-    'ティップネス池袋',
-    'コナミスポーツクラブ品川',
-  ]
-
-  // URLパラメータからジム情報を取得
+  // URLパラメータからジム情報を取得とジムリスト読み込み
   useEffect(() => {
     const gymNameParam = searchParams.get('gymName')
     if (gymNameParam) {
       setGymName(decodeURIComponent(gymNameParam))
     }
+    
+    // ジムリストを読み込み
+    loadGyms()
   }, [searchParams])
+
+  const loadGyms = async () => {
+    try {
+      const gyms = await getGyms()
+      setGymData(gyms)
+      setGymList(gyms.map(gym => gym.name))
+    } catch (error) {
+      console.error('Error loading gyms:', error)
+      // フォールバック
+      setGymList([
+        'ハンマーストレングス渋谷',
+        'ROGUEクロストレーニング新宿',
+        'プレミアムフィットネス銀座',
+        'GOLD\'S GYM 渋谷',
+        'エニタイムフィットネス新宿',
+        'ティップネス池袋',
+        'コナミスポーツクラブ品川',
+      ])
+    }
+  }
 
   const crowdOptions = [
     { value: 'empty' as const, label: '空いている', icon: (

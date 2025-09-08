@@ -31,8 +31,8 @@ import type { Achievement, PersonalRecord } from '../types/workout'
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   try {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
+      .from('users')
+      .select('id, display_name, username, avatar_url, bio, created_at, updated_at, is_verified')
       .eq('id', userId)
       .single()
 
@@ -41,7 +41,21 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       return null
     }
     
-    return data as UserProfile
+    const profile: UserProfile = {
+      id: data.id,
+      display_name: data.display_name || data.username,
+      username: data.username || undefined,
+      avatar_url: data.avatar_url || undefined,
+      bio: data.bio || undefined,
+      joined_at: data.created_at,
+      is_verified: !!data.is_verified,
+      workout_streak: 0,
+      total_workouts: 0,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    }
+    
+    return profile
   } catch (error) {
     console.error('Error fetching user profile:', error)
     return null
@@ -67,7 +81,7 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
 
     // Get stats from various tables
     const [postsCount, followersCount, followingCount, workoutsCount] = await Promise.all([
-      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('gym_posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
       supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', userId)
@@ -110,13 +124,16 @@ export async function updateUserProfile(
 ): Promise<UserProfile | null> {
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
-        ...updates,
+        display_name: updates.display_name,
+        username: updates.username,
+        avatar_url: updates.avatar_url,
+        bio: updates.bio,
         updated_at: new Date().toISOString()
       })
       .eq('id', userId)
-      .select()
+      .select('id, display_name, username, avatar_url, bio, created_at, updated_at, is_verified')
       .single()
 
     if (error) {
@@ -124,7 +141,20 @@ export async function updateUserProfile(
       return null
     }
     
-    return data as UserProfile
+    const profile: UserProfile = {
+      id: data.id,
+      display_name: data.display_name || data.username,
+      username: data.username || undefined,
+      avatar_url: data.avatar_url || undefined,
+      bio: data.bio || undefined,
+      joined_at: data.created_at,
+      is_verified: !!data.is_verified,
+      workout_streak: 0,
+      total_workouts: 0,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    }
+    return profile
   } catch (error) {
     console.error('Error updating user profile:', error)
     return null
@@ -146,7 +176,7 @@ export async function getUserPosts(
 
     // First, let's try without visibility filter to see if we get any data
     const { data, error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -180,11 +210,11 @@ export async function getUserPosts(
       user_id: post.user_id,
       content: post.content || '',
       caption: post.content || '',
-      media_url: post.images?.[0] || null,
+      media_url: post.image_url || null,
       gym_id: post.gym_id,
       gym_name: null,
-      likes: post.like_count || 0,
-      comments: post.comment_count || 0,
+      likes: post.likes_count || 0,
+      comments: post.comments_count || 0,
       created_at: post.created_at,
       updated_at: post.updated_at,
       is_public: post.visibility === 'public',
@@ -219,7 +249,7 @@ export async function createGymPost(
       })
       .select(`
         *,
-        user:profiles(id, display_name, username, avatar_url, is_verified)
+        user:users(id, display_name, username, avatar_url, is_verified)
       `)
       .single()
 
@@ -338,10 +368,10 @@ export async function getPostComments(
       .from('post_comments')
       .select(`
         *,
-        user:profiles(id, display_name, username, avatar_url, is_verified),
+        user:users(id, display_name, username, avatar_url, is_verified),
         replies:post_comments(
           *,
-          user:profiles(id, display_name, username, avatar_url, is_verified)
+          user:users(id, display_name, username, avatar_url, is_verified)
         )
       `)
       .eq('post_id', postId)
@@ -374,7 +404,7 @@ export async function createComment(
       })
       .select(`
         *,
-        user:profiles(id, display_name, username, avatar_url, is_verified)
+        user:users(id, display_name, username, avatar_url, is_verified)
       `)
       .single()
 
@@ -447,7 +477,7 @@ export async function getUserFollowers(
       .from('follows')
       .select(`
         *,
-        follower:profiles!follower_id(id, display_name, username, avatar_url, is_verified)
+        follower:users!follower_id(id, display_name, username, avatar_url, is_verified)
       `)
       .eq('following_id', userId)
       .order('created_at', { ascending: false })
@@ -477,7 +507,7 @@ export async function getUserFollowing(
       .from('follows')
       .select(`
         *,
-        following:profiles!following_id(id, display_name, username, avatar_url, is_verified)
+        following:users!following_id(id, display_name, username, avatar_url, is_verified)
       `)
       .eq('follower_id', userId)
       .order('created_at', { ascending: false })
@@ -508,8 +538,8 @@ export async function sendGymFriendRequest(
       .insert(requestData)
       .select(`
         *,
-        user1:profiles!user1_id(id, display_name, username, avatar_url),
-        user2:profiles!user2_id(id, display_name, username, avatar_url),
+        user1:users!user1_id(id, display_name, username, avatar_url),
+        user2:users!user2_id(id, display_name, username, avatar_url),
         gym:gyms(id, name, area)
       `)
       .single()
@@ -556,8 +586,8 @@ export async function getUserGymFriends(userId: string): Promise<GymFriend[]> {
       .from('gym_friends')
       .select(`
         *,
-        user1:profiles!user1_id(id, display_name, username, avatar_url),
-        user2:profiles!user2_id(id, display_name, username, avatar_url),
+        user1:users!user1_id(id, display_name, username, avatar_url),
+        user2:users!user2_id(id, display_name, username, avatar_url),
         gym:gyms(id, name, area)
       `)
       .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)

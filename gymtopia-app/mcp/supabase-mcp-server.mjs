@@ -14,6 +14,8 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const SUPABASE_PROJECT_REF = process.env.SUPABASE_PROJECT_REF || process.env.SUPABASE_PROJECT_ID
+const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN
 
 function ensureClient() {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
@@ -157,6 +159,75 @@ GRANT EXECUTE ON FUNCTION public.get_table_schema(text) TO anon, authenticated;`
         },
       ],
     }
+  }
+)
+
+async function runSql(sql) {
+  if (!SUPABASE_PROJECT_REF || !SUPABASE_ACCESS_TOKEN) {
+    const missing = [
+      SUPABASE_PROJECT_REF ? null : 'SUPABASE_PROJECT_REF',
+      SUPABASE_ACCESS_TOKEN ? null : 'SUPABASE_ACCESS_TOKEN',
+    ].filter(Boolean).join(', ')
+    throw new Error(`Missing env for SQL API: ${missing}`)
+  }
+  const endpoint = `https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/sql`
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_ACCESS_TOKEN}`,
+      'apikey': SUPABASE_ACCESS_TOKEN,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query: sql }),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`SQL API error ${res.status}: ${text}`)
+  }
+  const data = await res.json().catch(() => ({}))
+  return data
+}
+
+server.tool(
+  'apply_sql',
+  {
+    description: 'Execute raw SQL via Supabase SQL API. Requires SUPABASE_PROJECT_REF and SUPABASE_ACCESS_TOKEN.',
+    inputSchema: {
+      type: 'object',
+      required: ['sql'],
+      properties: {
+        sql: { type: 'string' },
+      },
+      additionalProperties: false,
+    },
+  },
+  async (input) => {
+    const result = await runSql(input.sql)
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+  }
+)
+
+server.tool(
+  'apply_sql_file',
+  {
+    description: 'Execute a local .sql file via Supabase SQL API',
+    inputSchema: {
+      type: 'object',
+      required: ['path'],
+      properties: {
+        path: { type: 'string' },
+      },
+      additionalProperties: false,
+    },
+  },
+  async (input) => {
+    const filePath = path.resolve(process.cwd(), input.path)
+    if (!fs.existsSync(filePath)) {
+      return { isError: true, content: [{ type: 'text', text: `File not found: ${filePath}` }] }
+    }
+    const sql = fs.readFileSync(filePath, 'utf8')
+    const result = await runSql(sql)
+    return { content: [{ type: 'text', text: JSON.stringify({ file: input.path, result }, null, 2) }] }
   }
 )
 

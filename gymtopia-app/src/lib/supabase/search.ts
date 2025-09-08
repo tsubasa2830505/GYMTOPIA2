@@ -164,7 +164,7 @@ export async function searchPosts(
 ) {
   try {
     let queryBuilder = supabase
-      .from('posts')
+      .from('gym_posts')
       .select(`
         *,
         user:user_id(id, username, display_name, avatar_url),
@@ -172,7 +172,7 @@ export async function searchPosts(
         likes:post_likes(count),
         comments:post_comments(count)
       `)
-      .eq('visibility', 'public')
+      .eq('is_public', true)
 
     // Text search
     if (query) {
@@ -190,7 +190,7 @@ export async function searchPosts(
         queryBuilder = queryBuilder.eq('gym_id', filters.gymId)
       }
       if (filters.hasImage) {
-        queryBuilder = queryBuilder.not('image_urls', 'is', null)
+        queryBuilder = queryBuilder.not('image_url', 'is', null)
       }
     }
 
@@ -212,9 +212,9 @@ export async function getTrendingHashtags(limit = 10) {
     // This would ideally be a materialized view or cached data
     // For now, we'll extract hashtags from recent posts
     const { data: posts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('content')
-      .eq('visibility', 'public')
+      .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -267,7 +267,7 @@ export async function getDiscoverContent(
 
     // Get posts from gyms user visits or from users they don't follow yet
     let queryBuilder = supabase
-      .from('posts')
+      .from('gym_posts')
       .select(`
         *,
         user:user_id(id, username, display_name, avatar_url),
@@ -275,7 +275,7 @@ export async function getDiscoverContent(
         likes:post_likes(count),
         comments:post_comments(count)
       `)
-      .eq('visibility', 'public')
+      .eq('is_public', true)
       .neq('user_id', userId)
 
     // Exclude posts from users already following

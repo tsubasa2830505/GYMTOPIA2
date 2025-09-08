@@ -10,14 +10,10 @@ export interface Post {
   id: string
   user_id: string
   content?: string
-  images?: string[]
-  post_type: 'normal' | 'workout' | 'check_in' | 'achievement'
-  workout_session_id?: string
-  gym_id?: string
-  checkin_id?: string
-  achievement_type?: string
-  achievement_data?: any
-  visibility: 'public' | 'followers' | 'private'
+  image_url?: string | null
+  workout_session_id?: string | null
+  gym_id?: string | null
+  is_public: boolean
   likes_count: number
   comments_count: number
   created_at: string
@@ -59,13 +55,13 @@ export async function getFeedPosts(
     const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
     
     let query = supabase
-      .from('posts')
+      .from('gym_posts')
       .select(`
         *,
         user:user_id(id, display_name, username, avatar_url),
         gym:gym_id(name)
       `)
-      .eq('visibility', 'public')
+      .eq('is_public', true)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -89,13 +85,13 @@ export async function getFeedPosts(
         // Get posts from gym friends
         const { data: friends } = await supabase
           .from('gym_friends')
-          .select('friend_id, user_id')
-          .or(`user_id.eq.${actualUserId},friend_id.eq.${actualUserId}`)
-          .eq('status', 'accepted')
+          .select('user1_id, user2_id, friendship_status')
+          .or(`user1_id.eq.${actualUserId},user2_id.eq.${actualUserId}`)
+          .eq('friendship_status', 'accepted')
 
         if (friends && friends.length > 0) {
-          const friendIds = friends.map(f => 
-            f.user_id === actualUserId ? f.friend_id : f.user_id
+          const friendIds = friends.map((f: any) => 
+            f.user1_id === actualUserId ? f.user2_id : f.user1_id
           )
           query = query.in('user_id', friendIds)
         } else {
@@ -260,12 +256,12 @@ export async function getUserPosts(userId: string) {
     const { data: { user } } = await supabase.auth.getUser()
     
     const { data, error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select(`
         *,
         user:users(id, display_name, username, avatar_url),
         gym:gyms(name),
-        likes!left(user_id)
+        likes:post_likes!post_id(user_id)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -302,11 +298,14 @@ export async function createPost(post: {
     if (!user) throw new Error('Not authenticated')
 
     const { data, error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .insert({
-        ...post,
+        content: post.content,
+        image_url: post.images?.[0] || null,
         user_id: user.id,
-        visibility: post.visibility || 'public'
+        workout_session_id: post.workout_session_id,
+        gym_id: post.gym_id || null,
+        is_public: (post.visibility ?? 'public') === 'public',
       })
       .select()
       .single()
@@ -323,7 +322,7 @@ export async function createPost(post: {
 export async function deletePost(postId: string) {
   try {
     const { error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .delete()
       .eq('id', postId)
 

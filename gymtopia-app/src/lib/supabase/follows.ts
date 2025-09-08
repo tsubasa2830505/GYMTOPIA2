@@ -71,14 +71,14 @@ export async function getFollowers(userId: string) {
         const { data: gymFriend } = await supabase
           .from('gym_friends')
           .select('id')
-          .eq('user_id', userId)
-          .eq('friend_id', follower.id)
-          .eq('status', 'accepted')
+          .or(`and(user1_id.eq.${userId},user2_id.eq.${follower.id}),and(user2_id.eq.${userId},user1_id.eq.${follower.id})`)
+          .eq('friendship_status', 'accepted')
+          .limit(1)
           .single()
 
         // Get posts count
         const { count: postsCount } = await supabase
-          .from('posts')
+          .from('gym_posts')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', follower.id)
 
@@ -148,14 +148,14 @@ export async function getFollowing(userId: string) {
         const { data: gymFriend } = await supabase
           .from('gym_friends')
           .select('id')
-          .eq('user_id', userId)
-          .eq('friend_id', following.id)
-          .eq('status', 'accepted')
+          .or(`and(user1_id.eq.${userId},user2_id.eq.${following.id}),and(user2_id.eq.${userId},user1_id.eq.${following.id})`)
+          .eq('friendship_status', 'accepted')
+          .limit(1)
           .single()
 
         // Get posts count
         const { count: postsCount } = await supabase
-          .from('posts')
+          .from('gym_posts')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', following.id)
 

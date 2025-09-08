@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, Navigation, ExternalLink } from 'lucide-react';
+import { getGyms } from '@/lib/supabase/gyms';
 
-const sampleGyms = [
+interface Gym {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  equipment: string[];
+}
+
+const defaultGyms: Gym[] = [
   {
     id: '1',
     name: 'ゴールドジム 渋谷東京',
@@ -50,8 +60,10 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
-  const [filteredGyms, setFilteredGyms] = useState(sampleGyms);
-  const [selectedGym, setSelectedGym] = useState<typeof sampleGyms[0] | null>(null);
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [filteredGyms, setFilteredGyms] = useState<Gym[]>([]);
+  const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const equipmentOptions = [
     'フリーウェイト',
@@ -63,8 +75,39 @@ export default function MapPage() {
     'パーソナルトレーニング'
   ];
 
+  // Load gyms from database on mount
   useEffect(() => {
-    let filtered = sampleGyms;
+    loadGyms();
+  }, []);
+
+  const loadGyms = async () => {
+    setLoading(true);
+    try {
+      const gymsData = await getGyms();
+      
+      // Map the data to the expected format
+      const formattedGyms = gymsData.map(gym => ({
+        id: gym.id,
+        name: gym.name,
+        address: gym.address || '',
+        lat: gym.latitude || 35.6762,  // Default to Tokyo coordinates
+        lng: gym.longitude || 139.6503,
+        equipment: gym.equipment || []
+      }));
+
+      setGyms(formattedGyms.length > 0 ? formattedGyms : defaultGyms);
+      setFilteredGyms(formattedGyms.length > 0 ? formattedGyms : defaultGyms);
+    } catch (error) {
+      console.error('Error loading gyms:', error);
+      setGyms(defaultGyms);
+      setFilteredGyms(defaultGyms);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let filtered = gyms;
 
     if (searchQuery) {
       filtered = filtered.filter(gym =>
@@ -80,7 +123,7 @@ export default function MapPage() {
     }
 
     setFilteredGyms(filtered);
-  }, [searchQuery, selectedEquipment]);
+  }, [searchQuery, selectedEquipment, gyms]);
 
   const toggleEquipment = (equipment: string) => {
     setSelectedEquipment(prev =>
@@ -90,7 +133,7 @@ export default function MapPage() {
     );
   };
 
-  const openInGoogleMaps = (gym: typeof sampleGyms[0]) => {
+  const openInGoogleMaps = (gym: Gym) => {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.name + ' ' + gym.address)}`;
     window.open(url, '_blank');
   };

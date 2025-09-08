@@ -13,14 +13,14 @@ export async function getGymAdminStatistics(gymId: string) {
 
     // Get posts mentioning this gym this month
     const { count: monthlyPosts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('*', { count: 'exact', head: true })
       .eq('gym_id', gymId)
       .gte('created_at', startOfMonth.toISOString())
 
     // Get posts from last month for comparison
     const { count: lastMonthPosts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('*', { count: 'exact', head: true })
       .eq('gym_id', gymId)
       .gte('created_at', lastMonth.toISOString())
@@ -70,7 +70,7 @@ export async function getGymAdminStatistics(gymId: string) {
 
     // Get equipment mentions in posts
     const { data: posts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('content')
       .eq('gym_id', gymId)
       .gte('created_at', startOfMonth.toISOString())
@@ -137,7 +137,7 @@ export async function getGymAdminStatistics(gymId: string) {
 export async function getTimeBasedPostDistribution(gymId: string) {
   try {
     const { data: posts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select('created_at')
       .eq('gym_id', gymId)
 
@@ -192,7 +192,7 @@ function getDefaultTimeDistribution() {
 export async function getFrequentPosters(gymId: string, limit = 5) {
   try {
     const { data: posts } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .select(`
         user_id,
         user:user_id(username, display_name)
@@ -228,7 +228,7 @@ export async function getFrequentPosters(gymId: string, limit = 5) {
           .select('*', { count: 'exact', head: true })
           .in('post_id', 
             supabase
-              .from('posts')
+              .from('gym_posts')
               .select('id')
               .eq('user_id', userId)
               .eq('gym_id', gymId)
@@ -236,7 +236,7 @@ export async function getFrequentPosters(gymId: string, limit = 5) {
 
         // Get last post date
         const { data: lastPost } = await supabase
-          .from('posts')
+          .from('gym_posts')
           .select('created_at')
           .eq('user_id', userId)
           .eq('gym_id', gymId)

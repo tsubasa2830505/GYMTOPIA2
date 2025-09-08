@@ -65,6 +65,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 - `/gymtopia-app/SUPABASE_USER_SETUP.md` - ユーザー機能セットアップ
 - `/gymtopia-app/SUPABASE_DEVELOPMENT_ORDER.md` - 実装順序
 - `/gymtopia-app/DB_IMPLEMENTATION_STATUS.md` - 実装状況
+ - `/gymtopia-app/supabase/08-unified-schema.sql` - 長期運用向けユーザーID統一スキーマ（推奨）
 
 ## 🚀 コマンド集
 
@@ -233,8 +234,9 @@ CREATE POLICY gyms_admin_delete ON gyms FOR DELETE USING (auth.jwt() ->> 'role' 
 
 ### 完全版を実装する場合
 ```sql
--- /gymtopia-app/supabase/schema-complete.sql を実行
--- 12テーブル + RLS + トリガー + インデックス
+-- まず `/gymtopia-app/supabase/08-unified-schema.sql` を実行して
+-- user_id の参照先を `public.users(id)` に統一してください。
+-- その後、必要に応じて各種ドメインテーブルを拡張します。
 ```
 
 ## 🧩 コード整合の注記

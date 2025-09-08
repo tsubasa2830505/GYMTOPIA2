@@ -23,22 +23,22 @@ DETAIL: Key (id)=(00000000-0000-0000-0000-000000000001) is not present in table 
 - 現在の開発環境ではモック認証を使用しているため、アプリケーション機能には影響なし
 - データベース操作を伴うSupabase認証機能を使用する際にエラーが発生する可能性
 
-## 解決案
+## 解決案（最終方針）
 
-### 選択肢1: プロフィールベーススキーマを使用（推奨）
-`04-user-system.sql`のスキーマを採用し、`001_create_users_table.sql`の内容を統合
+長期運用では `public.users (auth.users拡張)` を正とし、全テーブルの `user_id` を `public.users(id)` に統一します。
 
-### 選択肢2: ユーザーベーススキーマを使用
-`001_create_users_table.sql`のスキーマを採用し、他のテーブルの参照を修正
+### 実施内容（済）
+- `supabase/08-unified-schema.sql` を追加：
+  - `public.users` と `public.user_profiles` を定義（拡張・トリガー・RLS含む）
+  - 既存テーブルの外部キーを `public.users(id)` へ移行（IF EXISTSで安全）
+- アプリ側の参照を `profiles` から `users` へ更新（埋め込みやJOINの置換）
 
-### 選択肢3: 開発モード用のダミーデータ挿入
-開発環境でのみ、`auth.users`にモックユーザーを挿入
+### 実行手順
+1. Supabase SQLエディタで `supabase/08-unified-schema.sql` を実行
+2. 旧`profiles`テーブルにユーザーデータがある場合は、`public.users`へ移行（バックアップ推奨）
+3. アプリ再デプロイ（埋め込み先を`users`に変更済み）
 
-## 推奨する実装手順
-1. データベーススキーマの統一（プロフィールベースを推奨）
-2. 既存の型定義とAPI関数の更新
-3. モック認証システムの調整
-4. テストの実行と確認
+注意: `complete-database-setup.sql` の一部は学習用サンプルです。実運用では `08-unified-schema.sql` に従ってください。
 
 ## 現在のワークアラウンド
 - 開発モードではモック認証を使用してデータベース依存を回避

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { 
   MapPin, Clock, Heart, Phone, Globe, ChevronLeft, 
@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 // import Image from 'next/image'
 
-// サンプルデータ
-const gymData = {
+// サンプルデータ（フォールバック）
+const fallbackGym = {
   id: 'gym_rogue_shinjuku',
   name: 'ROGUEクロストレーニング新宿',
   tags: ['ROGUE', 'クロスフィット', 'チョークOK'],
@@ -38,12 +38,38 @@ const gymData = {
   assets: { heroImages: ['/gym-hero.jpg'] }
 }
 
+import { getGymById, getGymMachines } from '@/lib/supabase/gyms'
+
 export default function GymDetailPage() {
-  // const params = useParams() // 未使用のため一時的にコメントアウト
+  const params = useParams()
   const router = useRouter()
-  const [liked, setLiked] = useState(gymData.likedByMe)
-  const [likesCount, setLikesCount] = useState(gymData.likesCount)
+  const [gym, setGym] = useState<any | null>(null)
+  const [machines, setMachines] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const gymData = useMemo(() => gym || fallbackGym, [gym])
+
+  const [liked, setLiked] = useState(false)
+  const [likesCount, setLikesCount] = useState(0)
   const [activeTab, setActiveTab] = useState('equipment')
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true)
+        const id = Array.isArray(params?.gymId) ? params.gymId[0] : (params as any)?.gymId
+        if (id) {
+          const gymRes = await getGymById(id)
+          if (gymRes) setGym(gymRes)
+          const gm = await getGymMachines(id)
+          if (Array.isArray(gm)) setMachines(gm)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleToggleLike = () => {
     setLiked(!liked)
@@ -61,6 +87,14 @@ export default function GymDetailPage() {
       case '可': return 'text-yellow-600 bg-yellow-50'
       default: return 'text-gray-600 bg-gray-50'
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-500">
+        読み込み中...
+      </div>
+    )
   }
 
   return (
@@ -199,31 +233,32 @@ export default function GymDetailPage() {
         {/* Tab Content - Equipment */}
         {activeTab === 'equipment' && (
           <div className="space-y-3 mb-6 sm:mb-8">
-            {gymData.equipment.map((item, index) => (
-              <div 
-                key={index}
-                className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-2xl"
-              >
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-sm sm:text-base font-semibold text-slate-900">
-                      {item.name}
-                    </h3>
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                      {item.brand}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600">
-                    <span>{item.count}台設置</span>
-                    <span>•</span>
-                    <span className={`px-2 py-0.5 rounded-lg font-medium ${getConditionColor(item.condition)}`}>
-                      状態: {item.condition}
-                    </span>
+            {machines.length > 0 ? (
+              machines.map((gm: any) => (
+                <div key={gm.id} className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-2xl">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-sm sm:text-base font-semibold text-slate-900">
+                        {gm.machine?.name || 'マシン'}
+                      </h3>
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                        {gm.machine?.maker}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600">
+                      <span>{gm.quantity || 1}台設置</span>
+                      <span>•</span>
+                      <span className="px-2 py-0.5 rounded-lg font-medium text-blue-700 bg-blue-50">
+                        {gm.machine?.target_category}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-slate-500">設備情報がありません</div>
+            )}
           </div>
         )}
 
