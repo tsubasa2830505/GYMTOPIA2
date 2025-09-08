@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { TrendingUp, Calendar, Target, Activity } from 'lucide-react'
 import { getUserWorkoutStatistics, getWeeklyPattern } from '@/lib/supabase/statistics'
 
-// Mock user ID for development
-const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
 
 export default function StatsPage() {
   const [loading, setLoading] = useState(true)
@@ -20,8 +18,8 @@ export default function StatsPage() {
     setLoading(true)
     try {
       const [workoutStats, weeklyPattern] = await Promise.all([
-        getUserWorkoutStatistics(mockUserId),
-        getWeeklyPattern(mockUserId)
+        getUserWorkoutStatistics(''), // TODO: Get from auth context
+        getWeeklyPattern('') // TODO: Get from auth context
       ])
 
       // Format weekly data for chart

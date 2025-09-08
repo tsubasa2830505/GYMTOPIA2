@@ -34,8 +34,6 @@ interface GymFriend {
   is_requester?: boolean
 }
 
-// Mock user ID for development
-const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
 
 const defaultGymFriends: GymFriend[] = [
   {
@@ -148,12 +146,12 @@ export default function GymFriendsPage() {
     try {
       // Load gym friends, pending requests, and suggestions
       const [friendsData, suggestionsData] = await Promise.all([
-        getGymFriends(mockUserId, 'accepted'),
-        getGymFriendSuggestions(mockUserId, 5)
+        getGymFriends('', 'accepted'), // TODO: Get from auth
+        getGymFriendSuggestions('', 5) // TODO: Get from auth
       ])
 
       // Load pending requests
-      const pendingData = await getGymFriends(mockUserId, 'pending')
+      const pendingData = await getGymFriends('', 'pending') // TODO: Get from auth
 
       // Format friends data
       const formattedFriends = friendsData.data?.map((friend: any) => ({
@@ -203,7 +201,7 @@ export default function GymFriendsPage() {
   }
 
   const handleSendRequest = async (friendId: string) => {
-    const result = await sendGymFriendRequest(mockUserId, friendId)
+    const result = await sendGymFriendRequest('', friendId) // TODO: Get from auth
     if (result.data) {
       await loadGymFriendsData()
     }

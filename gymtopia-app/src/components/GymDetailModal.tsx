@@ -41,11 +41,15 @@ const gymData = {
   assets: { heroImages: ['/gym-hero.jpg'] }
 }
 
+import { getGymById, getGymMachines } from '@/lib/supabase/gyms'
+
 export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModalProps) {
   const router = useRouter()
   const [liked, setLiked] = useState(gymData.likedByMe)
   const [likesCount, setLikesCount] = useState(gymData.likesCount)
   const [activeTab, setActiveTab] = useState('equipment')
+  const [gym, setGym] = useState<any | null>(null)
+  const [machines, setMachines] = useState<any[]>([])
 
   useEffect(() => {
     if (isOpen) {
@@ -58,6 +62,21 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
       document.body.style.overflow = 'unset'
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const load = async () => {
+      if (!isOpen) return
+      try {
+        const g = await getGymById(gymId)
+        if (g) setGym(g)
+      } catch {}
+      try {
+        const gm = await getGymMachines(gymId)
+        if (Array.isArray(gm)) setMachines(gm)
+      } catch {}
+    }
+    load()
+  }, [isOpen, gymId])
 
   const handleToggleLike = () => {
     setLiked(!liked)
@@ -230,7 +249,14 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               {/* Tab Content - Equipment */}
               {activeTab === 'equipment' && (
                 <div className="space-y-3 mb-5">
-                  {gymData.equipment.map((item, index) => (
+                  {(machines.length > 0
+                    ? machines.map((gm: any) => ({
+                        name: gm.machine?.name,
+                        brand: gm.machine?.maker,
+                        count: gm.quantity || 1,
+                      }))
+                    : gymData.equipment
+                  ).map((item: any, index: number) => (
                     <div 
                       key={index}
                       className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"

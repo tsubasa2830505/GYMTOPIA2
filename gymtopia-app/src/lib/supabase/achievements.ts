@@ -46,13 +46,13 @@ export async function getUserAchievements(userId: string) {
 
     if (error) {
       console.error('Error fetching achievements:', error)
-      return getMockAchievements()
+      return []
     }
 
     return data as Achievement[]
   } catch (error) {
     console.error('Error in getUserAchievements:', error)
-    return getMockAchievements()
+    return []
   }
 }
 
@@ -70,13 +70,13 @@ export async function getUserPersonalRecords(userId: string) {
 
     if (error) {
       console.error('Error fetching personal records:', error)
-      return getMockPersonalRecords()
+      return []
     }
 
     return data as PersonalRecord[]
   } catch (error) {
     console.error('Error in getUserPersonalRecords:', error)
-    return getMockPersonalRecords()
+    return []
   }
 }
 
@@ -212,86 +212,4 @@ export async function calculateStreak(userId: string): Promise<number> {
     console.error('Error calculating streak:', error)
     return 0
   }
-}
-
-// モックデータ
-function getMockAchievements(): Achievement[] {
-  return [
-    {
-      id: 'ach-1',
-      user_id: 'mock-user',
-      achievement_type: 'streak',
-      achievement_name: '7日間連続トレーニング',
-      description: '1週間毎日ジムに通いました！',
-      badge_icon: '🔥',
-      earned_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'ach-2',
-      user_id: 'mock-user',
-      achievement_type: 'milestone',
-      achievement_name: '100回目のワークアウト',
-      description: '通算100回のトレーニングを達成！',
-      badge_icon: '🎯',
-      earned_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'ach-3',
-      user_id: 'mock-user',
-      achievement_type: 'personal_record',
-      achievement_name: 'ベンチプレス100kg達成',
-      description: '初めて100kgを持ち上げました！',
-      badge_icon: '🏆',
-      earned_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ]
-}
-
-function getMockPersonalRecords(): PersonalRecord[] {
-  return [
-    {
-      id: 'pr-1',
-      user_id: 'mock-user',
-      exercise_name: 'ベンチプレス',
-      record_type: 'weight',
-      record_value: 100,
-      record_unit: 'kg',
-      previous_value: 95,
-      achieved_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      gym: {
-        name: 'ハンマーストレングス渋谷'
-      }
-    },
-    {
-      id: 'pr-2',
-      user_id: 'mock-user',
-      exercise_name: 'スクワット',
-      record_type: 'weight',
-      record_value: 120,
-      record_unit: 'kg',
-      previous_value: 110,
-      achieved_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      gym: {
-        name: 'ROGUEクロストレーニング新宿'
-      }
-    },
-    {
-      id: 'pr-3',
-      user_id: 'mock-user',
-      exercise_name: 'デッドリフト',
-      record_type: 'weight',
-      record_value: 140,
-      record_unit: 'kg',
-      achieved_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ]
 }

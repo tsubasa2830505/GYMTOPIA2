@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-import * as mock from '@/lib/mock/gyms'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE || 'real'
-
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // ジムの型定義
@@ -51,14 +48,17 @@ export async function getGyms(filters?: {
   prefecture?: string
   city?: string
   search?: string
+  machines?: string[] // machine IDs
+  machineTypes?: string[]
+  makers?: string[]
+  categories?: string[] // target_category values
 }) {
-  if (DATA_MODE === 'mock') {
-    return mock.mockGetGyms(filters)
-  }
   try {
+    let baseSelect = '*'
+    // Include related counts for UI if needed
     let query = supabase
       .from('gyms')
-      .select('*')
+      .select(baseSelect)
       .eq('status', 'active')
       .order('rating', { ascending: false })
 
@@ -70,6 +70,35 @@ export async function getGyms(filters?: {
     }
     if (filters?.search) {
       query = query.ilike('name', `%${filters.search}%`)
+    }
+
+    // Machine-based filters (inner join when any filter present)
+    const hasMachineFilters = !!(filters?.machines?.length || filters?.machineTypes?.length || filters?.makers?.length || filters?.categories?.length)
+    if (hasMachineFilters) {
+      // Rebuild query with relation selection and inner join
+      query = supabase
+        .from('gyms')
+        .select(`
+          *,
+          gym_machines!inner(
+            machine_id,
+            machine:machines!inner(id, name, type, maker, target_category)
+          )
+        `)
+        .eq('status', 'active')
+
+      if (filters?.machines?.length) {
+        query = query.in('gym_machines.machine_id', filters.machines)
+      }
+      if (filters?.machineTypes?.length) {
+        query = query.in('gym_machines.machine.type', filters.machineTypes)
+      }
+      if (filters?.makers?.length) {
+        query = query.in('gym_machines.machine.maker', filters.makers)
+      }
+      if (filters?.categories?.length) {
+        query = query.in('gym_machines.machine.target_category', filters.categories)
+      }
     }
 
     const { data, error } = await query
@@ -184,7 +213,6 @@ export async function getGyms(filters?: {
 
 // ジム詳細を取得
 export async function getGymById(id: string) {
-  if (DATA_MODE === 'mock') return mock.mockGetGymById(id)
   try {
     const { data, error } = await supabase
       .from('gyms')
@@ -202,7 +230,6 @@ export async function getGymById(id: string) {
 
 // ジムのマシン一覧を取得
 export async function getGymMachines(gymId: string) {
-  if (DATA_MODE === 'mock') return mock.mockGetGymMachines(gymId)
   try {
     const { data, error } = await supabase
       .from('gym_machines')
@@ -223,7 +250,6 @@ export async function getGymMachines(gymId: string) {
 
 // ジムのレビューを取得
 export async function getGymReviews(gymId: string) {
-  if (DATA_MODE === 'mock') return mock.mockGetGymReviews(gymId)
   try {
     const { data, error } = await supabase
       .from('gym_reviews')
@@ -335,29 +361,6 @@ export async function getUserFavoriteGyms() {
   } catch (error) {
     console.error('Error fetching favorite gyms:', error)
     return []
-  }
-}
-
-// ジムにチェックイン
-export async function checkInToGym(gymId: string) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
-
-    const { data, error } = await supabase
-      .from('gym_checkins')
-      .insert({
-        user_id: user.id,
-        gym_id: gymId
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  } catch (error) {
-    console.error('Error checking in:', error)
-    throw error
   }
 }
 

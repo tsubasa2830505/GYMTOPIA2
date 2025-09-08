@@ -73,6 +73,10 @@ function SearchResultsContent() {
       if (keyword) filters.search = keyword
       if (prefecture) filters.prefecture = prefecture
       if (city) filters.city = city
+      // pass machine filters if present
+      if (selectedConditions.machines?.length) {
+        filters.machines = selectedConditions.machines
+      }
       
       const data = await getGyms(filters)
       
@@ -140,7 +144,15 @@ function SearchResultsContent() {
   }
 
   useEffect(() => {
-    const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
+    const type = searchParams.get('type') || undefined
+    // Accept both ?machines=... and (if type=machine) ?equipment=...
+    let machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
+    if (machines.length === 0 && type === 'machine') {
+      machines = searchParams.getAll('equipment')
+        .flatMap(v => v.split(','))
+        .map(s => s.trim())
+        .filter(Boolean)
+    }
     const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
     

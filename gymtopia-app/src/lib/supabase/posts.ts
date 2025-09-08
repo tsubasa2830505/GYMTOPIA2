@@ -121,13 +121,11 @@ export async function getFeedPosts(
 
     if (error) {
       console.error('Error fetching posts:', error)
-      // Return mock data if error
-      return getMockFeedPosts()
+      return []
     }
 
     if (!data || data.length === 0) {
-      // Return mock data if no posts
-      return getMockFeedPosts()
+      return []
     }
 
     // Get likes and comments counts
@@ -172,82 +170,8 @@ export async function getFeedPosts(
     return postsWithCounts as Post[]
   } catch (error) {
     console.error('Error in getFeedPosts:', error)
-    return getMockFeedPosts()
+    return []
   }
-}
-
-// Mock feed posts helper
-function getMockFeedPosts(): Post[] {
-  return [
-    {
-      id: 'mock-post-1',
-      user_id: 'mock-user-1',
-      content: '今日は胸トレ完了！新しいHammer Strengthのマシンが最高でした。フォームが安定して重量も上がった感じです。',
-      post_type: 'workout' as const,
-      gym_id: 'gym-1',
-      visibility: 'public' as const,
-      likes_count: 15,
-      comments_count: 3,
-      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      user: {
-        id: 'mock-user-1',
-        display_name: '筋トレマニア太郎',
-        username: 'muscle_taro',
-        avatar_url: '/muscle-taro-avatar.svg'
-      },
-      gym: {
-        name: 'ハンマーストレングス渋谷'
-      },
-      is_liked: false
-    },
-    {
-      id: 'mock-post-2',
-      user_id: 'mock-user-2',
-      content: 'スクワット100kg×5達成！ずっと目標にしていた重量です。ROGUEのパワーラックで安心してトレーニングできました。',
-      post_type: 'achievement' as const,
-      achievement_data: {
-        exercise: 'スクワット',
-        weight: 100,
-        reps: 5
-      },
-      gym_id: 'gym-2',
-      visibility: 'public' as const,
-      likes_count: 42,
-      comments_count: 8,
-      created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      user: {
-        id: 'mock-user-2',
-        display_name: 'フィットネス花子',
-        username: 'fitness_hanako',
-        avatar_url: '/fitness-hanako-avatar.svg'
-      },
-      gym: {
-        name: 'ROGUEクロストレーニング新宿'
-      },
-      is_liked: true
-    },
-    {
-      id: 'mock-post-3',
-      user_id: 'mock-user-3',
-      content: '朝トレ最高！24時間営業だから早朝も利用できるのが嬉しい。朝の時間帯は空いていて集中できました。',
-      post_type: 'check_in' as const,
-      gym_id: 'gym-3',
-      visibility: 'public' as const,
-      likes_count: 28,
-      comments_count: 5,
-      created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-      user: {
-        id: 'mock-user-3',
-        display_name: 'トレーニング次郎',
-        username: 'training_jiro',
-        avatar_url: '/training-jiro-avatar.svg'
-      },
-      gym: {
-        name: 'プレミアムフィットネス銀座'
-      },
-      is_liked: false
-    }
-  ]
 }
 
 // ユーザーの投稿を取得

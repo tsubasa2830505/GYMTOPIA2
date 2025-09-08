@@ -161,6 +161,7 @@ export default function FreeWeightSearchPage() {
   const handleSearch = () => {
     // 選択された条件を持って検索結果画面へ
     const params = new URLSearchParams()
+    // フリーウェイトはDBのmachinesフィルタに直結しないため、type=freeweightで区別して渡す
     selectedItems.forEach(item => params.append('equipment', item))
     router.push(`/search/results?type=freeweight&${params.toString()}`)
   }

@@ -18,3 +18,7 @@ FROM (
 WHERE g.id = sub.id
   AND (g.city IS NULL OR g.city = '');
 
+-- Mark existing gyms active if status is NULL
+UPDATE public.gyms
+SET status = 'active'
+WHERE status IS NULL;

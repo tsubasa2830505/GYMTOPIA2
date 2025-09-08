@@ -212,7 +212,8 @@ export default function MachineSearchPage() {
   const handleSearch = () => {
     // 選択された条件を持って検索結果画面へ
     const params = new URLSearchParams()
-    selectedItems.forEach(item => params.append('equipment', item))
+    // 機器IDはDBのmachines.id（ハイフン区切り）に合わせて変換
+    selectedItems.forEach(item => params.append('equipment', item.replace(/_/g, '-')))
     router.push(`/search/results?type=machine&${params.toString()}`)
   }
 

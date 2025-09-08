@@ -1,4 +1,5 @@
 {
+  "name": "gymtopia-2",
   "buildCommand": "cd gymtopia-app && npm cache clean --force && npm install && npm run build",
   "outputDirectory": "gymtopia-app/.next",
   "installCommand": "cd gymtopia-app && npm cache clean --force && npm install",

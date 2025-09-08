@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, UserPlus, MapPin, Calendar, Search, UserCheck, Clock } from 'lucide-react'
 import { getFollowers, getFollowCounts, followUser, unfollowUser } from '@/lib/supabase/follows'
-import { getMockUser } from '@/lib/mock/auth'
 
 interface Follower {
   id: string
@@ -32,9 +31,8 @@ export default function FollowersPage() {
   const [loading, setLoading] = useState(true)
   const [processingIds, setProcessingIds] = useState<string[]>([])
 
-  // Get current user (mock for development)
-  const currentUser = getMockUser()
-  const userId = currentUser?.id || ''
+  // Get current user ID (mock for development)
+  const userId = 'mock-user-1'
 
   useEffect(() => {
     if (userId) {
