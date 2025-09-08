@@ -1,8 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Supabaseクライアントを関数内で初期化
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase configuration is missing')
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
 
 export interface GymFriend {
   id: string
@@ -18,6 +26,7 @@ export interface GymFriend {
 // Get user's gym friends
 export async function getGymFriends(userId: string, status?: 'pending' | 'accepted' | 'blocked') {
   try {
+    const supabase = getSupabaseClient()
     let query = supabase
       .from('gym_friends')
       .select(`
@@ -55,6 +64,7 @@ export async function getGymFriends(userId: string, status?: 'pending' | 'accept
 // Send gym friend request
 export async function sendGymFriendRequest(userId: string, friendId: string) {
   try {
+    const supabase = getSupabaseClient()
     // Check if request already exists
     const { data: existing } = await supabase
       .from('gym_friends')
@@ -101,6 +111,7 @@ export async function sendGymFriendRequest(userId: string, friendId: string) {
 // Accept gym friend request
 export async function acceptGymFriendRequest(requestId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('gym_friends')
       .update({
@@ -137,6 +148,7 @@ export async function acceptGymFriendRequest(requestId: string) {
 // Reject gym friend request
 export async function rejectGymFriendRequest(requestId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { error } = await supabase
       .from('gym_friends')
       .delete()
@@ -153,6 +165,7 @@ export async function rejectGymFriendRequest(requestId: string) {
 // Remove gym friend
 export async function removeGymFriend(userId: string, friendId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { error } = await supabase
       .from('gym_friends')
       .delete()
@@ -170,6 +183,7 @@ export async function removeGymFriend(userId: string, friendId: string) {
 // Block user
 export async function blockUser(userId: string, blockedUserId: string) {
   try {
+    const supabase = getSupabaseClient()
     // Check if relationship exists
     const { data: existing } = await supabase
       .from('gym_friends')
@@ -213,6 +227,7 @@ export async function blockUser(userId: string, blockedUserId: string) {
 // Unblock user
 export async function unblockUser(userId: string, blockedUserId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { error } = await supabase
       .from('gym_friends')
       .delete()
@@ -231,6 +246,7 @@ export async function unblockUser(userId: string, blockedUserId: string) {
 // Check if users are gym friends
 export async function areGymFriends(userId1: string, userId2: string) {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('gym_friends')
       .select('id, status')
@@ -255,6 +271,7 @@ export async function areGymFriends(userId1: string, userId2: string) {
 // Get gym friend suggestions
 export async function getGymFriendSuggestions(userId: string, limit = 10) {
   try {
+    const supabase = getSupabaseClient()
     // Get user's current friends and pending requests
     const { data: existingRelations } = await supabase
       .from('gym_friends')

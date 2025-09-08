@@ -85,7 +85,9 @@
       "Read(//Users/tsubasa/.cursor/**)",
       "WebFetch(domain:qiita.com)",
       "Bash(git clone:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(claude-code-log --help)"
     ],
     "deny": [],
     "ask": []
