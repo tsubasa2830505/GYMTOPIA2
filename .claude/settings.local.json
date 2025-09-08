@@ -82,7 +82,10 @@
       "Bash(mkdir:*)",
       "Bash(find:*)",
       "Bash(ccusage)",
-      "Read(//Users/tsubasa/.cursor/**)"
+      "Read(//Users/tsubasa/.cursor/**)",
+      "WebFetch(domain:qiita.com)",
+      "Bash(git clone:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []
