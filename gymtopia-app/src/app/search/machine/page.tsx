@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   ChevronLeft, Search, ChevronRight, Check,
   Dumbbell, Activity
 } from 'lucide-react'
+import { getMachineCategories } from '@/lib/supabase/equipment'
 
 interface MachineCategory {
   id: string
