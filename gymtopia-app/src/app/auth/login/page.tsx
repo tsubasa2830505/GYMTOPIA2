@@ -3,11 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+import { supabase } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,7 +27,7 @@ export default function LoginPage() {
         setIsLoading(false)
       }
     } catch (err: any) {
-      setError('Googleログイン中にエラーが発生しました')
+      setError(err?.message || 'Googleログイン中にエラーが発生しました')
       setIsLoading(false)
     }
   }
