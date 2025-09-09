@@ -2,7 +2,7 @@
 
 import { Search, MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
 // import Image from 'next/image'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import SearchResultMap from '@/components/SearchResultMap'
@@ -60,7 +60,7 @@ function SearchResultsContent() {
   }
 
   // Fetch gyms from Supabase
-  const fetchGyms = async () => {
+  const fetchGyms = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -73,9 +73,16 @@ function SearchResultsContent() {
       if (keyword) filters.search = keyword
       if (prefecture) filters.prefecture = prefecture
       if (city) filters.city = city
-      // pass machine filters if present
+      
+      // Pass all condition filters to getGyms
       if (selectedConditions.machines?.length) {
         filters.machines = selectedConditions.machines
+      }
+      if (selectedConditions.freeWeights?.length) {
+        filters.machineTypes = selectedConditions.freeWeights
+      }
+      if (selectedConditions.facilities?.length) {
+        filters.categories = selectedConditions.facilities
       }
       
       const data = await getGyms(filters)
@@ -141,7 +148,7 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedConditions, searchParams])
 
   useEffect(() => {
     const type = searchParams.get('type') || undefined
@@ -157,8 +164,12 @@ function SearchResultsContent() {
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
     
     setSelectedConditions({ machines, freeWeights, facilities })
-    fetchGyms()
   }, [searchParams])
+  
+  // Fetch gyms whenever conditions change
+  useEffect(() => {
+    fetchGyms()
+  }, [selectedConditions, searchParams])
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
