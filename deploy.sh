@@ -15,12 +15,15 @@ echo "ℹ️ Using existing Vercel project link if present (.vercel)"
 SUPA_URL=$(awk -F= '/^NEXT_PUBLIC_SUPABASE_URL/ {print $2}' .env.local | tr -d '\r' || true)
 SUPA_ANON=$(awk -F= '/^NEXT_PUBLIC_SUPABASE_ANON_KEY/ {print $2}' .env.local | tr -d '\r' || true)
 
+SITE_URL=$(awk -F= '/^NEXT_PUBLIC_SITE_URL/ {print $2}' .env.local | tr -d '\r' || true)
+
 echo "🚀 Deploying to Vercel (production)..."
-if [ -n "$SUPA_URL" ] && [ -n "$SUPA_ANON" ]; then
+if [ -n "$SUPA_URL" ] && [ -n "$SUPA_ANON" ] && [ -n "$SITE_URL" ]; then
   echo "🔐 Passing Supabase build env from .env.local"
   npx vercel --prod --yes --confirm \
     --build-env NEXT_PUBLIC_SUPABASE_URL="$SUPA_URL" \
-    --build-env NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPA_ANON"
+    --build-env NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPA_ANON" \
+    --build-env NEXT_PUBLIC_SITE_URL="$SITE_URL"
 else
   echo "⚠️ Supabase env not found locally; relying on Vercel dashboard env"
   npx vercel --prod --yes --confirm

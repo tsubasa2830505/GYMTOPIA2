@@ -15,9 +15,10 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const redirectBase = (process.env.NEXT_PUBLIC_SITE_URL && typeof window !== 'undefined')
-        ? process.env.NEXT_PUBLIC_SITE_URL
-        : (typeof window !== 'undefined' ? window.location.origin : '')
+      // 環境に応じて適切なURLを使用
+      const redirectBase = typeof window !== 'undefined' 
+        ? (process.env.NEXT_PUBLIC_SITE_URL || window.location.origin)
+        : 'http://localhost:3000'
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

@@ -6,6 +6,8 @@ import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activit
 import Image from 'next/image'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters } from '@/lib/supabase/admin-statistics'
+import { getUserManagedGyms, updateGymBasicInfo } from '@/lib/supabase/admin'
+import { useRouter } from 'next/navigation'
 
 interface Equipment {
   id: string
@@ -34,14 +36,16 @@ interface Review {
 }
 
 export default function AdminPage() {
-  // const router = useRouter() // 未使用のため一時的にコメントアウト
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('basic')
   const [selectedGym, setSelectedGym] = useState<any>(null)
   const [gyms, setGyms] = useState<any[]>([])
+  const [managedGyms, setManagedGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<any>(null)
   const [timeDistribution, setTimeDistribution] = useState<any[]>([])
   const [frequentPosters, setFrequentPosters] = useState<any[]>([])
+  const [hasAccess, setHasAccess] = useState(false)
   
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -137,9 +141,9 @@ export default function AdminPage() {
   const categories = ['パワーラック', 'ベンチプレス', 'ダンベル', 'ケーブルマシン', 'スミスマシン']
   const makers = ['ROGUE', 'Hammer Strength', 'Prime Fitness', 'Cybex', 'Life Fitness', 'Technogym']
   
-  // Load gyms on mount
+  // Load managed gyms on mount
   useEffect(() => {
-    loadGyms()
+    loadManagedGyms()
   }, [])
   
   // Load statistics when gym is selected
@@ -149,11 +153,22 @@ export default function AdminPage() {
     }
   }, [selectedGym])
   
-  const loadGyms = async () => {
+  const loadManagedGyms = async () => {
     setLoading(true)
     try {
-      const gymsData = await getGyms()
-      setGyms(gymsData)
+      // ユーザーが管理するジムのみを取得
+      const managedData = await getUserManagedGyms()
+      
+      if (!managedData || managedData.length === 0) {
+        setHasAccess(false)
+        setLoading(false)
+        return
+      }
+      
+      setHasAccess(true)
+      const gymsData = managedData.map((item: any) => item.gym)
+      setManagedGyms(gymsData)
+      setGyms(gymsData) // 互換性のため両方にセット
       
       // Select first gym by default
       if (gymsData.length > 0) {
@@ -339,6 +354,43 @@ export default function AdminPage() {
     }
   }
 
+
+  // アクセス権限がない場合の表示
+  if (!loading && !hasAccess) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">アクセス権限がありません</h2>
+          <p className="text-gray-600 mb-6">
+            この管理画面にアクセスするには、ジムオーナーとしての登録が必要です。
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            ホームに戻る
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
