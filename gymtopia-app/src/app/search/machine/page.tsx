@@ -22,7 +22,8 @@ interface MachineItem {
   description?: string
 }
 
-const machineCategories: MachineCategory[] = [
+// スタティックデータ（フォールバック用）
+const staticMachineCategories: MachineCategory[] = [
   {
     id: 'chest',
     name: '胸部マシン',
@@ -151,6 +152,30 @@ export default function MachineSearchPage() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['chest']))
+  const [machineCategories, setMachineCategories] = useState<MachineCategory[]>(staticMachineCategories)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true)
+        const categories = await getMachineCategories()
+        // DBから取得したデータをMachineCategory型に変換
+        const formattedCategories = categories.map(cat => ({
+          ...cat,
+          icon: cat.icon || '💪' // アイコンが文字列の場合はそのまま使用
+        }))
+        setMachineCategories(formattedCategories.length > 0 ? formattedCategories : staticMachineCategories)
+      } catch (error) {
+        console.error('Failed to fetch machine categories:', error)
+        // フォールバック
+        setMachineCategories(staticMachineCategories)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const handleCategoryToggle = (categoryId: string) => {
     const newSelected = new Set(selectedCategories)
@@ -223,6 +248,17 @@ export default function MachineSearchPage() {
   }
 
   const selectedCount = selectedItems.size
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">マシンデータを読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 sm:pb-0">

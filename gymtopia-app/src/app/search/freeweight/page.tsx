@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   ChevronLeft, Search, ChevronRight, Check,
   Dumbbell
 } from 'lucide-react'
+import { getFreeweightCategories } from '@/lib/supabase/equipment'
 
 interface FreeWeightCategory {
   id: string
@@ -21,7 +22,8 @@ interface FreeWeightItem {
   description?: string
 }
 
-const freeWeightCategories: FreeWeightCategory[] = [
+// スタティックデータ（フォールバック用）
+const staticFreeWeightCategories: FreeWeightCategory[] = [
   {
     id: 'rack',
     name: 'パワーラック',
@@ -100,6 +102,30 @@ export default function FreeWeightSearchPage() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['barbell']))
+  const [freeWeightCategories, setFreeWeightCategories] = useState<FreeWeightCategory[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true)
+        const categories = await getFreeweightCategories()
+        // DBから取得したデータをFreeWeightCategory型に変換
+        const formattedCategories = categories.map(cat => ({
+          ...cat,
+          icon: cat.icon || '🏋️' // アイコンが文字列の場合はそのまま使用
+        }))
+        setFreeWeightCategories(formattedCategories.length > 0 ? formattedCategories : staticFreeWeightCategories)
+      } catch (error) {
+        console.error('Failed to fetch freeweight categories:', error)
+        // フォールバック
+        setFreeWeightCategories(staticFreeWeightCategories)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const handleCategoryToggle = (categoryId: string) => {
     const newSelected = new Set(selectedCategories)
@@ -172,6 +198,17 @@ export default function FreeWeightSearchPage() {
   }
 
   const selectedCount = selectedItems.size
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">フリーウェイトデータを読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 sm:pb-0">

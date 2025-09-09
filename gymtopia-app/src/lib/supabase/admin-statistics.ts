@@ -220,16 +220,24 @@ export async function getFrequentPosters(gymId: string, limit = 5) {
 
     const userStats = await Promise.all(
       topUsers.map(async ([userId, userData]) => {
-        const { count: likesCount } = await supabase
-          .from('post_likes')
-          .select('*', { count: 'exact', head: true })
-          .in('post_id', 
-            supabase
-              .from('gym_posts')
-              .select('id')
-              .eq('user_id', userId)
-              .eq('gym_id', gymId)
-          )
+        // First get the post IDs for this user
+        const { data: userPosts } = await supabase
+          .from('gym_posts')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('gym_id', gymId)
+
+        const postIds = userPosts?.map(p => p.id) || []
+        
+        // Then get likes count for those posts
+        let likesCount = 0
+        if (postIds.length > 0) {
+          const { count } = await supabase
+            .from('post_likes')
+            .select('*', { count: 'exact', head: true })
+            .in('post_id', postIds)
+          likesCount = count || 0
+        }
 
         // Get last post date
         const { data: lastPost } = await supabase
@@ -253,7 +261,7 @@ export async function getFrequentPosters(gymId: string, limit = 5) {
         return {
           name: userData.name,
           posts: userData.posts,
-          likes: likesCount || 0,
+          likes: likesCount,
           lastPost: lastPostText
         }
       })
