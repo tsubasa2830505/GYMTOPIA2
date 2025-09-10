@@ -44,6 +44,11 @@ export default function FollowingPage() {
   }, [userId])
 
   const loadFollowing = async () => {
+    if (!userId) {
+      console.log('No userId available for loadFollowing')
+      setLoading(false)
+      return
+    }
     setLoading(true)
     const { data, error } = await getFollowing(userId)
     if (!error && data) {
@@ -53,6 +58,10 @@ export default function FollowingPage() {
   }
 
   const loadFollowCounts = async () => {
+    if (!userId) {
+      console.log('No userId available for loadFollowCounts')
+      return
+    }
     const counts = await getFollowCounts(userId)
     if (!counts.error) {
       setFollowCounts(counts)
@@ -60,6 +69,10 @@ export default function FollowingPage() {
   }
 
   const handleUnfollow = async (targetUserId: string) => {
+    if (!userId) {
+      console.log('No userId available for handleUnfollow')
+      return
+    }
     if (window.confirm('フォローを解除しますか？')) {
       setProcessingIds(prev => [...prev, targetUserId])
       const { error } = await unfollowUser(userId, targetUserId)
