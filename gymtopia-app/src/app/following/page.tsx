@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, UserPlus, MapPin, Calendar, Search, UserMinus, Clock } from 'lucide-react'
 import { getFollowing, getFollowCounts, unfollowUser } from '@/lib/supabase/follows'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Following {
   id: string
@@ -29,14 +30,16 @@ export default function FollowingPage() {
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 })
   const [loading, setLoading] = useState(true)
   const [processingIds, setProcessingIds] = useState<string[]>([])
+  const { user } = useAuth()
 
-  // Get current user ID (mock for development)
-  const userId = 'mock-user-1'
+  const userId = user?.id
 
   useEffect(() => {
     if (userId) {
       loadFollowing()
       loadFollowCounts()
+    } else {
+      setLoading(false)
     }
   }, [userId])
 

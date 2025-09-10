@@ -34,7 +34,7 @@ export async function getFollowers(userId: string) {
       .from('follows')
       .select(`
         *,
-        follower:follower_id (
+        follower:users!follower_id (
           id,
           email,
           username,
@@ -119,7 +119,7 @@ export async function getFollowing(userId: string) {
       .from('follows')
       .select(`
         *,
-        following:following_id (
+        following:users!following_id (
           id,
           email,
           username,

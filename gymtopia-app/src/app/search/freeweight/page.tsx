@@ -145,6 +145,8 @@ export default function FreeWeightSearchPage() {
         newItems.add(item.id)
       })
       setSelectedItems(newItems)
+      // 選択時に画面上部へスクロール
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
     setSelectedCategories(newSelected)
   }
@@ -170,6 +172,8 @@ export default function FreeWeightSearchPage() {
           setSelectedCategories(new Set(selectedCategories))
         }
       }
+      // アイテム選択時に画面上部へスクロール
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
     setSelectedItems(newSelected)
   }
@@ -180,6 +184,8 @@ export default function FreeWeightSearchPage() {
       newExpanded.delete(categoryId)
     } else {
       newExpanded.add(categoryId)
+      // カテゴリーを展開した時に画面上部へスクロール
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
     setExpandedCategories(newExpanded)
   }

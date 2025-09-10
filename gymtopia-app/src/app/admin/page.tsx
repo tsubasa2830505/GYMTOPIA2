@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-// import { useRouter } from 'next/navigation'
 import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
 import Image from 'next/image'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters } from '@/lib/supabase/admin-statistics'
 import { getUserManagedGyms, updateGymBasicInfo } from '@/lib/supabase/admin'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Equipment {
   id: string
@@ -37,6 +37,7 @@ interface Review {
 
 export default function AdminPage() {
   const router = useRouter()
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState('basic')
   const [selectedGym, setSelectedGym] = useState<any>(null)
   const [gyms, setGyms] = useState<any[]>([])
@@ -141,10 +142,15 @@ export default function AdminPage() {
   const categories = ['パワーラック', 'ベンチプレス', 'ダンベル', 'ケーブルマシン', 'スミスマシン']
   const makers = ['ROGUE', 'Hammer Strength', 'Prime Fitness', 'Cybex', 'Life Fitness', 'Technogym']
   
-  // Load managed gyms on mount
+  // Load managed gyms on mount when user is authenticated
   useEffect(() => {
-    loadManagedGyms()
-  }, [])
+    if (!authLoading && isAuthenticated && user) {
+      loadManagedGyms()
+    } else if (!authLoading && !isAuthenticated) {
+      setLoading(false)
+      setHasAccess(false)
+    }
+  }, [authLoading, isAuthenticated, user])
   
   // Load statistics when gym is selected
   useEffect(() => {
@@ -156,6 +162,14 @@ export default function AdminPage() {
   const loadManagedGyms = async () => {
     setLoading(true)
     try {
+      // Check if user is authenticated first
+      if (!user || !isAuthenticated) {
+        console.log('User not authenticated in loadManagedGyms')
+        setHasAccess(false)
+        setLoading(false)
+        return
+      }
+      
       // ユーザーが管理するジムのみを取得
       const managedData = await getUserManagedGyms()
       
@@ -355,8 +369,45 @@ export default function AdminPage() {
   }
 
 
+  // ローディング中の表示（認証チェック中も含む）
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 未認証の場合の表示
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">ログインが必要です</h2>
+          <p className="text-gray-600 mb-6">
+            この管理画面にアクセスするには、ログインが必要です。
+          </p>
+          <button
+            onClick={() => router.push('/auth/login')}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            ログインページへ
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // アクセス権限がない場合の表示
-  if (!loading && !hasAccess) {
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
@@ -375,18 +426,6 @@ export default function AdminPage() {
           >
             ホームに戻る
           </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ローディング中の表示
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
     )
