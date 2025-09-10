@@ -45,7 +45,7 @@ export default function LoginPage() {
             ログイン
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            GYMTOPIAへようこそ
+            ジムトピアへようこそ
           </p>
         </div>
         
