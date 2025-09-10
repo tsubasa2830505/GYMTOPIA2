@@ -58,16 +58,6 @@ SELECT s.id, 'ベンチプレス', 'chest', 'barbell',
        '自己ベスト更新を狙う', 1
 FROM new_session s;
 
--- Achievements
-WITH u AS (
-  SELECT id, row_number() over () rn FROM public.users LIMIT 1
-), u1 AS (SELECT id FROM u WHERE rn=1)
-INSERT INTO public.achievements (user_id, achievement_type, title, description, badge_icon, points, earned_at)
-SELECT (SELECT id FROM u1), 'personal_record', 'ベンチプレス100kg達成', '継続は力なり💪', '💪', 50, NOW() - INTERVAL '1 day'
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.achievements WHERE user_id = (SELECT id FROM u1) AND title = 'ベンチプレス100kg達成'
-);
-
 -- Notifications (follow)
 WITH u AS (
   SELECT id, row_number() over () rn FROM public.users LIMIT 2
@@ -78,35 +68,6 @@ WHERE NOT EXISTS (
   SELECT 1 FROM public.notifications WHERE user_id = (SELECT id FROM u2) AND type = 'follow' AND related_user_id = (SELECT id FROM u1)
 );
 
--- Gym review (simple)
-WITH u AS (
-  SELECT id, row_number() over () rn FROM public.users LIMIT 1
-), u1 AS (SELECT id FROM u WHERE rn=1), g AS (
-  SELECT id, row_number() over (order by created_at desc nulls last) rn FROM public.gyms LIMIT 2
-), g2 AS (SELECT id FROM g WHERE rn=2)
-INSERT INTO public.gym_reviews (gym_id, user_id, rating, title, content, created_at)
-SELECT (SELECT id FROM g2), (SELECT id FROM u1), 5, '最高の設備', 'Hammer Strengthのマシンが豊富で最高でした！', NOW()
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.gym_reviews WHERE user_id = (SELECT id FROM u1) AND gym_id = (SELECT id FROM g2)
-);
+-- (skip gym_reviews seeding due to varying schema)
 
--- Post like and comment on the newest post
-WITH u AS (
-  SELECT id, row_number() over () rn FROM public.users LIMIT 1
-), u1 AS (SELECT id FROM u WHERE rn=1), p AS (
-  SELECT id, row_number() over (order by created_at desc nulls last) rn FROM public.gym_posts WHERE is_public = true LIMIT 1
-), p1 AS (SELECT id FROM p WHERE rn=1)
-INSERT INTO public.post_likes (user_id, post_id)
-SELECT (SELECT id FROM u1), (SELECT id FROM p1)
-ON CONFLICT DO NOTHING;
-
-WITH u AS (
-  SELECT id, row_number() over () rn FROM public.users LIMIT 1
-), u1 AS (SELECT id FROM u WHERE rn=1), p AS (
-  SELECT id, row_number() over (order by created_at desc nulls last) rn FROM public.gym_posts WHERE is_public = true LIMIT 1
-), p1 AS (SELECT id FROM p WHERE rn=1)
-INSERT INTO public.post_comments (user_id, post_id, content, created_at)
-SELECT (SELECT id FROM u1), (SELECT id FROM p1), 'ナイスセッション！', NOW()
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.post_comments WHERE user_id = (SELECT id FROM u1) AND post_id = (SELECT id FROM p1) AND content = 'ナイスセッション！'
-);
+-- (skip post_likes/post_comments due to legacy trigger on posts table)
