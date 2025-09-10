@@ -8,6 +8,7 @@ import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters
 import { getUserManagedGyms, updateGymBasicInfo } from '@/lib/supabase/admin'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase/client'
 
 interface Equipment {
   id: string
@@ -144,13 +145,10 @@ export default function AdminPage() {
   
   // Load managed gyms on mount when user is authenticated
   useEffect(() => {
-    if (!authLoading && isAuthenticated && user) {
-      loadManagedGyms()
-    } else if (!authLoading && !isAuthenticated) {
-      setLoading(false)
-      setHasAccess(false)
-    }
-  }, [authLoading, isAuthenticated, user])
+    // 認証状態に関わらず、ロード関数を呼び出す
+    // loadManagedGyms内でSupabaseから直接認証情報を取得する
+    loadManagedGyms()
+  }, [])
   
   // Load statistics when gym is selected
   useEffect(() => {
@@ -162,18 +160,25 @@ export default function AdminPage() {
   const loadManagedGyms = async () => {
     setLoading(true)
     try {
-      // Check if user is authenticated first
-      if (!user || !isAuthenticated) {
-        console.log('User not authenticated in loadManagedGyms')
+      // Supabaseから直接認証ユーザーを取得
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      
+      if (!authUser) {
+        console.log('No authenticated user found from Supabase')
         setHasAccess(false)
         setLoading(false)
         return
       }
       
+      console.log('Loading managed gyms for user:', authUser.id, authUser.email)
+      
       // ユーザーが管理するジムのみを取得
       const managedData = await getUserManagedGyms()
       
+      console.log('Managed gyms data received:', managedData)
+      
       if (!managedData || managedData.length === 0) {
+        console.log('No managed gyms found for user')
         setHasAccess(false)
         setLoading(false)
         return

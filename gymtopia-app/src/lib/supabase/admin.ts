@@ -4,7 +4,12 @@ import { supabase } from './client'
 export async function getUserManagedGyms() {
   try {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    console.log('Getting managed gyms for user:', user?.id, user?.email)
+    
+    if (!user) {
+      console.log('No authenticated user found')
+      throw new Error('Not authenticated')
+    }
 
     const { data, error } = await supabase
       .from('gym_owners')
@@ -14,7 +19,14 @@ export async function getUserManagedGyms() {
       `)
       .eq('user_id', user.id)
 
-    if (error) throw error
+    console.log('Gym owners query result:', { data, error })
+    
+    if (error) {
+      console.error('Database error:', error)
+      throw error
+    }
+    
+    console.log('Managed gyms found:', data?.length || 0)
     return data || []
   } catch (error) {
     console.error('Error fetching managed gyms:', error)
