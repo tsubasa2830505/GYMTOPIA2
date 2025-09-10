@@ -93,7 +93,8 @@
       "Bash(ccusage session:*)",
       "Bash(ccusage blocks:*)",
       "Bash(ccusage:*)",
-      "Bash(./fix-supabase-env.sh:*)"
+      "Bash(./fix-supabase-env.sh:*)",
+      "mcp__supabase__get_logs"
     ],
     "deny": [],
     "ask": []

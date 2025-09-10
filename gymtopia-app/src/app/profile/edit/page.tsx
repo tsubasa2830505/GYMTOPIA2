@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2 } from 'lucide-react'
+import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface PersonalRecord {
   id: string
@@ -14,6 +15,7 @@ interface PersonalRecord {
 
 export default function ProfileEditPage() {
   const router = useRouter()
+  const { mockSignOut } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Basic Info
@@ -93,6 +95,11 @@ export default function ProfileEditPage() {
       personalRecords
     })
     router.push('/profile')
+  }
+
+  const handleLogout = async () => {
+    mockSignOut()
+    router.push('/auth/login')
   }
 
   return (
@@ -424,6 +431,19 @@ export default function ProfileEditPage() {
                 <input type="checkbox" className="toggle" defaultChecked />
               </label>
             </div>
+          </div>
+
+          {/* ログアウトセクション */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-900 mb-4">アカウント</h3>
+            
+            <button
+              onClick={handleLogout}
+              className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-5 h-5" />
+              ログアウト
+            </button>
           </div>
 
           {/* 保存ボタン（モバイル用） */}
