@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# UIの崩れとビルドエラーを防ぐためのpre-commitフック
+
+echo "🔍 重要ファイルの変更をチェック中..."
+
+# 重要なファイルの変更をチェック
+PROTECTED_FILES=(
+    "gymtopia-app/src/app/globals.css"
+    "gymtopia-app/package.json"
+    "gymtopia-app/tailwind.config.js"
+    "gymtopia-app/next.config.js"
+)
+
+for file in "${PROTECTED_FILES[@]}"; do
+    if git diff --cached --name-only | grep -q "^$file$"; then
+        echo "⚠️  保護されたファイルが変更されました: $file"
+        echo "📋 変更内容を確認してください:"
+        git diff --cached "$file"
+        echo ""
+        read -p "この変更を続行しますか？ (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "❌ コミットがキャンセルされました"
+            exit 1
+        fi
+    fi
+done
+
+# globals.cssの基本構造をチェック
+if git diff --cached --name-only | grep -q "gymtopia-app/src/app/globals.css"; then
+    echo "🎨 globals.cssのTailwind設定をチェック中..."
+
+    # ステージングエリアの内容をチェック
+    staged_content=$(git show :gymtopia-app/src/app/globals.css 2>/dev/null || echo "")
+
+    if [[ -n "$staged_content" ]]; then
+        # 必要な要素が含まれているかチェック
+        if ! echo "$staged_content" | grep -q '@import "tailwindcss"'; then
+            echo "❌ globals.cssに必要な @import \"tailwindcss\" が見つかりません"
+            echo "💡 正しい形式: @import \"tailwindcss\";"
+            exit 1
+        fi
+
+        if ! echo "$staged_content" | grep -q '@theme inline'; then
+            echo "⚠️  @theme inline ブロックが見つかりません"
+            echo "💡 カスタムテーマ設定が失われる可能性があります"
+            read -p "続行しますか？ (y/N): " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                exit 1
+            fi
+        fi
+    fi
+fi
+
+# lintチェック
+if [ -f "gymtopia-app/package.json" ]; then
+    echo "🔍 Lintチェックを実行中..."
+    cd gymtopia-app
+    if npm run lint --silent; then
+        echo "✅ Lint: 問題なし"
+    else
+        echo "❌ Lintエラーが検出されました"
+        echo "💡 'npm run lint' を実行して問題を修正してください"
+        exit 1
+    fi
+    cd ..
+fi
+
+# TypeScriptタイプチェック
+if [ -f "gymtopia-app/tsconfig.json" ]; then
+    echo "🔍 TypeScriptタイプチェックを実行中..."
+    cd gymtopia-app
+    if npx tsc --noEmit --skipLibCheck; then
+        echo "✅ TypeScript: 問題なし"
+    else
+        echo "❌ TypeScriptエラーが検出されました"
+        echo "💡 タイプエラーを修正してください"
+        exit 1
+    fi
+    cd ..
+fi
+
+echo "✅ 全てのチェックを通過しました！"
+echo "🚀 コミットを続行します..."

@@ -47,8 +47,19 @@ export async function getFreeweightCategories() {
     const { data: categories, error } = await supabase
       .from('freeweight_categories')
       .select(`
-        *,
-        items:freeweight_items(*)
+        slug,
+        name,
+        description,
+        icon,
+        display_order,
+        freeweight_items(
+          slug,
+          name,
+          weight_range,
+          unit,
+          description,
+          display_order
+        )
       `)
       .order('display_order')
 
@@ -59,7 +70,7 @@ export async function getFreeweightCategories() {
       name: category.name,
       description: category.description,
       icon: category.icon,
-      items: category.items?.map((item: any) => ({
+      items: category.freeweight_items?.map((item: any) => ({
         id: item.slug,
         name: item.name,
         weightRange: item.weight_range,

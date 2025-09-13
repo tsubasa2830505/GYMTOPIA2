@@ -9,6 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "backup": "../scripts/auto-backup.sh",
+    "safe-commit": "../scripts/auto-backup.sh && git add -A && git commit",
     "system:test": "node ../scripts/system-test.js",
     "scenario:test": "node ../scripts/scenario-test.js",
     "gen:types": "node scripts/gen-types.mjs"
