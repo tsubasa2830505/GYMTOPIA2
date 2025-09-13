@@ -82,8 +82,8 @@ async function testInteractions() {
     }
     
     // Machine selection
-    console.log('📍 Testing Machine Selection...');
-    await page.goto('http://localhost:3000/search/machine', { waitUntil: 'networkidle0' });
+    console.log('📍 Testing Free Weight Selection...');
+    await page.goto('http://localhost:3000/search/freeweight', { waitUntil: 'networkidle0' });
     
     const machineButtons = await page.$$('button');
     let clickableButtons = 0;

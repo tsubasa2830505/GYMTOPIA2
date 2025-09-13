@@ -116,7 +116,7 @@ export default function GymDetailPage() {
       <div className="px-4 sm:px-6 -mt-8 sm:-mt-12 relative">
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-          {gymData.tags.map((tag) => (
+          {gymData.tags.map((tag: string) => (
             <span 
               key={tag}
               className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white rounded-full text-xs sm:text-sm font-medium text-slate-700 shadow-md"
@@ -186,7 +186,7 @@ export default function GymDetailPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {gymData.pricingPlans.map((plan) => (
+          {gymData.pricingPlans.map((plan: { id: string; title: string; priceJPY: number; link: string }) => (
             <a
               key={plan.id}
               href={plan.link}
@@ -297,7 +297,7 @@ export default function GymDetailPage() {
         <div className="mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">口コミ・レビュー</h2>
           <div className="space-y-3">
-            {gymData.reviews.map((review, index) => (
+            {gymData.reviews.map((review: { author: string; date: string; body: string }, index: number) => (
               <div key={index} className="p-4 bg-white border border-slate-200 rounded-2xl">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />

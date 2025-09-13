@@ -243,6 +243,28 @@ export default function FeedPage() {
                       <p className="mt-4 text-gray-800 leading-relaxed">{post.content}</p>
                     )}
 
+                    {/* Workout Duration */}
+                    {(post as any).workout_started_at && (post as any).workout_ended_at && (
+                      <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                          </svg>
+                          <span>{(post as any).workout_started_at} - {(post as any).workout_ended_at}</span>
+                        </div>
+                        {(post as any).workout_duration_calculated && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full">
+                            <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
+                            </svg>
+                            <span className="text-xs font-medium text-blue-600">
+                              {Math.floor((post as any).workout_duration_calculated / 60)}時間{(post as any).workout_duration_calculated % 60}分
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Achievement Data */}
                     {post.post_type === 'achievement' && post.achievement_data && (
                       <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">

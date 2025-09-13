@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
@@ -30,7 +30,7 @@ function formatTrainingDetails(post: GymPost): string | null {
 }
 
 // Helper function to get achievement icon
-function getAchievementIcon(badgeIcon: string | null | undefined, achievementType: string): JSX.Element {
+function getAchievementIcon(badgeIcon: string | null | undefined, achievementType: string): ReactNode {
   const baseClasses = "w-8 h-8";
   
   // Badge icon emojis to SVG mapping

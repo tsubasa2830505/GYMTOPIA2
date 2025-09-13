@@ -221,7 +221,7 @@ export async function getTrendingHashtags(limit = 10) {
     const hashtagCounts: Record<string, number> = {}
     posts.forEach(post => {
       const hashtags = post.content.match(/#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g) || []
-      hashtags.forEach(tag => {
+      hashtags.forEach((tag: string) => {
         hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1
       })
     })

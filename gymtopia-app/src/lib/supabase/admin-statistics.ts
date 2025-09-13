@@ -205,7 +205,8 @@ export async function getFrequentPosters(gymId: string, limit = 5) {
     
     posts.forEach(post => {
       if (post.user_id && post.user) {
-        const name = post.user.display_name || post.user.username || 'Unknown'
+        const u: any = Array.isArray((post as any).user) ? (post as any).user[0] : (post as any).user
+        const name = (u?.display_name) || (u?.username) || 'Unknown'
         if (!userPostCount[post.user_id]) {
           userPostCount[post.user_id] = { name, posts: 0 }
         }

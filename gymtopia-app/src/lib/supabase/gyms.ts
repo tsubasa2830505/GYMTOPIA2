@@ -40,6 +40,64 @@ export interface GymReview {
   }
 }
 
+// いいね（イキタイ）の件数を取得（compat view: gym_likes -> favorite_gyms）
+export async function getGymLikesCount(gymId: string) {
+  try {
+    const { count, error } = await supabase
+      .from('gym_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('gym_id', gymId)
+
+    if (error) throw error
+    return count || 0
+  } catch (error) {
+    console.error('Error fetching gym likes count:', error)
+    return 0
+  }
+}
+
+export async function getGymReviewStats(gymId: string): Promise<{ average: number; count: number }> {
+  try {
+    const { data: avgData } = await supabase
+      .from('gym_reviews')
+      .select('avg:avg(rating)')
+      .eq('gym_id', gymId)
+      .single()
+
+    const { count } = await supabase
+      .from('gym_reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('gym_id', gymId)
+
+    const avg = (avgData as any)?.avg ? Number((avgData as any).avg) : 0
+    return { average: isNaN(avg) ? 0 : Math.round(avg * 10) / 10, count: count || 0 }
+  } catch (error) {
+    console.error('Error fetching review stats:', error)
+    return { average: 0, count: 0 }
+  }
+}
+
+export async function getGymEquipmentStats(gymId: string): Promise<{ types: number; totalUnits: number }> {
+  try {
+    const { count: types } = await supabase
+      .from('gym_machines')
+      .select('machine_id', { count: 'exact', head: true })
+      .eq('gym_id', gymId)
+
+    const { data: sumData } = await supabase
+      .from('gym_machines')
+      .select('sum:sum(quantity)')
+      .eq('gym_id', gymId)
+      .single()
+
+    const totalUnits = (sumData as any)?.sum ? Number((sumData as any).sum) : 0
+    return { types: types || 0, totalUnits: isNaN(totalUnits) ? 0 : totalUnits }
+  } catch (error) {
+    console.error('Error fetching equipment stats:', error)
+    return { types: 0, totalUnits: 0 }
+  }
+}
+
 // ジム一覧を取得
 export async function getGyms(filters?: {
   prefecture?: string
@@ -51,7 +109,7 @@ export async function getGyms(filters?: {
   categories?: string[] // target_category values
 }) {
   try {
-    let baseSelect = '*'
+    const baseSelect = '*'
     // Include related counts for UI if needed
     let query = supabase
       .from('gyms')
@@ -69,32 +127,21 @@ export async function getGyms(filters?: {
       query = query.ilike('name', `%${filters.search}%`)
     }
 
-    // Machine-based filters (inner join when any filter present)
-    const hasMachineFilters = !!(filters?.machines?.length || filters?.machineTypes?.length || filters?.makers?.length || filters?.categories?.length)
-    if (hasMachineFilters) {
-      // Rebuild query with relation selection and inner join
-      query = supabase
-        .from('gyms')
-        .select(`
-          *,
-          gym_machines!inner(
-            machine_id,
-            machine:machines!inner(id, name, type, maker, target_category)
-          )
-        `)
-        .eq('status', 'active')
-
-      if (filters?.machines?.length) {
-        query = query.in('gym_machines.machine_id', filters.machines)
-      }
-      if (filters?.machineTypes?.length) {
-        query = query.in('gym_machines.machine.type', filters.machineTypes)
-      }
-      if (filters?.makers?.length) {
-        query = query.in('gym_machines.machine.maker', filters.makers)
-      }
-      if (filters?.categories?.length) {
-        query = query.in('gym_machines.machine.target_category', filters.categories)
+    // Machine-based filters
+    if (filters?.machines?.length) {
+      // マシンIDでフィルタリング
+      // gym_machinesテーブルと結合して、指定されたマシンを持つジムのみを取得
+      const { data: gymIds, error: gymError } = await supabase
+        .from('gym_machines')
+        .select('gym_id')
+        .in('machine_id', filters.machines)
+      
+      if (!gymError && gymIds && gymIds.length > 0) {
+        const uniqueGymIds = [...new Set(gymIds.map(g => g.gym_id))]
+        query = query.in('id', uniqueGymIds)
+      } else {
+        // マシンが見つからない場合は空の結果を返す
+        return []
       }
     }
 
@@ -108,7 +155,7 @@ export async function getGyms(filters?: {
   }
   
   // Return mock gym data
-  return [
+  const mockGyms: Gym[] = [
     {
       id: 'gym-1',
       name: 'ハンマーストレングス渋谷',
@@ -193,7 +240,9 @@ export async function getGyms(filters?: {
       review_count: 127,
       verified: true
     }
-  ].filter((gym) => {
+  ]
+
+  return mockGyms.filter((gym) => {
     // Apply filters to mock data
     if (filters?.search && !gym.name.toLowerCase().includes(filters.search.toLowerCase())) {
       return false
@@ -205,7 +254,7 @@ export async function getGyms(filters?: {
       return false
     }
     return true
-  }) as Gym[]
+  })
 }
 
 // ジム詳細を取得
@@ -294,6 +343,41 @@ export async function createGymReview(review: {
   } catch (error) {
     console.error('Error creating review:', error)
     throw error
+  }
+}
+
+// ===============================
+// Review replies
+// ===============================
+
+export async function addGymReviewReply(reviewId: string, content: string) {
+  try {
+    const { data, error } = await supabase
+      .from('gym_review_replies')
+      .insert({ review_id: reviewId, content })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Error adding review reply:', error)
+    return null
+  }
+}
+
+export async function getGymReviewReplies(reviewIds: string[]) {
+  try {
+    if (!reviewIds.length) return []
+    const { data, error } = await supabase
+      .from('gym_review_replies')
+      .select('*')
+      .in('review_id', reviewIds)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    console.error('Error fetching review replies:', error)
+    return []
   }
 }
 

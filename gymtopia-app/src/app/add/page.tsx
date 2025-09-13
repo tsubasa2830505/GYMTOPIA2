@@ -32,6 +32,8 @@ function AddGymPostContent() {
   const [gymName, setGymName] = useState('')
   const [content, setContent] = useState('')
   const [crowdStatus, setCrowdStatus] = useState<'empty' | 'normal' | 'crowded'>('normal')
+  const [workoutStartTime, setWorkoutStartTime] = useState('')
+  const [workoutEndTime, setWorkoutEndTime] = useState('')
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [showExerciseForm, setShowExerciseForm] = useState(false)
   const [currentExercise, setCurrentExercise] = useState<Exercise>({
@@ -133,6 +135,8 @@ function AddGymPostContent() {
       const postData = {
         content: content.trim(),
         post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
+        workout_started_at: workoutStartTime || undefined,
+        workout_ended_at: workoutEndTime || undefined,
         // exercises があれば achievement_data に含める
         achievement_data: exercises.length > 0 ? {
           exercises: exercises.map(ex => ({
@@ -282,9 +286,9 @@ function AddGymPostContent() {
         
         {activeTab === 'post' ? (
           <form id="post-form" onSubmit={handleSubmit} className="space-y-6">
-          {/* 日時表示 */}
+          {/* 日時表示とワークアウト時間 */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
-            <div className="flex items-center gap-4 text-sm text-slate-600">
+            <div className="flex items-center gap-4 text-sm text-slate-600 mb-4">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>{currentDate}</span>
@@ -294,6 +298,47 @@ function AddGymPostContent() {
                 <span>{currentTime}</span>
               </div>
             </div>
+            
+            {/* ワークアウト時間入力 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  開始時間
+                </label>
+                <input
+                  type="time"
+                  value={workoutStartTime}
+                  onChange={(e) => setWorkoutStartTime(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  終了時間
+                </label>
+                <input
+                  type="time"
+                  value={workoutEndTime}
+                  onChange={(e) => setWorkoutEndTime(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
+            </div>
+            {workoutStartTime && workoutEndTime && (
+              <div className="mt-2 text-xs text-slate-600">
+                ワークアウト時間: {(() => {
+                  const start = new Date(`2000-01-01T${workoutStartTime}`);
+                  const end = new Date(`2000-01-01T${workoutEndTime}`);
+                  const diff = Math.floor((end.getTime() - start.getTime()) / 60000);
+                  if (diff > 0) {
+                    const hours = Math.floor(diff / 60);
+                    const minutes = diff % 60;
+                    return hours > 0 ? `${hours}時間${minutes}分` : `${minutes}分`;
+                  }
+                  return '計算中...';
+                })()}
+              </div>
+            )}
           </div>
 
           {/* ジム選択 */}

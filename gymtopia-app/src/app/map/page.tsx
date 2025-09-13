@@ -86,13 +86,13 @@ export default function MapPage() {
       const gymsData = await getGyms();
       
       // Map the data to the expected format
-      const formattedGyms = gymsData.map(gym => ({
+      const formattedGyms = gymsData.map((gym: any) => ({
         id: gym.id,
         name: gym.name,
         address: gym.address || '',
         lat: gym.latitude || 35.6762,  // Default to Tokyo coordinates
         lng: gym.longitude || 139.6503,
-        equipment: gym.equipment || []
+        equipment: gym.equipment_types || []
       }));
 
       setGyms(formattedGyms.length > 0 ? formattedGyms : defaultGyms);

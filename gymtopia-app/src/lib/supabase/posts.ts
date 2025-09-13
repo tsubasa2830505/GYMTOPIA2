@@ -6,6 +6,9 @@ export interface Post {
   user_id: string
   content?: string
   image_url?: string | null
+  images?: string[]
+  post_type?: 'normal' | 'workout' | 'check_in' | 'achievement'
+  achievement_data?: any
   workout_session_id?: string | null
   gym_id?: string | null
   is_public: boolean

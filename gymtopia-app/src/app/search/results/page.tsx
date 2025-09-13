@@ -1,12 +1,13 @@
 'use client'
 
-import { Search, MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
+import { Search, MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
 // import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import SearchResultMap from '@/components/SearchResultMap'
 import { getGyms } from '@/lib/supabase/gyms'
+import { getMachines } from '@/lib/supabase/machines'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -17,6 +18,7 @@ function SearchResultsContent() {
   const [gyms, setGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [machineNames, setMachineNames] = useState<Map<string, string>>(() => new Map())
   
   // Parse URL parameters for selected conditions
   const [selectedConditions, setSelectedConditions] = useState<{
@@ -151,19 +153,23 @@ function SearchResultsContent() {
   }, [selectedConditions, searchParams])
 
   useEffect(() => {
-    const type = searchParams.get('type') || undefined
-    // Accept both ?machines=... and (if type=machine) ?equipment=...
-    let machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
-    if (machines.length === 0 && type === 'machine') {
-      machines = searchParams.getAll('equipment')
-        .flatMap(v => v.split(','))
-        .map(s => s.trim())
-        .filter(Boolean)
-    }
+    // URLパラメータから選択された条件を取得
+    const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
     const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
     
     setSelectedConditions({ machines, freeWeights, facilities })
+    
+    // マシンIDから名前を取得
+    if (machines.length > 0) {
+      getMachines().then(allMachines => {
+        const nameMap = new Map<string, string>()
+        allMachines.forEach(machine => {
+          nameMap.set(machine.id, machine.name)
+        })
+        setMachineNames(nameMap)
+      })
+    }
   }, [searchParams])
   
   // Fetch gyms whenever conditions change
@@ -238,25 +244,54 @@ function SearchResultsContent() {
           )}
 
           {/* Selected Conditions Display */}
-          {getTotalConditionsCount() > 0 && (
+          {(getTotalConditionsCount() > 0 || searchParams.get('searchType')) && (
             <div className="mb-4 sm:mb-6 p-3 bg-slate-50 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-slate-700">検索条件</h3>
                 <button
-                  onClick={clearAllConditions}
+                  onClick={() => {
+                    clearAllConditions()
+                    router.push('/search/results')
+                  }}
                   className="text-xs text-red-600 hover:text-red-700 font-medium"
                 >
                   すべてクリア
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
+                {/* スマート検索条件の表示 */}
+                {searchParams.get('searchType') && (
+                  <>
+                    {searchParams.get('muscle') && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                        🏋️ 部位: {searchParams.get('muscle')}
+                      </span>
+                    )}
+                    {searchParams.get('maker') && (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                        🏭 メーカー: {searchParams.get('maker')}
+                      </span>
+                    )}
+                    {searchParams.get('name') && (
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium">
+                        🎯 マシン: {searchParams.get('name')}
+                      </span>
+                    )}
+                    {searchParams.get('type') && (
+                      <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-medium">
+                        ⚙️ タイプ: {searchParams.get('type')}
+                      </span>
+                    )}
+                  </>
+                )}
+                {/* 既存の条件表示 */}
                 {selectedConditions.machines.map((machine) => (
                   <button
                     key={`machine-${machine}`}
                     onClick={() => removeCondition('machines', machine)}
                     className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
                   >
-                    {machine}
+                    {machineNames.get(machine) || machine}
                     <X className="w-3 h-3" />
                   </button>
                 ))}
@@ -305,7 +340,7 @@ function SearchResultsContent() {
                       : 'text-slate-600'
                   }`}
                 >
-                  <Map className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <MapIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   地図
                 </button>
                 <button

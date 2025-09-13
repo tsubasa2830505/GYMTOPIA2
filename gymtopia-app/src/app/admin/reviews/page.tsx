@@ -1,8 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Star, Send, Heart, Users } from 'lucide-react';
 import Image from 'next/image';
+import { getGyms } from '@/lib/supabase/gyms';
+import { getGymReviews } from '@/lib/supabase/gyms';
+import { getGymLikesCount, getGymReviewReplies, addGymReviewReply, getGymReviewStats, getGymEquipmentStats } from '@/lib/supabase/gyms';
 
 interface Review {
   id: string;
@@ -99,6 +102,51 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState('reviews');
+  const [gyms, setGyms] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedGymId, setSelectedGymId] = useState<string | null>(null);
+  const [selectedGymName, setSelectedGymName] = useState<string>('ハンマーストレングス渋谷');
+  const [statsAverage, setStatsAverage] = useState<number>(0);
+  const [statsCount, setStatsCount] = useState<number>(0);
+  const [statsEquipTypes, setStatsEquipTypes] = useState<number>(0);
+  const [statsEquipUnits, setStatsEquipUnits] = useState<number>(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getGyms();
+        const list = (data || []).map((g: any) => ({ id: g.id, name: g.name }));
+        setGyms(list);
+        const first = list[0];
+        if (first) {
+          setSelectedGymId(first.id);
+          setSelectedGymName(first.name || selectedGymName);
+          const dbReviews = await getGymReviews(first.id);
+          const mapped: Review[] = (dbReviews || []).map((r: any) => ({
+            id: r.id,
+            author: {
+              name: r.user?.display_name || r.user?.username || 'ユーザー',
+              avatar: r.user?.avatar_url || undefined,
+              initial: (r.user?.display_name || r.user?.username || 'U').slice(0, 1)
+            },
+            rating: r.rating,
+            date: new Date(r.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }),
+            content: r.content || ''
+          }));
+          if (mapped.length > 0) setReviews(mapped);
+          const likes = await getGymLikesCount(first.id);
+          setIkItaiCount(likes);
+          const revStats = await getGymReviewStats(first.id);
+          setStatsAverage(revStats.average);
+          setStatsCount(revStats.count);
+          const eqStats = await getGymEquipmentStats(first.id);
+          setStatsEquipTypes(eqStats.types);
+          setStatsEquipUnits(eqStats.totalUnits);
+        }
+      } catch (e) {
+        console.warn('Failed to load DB reviews; using initial mock');
+      }
+    })();
+  }, []);
 
   const handleReplyChange = (reviewId: string, text: string) => {
     setReplyTexts(prev => ({
@@ -111,29 +159,28 @@ export default function AdminReviewsPage() {
     const replyText = replyTexts[reviewId];
     if (!replyText || replyText.trim() === '') return;
 
-    setReviews(prev => prev.map(review => {
-      if (review.id === reviewId) {
-        return {
-          ...review,
-          reply: {
-            storeName: 'ハンマーストレングス渋谷',
-            role: 'オーナー',
-            content: replyText,
-            date: new Date().toLocaleDateString('ja-JP', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })
+    addGymReviewReply(reviewId, replyText)
+      .then(async () => {
+        const replies = await getGymReviewReplies([reviewId]);
+        const latest: any = replies.find((r: any) => r.review_id === reviewId);
+        setReviews(prev => prev.map(review => {
+          if (review.id === reviewId) {
+            return {
+              ...review,
+              reply: latest ? {
+                storeName: selectedGymName,
+                role: latest.role || 'オーナー',
+                content: latest.content,
+                date: new Date(latest.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+              } : review.reply
+            };
           }
-        };
-      }
-      return review;
-    }));
-
-    setReplyTexts(prev => ({
-      ...prev,
-      [reviewId]: ''
-    }));
+          return review;
+        }));
+      })
+      .finally(() => {
+        setReplyTexts(prev => ({ ...prev, [reviewId]: '' }));
+      });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, reviewId: string) => {
@@ -159,9 +206,13 @@ export default function AdminReviewsPage() {
     );
   };
 
-  const averageRating = 4.8;
-  const totalReviews = 128;
-  const ikitaiCount = 342;
+  const averageRating = useMemo(() => {
+    if (!reviews.length) return 0;
+    const sum = reviews.reduce((a, b) => a + (b.rating || 0), 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
+  }, [reviews]);
+  const totalReviews = reviews.length;
+  const [ikitaiCount, setIkItaiCount] = useState<number>(0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -171,7 +222,49 @@ export default function AdminReviewsPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">施設管理ページ</h1>
-              <p className="text-lg text-gray-600 mt-1">ハンマーストレングス渋谷</p>
+              <div className="text-lg text-gray-600 mt-1">
+                {gyms.length > 0 ? (
+                  <select
+                    className="px-3 py-2 border rounded-md text-sm"
+                    value={selectedGymId || ''}
+                    onChange={async (e) => {
+                      const id = e.target.value || null;
+                      setSelectedGymId(id);
+                      const gymName = gyms.find(g => g.id === id)?.name || '';
+                      setSelectedGymName(gymName || selectedGymName);
+                      if (id) {
+                        const dbReviews = await getGymReviews(id);
+                        const mapped: Review[] = (dbReviews || []).map((r: any) => ({
+                          id: r.id,
+                          author: {
+                            name: r.user?.display_name || r.user?.username || 'ユーザー',
+                            avatar: r.user?.avatar_url || undefined,
+                            initial: (r.user?.display_name || r.user?.username || 'U').slice(0, 1)
+                          },
+                          rating: r.rating,
+                          date: new Date(r.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }),
+                          content: r.content || ''
+                        }));
+                        setReviews(mapped.length > 0 ? mapped : initialReviews);
+                        const likes = await getGymLikesCount(id);
+                        setIkItaiCount(likes);
+                        const revStats2 = await getGymReviewStats(id);
+                        setStatsAverage(revStats2.average);
+                        setStatsCount(revStats2.count);
+                        const eqStats2 = await getGymEquipmentStats(id);
+                        setStatsEquipTypes(eqStats2.types);
+                        setStatsEquipUnits(eqStats2.totalUnits);
+                      }
+                    }}
+                  >
+                    {gyms.map((g) => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p>{selectedGymName}</p>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-6">
               <div className="text-center">
@@ -251,10 +344,10 @@ export default function AdminReviewsPage() {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">評価統計</h3>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">4.8</span>
+                <span className="text-4xl font-bold text-gray-900">{statsAverage || averageRating}</span>
                 <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
               </div>
-              <p className="text-sm text-gray-600">342件のレビュー</p>
+              <p className="text-sm text-gray-600">{statsCount || totalReviews}件のレビュー</p>
             </div>
 
             {/* イキタイ数 */}
@@ -271,9 +364,9 @@ export default function AdminReviewsPage() {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">設備数</h3>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">3</span>
+                <span className="text-4xl font-bold text-gray-900">{statsEquipTypes}</span>
               </div>
-              <p className="text-sm text-gray-600">種類の設備</p>
+              <p className="text-sm text-gray-600">種類の設備（合計 {statsEquipUnits} 台）</p>
             </div>
           </div>
         ) : activeTab === 'reviews' ? (

@@ -14,7 +14,6 @@ async function simpleTest() {
     { path: '/search', name: 'Search Page' },
     { path: '/search/results', name: 'Search Results' },
     { path: '/search/freeweight', name: 'Free Weight Search' },
-    { path: '/search/machine', name: 'Machine Search' },
     { path: '/workout', name: 'Workout Page' },
     { path: '/add', name: 'Add Page' },
     { path: '/stats', name: 'Stats Page' },

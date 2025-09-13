@@ -84,28 +84,24 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', userId)
     ])
     
-    // Build stats object
+    // Build stats object (align with types/profile.ts)
     const stats: UserProfileStats = {
-      id: userData.id,
       user_id: userData.id,
       display_name: userData.display_name || userData.username,
-      username: userData.username,
+      username: userData.username || undefined,
+      avatar_url: userData.avatar_url || undefined,
       bio: userData.bio || '',
-      avatar_url: userData.avatar_url || null,
-      cover_image_url: null,
-      total_workouts: workoutsCount.count || 0,
+      location: userData.user_profiles?.[0]?.location || undefined,
+      joined_at: userData.created_at,
+      is_verified: !!userData.is_verified,
+      workout_count: workoutsCount.count || 0,
+      workout_streak: 0,
       followers_count: followersCount.count || 0,
       following_count: followingCount.count || 0,
+      gym_friends_count: 0,
       posts_count: postsCount.count || 0,
-      streak_days: 0, // Would need calculation
-      total_volume: 0, // Would need calculation
-      achievements_count: 0, // Would need calculation
-      joined_date: userData.created_at,
-      gym_experience_years: userData.user_profiles?.[0]?.gym_experience_years || 0,
-      training_frequency: userData.user_profiles?.[0]?.training_frequency || 'weekly_3-4',
-      training_goals: userData.user_profiles?.[0]?.training_goals || [],
-      created_at: userData.created_at,
-      updated_at: userData.updated_at
+      achievements_count: 0,
+      favorite_gyms_count: 0
     }
     
     return stats
@@ -201,29 +197,24 @@ export async function getUserPosts(
       userInfo = userData
     }
 
-    // Map to GymPost format
+    // Map to GymPost format (align with types/profile.ts)
     const posts: GymPost[] = (data || []).map(post => ({
       id: post.id,
       user_id: post.user_id,
+      workout_session_id: post.workout_session_id || undefined,
       content: post.content || '',
-      caption: post.content || '',
-      media_url: post.image_url || null,
-      gym_id: post.gym_id,
-      gym_name: null,
-      likes: post.likes_count || 0,
-      comments: post.comments_count || 0,
+      image_url: post.image_url || undefined,
+      likes_count: post.likes_count || 0,
+      comments_count: post.comments_count || 0,
+      shares_count: 0,
+      is_public: (post.visibility || 'public') === 'public',
       created_at: post.created_at,
       updated_at: post.updated_at,
-      is_public: post.visibility === 'public',
-      workout_type: post.workout_type || null,
       training_details: {
-        duration: post.duration_minutes || 0,
-        muscle_groups: post.muscle_groups_trained || [],
-        crowd_status: post.crowd_status || null,
-        exercises: []
-      },
-      workout_session_id: null,
-      user: userInfo
+        exercises: [],
+        duration_minutes: post.duration_minutes || 0,
+        total_weight: post.total_weight_lifted || 0
+      }
     }))
     
     return posts
@@ -698,7 +689,7 @@ export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null
       return null
     }
 
-    // Calculate weekly statistics
+    // Calculate weekly statistics (align with types/profile.ts)
     const totalSessions = data.length
     const totalWeightLifted = data.reduce((sum, session) => sum + (session.total_weight_lifted || 0), 0)
     const totalDuration = data.reduce((sum, session) => {
@@ -708,18 +699,22 @@ export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null
       return sum
     }, 0)
 
-    return {
-      id: `weekly-stats-${userId}`,
-      user_id: userId,
-      week_start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      week_end_date: new Date().toISOString(),
-      total_sessions: totalSessions,
-      total_weight_lifted: totalWeightLifted,
-      total_duration_minutes: Math.floor(totalDuration / (1000 * 60)),
-      average_session_duration: totalSessions > 0 ? Math.floor(totalDuration / (totalSessions * 1000 * 60)) : 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    } as WeeklyStats
+    const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const workoutDates = data
+      .map(s => s.started_at)
+      .filter(Boolean)
+      .map((d: string) => new Date(d).toISOString())
+
+    const weekly: WeeklyStats = {
+      workout_count: totalSessions,
+      total_weight_kg: totalWeightLifted,
+      avg_duration_minutes: totalSessions > 0 ? Math.floor(totalDuration / (totalSessions * 1000 * 60)) : 0,
+      streak_days: 0,
+      favorite_exercises: [],
+      workout_dates: workoutDates
+    }
+
+    return weekly
   } catch (error) {
     console.error('Error fetching weekly stats:', error)
     return null
@@ -782,12 +777,13 @@ export async function getUserPersonalRecords(userId: string): Promise<PersonalRe
 
 export async function getProfileDashboard(userId: string): Promise<ProfileDashboard | null> {
   try {
-    const [profileStats, weeklyStats, recentPosts, achievements, personalRecords] = await Promise.all([
+    const [profileStats, weeklyStats, recentPosts, achievements, personalRecords, favGyms] = await Promise.all([
       getUserProfileStats(userId),
       getWeeklyStats(userId),
       getUserPosts(userId, 1, 5),
       getUserAchievements(userId),
-      getUserPersonalRecords(userId)
+      getUserPersonalRecords(userId),
+      getFavoriteGyms(userId)
     ])
 
     if (!profileStats) {
@@ -795,12 +791,33 @@ export async function getProfileDashboard(userId: string): Promise<ProfileDashbo
     }
 
     return {
-      profile_stats: profileStats,
-      weekly_stats: weeklyStats,
+      user: profileStats,
+      weekly_stats: weeklyStats || {
+        workout_count: 0,
+        total_weight_kg: 0,
+        avg_duration_minutes: 0,
+        streak_days: 0,
+        favorite_exercises: [],
+        workout_dates: []
+      },
       recent_posts: recentPosts,
-      achievements: achievements.slice(0, 5),
-      personal_records: personalRecords.slice(0, 5)
-    } as ProfileDashboard
+      recent_achievements: achievements.slice(0, 5).map(a => ({
+        id: a.id,
+        title: a.title,
+        description: a.description,
+        earned_at: a.earned_at,
+        badge_icon: a.badge_icon
+      })),
+      personal_records: personalRecords.slice(0, 5).map(r => ({
+        id: r.id,
+        exercise_name: r.exercise_name,
+        record_type: r.record_type,
+        weight: r.weight,
+        reps: r.reps,
+        achieved_at: r.achieved_at
+      })),
+      favorite_gyms: favGyms
+    }
   } catch (error) {
     console.error('Error fetching profile dashboard:', error)
     return null

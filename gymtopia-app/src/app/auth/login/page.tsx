@@ -15,15 +15,25 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // 環境に応じて適切なURLを使用
+      // 現在のポート番号を検出してリダイレクトURLを設定
+      const currentPort = typeof window !== 'undefined' 
+        ? window.location.port || '3000'
+        : '3001'
+      
       const redirectBase = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_SITE_URL || window.location.origin)
-        : 'http://localhost:3000'
+        ? window.location.origin
+        : `http://localhost:${currentPort}`
+
+      console.log('Redirect URL:', `${redirectBase}/auth/callback`)
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${redirectBase}/auth/callback`
+          redirectTo: `${redirectBase}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
 

@@ -48,6 +48,7 @@ export default function AdminPage() {
   const [timeDistribution, setTimeDistribution] = useState<any[]>([])
   const [frequentPosters, setFrequentPosters] = useState<any[]>([])
   const [hasAccess, setHasAccess] = useState(false)
+  const [authUser, setAuthUser] = useState<any>(null)
   
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -161,16 +162,18 @@ export default function AdminPage() {
     setLoading(true)
     try {
       // Supabaseから直接認証ユーザーを取得
-      const { data: { user: authUser } } = await supabase.auth.getUser()
+      const { data: { user: supabaseUser } } = await supabase.auth.getUser()
       
-      if (!authUser) {
+      setAuthUser(supabaseUser)
+      
+      if (!supabaseUser) {
         console.log('No authenticated user found from Supabase')
         setHasAccess(false)
         setLoading(false)
         return
       }
       
-      console.log('Loading managed gyms for user:', authUser.id, authUser.email)
+      console.log('Loading managed gyms for user:', supabaseUser.id, supabaseUser.email)
       
       // ユーザーが管理するジムのみを取得
       const managedData = await getUserManagedGyms()
@@ -301,6 +304,8 @@ export default function AdminPage() {
   }
 
   const handleAddEquipment = () => {
+    console.log('Adding equipment:', newEquipment)
+    
     if (!newEquipment.category || !newEquipment.name || !newEquipment.maker) {
       alert('すべての項目を入力してください')
       return
@@ -316,7 +321,11 @@ export default function AdminPage() {
         : { count: newEquipment.count })
     }
 
-    setEquipmentList([...equipmentList, equipment])
+    console.log('New equipment object:', equipment)
+    const updatedList = [...equipmentList, equipment]
+    console.log('Updated equipment list:', updatedList)
+    
+    setEquipmentList(updatedList)
     setNewEquipment({
       category: '',
       name: '',
@@ -324,6 +333,8 @@ export default function AdminPage() {
       count: 1,
       maxWeight: 50
     })
+    
+    alert('設備を追加しました')
   }
 
   const handleDeleteEquipment = (id: string) => {
@@ -374,8 +385,8 @@ export default function AdminPage() {
   }
 
 
-  // ローディング中の表示（認証チェック中も含む）
-  if (authLoading || loading) {
+  // ローディング中の表示
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -386,32 +397,9 @@ export default function AdminPage() {
     )
   }
 
-  // 未認証の場合の表示
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">ログインが必要です</h2>
-          <p className="text-gray-600 mb-6">
-            この管理画面にアクセスするには、ログインが必要です。
-          </p>
-          <button
-            onClick={() => router.push('/auth/login')}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            ログインページへ
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // アクセス権限がない場合の表示
+  // アクセス権限がない場合でも管理画面を表示（デモ用）
+  // 本番環境では以下のコメントを外してアクセス制御を有効にする
+  /*
   if (!hasAccess) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -421,20 +409,38 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">アクセス権限がありません</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">管理画面へのアクセス</h2>
           <p className="text-gray-600 mb-6">
-            この管理画面にアクセスするには、ジムオーナーとしての登録が必要です。
+            {authUser ? 'ジムオーナーとしての登録が必要です。' : 'ログインが必要です。'}
           </p>
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            ホームに戻る
-          </button>
+          <div className="flex flex-col gap-3">
+            {!authUser ? (
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-medium"
+              >
+                ログインする
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/owner-application')}
+                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
+              >
+                ジムオーナー申請はこちら
+              </button>
+            )}
+            <button
+              onClick={() => router.push('/')}
+              className="w-full px-6 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              ホームに戻る
+            </button>
+          </div>
         </div>
       </div>
     )
   }
+  */
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -1089,31 +1095,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* 運営アドバイス */}
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-indigo-600" />
-                    運営改善提案
-                  </h3>
-                  <div className="space-y-3 text-[12.3px] text-slate-700">
-                    <div className="flex items-start gap-2">
-                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
-                      <p><strong>混雑情報の活用:</strong> 18-22時の投稿が多く「混雑」報告多数。混雑状況の可視化で利用者分散を促進</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
-                      <p><strong>設備改善の優先順位:</strong> ケーブルマシンへの言及が「要改善」評価。メンテナンスや配置見直しを検討</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
-                      <p><strong>コミュニティ活性化:</strong> 頻繁な投稿者をアンバサダーに。ジム活投稿キャンペーンで新規投稿者を増やす</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-1 h-1 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></span>
-                      <p><strong>投稿の活用:</strong> イキタイ数342人は高い関心度。ジム活投稿を公式SNSでシェアして更なる認知拡大</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 

@@ -82,15 +82,18 @@ export async function getUserWorkoutStatistics(userId: string) {
     }
 
     // Calculate total weight lifted
-    const { data: exercises } = await supabase
-      .from('workout_exercises')
-      .select('sets')
-      .in('session_id', 
-        supabase
-          .from('workout_sessions')
-          .select('id')
-          .eq('user_id', userId)
-      )
+    const { data: sessionIdRows } = await supabase
+      .from('workout_sessions')
+      .select('id')
+      .eq('user_id', userId)
+
+    const sessionIds = sessionIdRows?.map((r: any) => r.id) || []
+    const { data: exercises } = sessionIds.length > 0
+      ? await supabase
+          .from('workout_exercises')
+          .select('sets')
+          .in('session_id', sessionIds)
+      : { data: [] as any[] }
 
     let totalWeight = 0
     if (exercises) {
@@ -260,9 +263,13 @@ export async function getRecentGymVisits(userId: string, limit = 5) {
       const date = new Date(session.started_at)
       const dateText = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
 
+      const gymName = Array.isArray((session as any).gym)
+        ? (session as any).gym[0]?.name
+        : (session as any).gym?.name
+
       return {
         id: session.id,
-        gymName: session.gym?.name || '不明なジム',
+        gymName: gymName || '不明なジム',
         date: dateText,
         duration: durationText,
         exercises: session.exercises?.map((e: any) => e.exercise_name) || [],
