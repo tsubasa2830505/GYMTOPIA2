@@ -11,10 +11,9 @@ async function simpleTest() {
     { path: '/profile', name: 'Profile Page' },
     { path: '/admin', name: 'Admin Page' },
     { path: '/feed', name: 'Feed Page' },
-    { path: '/search', name: 'Search Page' },
+    // { path: '/search', name: 'Search Page' }, // removed: route not present
     { path: '/search/results', name: 'Search Results' },
-    { path: '/search/freeweight', name: 'Free Weight Search' },
-    { path: '/workout', name: 'Workout Page' },
+    // { path: '/workout', name: 'Workout Page' }, // removed: route not present
     { path: '/add', name: 'Add Page' },
     { path: '/stats', name: 'Stats Page' },
     { path: '/admin/reviews', name: 'Admin Reviews' }

@@ -68,7 +68,7 @@ async function testInteractions() {
     
     // Search functionality
     console.log('📍 Testing Search...');
-    await page.goto('http://localhost:3000/search', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search/results', { waitUntil: 'networkidle0' });
     
     const searchInput = await page.$('input');
     if (searchInput) {

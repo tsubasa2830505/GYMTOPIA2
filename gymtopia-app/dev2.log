@@ -536,3 +536,94 @@ Require stack:
   path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/cache/webpack/server-development/0.pack.gz'
 }
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/cache/webpack/server-development/0.pack.gz'
+ ✓ Compiled in 393ms (559 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/pages-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/pages-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/pages-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/pages-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/routes-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/routes-manifest.json'
+}
+ GET / 500 in 100ms
+ GET / 500 in 37ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json',
+  page: '/favicon.ico'
+}
+ GET /favicon.ico 500 in 33ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app-paths-manifest.json',
+  page: '/favicon.ico'
+}
+ GET /favicon.ico 500 in 29ms
+ ✓ Compiled in 520ms (577 modules)
+ ✓ Compiled in 501ms (577 modules)
+ ✓ Compiled in 539ms (1318 modules)
+ ✓ Compiled in 149ms (577 modules)
+ ✓ Compiled in 451ms (577 modules)
+ ✓ Compiled in 450ms (577 modules)
+ ✓ Compiled in 435ms (577 modules)
+ ✓ Compiled in 357ms (559 modules)
+ ✓ Compiled in 426ms (577 modules)
+ ✓ Compiled in 431ms (577 modules)
+ ✓ Compiled in 466ms (577 modules)
+ ✓ Compiled in 438ms (577 modules)
+ ✓ Compiled in 190ms (759 modules)
+ ✓ Compiled in 418ms (577 modules)
+ ✓ Compiled in 418ms (577 modules)
+ ✓ Compiled in 401ms (577 modules)
+ ✓ Compiled in 418ms (577 modules)
+ ✓ Compiled in 413ms (577 modules)
+ ✓ Compiled in 404ms (577 modules)
+ ✓ Compiled in 403ms (577 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app/page.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app/page.js',
+  page: '/'
+}
+ GET / 500 in 333ms
+ ✓ Compiled /favicon.ico in 253ms (776 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app/page.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/tsubasa/GYMTOPIA2.0/gymtopia-app/.next/server/app/page.js',
+  page: '/'
+}
+ GET /favicon.ico 200 in 528ms
+ GET / 500 in 726ms
+[?25h

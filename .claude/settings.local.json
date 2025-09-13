@@ -100,7 +100,8 @@
       "mcp__supabase__get_advisors",
       "Bash(git restore:*)",
       "Bash(git config:*)",
-      "Bash(npm run backup:*)"
+      "Bash(npm run backup:*)",
+      "Bash(npm run typecheck:*)"
     ],
     "deny": [],
     "ask": []
