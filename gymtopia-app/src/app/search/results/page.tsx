@@ -18,7 +18,7 @@ function SearchResultsContent() {
   const [gyms, setGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [machineNames, setMachineNames] = useState<Map<string, string>>(() => new Map())
+  const [machineNames, setMachineNames] = useState<Record<string, string>>({})
   
   // Parse URL parameters for selected conditions
   const [selectedConditions, setSelectedConditions] = useState<{
@@ -163,9 +163,9 @@ function SearchResultsContent() {
     // マシンIDから名前を取得
     if (machines.length > 0) {
       getMachines().then(allMachines => {
-        const nameMap = new Map<string, string>()
-        allMachines.forEach(machine => {
-          nameMap.set(machine.id, machine.name)
+        const nameMap: Record<string, string> = {}
+        allMachines.forEach((machine: any) => {
+          nameMap[machine.id] = machine.name
         })
         setMachineNames(nameMap)
       })
@@ -291,7 +291,7 @@ function SearchResultsContent() {
                     onClick={() => removeCondition('machines', machine)}
                     className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
                   >
-                    {machineNames.get(machine) || machine}
+                    {machineNames[machine] || machine}
                     <X className="w-3 h-3" />
                   </button>
                 ))}

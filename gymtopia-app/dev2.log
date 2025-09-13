@@ -1,0 +1,44 @@
+
+> ジムトピア@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.16.63:3000
+   - Environments: .env.development.local, .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1180ms
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 985ms (815 modules)
+ GET /profile 200 in 1302ms
+ ✓ Compiled / in 315ms (896 modules)
+ GET / 200 in 517ms
+ ✓ Compiled /favicon.ico in 164ms (551 modules)
+ GET /favicon.ico 200 in 247ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /admin in 299ms (934 modules)
+ GET /admin 200 in 469ms
+ GET /admin 200 in 51ms
+ GET /favicon.ico 200 in 16ms
+ ✓ Compiled in 80ms (557 modules)
+ GET / 200 in 81ms
+ GET /admin 200 in 99ms
+ ✓ Compiled in 784ms (389 modules)
+ GET / 200 in 31ms
+ GET /admin 200 in 31ms
+ ✓ Compiled in 78ms (557 modules)
+ GET / 200 in 66ms
+ GET /admin 200 in 66ms
+ ✓ Compiled in 479ms (389 modules)
+ GET / 200 in 54ms
+ GET /admin 200 in 54ms
+ GET / 200 in 133ms
+ GET /favicon.ico 200 in 19ms
+ ✓ Compiled /feed in 275ms (937 modules)
+ GET /feed 200 in 316ms
+ ✓ Compiled in 32ms (374 modules)
+ ○ Compiling /add ...
+ ✓ Compiled /add in 575ms (960 modules)
+ GET /add 200 in 651ms
+ GET / 200 in 24ms
