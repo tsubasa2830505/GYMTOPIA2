@@ -94,7 +94,8 @@
       "Bash(ccusage blocks:*)",
       "Bash(ccusage:*)",
       "Bash(./fix-supabase-env.sh:*)",
-      "mcp__supabase__get_logs"
+      "mcp__supabase__get_logs",
+      "Bash(sudo rm:*)"
     ],
     "deny": [],
     "ask": []

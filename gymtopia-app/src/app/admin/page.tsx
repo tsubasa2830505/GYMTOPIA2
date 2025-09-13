@@ -425,20 +425,12 @@ export default function AdminPage() {
           <p className="text-gray-600 mb-6">
             この管理画面にアクセスするには、ジムオーナーとしての登録が必要です。
           </p>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => router.push('/gym-owner-apply')}
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
-            >
-              ジムオーナー申請はこちら
-            </button>
-            <button
-              onClick={() => router.push('/')}
-              className="w-full px-6 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-            >
-              ホームに戻る
-            </button>
-          </div>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            ホームに戻る
+          </button>
         </div>
       </div>
     )
