@@ -1,7 +1,7 @@
 // Profile and social features API functions for GYMTOPIA 2.0
 // PRODUCTION VERSION - DATABASE ONLY (No mock data)
 
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 
 import type {
   UserProfile,
@@ -27,6 +27,7 @@ import type { Achievement, PersonalRecord } from '../types/workout'
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('users')
       .select('id, display_name, username, avatar_url, bio, created_at, updated_at, is_verified')
@@ -61,13 +62,27 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 
 export async function getUserProfileStats(userId: string): Promise<UserProfileStats | null> {
   try {
-    // Get user data with profile
-    const { data: userData, error: userError } = await supabase
+    console.log('🔍 Testing Supabase connection...');
+    // Simple connection test first
+    const { data: testData, error: testError } = await getSupabaseClient()
       .from('users')
-      .select(`
-        *,
-        user_profiles(*)
-      `)
+      .select('id')
+      .limit(1);
+
+    console.log('🔍 Connection test result:', { testData, testError });
+
+    if (testError) {
+      console.error('❌ Supabase connection failed:', testError);
+      return null;
+    }
+
+    console.log('✅ Supabase connection successful');
+
+    // Get user data without problematic join first
+    console.log('🔍 Fetching user data for:', userId);
+    const { data: userData, error: userError } = await getSupabaseClient()
+      .from('users')
+      .select('*')
       .eq('id', userId)
       .single()
 
@@ -87,12 +102,27 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
     }
 
     // Get stats from various tables
-    const [postsCount, followersCount, followingCount, workoutsCount] = await Promise.all([
+    const supabase = getSupabaseClient()
+    const [postsCount, followersCount, followingCount, workoutsCount, favoriteGymsCount, gymFriendsCount, achievementsCount] = await Promise.all([
       supabase.from('gym_posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
-      supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+      supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('favorite_gyms').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('gym_friends').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'accepted'),
+      supabase.from('achievements').select('*', { count: 'exact', head: true }).eq('user_id', userId)
     ])
+
+    console.log('=== PROFILE STATS DEBUG ===')
+    console.log('User ID:', userId)
+    console.log('Posts count:', postsCount.count)
+    console.log('Followers count:', followersCount.count)
+    console.log('Following count:', followingCount.count)
+    console.log('Workouts count:', workoutsCount.count)
+    console.log('Favorite gyms count:', favoriteGymsCount.count)
+    console.log('Gym friends count:', gymFriendsCount.count)
+    console.log('Achievements count:', achievementsCount.count)
+    console.log('===========================')
     
     // Build stats object (align with types/profile.ts)
     const stats: UserProfileStats = {
@@ -101,19 +131,22 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       username: userData.username || undefined,
       avatar_url: userData.avatar_url || undefined,
       bio: userData.bio || '',
-      location: userData.user_profiles?.[0]?.location || undefined,
+      location: undefined, // Remove user_profiles dependency for now
       joined_at: userData.created_at,
       is_verified: !!userData.is_verified,
       workout_count: workoutsCount.count || 0,
       workout_streak: 0,
       followers_count: followersCount.count || 0,
       following_count: followingCount.count || 0,
-      gym_friends_count: 0,
+      gym_friends_count: gymFriendsCount.count || 0,
       posts_count: postsCount.count || 0,
-      achievements_count: 0,
-      favorite_gyms_count: 0
+      achievements_count: achievementsCount.count || 0,
+      favorite_gyms_count: favoriteGymsCount.count || 0
     }
-    
+
+    // Return stats object
+    console.log('✅ Profile stats generated successfully with favorite_gyms_count:', stats.favorite_gyms_count);
+
     return stats
   } catch (error) {
     console.error('Error fetching user profile stats:', error)
@@ -126,7 +159,7 @@ export async function updateUserProfile(
   updates: UpdateProfileInput
 ): Promise<UserProfile | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('users')
       .update({
         display_name: updates.display_name,
@@ -178,7 +211,7 @@ export async function getUserPosts(
     const offset = (page - 1) * limit
 
     // Get posts with user and gym information
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .select(`
         *,
@@ -208,20 +241,23 @@ export async function getUserPosts(
     const posts: GymPost[] = (data || []).map(post => ({
       id: post.id,
       user_id: post.user_id,
-      workout_session_id: post.workout_session_id || undefined,
+      gym_id: post.gym_id,
       content: post.content || '',
-      image_url: post.image_url || undefined,
-      likes_count: post.likes_count || 0,
-      comments_count: post.comments_count || 0,
-      shares_count: 0,
-      is_public: (post.visibility || 'public') === 'public',
+      images: post.images || [],
+      workout_type: post.workout_type || undefined,
+      muscle_groups_trained: post.muscle_groups_trained || [],
+      duration_minutes: post.duration_minutes || 0,
+      crowd_status: post.crowd_status || undefined,
+      likes_count: post.likes_count || post.like_count || 0,
+      comments_count: post.comments_count || post.comment_count || 0,
+      visibility: post.visibility || 'public',
+      is_public: post.is_public !== false,
       created_at: post.created_at,
       updated_at: post.updated_at,
-      training_details: {
-        exercises: [],
-        duration_minutes: post.duration_minutes || 0,
-        total_weight: post.total_weight_lifted || 0
-      },
+      workout_started_at: post.workout_started_at || undefined,
+      workout_ended_at: post.workout_ended_at || undefined,
+      workout_duration_calculated: post.workout_duration_calculated || undefined,
+      training_details: post.training_details || undefined,
       user: post.user || undefined,
       gym: post.gym || undefined
     }))
@@ -238,7 +274,7 @@ export async function createGymPost(
   postData: CreateGymPostInput
 ): Promise<GymPost | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .insert({
         user_id: userId,
@@ -267,7 +303,7 @@ export async function updateGymPost(
   updates: UpdateGymPostInput
 ): Promise<GymPost | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .update({
         ...updates,
@@ -291,7 +327,7 @@ export async function updateGymPost(
 
 export async function deleteGymPost(postId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('gym_posts')
       .delete()
       .eq('id', postId)
@@ -310,7 +346,7 @@ export async function deleteGymPost(postId: string): Promise<boolean> {
 
 export async function likePost(userId: string, postId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('post_likes')
       .insert({
         user_id: userId,
@@ -331,7 +367,7 @@ export async function likePost(userId: string, postId: string): Promise<boolean>
 
 export async function unlikePost(userId: string, postId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('post_likes')
       .delete()
       .eq('user_id', userId)
@@ -361,7 +397,7 @@ export async function getPostComments(
   try {
     const offset = (page - 1) * limit
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('post_comments')
       .select(`
         *,
@@ -393,7 +429,7 @@ export async function createComment(
   commentData: CreatePostCommentInput
 ): Promise<PostComment | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('post_comments')
       .insert({
         user_id: userId,
@@ -423,7 +459,7 @@ export async function createComment(
 
 export async function followUser(followerId: string, followingId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('follows')
       .insert({
         follower_id: followerId,
@@ -444,7 +480,7 @@ export async function followUser(followerId: string, followingId: string): Promi
 
 export async function unfollowUser(followerId: string, followingId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('follows')
       .delete()
       .eq('follower_id', followerId)
@@ -470,7 +506,7 @@ export async function getUserFollowers(
   try {
     const offset = (page - 1) * limit
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .select(`
         *,
@@ -500,7 +536,7 @@ export async function getUserFollowing(
   try {
     const offset = (page - 1) * limit
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .select(`
         *,
@@ -530,7 +566,7 @@ export async function sendGymFriendRequest(
   requestData: GymFriendRequestInput
 ): Promise<GymFriend | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('gym_friends')
       .insert(requestData)
       .select(`
@@ -557,7 +593,7 @@ export async function acceptGymFriendRequest(
   requestId: string
 ): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('gym_friends')
       .update({
         friendship_status: 'accepted',
@@ -579,7 +615,7 @@ export async function acceptGymFriendRequest(
 
 export async function getUserGymFriends(userId: string): Promise<GymFriend[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('gym_friends')
       .select(`
         *,
@@ -613,7 +649,7 @@ export async function getUserGymFriends(userId: string): Promise<GymFriend[]> {
 
 export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('favorite_gyms')
       .select(`
         *,
@@ -623,9 +659,7 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
           prefecture,
           city,
           address,
-          description,
-          area,
-          users_count
+          description
         )
       `)
       .eq('user_id', userId)
@@ -636,7 +670,13 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
       if (error.code === 'PGRST205') {
         console.warn('Favorite gyms table not found - returning empty array')
       } else {
-        console.error('Error fetching favorite gyms:', error)
+        console.error('Error fetching favorite gyms:', {
+          error,
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint
+        })
       }
       return []
     }
@@ -659,7 +699,7 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
 
 export async function addFavoriteGym(userId: string, gymId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('favorite_gyms')
       .insert({
         user_id: userId,
@@ -680,7 +720,7 @@ export async function addFavoriteGym(userId: string, gymId: string): Promise<boo
 
 export async function removeFavoriteGym(userId: string, gymId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('favorite_gyms')
       .delete()
       .eq('user_id', userId)
@@ -704,7 +744,7 @@ export async function removeFavoriteGym(userId: string, gymId: string): Promise<
 
 export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('workout_sessions')
       .select('*')
       .eq('user_id', userId)
@@ -750,7 +790,7 @@ export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null
 
 export async function getUserAchievements(userId: string): Promise<Achievement[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('achievements')
       .select('*')
       .eq('user_id', userId)
@@ -775,7 +815,7 @@ export async function getUserAchievements(userId: string): Promise<Achievement[]
 
 export async function getUserPersonalRecords(userId: string): Promise<PersonalRecord[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('personal_records')
       .select('*')
       .eq('user_id', userId)
@@ -786,12 +826,12 @@ export async function getUserPersonalRecords(userId: string): Promise<PersonalRe
       if (error.code === 'PGRST205') {
         // テーブルが存在しないだけなのでログ出力は不要
         return []
+      } else if (error.code === '42501') {
+        // 権限エラーの場合もサイレントに空配列を返す
+        return []
       } else {
-        console.error('Error fetching personal records:', {
-          message: error.message,
-          code: error.code,
-          details: error.details
-        })
+        // その他のエラーのみログ出力
+        console.error('Error fetching personal records:', error)
       }
       return []
     }

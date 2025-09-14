@@ -33,7 +33,7 @@ const nextConfig = {
   
   // 画像の最適化設定
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'htytewqvkgwyuvcsvjwm.supabase.co', 'images.unsplash.com'],
   },
 }
 

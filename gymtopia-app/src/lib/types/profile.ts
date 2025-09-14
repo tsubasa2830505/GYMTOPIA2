@@ -105,14 +105,14 @@ export interface GymPost {
     }
   }
   training_details?: {
-    exercises: Array<{
+    gym_name?: string
+    exercises?: Array<{
       name: string
+      weight: number
       sets: number
-      reps: number[]
-      weight: number[]
+      reps: number
     }>
-    duration_minutes?: number
-    total_weight?: number
+    crowd_status?: string
   }
 }
 

@@ -19,10 +19,6 @@ export default function SearchPage() {
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  useEffect(() => {
-    loadGyms()
-  }, [selectedPrefecture, searchQuery, loadGyms])
-
   const loadGyms = useCallback(async () => {
     try {
       setLoading(true)
@@ -34,10 +30,15 @@ export default function SearchPage() {
       setGyms(data)
     } catch (error) {
       console.error('Failed to load gyms:', error)
+      setGyms([]) // Set empty array on error
     } finally {
       setLoading(false)
     }
   }, [selectedPrefecture, searchQuery, searchMode])
+
+  useEffect(() => {
+    loadGyms()
+  }, [loadGyms])
 
   const handleSearch = () => {
     setSearchMode('search')

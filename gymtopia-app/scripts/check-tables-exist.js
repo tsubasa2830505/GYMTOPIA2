@@ -61,8 +61,8 @@ async function headExists(table) {
     // PostgREST 404 -> not found; RLS/permission -> exists but not accessible
     const msg = String(error.message || '')
     const code = error.code || ''
-    // Heuristic: PGRST116/PGRST301 are not-found-ish; 42P01 relation does not exist
-    const notFound = /PGRST11|PGRST30|does not exist|unknown relation|not exist/i.test(msg)
+    // Heuristic: PGRST116/PGRST202/PGRST205/42P01 or generic not found patterns
+    const notFound = /PGRST11|PGRST20|PGRST205|42P01|does not exist|unknown relation|not\s+found/i.test(msg)
     if (notFound) return { exists: false, accessible: false, error: msg, code }
     return { exists: true, accessible: false, error: msg, code }
   } catch (e) {
@@ -84,7 +84,7 @@ async function getCount(table) {
 }
 
 async function main() {
-  const result = { candidates: {}, appUsed: {}, extras: {} }
+  const result = { candidates: {}, appUsed: {}, extras: {}, legacyTargets: {} }
   for (const t of candidates) {
     // eslint-disable-next-line no-await-in-loop
     const exists = await headExists(t)
@@ -103,6 +103,10 @@ async function main() {
   for (const t of extras) {
     // eslint-disable-next-line no-await-in-loop
     result.extras[t] = await headExists(t)
+  }
+  for (const t of ['posts_legacy','likes_legacy','comments_legacy','muscle_parts_legacy','workout_sets_legacy','gym_posts_partitioned_legacy','profiles_legacy']) {
+    // eslint-disable-next-line no-await-in-loop
+    result.legacyTargets[t] = await headExists(t)
   }
   console.log(JSON.stringify(result, null, 2))
 }

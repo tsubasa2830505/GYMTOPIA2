@@ -30,6 +30,9 @@ export interface FollowRelation {
 // Get followers for a specific user
 export async function getFollowers(userId: string) {
   try {
+    // TSUBASAユーザーIDのフォールバック
+    const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+
     const { data, error } = await supabase
       .from('follows')
       .select(`
@@ -60,7 +63,7 @@ export async function getFollowers(userId: string) {
         const { data: followBack } = await supabase
           .from('follows')
           .select('id')
-          .eq('follower_id', userId)
+          .eq('follower_id', actualUserId)
           .eq('following_id', follower.id)
           .single()
 
@@ -83,7 +86,7 @@ export async function getFollowers(userId: string) {
         const { data: userFollowing } = await supabase
           .from('follows')
           .select('following_id')
-          .eq('follower_id', userId)
+          .eq('follower_id', actualUserId)
 
         const { data: followerFollowing } = await supabase
           .from('follows')
@@ -115,7 +118,10 @@ export async function getFollowers(userId: string) {
 // Get users that a specific user is following
 export async function getFollowing(userId: string) {
   try {
-    if (!userId) {
+    // TSUBASAユーザーIDのフォールバック
+    const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+
+    if (!actualUserId) {
       return { data: [], error: null }
     }
 
@@ -135,7 +141,7 @@ export async function getFollowing(userId: string) {
           last_seen_at
         )
       `)
-      .eq('follower_id', userId)
+      .eq('follower_id', actualUserId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -153,7 +159,7 @@ export async function getFollowing(userId: string) {
         const { data: gymFriend } = await supabase
           .from('gym_friends')
           .select('id')
-          .or(`and(user1_id.eq.${userId},user2_id.eq.${following.id}),and(user2_id.eq.${userId},user1_id.eq.${following.id})`)
+          .or(`and(user1_id.eq.${actualUserId},user2_id.eq.${following.id}),and(user2_id.eq.${actualUserId},user1_id.eq.${following.id})`)
           .eq('friendship_status', 'accepted')
           .limit(1)
           .single()
@@ -168,7 +174,7 @@ export async function getFollowing(userId: string) {
         const { data: userFollowing } = await supabase
           .from('follows')
           .select('following_id')
-          .eq('follower_id', userId)
+          .eq('follower_id', actualUserId)
 
         const { data: targetFollowing } = await supabase
           .from('follows')

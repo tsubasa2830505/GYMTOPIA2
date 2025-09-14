@@ -9,6 +9,28 @@
 - **コンテキスト共有** - 重要な変更や決定事項は`CLAUDE.md`に記録し、両ツール間で共有
 - **相互補完** - 各ツールの強みを活かし、タスクに応じて適切に使い分ける
 
+### 開発環境の競合回避
+**重要**: Claude CodeとCursorが同時に開発サーバーを起動すると競合が発生します。
+
+#### 切り替え手順
+1. **Claude Code → Cursor**:
+   ```bash
+   ./scripts/complete-reset.sh
+   # Cursorでプロジェクトを開く
+   # Cursorターミナルで: npm run dev
+   ```
+
+2. **Cursor → Claude Code**:
+   ```bash
+   # Cursorターミナルで: npm run dev:kill
+   # Claude Codeで: PORT=3001 npm run dev
+   ```
+
+#### ポート管理
+- **Claude Code**: 3001番ポートを使用 (`PORT=3001 npm run dev`)
+- **Cursor**: 3000番ポートを使用 (デフォルト)
+- **プロセス確認**: `ps aux | grep -E "(node|npm|next)" | grep -v grep`
+
 ### Claude Code拡張ツール
 
 #### 1. ccusage - 使用状況分析

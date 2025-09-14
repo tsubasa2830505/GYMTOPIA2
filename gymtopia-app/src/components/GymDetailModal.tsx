@@ -17,6 +17,9 @@ interface GymDetailModalProps {
   gymId: string
 }
 
+// モックユーザーID（開発用）
+const MOCK_USER_ID = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+
 // サンプルデータ（フォールバック用）
 const sampleGymData = {
   id: 'gym_rogue_shinjuku',
@@ -111,29 +114,6 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     }
   }, [isOpen, gymId])
 
-  // デバッグ用: 手動でいきたい状態をチェック
-  const debugCheckLikeStatus = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user?.id) {
-      console.log('🔍 DEBUG: No authenticated user')
-      return false
-    }
-
-    console.log('🔍 DEBUG: Manual like status check')
-    console.log('  - Gym ID:', gymId)
-    console.log('  - User ID:', user.id)
-
-    const { data, error } = await supabase
-      .from('favorite_gyms')
-      .select('id')
-      .eq('gym_id', gymId)
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    console.log('  - Raw query result:', { data, error })
-    console.log('  - Has like:', data !== null)
-    return data !== null
-  }
 
   const loadGymData = async () => {
     setLoading(true)
@@ -155,7 +135,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
             .from('favorite_gyms')
             .select('id')
             .eq('gym_id', gymId)
-            .eq('user_id', mockUserId)
+            .eq('user_id', MOCK_USER_ID)
             .maybeSingle()
         ])
 
@@ -164,7 +144,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
 
         console.log('=== LOADING GYM DATA ===')
         console.log('Gym ID:', gymId)
-        console.log('User ID:', mockUserId)
+        console.log('User ID:', MOCK_USER_ID)
         console.log('User favorite query result:', {
           data: userFavorite.data,
           error: userFavorite.error,
@@ -236,18 +216,22 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
   }
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
+    if (typeof document !== 'undefined') {
+      if (isOpen) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = 'unset'
+      }
     }
 
     return () => {
-      document.body.style.overflow = 'unset'
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = 'unset'
+      }
     }
   }, [isOpen])
 
-  // 状態変化の監視
+  // 状態変化の監視（gymIdを依存関係から削除して無限ループを防ぐ）
   useEffect(() => {
     console.log('🎯 LIKED STATE CHANGED:', {
       gymId,
@@ -255,7 +239,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
       likesCount,
       timestamp: new Date().toISOString()
     })
-  }, [liked, gymId])
+  }, [liked])
 
   useEffect(() => {
     console.log('📊 LIKES COUNT CHANGED:', {
@@ -264,9 +248,14 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
       liked,
       timestamp: new Date().toISOString()
     })
-  }, [likesCount, gymId])
+  }, [likesCount])
 
   const handleToggleLike = async () => {
+    console.log('🔄 handleToggleLike called!')
+    console.log('- isProcessingLike:', isProcessingLike)
+    console.log('- liked:', liked)
+    console.log('- gymId:', gymId)
+
     // 処理中の場合は何もしない
     if (isProcessingLike) {
       console.log('Already processing like action')
@@ -276,17 +265,11 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     setIsProcessingLike(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user?.id) {
-        console.log('User not authenticated - cannot toggle like')
-        return
-      }
-
       console.log('=== TOGGLE LIKE START ===')
       console.log('Current liked state:', liked)
       console.log('Current likes count:', likesCount)
       console.log('Gym ID:', gymId)
-      console.log('User ID:', user.id)
+      console.log('User ID:', MOCK_USER_ID)
 
       if (liked) {
         // イキタイを解除
@@ -294,7 +277,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         const { error } = await supabase
           .from('favorite_gyms')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', MOCK_USER_ID)
           .eq('gym_id', gymId)
 
         if (error) {
@@ -320,7 +303,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         const { error } = await supabase
           .from('favorite_gyms')
           .insert({
-            user_id: user.id,
+            user_id: MOCK_USER_ID,
             gym_id: gymId
           })
 
@@ -381,6 +364,11 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         </div>
       </>
     )
+  }
+
+  // モーダルが閉じている場合は何も表示しない
+  if (!isOpen) {
+    return null
   }
 
   return (
@@ -524,13 +512,6 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                     <span className="text-sm sm:text-base">ジム活を投稿</span>
                   </button>
                 </div>
-                {/* デバッグボタン */}
-                <button
-                  onClick={debugCheckLikeStatus}
-                  className="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium"
-                >
-                  🔍 デバッグチェック
-                </button>
               </div>
 
               {/* Pricing Cards */}

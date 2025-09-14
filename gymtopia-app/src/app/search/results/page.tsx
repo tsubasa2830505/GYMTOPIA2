@@ -9,6 +9,7 @@ import SearchResultMap from '@/components/SearchResultMap'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
+import { supabase } from '@/lib/supabase/client'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -20,7 +21,91 @@ function SearchResultsContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [machineNames, setMachineNames] = useState<Record<string, string>>({})
-  
+  const [processingLikes, setProcessingLikes] = useState<Set<string>>(new Set())
+
+  const MOCK_USER_ID = 'user-demo-001'
+
+  // Handle toggle like function
+  const toggleLike = async (gymId: string) => {
+    if (processingLikes.has(gymId)) {
+      return
+    }
+
+    setProcessingLikes(prev => new Set(prev).add(gymId))
+
+    try {
+      const gymIndex = gyms.findIndex(gym => gym.id === gymId)
+      if (gymIndex === -1) return
+
+      const gym = gyms[gymIndex]
+      const isLiked = gym.isLiked
+
+      if (isLiked) {
+        // イキタイを解除
+        const { error } = await supabase
+          .from('favorite_gyms')
+          .delete()
+          .eq('user_id', MOCK_USER_ID)
+          .eq('gym_id', gymId)
+
+        if (error) {
+          console.error('Error removing like:', error)
+          alert('いきたいの解除に失敗しました: ' + error.message)
+        } else {
+          // UI更新
+          const updatedGyms = [...gyms]
+          updatedGyms[gymIndex] = {
+            ...gym,
+            isLiked: false,
+            likes: Math.max(0, gym.likes - 1)
+          }
+          setGyms(updatedGyms)
+        }
+      } else {
+        // イキタイを追加
+        const { error } = await supabase
+          .from('favorite_gyms')
+          .insert({
+            user_id: MOCK_USER_ID,
+            gym_id: gymId
+          })
+
+        if (error) {
+          if (error.code === '23505') {
+            // 既に存在する場合
+            const updatedGyms = [...gyms]
+            updatedGyms[gymIndex] = {
+              ...gym,
+              isLiked: true
+            }
+            setGyms(updatedGyms)
+          } else {
+            console.error('Error adding like:', error)
+            alert('いきたいの追加に失敗しました: ' + error.message)
+          }
+        } else {
+          // UI更新
+          const updatedGyms = [...gyms]
+          updatedGyms[gymIndex] = {
+            ...gym,
+            isLiked: true,
+            likes: gym.likes + 1
+          }
+          setGyms(updatedGyms)
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error)
+      alert('エラーが発生しました: ' + error.message)
+    } finally {
+      setProcessingLikes(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(gymId)
+        return newSet
+      })
+    }
+  }
+
   // Parse URL parameters for selected conditions
   const [selectedConditions, setSelectedConditions] = useState<{
     machines: Array<{ name: string; count: number }>
@@ -453,13 +538,16 @@ function SearchResultsContent() {
                             </div>
                           </div>
                           <div className="hidden sm:flex flex-col gap-2">
-                            <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                            <button
+                              onClick={() => toggleLike(gym.id)}
+                              disabled={processingLikes.has(gym.id)}
+                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
                               gym.isLiked
                                 ? 'bg-white border border-slate-200 text-slate-900'
                                 : 'bg-white border border-slate-200 text-slate-900 hover:bg-slate-50'
-                            }`}>
+                            } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                               <Heart className={`w-3 h-3 sm:w-4 sm:h-4 inline mr-0.5 sm:mr-1 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                              {gym.isLiked ? 'イキタイ済み' : 'イキタイ'}
+                              {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
                             </button>
                             <button 
                               onClick={() => setSelectedGymId(gym.id)}
@@ -478,13 +566,16 @@ function SearchResultsContent() {
                           </div>
                         )}
                         <div className="flex gap-2 mt-3 sm:hidden">
-                          <button className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          <button
+                            onClick={() => toggleLike(gym.id)}
+                            disabled={processingLikes.has(gym.id)}
+                            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
                             gym.isLiked
                               ? 'bg-white border border-slate-200 text-slate-900'
                               : 'bg-white border border-slate-200 text-slate-900'
-                          }`}>
+                          } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <Heart className={`w-3 h-3 inline mr-0.5 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                            {gym.isLiked ? 'イキタイ済み' : 'イキタイ'}
+                            {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
                           </button>
                           <button 
                             onClick={() => setSelectedGymId(gym.id)}

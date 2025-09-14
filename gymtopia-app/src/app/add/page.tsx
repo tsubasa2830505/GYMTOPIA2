@@ -14,6 +14,7 @@ import type { FacilityFormData } from '@/types/facilities'
 import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGyms } from '@/lib/supabase/gyms'
+import { supabase } from '@/lib/supabase/client'
 
 interface Exercise {
   id: string
@@ -45,7 +46,76 @@ function AddGymPostContent() {
     sets: '',
     reps: ''
   })
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
+  const [uploadingImages, setUploadingImages] = useState(false)
   
+  // 画像処理関数
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length === 0) return
+
+    // 最大5枚まで
+    const newFiles = [...selectedImages, ...files].slice(0, 5)
+    setSelectedImages(newFiles)
+
+    // プレビューURL生成
+    newFiles.forEach((file, index) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setImagePreviewUrls(prev => {
+          const newUrls = [...prev]
+          newUrls[index] = result
+          return newUrls
+        })
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index))
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const uploadImagesToSupabase = async (files: File[]): Promise<string[]> => {
+    if (files.length === 0) return []
+
+    setUploadingImages(true)
+    const uploadedUrls: string[] = []
+
+    try {
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+        const filePath = `posts/${fileName}`
+
+        const { data, error } = await supabase.storage
+          .from('gym-posts')
+          .upload(filePath, file)
+
+        if (error) {
+          console.error('画像アップロードエラー:', error)
+          throw error
+        }
+
+        // パブリックURLを取得
+        const { data: urlData } = supabase.storage
+          .from('gym-posts')
+          .getPublicUrl(filePath)
+
+        uploadedUrls.push(urlData.publicUrl)
+      }
+      return uploadedUrls
+    } catch (error) {
+      console.error('画像アップロード失敗:', error)
+      throw error
+    } finally {
+      setUploadingImages(false)
+    }
+  }
+
   // 機器登録用の状態
   const [equipmentGymName, setEquipmentGymName] = useState('')
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
@@ -134,6 +204,12 @@ function AddGymPostContent() {
     setIsSubmitting(true)
 
     try {
+      // 画像をアップロード
+      let imageUrls: string[] = []
+      if (selectedImages.length > 0) {
+        imageUrls = await uploadImagesToSupabase(selectedImages)
+      }
+
       // 選択したジムのIDを取得
       const selectedGym = gymData.find(gym => gym.name === gymName)
 
@@ -142,10 +218,11 @@ function AddGymPostContent() {
         content: content.trim(),
         post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
         gym_id: selectedGym?.id, // ジムIDを追加
+        images: imageUrls, // 画像URLを追加
         workout_started_at: workoutStartTime || undefined,
         workout_ended_at: workoutEndTime || undefined,
-        // exercises があれば achievement_data に含める
-        achievement_data: exercises.length > 0 ? {
+        // exercises があれば training_details に含める
+        training_details: exercises.length > 0 ? {
           exercises: exercises.map(ex => ({
             name: ex.name,
             weight: parseFloat(ex.weight) || 0,
@@ -154,7 +231,7 @@ function AddGymPostContent() {
           })),
           gym_name: gymName,
           crowd_status: crowdStatus
-        } : undefined,
+        } : null,
         visibility: 'public' as const
       }
 
@@ -395,7 +472,7 @@ function AddGymPostContent() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <label className="block text-sm font-bold text-slate-900 mb-3">
               <MessageSquare className="w-4 h-4 inline mr-2" />
-              今日のジム活 <span className="text-red-500">*</span>
+              投稿内容 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={content}
@@ -544,14 +621,48 @@ function AddGymPostContent() {
             <label className="block text-sm font-bold text-slate-900 mb-3">
               <Camera className="w-4 h-4 inline mr-2" />
               写真を追加
-              <span className="text-xs text-slate-500 font-normal ml-2">（オプション）</span>
+              <span className="text-xs text-slate-500 font-normal ml-2">（最大5枚）</span>
             </label>
-            <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
-              <ImageIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-              <p className="text-sm text-slate-600">クリックして写真を選択</p>
-              <p className="text-xs text-slate-500 mt-1">または、ドラッグ&ドロップ</p>
-              <input type="file" accept="image/*" className="hidden" />
-            </div>
+
+            {/* 画像プレビュー */}
+            {imagePreviewUrls.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                {imagePreviewUrls.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={url}
+                      alt={`プレビュー ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* アップロードエリア */}
+            {selectedImages.length < 5 && (
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                <label className="cursor-pointer block">
+                  <ImageIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                  <p className="text-sm text-slate-600">クリックして写真を選択</p>
+                  <p className="text-xs text-slate-500 mt-1">JPEG, PNG, WebP対応</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
           {/* 投稿ボタン（モバイル用） */}
