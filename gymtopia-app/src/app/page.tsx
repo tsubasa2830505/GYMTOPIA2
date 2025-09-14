@@ -12,7 +12,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('machine')
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
   const [selectedMakers, setSelectedMakers] = useState<string[]>([])
-  const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
+  const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
   const conditionSectionRef = useRef<HTMLDivElement>(null)

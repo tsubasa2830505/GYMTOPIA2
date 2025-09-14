@@ -1,14 +1,16 @@
 'use client'
 
-import { 
-  Save, X, MapPin, Camera, Plus, Minus, Users, 
+import {
+  Save, X, MapPin, Camera, Plus, Minus, Users,
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,
-  Settings, Package, Building
+  Settings, Package, Building, AlertCircle
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import MachineSelector from '@/components/MachineSelector'
+import { upsertGymFacilities } from '@/lib/supabase/facilities'
+import type { FacilityFormData } from '@/types/facilities'
 
 interface Exercise {
   id: string
@@ -40,8 +42,10 @@ function AddGymPostContent() {
   // 機器登録用の状態
   const [equipmentGymName, setEquipmentGymName] = useState('')
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
-  const [selectedMachines, setSelectedMachines] = useState<Set<string>>(new Set())
+  const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // ジムリスト（実際はAPIから取得）
   const gymList = [
@@ -105,20 +109,35 @@ function AddGymPostContent() {
     router.push('/feed')
   }
   
-  const handleEquipmentSubmit = (e: React.FormEvent) => {
+  const handleEquipmentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // ここで機器登録処理を実装
-    console.log({
-      gymName: equipmentGymName,
-      freeWeights: Array.from(selectedFreeWeights.entries()),
-      machines: Array.from(selectedMachines),
-      timestamp: new Date().toISOString()
-    })
-    setShowEquipmentConfirmation(true)
-    // 2秒後に画面遷移
-    setTimeout(() => {
-      router.push('/')
-    }, 2000)
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const formData: FacilityFormData = {
+        gymName: equipmentGymName,
+        freeWeights: selectedFreeWeights,
+        machines: selectedMachines
+      }
+
+      const result = await upsertGymFacilities(formData)
+
+      if (result.success) {
+        setShowEquipmentConfirmation(true)
+        // 2秒後に画面遷移
+        setTimeout(() => {
+          router.push('/')
+        }, 2000)
+      } else {
+        setError(result.error || '登録に失敗しました')
+      }
+    } catch (err) {
+      setError('予期しないエラーが発生しました')
+      console.error('Equipment registration error:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const currentDate = new Date().toLocaleDateString('ja-JP', {
@@ -162,11 +181,20 @@ function AddGymPostContent() {
             ) : (
               <button
                 onClick={handleEquipmentSubmit}
-                disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0)}
+                disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
                 className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
-                <Settings className="w-4 h-4" />
-                登録する
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    登録中...
+                  </>
+                ) : (
+                  <>
+                    <Settings className="w-4 h-4" />
+                    登録する
+                  </>
+                )}
               </button>
             )}
           </div>
@@ -425,6 +453,17 @@ function AddGymPostContent() {
           </form>
         ) : (
           <form onSubmit={handleEquipmentSubmit} className="space-y-6">
+            {/* エラーメッセージ */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">登録エラー</p>
+                  <p className="text-sm text-red-600 mt-1">{error}</p>
+                </div>
+              </div>
+            )}
+
             {/* ジム選択（機器登録用） */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <label className="block text-sm font-bold text-slate-900 mb-3">
@@ -476,11 +515,20 @@ function AddGymPostContent() {
             {/* 登録ボタン（モバイル用） */}
             <button
               type="submit"
-              disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0)}
+              disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
               className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden"
             >
-              <Settings className="w-5 h-5" />
-              ジム機器を登録する
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  登録処理中...
+                </>
+              ) : (
+                <>
+                  <Settings className="w-5 h-5" />
+                  ジム機器を登録する
+                </>
+              )}
             </button>
           </form>
         )}

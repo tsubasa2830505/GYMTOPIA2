@@ -1,8 +1,14 @@
 'use client'
 
-import { Search, Filter, MapPin, Star } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { MapPin, Star, Search } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 import { Gym, getGyms } from '@/lib/supabase/gyms'
+import dynamic from 'next/dynamic'
+
+// GymDetailModalを動的インポート
+const GymDetailModal = dynamic(() => import('@/components/GymDetailModal'), {
+  ssr: false
+})
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -10,18 +16,20 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true)
   const [selectedPrefecture, setSelectedPrefecture] = useState('')
   const [searchMode, setSearchMode] = useState<'all' | 'search'>('all')
+  const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     loadGyms()
-  }, [selectedPrefecture, searchQuery])
+  }, [selectedPrefecture, searchQuery, loadGyms])
 
-  const loadGyms = async () => {
+  const loadGyms = useCallback(async () => {
     try {
       setLoading(true)
-      const filters: any = {}
+      const filters: { prefecture?: string; city?: string; search?: string } = {}
       if (selectedPrefecture) filters.prefecture = selectedPrefecture
       if (searchQuery.trim() && searchMode === 'search') filters.search = searchQuery.trim()
-      
+
       const data = await getGyms(filters)
       setGyms(data)
     } catch (error) {
@@ -29,7 +37,7 @@ export default function SearchPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedPrefecture, searchQuery, searchMode])
 
   const handleSearch = () => {
     setSearchMode('search')
@@ -153,11 +161,33 @@ export default function SearchPage() {
               {gyms.map((gym) => (
                 <div
                   key={gym.id}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                  onClick={() => {
+                    setSelectedGymId(gym.id)
+                    setIsModalOpen(true)
+                  }}
                 >
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
-                    {gym.name}
-                  </h3>
+                  {/* ジム画像 */}
+                  <div className="relative h-48 bg-slate-100 overflow-hidden">
+                    <img
+                      src={gym.images && gym.images.length > 0
+                        ? gym.images[0]
+                        : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop'
+                      }
+                      alt={gym.name}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop'
+                      }}
+                    />
+                    {/* 画像の上にグラデーションオーバーレイを追加して、もしテキストが重なっても読みやすくする */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+
+                  <div className="p-4 relative z-10">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2 leading-tight">
+                      {gym.name}
+                    </h3>
                   
                   {gym.address && (
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -195,17 +225,30 @@ export default function SearchPage() {
                     )}
                   </div>
                   
-                  {gym.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
-                      {gym.description}
-                    </p>
-                  )}
+                    {gym.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                        {gym.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
       </main>
+
+      {/* ジム詳細モーダル */}
+      {selectedGymId && (
+        <GymDetailModal
+          gymId={selectedGymId}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false)
+            setSelectedGymId(null)
+          }}
+        />
+      )}
     </div>
   )
 }

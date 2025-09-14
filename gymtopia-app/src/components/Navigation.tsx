@@ -10,7 +10,7 @@ export default function Navigation() {
   const navItems = [
     { href: '/', icon: Home, label: 'ホーム' },
     { href: '/search', icon: Search, label: '検索' },
-    { href: '/workout', icon: Dumbbell, label: 'ワークアウト' },
+    { href: '/add', icon: Dumbbell, label: 'ワークアウト' },
     { href: '/stats', icon: BarChart3, label: '統計' },
     { href: '/profile', icon: User, label: 'プロフィール' },
   ]

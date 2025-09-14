@@ -6,6 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // ジムの型定義
+import type { GymFacilities, FacilityKey } from '@/types/facilities'
 export interface Gym {
   id: string
   name: string
@@ -16,13 +17,44 @@ export interface Gym {
   address?: string
   prefecture?: string
   city?: string
-  business_hours?: any
-  facilities?: any
+  business_hours?: Record<string, unknown>
+  facilities?: GymFacilities
   equipment_types?: string[]
   machine_brands?: string[]
   rating?: number
   review_count?: number
   verified?: boolean
+  images?: string[]  // 画像配列を追加
+  phone?: string
+  website?: string
+  price_info?: Record<string, unknown>
+}
+
+// マシン設備
+export interface GymMachine {
+  id: string
+  gym_id: string
+  name: string
+  brand?: string
+  count?: number
+  condition?: string
+  created_at?: string
+  updated_at?: string
+  updated_by?: string
+}
+
+// フリーウェイト設備
+export interface GymFreeWeight {
+  id: string
+  gym_id: string
+  name: string
+  brand?: string
+  count?: number
+  weight_range?: string
+  condition?: string
+  created_at?: string
+  updated_at?: string
+  updated_by?: string
 }
 
 export interface GymReview {
@@ -49,12 +81,14 @@ export async function getGyms(filters?: {
   prefecture?: string
   city?: string
   search?: string
+  facilities?: FacilityKey[]
+  machines?: string[]
+  freeWeights?: string[]
 }) {
   try {
     let query = supabase
       .from('gyms')
       .select('*')
-      .eq('status', 'active')
       .order('rating', { ascending: false })
 
     if (filters?.prefecture) {
@@ -65,6 +99,14 @@ export async function getGyms(filters?: {
     }
     if (filters?.search) {
       query = query.ilike('name', `%${filters.search}%`)
+    }
+    if (filters?.facilities && filters.facilities.length > 0) {
+      // Filter gyms whose facilities JSONB contains all requested flags set to true
+      const containsObj = filters.facilities.reduce((acc, key) => {
+        acc[key] = true
+        return acc
+      }, {} as Partial<GymFacilities>)
+      query = query.contains('facilities', containsObj)
     }
 
     const { data, error } = await query
@@ -95,21 +137,52 @@ export async function getGymById(id: string) {
 }
 
 // ジムのマシン一覧を取得
-export async function getGymMachines(gymId: string) {
+export async function getGymMachines(gymId: string): Promise<GymMachine[]> {
   try {
     const { data, error } = await supabase
       .from('gym_machines')
-      .select(`
-        *,
-        machine:machines(*)
-      `)
+      .select('*')
       .eq('gym_id', gymId)
-      .order('machine(target_category)')
 
     if (error) throw error
-    return data
+
+    const rows = (data || []).map((row: any) => ({
+      id: row.id,
+      gym_id: row.gym_id,
+      name: row.name,
+      brand: row.brand || undefined,
+      count: row.count || 1,
+      condition: row.condition || undefined,
+    }))
+    return rows
   } catch (error) {
     console.error('Error fetching gym machines:', error)
+    return []
+  }
+}
+
+// ジムのフリーウェイト一覧を取得
+export async function getGymFreeWeights(gymId: string): Promise<GymFreeWeight[]> {
+  try {
+    const { data, error } = await supabase
+      .from('gym_free_weights')
+      .select('*')
+      .eq('gym_id', gymId)
+
+    if (error) throw error
+
+    const rows = (data || []).map((row: any) => ({
+      id: row.id,
+      gym_id: row.gym_id,
+      name: row.name,
+      brand: row.brand || undefined,
+      count: row.count || 1,
+      weight_range: row.weight_range || undefined,
+      condition: row.condition || undefined,
+    }))
+    return rows
+  } catch (error) {
+    console.error('Error fetching gym free weights:', error)
     return []
   }
 }

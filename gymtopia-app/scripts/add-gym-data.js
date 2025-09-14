@@ -1,8 +1,13 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase設定
-const supabaseUrl = 'https://htytewqvkgwyuvcsvjwm.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzEzNDI0NiwiZXhwIjoyMDcyNzEwMjQ2fQ.VVNIX12yaN7t3seEzRwbMRtmNEbHoEkPXYeBzt60JBs';
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -180,7 +185,7 @@ async function addGymData() {
       .select('id, type, target_category');
     
     if (gyms && machines) {
-      const gymMachines = [];
+      const gymEquipments = [];
       
       for (const gym of gyms) {
         // ジムのタイプに応じてマシンを選択
@@ -200,25 +205,26 @@ async function addGymData() {
         
         // マシンを追加
         for (const machine of selectedMachines) {
-          gymMachines.push({
+          gymEquipments.push({
             gym_id: gym.id,
-            machine_id: machine.id,
-            quantity: machine.type === 'free-weight' ? Math.floor(Math.random() * 3) + 2 : 1,
+            // machines.id is equipment.id::text; Supabase accepts UUID strings
+            equipment_id: machine.id,
+            count: machine.type === 'free-weight' ? Math.floor(Math.random() * 3) + 2 : 1,
             condition: ['excellent', 'good', 'good', 'fair'][Math.floor(Math.random() * 4)]
           });
         }
       }
       
-      // バッチ挿入
-      if (gymMachines.length > 0) {
+      // バッチ挿入（正規化テーブルに保存）
+      if (gymEquipments.length > 0) {
         const { error } = await supabase
-          .from('gym_machines')
-          .upsert(gymMachines, { onConflict: 'gym_id,machine_id' });
+          .from('gym_equipment')
+          .upsert(gymEquipments, { onConflict: 'gym_id,equipment_id' });
         
         if (error) {
-          console.log(`   ⚠️  Error linking machines: ${error.message}`);
+          console.log(`   ⚠️  Error linking equipment: ${error.message}`);
         } else {
-          console.log(`   ✅ Linked ${gymMachines.length} machine-gym relationships`);
+          console.log(`   ✅ Linked ${gymEquipments.length} equipment-gym relationships`);
         }
       }
     }
@@ -230,7 +236,7 @@ async function addGymData() {
       .select('*', { count: 'exact', head: true });
     
     const { count: machineCount } = await supabase
-      .from('gym_machines')
+      .from('gym_equipment')
       .select('*', { count: 'exact', head: true });
     
     console.log(`   Total gyms: ${gymCount}`);

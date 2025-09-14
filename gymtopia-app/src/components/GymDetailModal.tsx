@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  MapPin, Clock, Heart, Phone, Globe, X, 
+import {
+  MapPin, Clock, Heart, Phone, Globe, X,
   Share2, Users, Dumbbell, Building, Activity, MessageSquare,
   Star, ChevronRight
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { getGymById, getGymMachines, getGymFreeWeights, type Gym } from '@/lib/supabase/gyms'
+import GymDetailedInfoDisplay from '@/components/GymDetailedInfoDisplay'
 
 interface GymDetailModalProps {
   isOpen: boolean
@@ -14,25 +16,67 @@ interface GymDetailModalProps {
   gymId: string
 }
 
-const gymData = {
+// サンプルデータ（フォールバック用）
+const sampleGymData = {
   id: 'gym_rogue_shinjuku',
   name: 'ROGUEクロストレーニング新宿',
-  tags: ['ROGUE', 'クロスフィット', 'チョークOK'],
+  tags: ['ROGUE', 'クロスフィット', 'チョークOK', 'パワーラック6台'],
   location: { area: '新宿', walkingMinutes: 7, lat: 35.0, lng: 139.0 },
   businessHours: [{ open: '05:00', close: '24:00', days: [0, 1, 2, 3, 4, 5, 6] }],
   isOpenNow: true,
   likesCount: 94,
   likedByMe: false,
+  images: [
+    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=800&h=600&fit=crop'
+  ],
   pricingPlans: [
     { id: 'monthly', title: '月額会員', priceJPY: 14800, link: 'https://example.com/monthly' },
-    { id: 'visitor', title: 'ビジター利用', priceJPY: 3800, link: 'https://example.com/visitor' }
+    { id: 'visitor', title: 'ドロップイン（ビジター）', priceJPY: 3800, link: 'https://example.com/visitor' }
   ],
-  equipment: [
-    { name: 'RML-490 パワーラック', brand: 'ROGUE', count: 6, condition: '優良' },
-    { name: 'SML-2 スクワットラック', brand: 'ROGUE', count: 4, condition: '優良' },
-    { name: 'オハイオバー', brand: 'ROGUE', count: 8, condition: '優良' },
-    { name: 'アジャスタブルベンチ', brand: 'ROGUE', count: 4, condition: '優良' }
+  // フリーウェイト設備
+  freeWeights: [
+    { name: 'パワーラック', brand: 'ROGUE RML-490', count: 6 },
+    { name: 'スクワットラック', brand: 'ROGUE SML-2', count: 4 },
+    { name: 'オリンピックバー', brand: 'ROGUE オハイオバー', count: 8 },
+    { name: 'アジャスタブルベンチ', brand: 'ROGUE', count: 4 },
+    { name: 'ダンベル', brand: 'IVANKO', range: '1-50kg' },
+    { name: 'ケトルベル', brand: 'ROGUE', range: '4-48kg' }
   ],
+  // マシン設備
+  machines: [
+    { name: 'ラットプルダウン', brand: 'Hammer Strength', count: 2 },
+    { name: 'レッグプレス', brand: 'Hammer Strength', count: 2 },
+    { name: 'チェストプレス', brand: 'Life Fitness', count: 3 },
+    { name: 'ケーブルマシン', brand: 'Life Fitness', count: 4 },
+    { name: 'トレッドミル', brand: 'TECHNOGYM', count: 10 },
+    { name: 'エアロバイク', brand: 'TECHNOGYM', count: 8 }
+  ],
+  // その他施設
+  facilities: {
+    '24hours': false,
+    'shower': true,
+    'parking': true,
+    'locker': true,
+    'wifi': true,
+    'chalk': true,
+    'belt_rental': true,
+    'personal_training': true,
+    'group_lesson': true,
+    'studio': true,
+    'sauna': true,
+    'pool': false,
+    'jacuzzi': false,
+    'massage_chair': true,
+    'cafe': true,
+    'women_only': false,
+    'barrier_free': true,
+    'kids_room': false,
+    'english_support': true,
+    'drop_in': true  // ドロップイン対応
+  },
   contact: { phone: '03-1234-5678', website: 'https://example.com' },
   reviews: [
     { author: '筋トレ愛好家', date: '2024-01-15', body: 'ROGUEのパワーラックが6台もあって最高です！混雑時でも待ち時間が少なく、効率的にトレーニングできます。' },
@@ -43,11 +87,90 @@ const gymData = {
 
 export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModalProps) {
   const router = useRouter()
-  const [liked, setLiked] = useState(gymData.likedByMe)
-  const [likesCount, setLikesCount] = useState(gymData.likesCount)
-  const [activeTab, setActiveTab] = useState('equipment')
+  const [gymData, setGymData] = useState<any>(sampleGymData)
+  const [loading, setLoading] = useState(true)
+  const [liked, setLiked] = useState(false)
+  const [likesCount, setLikesCount] = useState(0)
+  const [activeTab, setActiveTab] = useState('freeweights')
 
+  // ジムデータを取得
   useEffect(() => {
+    if (isOpen && gymId) {
+      loadGymData()
+    }
+  }, [isOpen, gymId])
+
+  const loadGymData = async () => {
+    setLoading(true)
+    try {
+      // ジム情報を取得
+      const gym = await getGymById(gymId)
+      if (gym) {
+        // マシンとフリーウェイト情報を取得
+        const [machines, freeWeights] = await Promise.all([
+          getGymMachines(gymId),
+          getGymFreeWeights(gymId)
+        ])
+
+        console.log('Fetched machines:', machines)
+        console.log('Fetched freeWeights:', freeWeights)
+
+        // データを統合
+        const fullGymData = {
+          ...gym,
+          tags: gym.equipment_types || [],
+          location: {
+            area: gym.city || gym.prefecture || '未設定',
+            walkingMinutes: 7
+          },
+          businessHours: gym.business_hours || [{ open: '09:00', close: '22:00', days: [0, 1, 2, 3, 4, 5, 6] }],
+          isOpenNow: true,
+          likesCount: gym.review_count || 0,
+          likedByMe: false,
+          images: gym.images && gym.images.length > 0 ? gym.images : [
+            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+          ],
+          pricingPlans: gym.price_info || [
+            { id: 'monthly', title: '月額会員', priceJPY: 10000, link: '#' },
+            { id: 'visitor', title: 'ドロップイン', priceJPY: 3000, link: '#' }
+          ],
+          machines: machines.map(m => ({
+            name: m.name,
+            brand: m.brand || '',
+            count: m.count || 1,
+          })),
+          freeWeights: freeWeights.map(fw => ({
+            name: fw.name,
+            brand: fw.brand || '',
+            count: fw.count,
+            range: fw.weight_range,
+          })),
+          facilities: gym.facilities || {},
+          contact: {
+            phone: gym.phone || '',
+            website: gym.website || ''
+          },
+          reviews: []
+        }
+
+        setGymData(fullGymData)
+        setLiked(fullGymData.likedByMe)
+        setLikesCount(fullGymData.likesCount)
+      } else {
+        // データが取得できない場合はサンプルデータを使用
+        setGymData(sampleGymData)
+      }
+    } catch (error) {
+      console.error('Failed to load gym data:', error)
+      setGymData(sampleGymData)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
@@ -68,16 +191,28 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(price)
   }
 
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case '優良': return 'text-green-600 bg-green-50'
-      case '良好': return 'text-blue-600 bg-blue-50'
-      case '可': return 'text-yellow-600 bg-yellow-50'
-      default: return 'text-gray-600 bg-gray-50'
-    }
-  }
 
   if (!isOpen) return null
+
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
+          onClick={onClose}
+        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-600">ジム情報を読み込み中...</p>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
@@ -96,7 +231,16 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
           {/* Scrollable Content */}
           <div className="overflow-y-auto max-h-[90vh] sm:max-h-[85vh]">
             {/* Header with Hero Image */}
-            <div className="relative h-48 sm:h-56 bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="relative h-64 sm:h-72 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+              {/* Hero Image */}
+              {gymData.images && gymData.images.length > 0 && (
+                <img
+                  src={gymData.images[0]}
+                  alt={gymData.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
               <button 
                 onClick={onClose}
                 className="absolute top-4 right-4 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10 hover:bg-white transition-colors"
@@ -113,31 +257,54 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
                 {gymData.tags.map((tag) => (
-                  <span 
+                  <span
                     key={tag}
-                    className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white rounded-full text-xs sm:text-sm font-medium text-slate-700 shadow-md"
+                    className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white/95 backdrop-blur rounded-full text-xs sm:text-sm font-semibold text-slate-900 shadow-lg border border-white/20"
                   >
                     {tag}
                   </span>
                 ))}
+                {gymData.facilities.drop_in && (
+                  <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-green-600 text-white rounded-full text-xs sm:text-sm font-semibold shadow-lg border border-green-500 flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    ドロップインOK
+                  </span>
+                )}
               </div>
 
               {/* Title */}
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-5">
-                {gymData.name}
-              </h1>
+              <div className="mb-4 sm:mb-5">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 leading-tight"
+                    style={{
+                      textShadow: '3px 3px 6px rgba(255,255,255,1), 0px 0px 12px rgba(255,255,255,0.8), -1px -1px 0px rgba(255,255,255,0.8), 1px -1px 0px rgba(255,255,255,0.8), -1px 1px 0px rgba(255,255,255,0.8), 1px 1px 0px rgba(255,255,255,0.8)'
+                    }}>
+                  {gymData.name}
+                </h1>
+                <div className="flex items-center gap-2 text-slate-900">
+                  <MapPin className="w-4 h-4" style={{
+                    filter: 'drop-shadow(2px 2px 4px rgba(255,255,255,0.8)) drop-shadow(0px 0px 8px rgba(255,255,255,0.6))'
+                  }} />
+                  <span className="text-sm font-medium"
+                        style={{
+                          textShadow: '2px 2px 4px rgba(255,255,255,1), 0px 0px 8px rgba(255,255,255,0.8), -1px -1px 0px rgba(255,255,255,0.8), 1px -1px 0px rgba(255,255,255,0.8), -1px 1px 0px rgba(255,255,255,0.8), 1px 1px 0px rgba(255,255,255,0.8)'
+                        }}>
+                    {gymData.location.area} • 徒歩{gymData.location.walkingMinutes}分
+                  </span>
+                </div>
+              </div>
+
+              {/* Stats Row - Airbnb style */}
+              <div className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-6 bg-white rounded-full px-4 py-2 shadow-sm w-fit">
+                <span className="text-slate-700">
+                  {gymData.review_count || 0}件のレビュー
+                </span>
+                <span className="text-slate-500">•</span>
+                <span className="font-semibold">{likesCount}人がイキタイ</span>
+              </div>
 
               {/* Info Pills */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 sm:mb-5">
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
-                  <MapPin className="w-5 h-5 text-slate-600" />
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{gymData.location.area}</p>
-                    <p className="text-xs text-slate-600">徒歩{gymData.location.walkingMinutes}分</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 sm:mb-5">
+                <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
                   <Clock className="w-5 h-5 text-slate-600" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900">
@@ -149,11 +316,11 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+                <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
                   <Users className="w-5 h-5 text-slate-600" />
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{likesCount}人</p>
-                    <p className="text-xs text-slate-600">イキタイ</p>
+                    <p className="text-sm font-semibold text-slate-900">今日の混雑度</p>
+                    <p className="text-xs text-green-600 font-medium">空いています</p>
                   </div>
                 </div>
               </div>
@@ -205,12 +372,30 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                 ))}
               </div>
 
+              {/* Image Gallery (小さい画像) */}
+              {gymData.images && gymData.images.length > 1 && (
+                <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                  {gymData.images.slice(1).map((image, index) => (
+                    <div
+                      key={index}
+                      className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-md"
+                    >
+                      <img
+                        src={image}
+                        alt={`${gymData.name} ${index + 2}`}
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Tabs */}
               <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-4 overflow-x-auto">
                 {[
-                  { id: 'equipment', label: '設備', icon: Dumbbell },
-                  { id: 'muscle', label: 'アクセス', icon: Activity },
-                  { id: 'facility', label: '施設', icon: Building }
+                  { id: 'freeweights', label: 'フリーウェイト', icon: Dumbbell },
+                  { id: 'machines', label: 'マシン', icon: Activity },
+                  { id: 'facilities', label: '施設', icon: Building }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -227,68 +412,131 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                 ))}
               </div>
 
-              {/* Tab Content - Equipment */}
-              {activeTab === 'equipment' && (
+              {/* Tab Content - Free Weights */}
+              {activeTab === 'freeweights' && (
                 <div className="space-y-3 mb-5">
-                  {gymData.equipment.map((item, index) => (
-                    <div 
-                      key={index}
-                      className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"
-                    >
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="text-sm font-semibold text-slate-900">
-                            {item.name}
-                          </h3>
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                            {item.brand}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-slate-600">
-                          <span>{item.count}台設置</span>
-                          <span>•</span>
-                          <span className={`px-2 py-0.5 rounded-lg font-medium ${getConditionColor(item.condition)}`}>
-                            状態: {item.condition}
-                          </span>
+                  {gymData.freeWeights.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500">
+                      <p>フリーウェイト情報が登録されていません</p>
+                      <p className="text-xs mt-2">gymId: {gymId}</p>
+                    </div>
+                  ) : (
+                    gymData.freeWeights.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"
+                      >
+                        <div className="w-2 h-2 bg-purple-500 rounded-full mt-2" />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-sm font-semibold text-slate-900">
+                              {item.name}
+                            </h3>
+                            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                              {item.brand}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                            {item.count && (
+                              <span className="flex items-center gap-1">
+                                <span className="font-bold text-purple-600">{item.count}</span>
+                                <span>台設置</span>
+                              </span>
+                            )}
+                            {item.range && <span>{item.range}</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               )}
 
-              {/* Tab Content - Facility */}
-              {activeTab === 'facility' && (
+              {/* Tab Content - Machines */}
+              {activeTab === 'machines' && (
+                <div className="space-y-3 mb-5">
+                  {gymData.machines.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500">
+                      <p>マシン情報が登録されていません</p>
+                      <p className="text-xs mt-2">gymId: {gymId}</p>
+                    </div>
+                  ) : (
+                    gymData.machines.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"
+                      >
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-sm font-semibold text-slate-900">
+                              {item.name}
+                            </h3>
+                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                              {item.brand}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                            <span className="flex items-center gap-1">
+                              <span className="font-bold text-blue-600">{item.count}</span>
+                              <span>台設置</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Tab Content - Facilities */}
+              {activeTab === 'facilities' && (
                 <div className="space-y-3 mb-5">
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { name: 'シャワー', available: true },
-                      { name: 'ロッカー', available: true },
-                      { name: '駐車場', available: true },
-                      { name: 'Wi-Fi', available: true },
-                      { name: '24時間営業', available: false },
-                      { name: 'チョーク利用可', available: false },
-                      { name: 'パーソナル', available: true },
-                      { name: 'サウナ', available: true },
-                    ].map((facility, index) => (
-                      <div 
-                        key={index}
+                      { key: '24hours', name: '24時間営業', available: gymData.facilities['24hours'] },
+                      { key: 'shower', name: 'シャワー', available: gymData.facilities.shower },
+                      { key: 'parking', name: '駐車場', available: gymData.facilities.parking },
+                      { key: 'locker', name: 'ロッカー', available: gymData.facilities.locker },
+                      { key: 'wifi', name: 'Wi-Fi', available: gymData.facilities.wifi },
+                      { key: 'chalk', name: 'チョーク利用可', available: gymData.facilities.chalk },
+                      { key: 'belt_rental', name: 'ベルト貸出', available: gymData.facilities.belt_rental },
+                      { key: 'personal_training', name: 'パーソナル', available: gymData.facilities.personal_training },
+                      { key: 'group_lesson', name: 'グループレッスン', available: gymData.facilities.group_lesson },
+                      { key: 'studio', name: 'スタジオ', available: gymData.facilities.studio },
+                      { key: 'sauna', name: 'サウナ', available: gymData.facilities.sauna },
+                      { key: 'pool', name: 'プール', available: gymData.facilities.pool },
+                      { key: 'jacuzzi', name: 'ジャグジー', available: gymData.facilities.jacuzzi },
+                      { key: 'massage_chair', name: 'マッサージチェア', available: gymData.facilities.massage_chair },
+                      { key: 'cafe', name: 'カフェ/売店', available: gymData.facilities.cafe },
+                      { key: 'women_only', name: '女性専用エリア', available: gymData.facilities.women_only },
+                      { key: 'barrier_free', name: 'バリアフリー', available: gymData.facilities.barrier_free },
+                      { key: 'kids_room', name: 'キッズルーム', available: gymData.facilities.kids_room },
+                      { key: 'english_support', name: '英語対応', available: gymData.facilities.english_support },
+                      { key: 'drop_in', name: 'ドロップイン', available: gymData.facilities.drop_in },
+                    ].map((facility) => (
+                      <div
+                        key={facility.key}
                         className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl"
                       >
                         <span className="text-sm font-medium text-slate-900">{facility.name}</span>
-                        <span className={`text-xs font-medium px-2 py-1 rounded-lg ${
-                          facility.available 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-slate-100 text-slate-500'
+                        <span className={`text-lg font-bold px-3 py-1 rounded-full ${
+                          facility.available
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-red-100 text-red-600'
                         }`}>
-                          {facility.available ? '利用可能' : '利用不可'}
+                          {facility.available ? '○' : '×'}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* ジムオーナー詳細情報 */}
+              <div className="mb-5">
+                <GymDetailedInfoDisplay gymId={gymId} />
+              </div>
 
               {/* Contact */}
               <div className="bg-slate-50 rounded-2xl p-4 mb-5">
@@ -321,6 +569,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                 </div>
               </div>
 
+
               {/* Reviews */}
               <div>
                 <h2 className="text-lg font-bold text-slate-900 mb-3">口コミ・レビュー</h2>
@@ -332,18 +581,14 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-slate-900">{review.author}</p>
                           <p className="text-xs text-slate-600">
-                            {new Date(review.date).toLocaleDateString('ja-JP', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
+                            {new Date(review.date).toLocaleDateString('ja-JP', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
                             })}
                           </p>
                         </div>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
+                        {/* 個別レビューの星評価は非表示 */}
                       </div>
                       <p className="text-xs text-slate-700 leading-relaxed">{review.body}</p>
                     </div>

@@ -1,12 +1,13 @@
 'use client'
 
-import { Search, MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
+import { MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
 // import Image from 'next/image'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import SearchResultMap from '@/components/SearchResultMap'
-import { getGyms } from '@/lib/supabase/gyms'
+import { getGyms, Gym } from '@/lib/supabase/gyms'
+import type { FacilityKey } from '@/types/facilities'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -20,25 +21,31 @@ function SearchResultsContent() {
   
   // Parse URL parameters for selected conditions
   const [selectedConditions, setSelectedConditions] = useState<{
-    machines: string[]
-    freeWeights: string[]
+    machines: Array<{ name: string; count: number }>
+    freeWeights: Array<{ name: string; count: number }>
     facilities: string[]
   }>({ machines: [], freeWeights: [], facilities: [] })
 
   const removeCondition = (type: 'machines' | 'freeWeights' | 'facilities', value: string) => {
-    const newConditions = {
-      ...selectedConditions,
-      [type]: selectedConditions[type].filter(item => item !== value)
+    const newConditions = { ...selectedConditions }
+
+    if (type === 'facilities') {
+      newConditions.facilities = selectedConditions.facilities.filter(item => item !== value)
+    } else if (type === 'machines') {
+      newConditions.machines = selectedConditions.machines.filter(item => item.name !== value)
+    } else if (type === 'freeWeights') {
+      newConditions.freeWeights = selectedConditions.freeWeights.filter(item => item.name !== value)
     }
+
     setSelectedConditions(newConditions)
     
     // Update URL with new conditions
     const params = new URLSearchParams()
     if (newConditions.machines.length > 0) {
-      params.set('machines', newConditions.machines.join(','))
+      params.set('machines', newConditions.machines.map(m => `${m.name}:${m.count}`).join(','))
     }
     if (newConditions.freeWeights.length > 0) {
-      params.set('freeWeights', newConditions.freeWeights.join(','))
+      params.set('freeWeights', newConditions.freeWeights.map(fw => `${fw.name}:${fw.count}`).join(','))
     }
     if (newConditions.facilities.length > 0) {
       params.set('facilities', newConditions.facilities.join(','))
@@ -60,7 +67,7 @@ function SearchResultsContent() {
   }
 
   // Fetch gyms from Supabase
-  const fetchGyms = async () => {
+  const fetchGyms = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -68,28 +75,35 @@ function SearchResultsContent() {
       const keyword = searchParams.get('keyword') || undefined
       const prefecture = searchParams.get('prefecture') || undefined
       const city = searchParams.get('city') || undefined
+      const facilitiesParam = searchParams.get('facilities') || ''
+      const facilities = facilitiesParam
+        ? (facilitiesParam.split(',').filter(Boolean) as FacilityKey[])
+        : undefined
       
-      const filters: any = {}
+      const filters: { search?: string; prefecture?: string; city?: string; facilities?: FacilityKey[] } = {}
       if (keyword) filters.search = keyword
       if (prefecture) filters.prefecture = prefecture
       if (city) filters.city = city
+      if (facilities && facilities.length > 0) filters.facilities = facilities
       
       const data = await getGyms(filters)
       
       if (data) {
         // Transform data to match component format
-        const transformedData = data.map((gym: any) => ({
+        const transformedData = data.map((gym: Gym) => ({
           id: gym.id,
           name: gym.name || 'ジム名未設定',
           location: gym.city || gym.prefecture || '場所未設定',
           distance: '徒歩5分', // Placeholder - would calculate from actual location
           likes: gym.review_count || 0,
           tags: gym.equipment_types || [],
-          image: '/gym1.jpg', // Placeholder
+          image: gym.images && gym.images.length > 0
+            ? gym.images[0]
+            : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
           price: '¥10,000～', // Placeholder
           isLiked: false,
-          rating: gym.rating || 0,
-          address: gym.address || ''
+          address: gym.address || '',
+          images: gym.images || [] // 全画像を保持
         }))
         
         setGyms(transformedData)
@@ -137,16 +151,27 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchParams])
 
   useEffect(() => {
-    const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
-    const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
+    // Parse machines with count (format: "name:count")
+    const machinesParam = searchParams.get('machines')?.split(',').filter(Boolean) || []
+    const machines = machinesParam.map(item => {
+      const [name, count] = item.split(':')
+      return { name, count: parseInt(count) || 1 }
+    })
+
+    // Parse freeWeights with count (format: "name:count")
+    const freeWeightsParam = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
+    const freeWeights = freeWeightsParam.map(item => {
+      const [name, count] = item.split(':')
+      return { name, count: parseInt(count) || 1 }
+    })
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
-    
+
     setSelectedConditions({ machines, freeWeights, facilities })
     fetchGyms()
-  }, [searchParams])
+  }, [searchParams, fetchGyms])
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
@@ -227,29 +252,35 @@ function SearchResultsContent() {
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {selectedConditions.machines.map((machine) => (
+                {selectedConditions.machines.map((machine, index) => (
                   <button
-                    key={`machine-${machine}`}
-                    onClick={() => removeCondition('machines', machine)}
+                    key={`machine-${index}-${machine.name}`}
+                    onClick={() => removeCondition('machines', machine.name)}
                     className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
                   >
-                    {machine}
+                    {machine.name}
+                    {machine.count > 1 && (
+                      <span className="font-bold ml-1">×{machine.count}</span>
+                    )}
                     <X className="w-3 h-3" />
                   </button>
                 ))}
-                {selectedConditions.freeWeights.map((weight) => (
+                {selectedConditions.freeWeights.map((weight, index) => (
                   <button
-                    key={`weight-${weight}`}
-                    onClick={() => removeCondition('freeWeights', weight)}
+                    key={`weight-${index}-${weight.name}`}
+                    onClick={() => removeCondition('freeWeights', weight.name)}
                     className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                   >
-                    {weight}
+                    {weight.name}
+                    {weight.count > 1 && (
+                      <span className="font-bold ml-1">×{weight.count}</span>
+                    )}
                     <X className="w-3 h-3" />
                   </button>
                 ))}
-                {selectedConditions.facilities.map((facility) => (
+                {selectedConditions.facilities.map((facility, index) => (
                   <button
-                    key={`facility-${facility}`}
+                    key={`facility-${index}-${facility}`}
                     onClick={() => removeCondition('facilities', facility)}
                     className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200 transition-colors flex items-center gap-1"
                   >
@@ -333,7 +364,16 @@ function SearchResultsContent() {
                 gyms.map((gym) => (
                   <div key={gym.id} className="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 border border-slate-100">
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-pink-400 to-purple-500 rounded-xl flex-shrink-0" />
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-slate-100">
+                        <img
+                          src={gym.image}
+                          alt={gym.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop'
+                          }}
+                        />
+                      </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <div>
@@ -350,12 +390,6 @@ function SearchResultsContent() {
                                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
                                 <span className="text-xs sm:text-sm font-medium">{gym.likes}</span>
                               </div>
-                              {gym.rating > 0 && (
-                                <div className="flex items-center gap-0.5">
-                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
-                                  <span className="text-xs sm:text-sm font-medium">{gym.rating}</span>
-                                </div>
-                              )}
                               <span className="text-base sm:text-lg font-bold text-blue-600">{gym.price}</span>
                             </div>
                           </div>

@@ -1,379 +1,316 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Star, Send, Heart, Users } from 'lucide-react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react'
+import { Star, Users, Calendar, MessageCircle, Filter, Search, Eye, EyeOff } from 'lucide-react'
+import { getGyms, getGymReviews } from '@/lib/supabase/gyms'
 
-interface Review {
-  id: string;
-  author: {
-    name: string;
-    avatar?: string;
-    initial?: string;
-  };
-  rating: number;
-  date: string;
-  content: string;
-  reply?: {
-    storeName: string;
-    role: string;
-    content: string;
-    date: string;
-  };
+interface ReviewWithGym {
+  id: string
+  rating: number
+  title?: string
+  content: string
+  created_at: string
+  gym_name: string
+  gym_id: string
+  user_display_name: string
+  equipment_rating?: number
+  cleanliness_rating?: number
+  staff_rating?: number
+  accessibility_rating?: number
 }
 
-const initialReviews: Review[] = [
-  {
-    id: '1',
-    author: {
-      name: '筋トレ愛好家',
-      initial: '筋'
-    },
-    rating: 5,
-    date: '2024年1月15日',
-    content: 'ROGUEのパワーラックが4台もあって、待ち時間ほぼゼロ！\nフリーウェイトエリアも広くて、混雑時でも快適にトレーニングできます。\n24時間営業なのも最高です。'
-  },
-  {
-    id: '2',
-    author: {
-      name: 'フィットネス女子',
-      initial: 'フ'
-    },
-    rating: 4,
-    date: '2024年1月14日',
-    content: '設備は充実していて文句なし！\nただ、女性更衣室がもう少し広いと嬉しいです。\nスタッフの対応は親切で、初心者にも優しく教えてくれます。',
-    reply: {
-      storeName: 'ハンマーストレングス渋谷',
-      role: 'オーナー',
-      content: 'ご利用ありがとうございます！\n女性更衣室の件、貴重なご意見として検討させていただきます。\n今後ともよろしくお願いいたします。',
-      date: '2024年1月14日'
-    }
-  },
-  {
-    id: '3',
-    author: {
-      name: 'ベンチプレス戦士',
-      avatar: '/avatar3.jpg',
-      initial: 'ベ'
-    },
-    rating: 5,
-    date: '2024年1月13日',
-    content: 'ベンチプレス台が5台もある！\nしかも全部ELEIKO製で最高の環境です。\nプレートも豊富で、高重量トレーニングにも対応できます。',
-    reply: {
-      storeName: 'ハンマーストレングス渋谷',
-      role: 'オーナー',
-      content: 'お褒めの言葉ありがとうございます！\nELEIKO製品は特にこだわって導入しました。\n今後も快適なトレーニング環境を提供できるよう努めます。',
-      date: '2024年1月13日'
-    }
-  },
-  {
-    id: '4',
-    author: {
-      name: 'カーディオ派',
-      initial: 'カ'
-    },
-    rating: 4,
-    date: '2024年1月12日',
-    content: 'トレッドミルとバイクの台数が多くて良い！\n有酸素エリアも広々としています。\nシャワールームも清潔で快適です。'
-  },
-  {
-    id: '5',
-    author: {
-      name: 'パワーリフター',
-      avatar: '/avatar5.jpg',
-      initial: 'パ'
-    },
-    rating: 5,
-    date: '2024年1月11日',
-    content: 'パワーリフティング3種目に特化した設備が完璧！\nチョークも使えるし、プラットフォームも複数あります。\n本格的にトレーニングしたい人には最高の環境です。',
-    reply: {
-      storeName: 'ハンマーストレングス渋谷',
-      role: 'オーナー',
-      content: 'ありがとうございます！\nパワーリフターの方にも満足いただける設備を心がけています。\n大会前のトレーニングなど、ぜひご活用ください。',
-      date: '2024年1月11日'
+export default function AdminReviewsPage() {
+  const [reviews, setReviews] = useState<ReviewWithGym[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedGym, setSelectedGym] = useState<string>('all')
+  const [gyms, setGyms] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [ratingFilter, setRatingFilter] = useState<number | null>(null)
+  const [showRatings, setShowRatings] = useState(true) // 管理者が評価を表示するかどうか
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+
+      // ジム一覧を取得
+      const gymsData = await getGyms()
+      setGyms(gymsData)
+
+      // 全ジムのレビューを取得
+      const allReviews: ReviewWithGym[] = []
+      for (const gym of gymsData) {
+        const gymReviews = await getGymReviews(gym.id)
+        const reviewsWithGym = gymReviews.map(review => ({
+          ...review,
+          gym_name: gym.name,
+          gym_id: gym.id,
+          user_display_name: review.user?.display_name || 'Anonymous'
+        }))
+        allReviews.push(...reviewsWithGym)
+      }
+
+      // 日付順でソート
+      allReviews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setReviews(allReviews)
+    } catch (error) {
+      console.error('Error loading reviews:', error)
+    } finally {
+      setLoading(false)
     }
   }
-];
 
-export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({});
-  const [activeTab, setActiveTab] = useState('reviews');
+  const filteredReviews = reviews.filter(review => {
+    const matchesGym = selectedGym === 'all' || review.gym_id === selectedGym
+    const matchesSearch = !searchQuery ||
+      review.gym_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.user_display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.content.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesRating = ratingFilter === null || review.rating === ratingFilter
 
-  const handleReplyChange = (reviewId: string, text: string) => {
-    setReplyTexts(prev => ({
-      ...prev,
-      [reviewId]: text
-    }));
-  };
-
-  const handleReplySubmit = (reviewId: string) => {
-    const replyText = replyTexts[reviewId];
-    if (!replyText || replyText.trim() === '') return;
-
-    setReviews(prev => prev.map(review => {
-      if (review.id === reviewId) {
-        return {
-          ...review,
-          reply: {
-            storeName: 'ハンマーストレングス渋谷',
-            role: 'オーナー',
-            content: replyText,
-            date: new Date().toLocaleDateString('ja-JP', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })
-          }
-        };
-      }
-      return review;
-    }));
-
-    setReplyTexts(prev => ({
-      ...prev,
-      [reviewId]: ''
-    }));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, reviewId: string) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      handleReplySubmit(reviewId);
-    }
-  };
+    return matchesGym && matchesSearch && matchesRating
+  })
 
   const renderStars = (rating: number) => {
     return (
       <div className="flex gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {[...Array(5)].map((_, i) => (
           <Star
-            key={star}
-            className={`w-4 h-4 ${
-              star <= rating
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'fill-gray-200 text-gray-200'
+            key={i}
+            className={`w-3 h-3 ${
+              i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
             }`}
           />
         ))}
       </div>
-    );
-  };
+    )
+  }
 
-  const averageRating = 4.8;
-  const totalReviews = 128;
-  const ikitaiCount = 342;
+  const getAverageRating = () => {
+    if (filteredReviews.length === 0) return 0
+    const sum = filteredReviews.reduce((acc, review) => acc + review.rating, 0)
+    return (sum / filteredReviews.length).toFixed(1)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">施設管理ページ</h1>
-              <p className="text-lg text-gray-600 mt-1">ハンマーストレングス渋谷</p>
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold text-gray-900">レビュー管理</h1>
+              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                管理者専用
+              </span>
             </div>
             <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-2xl font-bold">{averageRating}</span>
-                </div>
-                <p className="text-xs text-gray-500">平均評価</p>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <MessageCircle className="w-4 h-4" />
+                <span>{filteredReviews.length}件のレビュー</span>
               </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <Users className="w-5 h-5 text-gray-400" />
-                  <span className="text-2xl font-bold">{totalReviews}</span>
-                </div>
-                <p className="text-xs text-gray-500">レビュー件数</p>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Star className="w-4 h-4 text-yellow-400" />
+                <span>平均 {getAverageRating()}</span>
               </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <Heart className="w-5 h-5 text-red-400" />
-                  <span className="text-2xl font-bold">{ikitaiCount}</span>
-                </div>
-                <p className="text-xs text-gray-500">イキタイ</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex gap-8">
-            <button
-              onClick={() => setActiveTab('basic')}
-              className={`py-3 px-1 relative ${
-                activeTab === 'basic' ? 'text-gray-900' : 'text-gray-600'
-              } hover:text-gray-900 transition`}
-            >
-              <span className="font-medium">基本情報</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('facilities')}
-              className={`py-3 px-1 relative ${
-                activeTab === 'facilities' ? 'text-gray-900' : 'text-gray-600'
-              } hover:text-gray-900 transition`}
-            >
-              <span className="font-medium">設備管理</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('reviews')}
-              className={`py-3 px-4 relative ${
-                activeTab === 'reviews'
-                  ? 'bg-indigo-500 text-white rounded-full'
-                  : 'text-gray-600 hover:text-gray-900'
-              } transition`}
-            >
-              <span className="font-medium">レビュー管理</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`py-3 px-1 relative ${
-                activeTab === 'stats' ? 'text-gray-900' : 'text-gray-600'
-              } hover:text-gray-900 transition`}
-            >
-              <span className="font-medium">統計情報</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {activeTab === 'stats' ? (
-          /* Statistics Tab Content */
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* 評価統計 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">評価統計</h3>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">4.8</span>
-                <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-              </div>
-              <p className="text-sm text-gray-600">342件のレビュー</p>
-            </div>
-
-            {/* イキタイ数 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">イキタイ数</h3>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">128</span>
-                <Heart className="w-6 h-6 fill-red-400 text-red-400" />
-              </div>
-              <p className="text-sm text-gray-600">人がイキタイしています</p>
-            </div>
-
-            {/* 設備数 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">設備数</h3>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">3</span>
-              </div>
-              <p className="text-sm text-gray-600">種類の設備</p>
-            </div>
-          </div>
-        ) : activeTab === 'reviews' ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">レビュー管理</h2>
-
-            {/* Reviews List */}
-            <div className="space-y-4">
-              {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="border border-gray-200 rounded-xl p-5 hover:shadow-sm transition"
+              <button
+                onClick={() => setShowRatings(!showRatings)}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  showRatings
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
               >
-                {/* Review Header */}
-                <div className="flex items-start gap-3 mb-3">
-                  {/* Avatar */}
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    {review.author.avatar ? (
-                      <Image
-                        src={review.author.avatar}
-                        alt={review.author.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm font-medium text-indigo-600">
-                        {review.author.initial}
-                      </span>
-                    )}
-                  </div>
+                {showRatings ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                {showRatings ? '星評価表示中' : '星評価非表示'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
-                  {/* Meta Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-semibold text-gray-900">
-                        {review.author.name}
-                      </span>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 管理者向け説明 */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <MessageCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-blue-900 mb-1">管理者向け機能について</h3>
+              <p className="text-sm text-blue-800">
+                ユーザーは星評価を入力できますが、一般ユーザーには個別の評価は表示されません。
+                このページでは管理者のみがユーザーの詳細な評価を確認できます。
+                右上の「星評価表示/非表示」ボタンで表示を切り替えられます。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* フィルター */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ジムで絞り込み
+              </label>
+              <select
+                value={selectedGym}
+                onChange={(e) => setSelectedGym(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">すべてのジム</option>
+                {gyms.map(gym => (
+                  <option key={gym.id} value={gym.id}>{gym.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                評価で絞り込み
+              </label>
+              <select
+                value={ratingFilter || ''}
+                onChange={(e) => setRatingFilter(e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">すべての評価</option>
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                検索
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="ジム名、ユーザー名、レビュー内容で検索..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* レビュー一覧 */}
+        <div className="space-y-4">
+          {filteredReviews.map((review) => (
+            <div key={review.id} className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{review.user_display_name}</h3>
+                    <p className="text-sm text-gray-600">{review.gym_name}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {showRatings && (
+                    <div className="flex items-center gap-2 mb-1">
                       {renderStars(review.rating)}
-                      <span className="text-sm text-gray-500">{review.date}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Review Content */}
-                <div className="ml-13 mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{review.content}</p>
-                </div>
-
-                {/* Reply Section */}
-                <div className="ml-13">
-                  {review.reply ? (
-                    /* Replied State */
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">
-                          {review.reply.storeName}
-                        </span>
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          {review.reply.role}
-                        </span>
-                      </div>
-                      <div className="p-4 bg-blue-50 rounded-xl">
-                        <p className="text-gray-700 whitespace-pre-wrap">
-                          {review.reply.content}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Reply Input State */
-                    <div className="space-y-3">
-                      <textarea
-                        value={replyTexts[review.id] || ''}
-                        onChange={(e) => handleReplyChange(review.id, e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(e, review.id)}
-                        placeholder="このレビューに返信..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                        rows={3}
-                      />
-                      <button
-                        onClick={() => handleReplySubmit(review.id)}
-                        disabled={!replyTexts[review.id] || replyTexts[review.id].trim() === ''}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-                          replyTexts[review.id] && replyTexts[review.id].trim()
-                            ? 'bg-indigo-500 text-white hover:bg-indigo-600'
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        <Send className="w-4 h-4" />
-                        返信
-                      </button>
+                      <span className="text-sm font-medium text-gray-900">
+                        {review.rating}/5
+                      </span>
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium ml-2">
+                        管理者のみ表示
+                      </span>
                     </div>
                   )}
+                  <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {new Date(review.created_at).toLocaleDateString('ja-JP', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
                 </div>
               </div>
-            ))}
+
+              {review.title && (
+                <h4 className="font-medium text-gray-900 mb-2">{review.title}</h4>
+              )}
+
+              <p className="text-gray-700 mb-4 leading-relaxed">{review.content}</p>
+
+              {/* 詳細評価（管理者のみ表示） */}
+              {showRatings && (review.equipment_rating || review.cleanliness_rating || review.staff_rating || review.accessibility_rating) && (
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-sm font-medium text-gray-700">詳細評価</p>
+                    <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                      管理者のみ表示
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    {review.equipment_rating && (
+                      <div>
+                        <span className="text-gray-600">設備: </span>
+                        <span className="font-medium">{review.equipment_rating}/5</span>
+                      </div>
+                    )}
+                    {review.cleanliness_rating && (
+                      <div>
+                        <span className="text-gray-600">清潔さ: </span>
+                        <span className="font-medium">{review.cleanliness_rating}/5</span>
+                      </div>
+                    )}
+                    {review.staff_rating && (
+                      <div>
+                        <span className="text-gray-600">スタッフ: </span>
+                        <span className="font-medium">{review.staff_rating}/5</span>
+                      </div>
+                    )}
+                    {review.accessibility_rating && (
+                      <div>
+                        <span className="text-gray-600">アクセス: </span>
+                        <span className="font-medium">{review.accessibility_rating}/5</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 一般ユーザー向け表示の説明 */}
+              <div className="border-t pt-4 mt-4">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Eye className="w-3 h-3" />
+                  <span>一般ユーザーには星評価は表示されず、レビュー内容のみが表示されます</span>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+
+        {filteredReviews.length === 0 && (
+          <div className="text-center py-12">
+            <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">条件に一致するレビューがありません</p>
           </div>
-        ) : null}
-      </div>
+        )}
+      </main>
     </div>
-  );
+  )
 }

@@ -72,21 +72,11 @@ function formatMuscleParts(data: Record<string, unknown>[]): MusclePart[] {
     }
   })
   
-  // カテゴリIDマッピング
-  const categoryIdMap: Record<string, string> = {
-    '胸': 'chest',
-    '背中': 'back',
-    '肩': 'shoulder',
-    '脚': 'legs',
-    '腕': 'arms',
-    '腹': 'core'
-  }
-  
   // グループ化されたデータをMusclePart形式に変換
   const formattedParts: MusclePart[] = Array.from(groupedByCategory.entries()).map(([category, data], index) => {
     return {
       id: index + 1,
-      category: categoryIdMap[category] || category.toLowerCase(),
+      category: category,  // 日本語のカテゴリーをそのまま使用
       name: category,
       parts: data.parts
     }
@@ -113,41 +103,41 @@ export async function getMusclePartsByCategory(category: string): Promise<Muscle
 // デフォルトのデータ（データベースから取得できない場合のフォールバック）
 function getDefaultMuscleParts(): MusclePart[] {
   return [
-    { 
-      id: 1, 
-      category: 'chest', 
-      name: '胸', 
-      parts: ['上部', '中部', '下部'] 
+    {
+      id: 1,
+      category: '胸',
+      name: '胸',
+      parts: ['上部', '中部', '下部']
     },
-    { 
-      id: 2, 
-      category: 'back', 
-      name: '背中', 
-      parts: ['上部', '中部', '下部', '僧帽筋'] 
+    {
+      id: 2,
+      category: '背中',
+      name: '背中',
+      parts: ['上部', '中部', '下部', '僧帽筋']
     },
-    { 
-      id: 3, 
-      category: 'shoulder', 
-      name: '肩', 
-      parts: ['前部', '中部', '後部'] 
+    {
+      id: 3,
+      category: '肩',
+      name: '肩',
+      parts: ['前部', '中部', '後部']
     },
-    { 
-      id: 4, 
-      category: 'legs', 
-      name: '脚', 
-      parts: ['大腿四頭筋', 'ハムストリング', '臀筋', 'カーフ', '内転筋', '外転筋'] 
+    {
+      id: 4,
+      category: '脚',
+      name: '脚',
+      parts: ['大腿四頭筋', 'ハムストリング', '臀筋', 'カーフ', '内転筋', '外転筋']
     },
-    { 
-      id: 5, 
-      category: 'arms', 
-      name: '腕', 
-      parts: ['二頭筋', '三頭筋'] 
+    {
+      id: 5,
+      category: '腕',
+      name: '腕',
+      parts: ['二頭筋', '三頭筋']
     },
-    { 
-      id: 6, 
-      category: 'core', 
-      name: '体幹', 
-      parts: ['腹直筋', '腹斜筋', '下背部'] 
+    {
+      id: 6,
+      category: '体幹',
+      name: '体幹',
+      parts: ['腹直筋', '腹斜筋', '下背部']
     }
   ]
 }

@@ -1,14 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Check, Building, Clock, Droplets, 
+import {
+  Check, Building, Clock, Droplets,
   Car, Sparkles, Waves, Wifi, Coffee, Lock,
   Users, Accessibility, Music, Thermometer
 } from 'lucide-react'
+import { FACILITY_CATEGORIES_NO_ICON, FacilityCategoryId, FacilityMeta } from '@/types/facilities'
 
 interface ConditionCategory {
-  id: string
+  id: FacilityCategoryId
   name: string
   description: string
   icon: React.ElementType
@@ -16,7 +17,7 @@ interface ConditionCategory {
 }
 
 interface ConditionItem {
-  id: string
+  id: FacilityMeta['id']
   name: string
   icon?: React.ElementType
   description?: string
@@ -27,59 +28,43 @@ interface ConditionSelectorProps {
   onSelectionChange: (facilities: Set<string>) => void
 }
 
-const facilityConditions: ConditionCategory[] = [
-  {
-    id: 'basic',
-    name: '基本設備',
-    description: '営業時間・基本サービス',
-    icon: Building,
-    items: [
-      { id: '24hours', name: '24時間営業', icon: Clock, description: '深夜・早朝も利用可能' },
-      { id: 'shower', name: 'シャワー', icon: Droplets, description: 'シャワールーム完備' },
-      { id: 'parking', name: '駐車場', icon: Car, description: '無料/有料駐車場あり' },
-      { id: 'locker', name: 'ロッカー', icon: Lock, description: '鍵付きロッカー' },
-      { id: 'wifi', name: 'WiFi', icon: Wifi, description: '無料WiFi利用可能' },
-    ]
-  },
-  {
-    id: 'training',
-    name: 'トレーニング環境',
-    description: 'トレーニングに関する設備',
-    icon: Sparkles,
-    items: [
-      { id: 'chalk', name: 'チョーク利用可', icon: Sparkles, description: 'パワーリフティング対応' },
-      { id: 'belt_rental', name: 'ベルト貸出', description: 'トレーニングベルト無料貸出' },
-      { id: 'personal_training', name: 'パーソナルトレーニング', icon: Users, description: '専属トレーナー' },
-      { id: 'group_lesson', name: 'グループレッスン', description: 'ヨガ・エアロビクス等' },
-      { id: 'studio', name: 'スタジオ', icon: Music, description: 'グループレッスン用スタジオ' },
-    ]
-  },
-  {
-    id: 'amenity',
-    name: 'アメニティ',
-    description: 'リラクゼーション・快適設備',
-    icon: Waves,
-    items: [
-      { id: 'sauna', name: 'サウナ', icon: Thermometer, description: 'サウナ・水風呂完備' },
-      { id: 'pool', name: 'プール', icon: Waves, description: '温水プール' },
-      { id: 'jacuzzi', name: 'ジャグジー', description: 'リラクゼーション' },
-      { id: 'massage_chair', name: 'マッサージチェア', description: '疲労回復' },
-      { id: 'cafe', name: 'カフェ/売店', icon: Coffee, description: 'プロテインバー' },
-    ]
-  },
-  {
-    id: 'special',
-    name: '特別対応',
-    description: '特別なニーズへの対応',
-    icon: Accessibility,
-    items: [
-      { id: 'women_only', name: '女性専用エリア', description: '女性専用トレーニングエリア' },
-      { id: 'barrier_free', name: 'バリアフリー', icon: Accessibility, description: '車椅子対応' },
-      { id: 'kids_room', name: 'キッズルーム', description: '子供預かりサービス' },
-      { id: 'english_support', name: '英語対応', description: 'English speaking staff' },
-    ]
-  }
-]
+// Map facility items (without icons) to UI with icons
+const ITEM_ICON_MAP: Partial<Record<FacilityMeta['id'], React.ElementType>> = {
+  '24hours': Clock,
+  shower: Droplets,
+  parking: Car,
+  locker: Lock,
+  wifi: Wifi,
+  chalk: Sparkles,
+  personal_training: Users,
+  studio: Music,
+  sauna: Thermometer,
+  pool: Waves,
+  cafe: Coffee,
+  barrier_free: Accessibility,
+  drop_in: Users,  // ドロップイン用アイコン
+}
+
+const CATEGORY_ICON_MAP: Record<FacilityCategoryId, React.ElementType> = {
+  basic: Building,
+  training: Sparkles,
+  amenity: Waves,
+  special: Accessibility,
+}
+
+const facilityConditions: ConditionCategory[] = (Object.values(FACILITY_CATEGORIES_NO_ICON) as Array<(typeof FACILITY_CATEGORIES_NO_ICON)[FacilityCategoryId]>).
+  map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    description: cat.description,
+    icon: CATEGORY_ICON_MAP[cat.id],
+    items: cat.items.map((i) => ({
+      id: i.id,
+      name: i.name,
+      description: i.description,
+      icon: ITEM_ICON_MAP[i.id],
+    })),
+  }))
 
 
 export default function ConditionSelector({ selectedFacilities, onSelectionChange }: ConditionSelectorProps) {

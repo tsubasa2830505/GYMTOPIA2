@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
+import {
   ChevronRight, Check, Settings, Target, Factory,
-  Activity, Dumbbell
+  Activity, Dumbbell, Plus, Minus
 } from 'lucide-react'
 import { getMuscleParts } from '@/lib/supabase/muscle-parts'
 import { getMachines, getMachineMakers } from '@/lib/supabase/machines'
 import type { Machine, MachineMaker } from '@/lib/supabase/machines'
 
 interface MachineSelectorProps {
-  selectedMachines: Set<string>
-  onSelectionChange: (selected: Set<string>) => void
+  selectedMachines: Map<string, number>
+  onSelectionChange: (selected: Map<string, number>) => void
 }
 
 interface MachineFilter {
@@ -21,14 +21,32 @@ interface MachineFilter {
   maker: string[]
 }
 
+// 日本語と英語のカテゴリーマッピング
+const categoryMapping: { [key: string]: string } = {
+  '胸': 'chest',
+  '背中': 'back',
+  '肩': 'shoulder',
+  '脚': 'legs',
+  '腕': 'arms',
+  '体幹': 'core',
+  'chest': '胸',
+  'back': '背中',
+  'shoulder': '肩',
+  'legs': '脚',
+  'arms': '腕',
+  'core': '体幹',
+  'cardio': '有酸素',
+  'multiple': '複合'
+}
+
 // デフォルトの部位データ（Supabaseから取得できない場合のフォールバック）
 const defaultTargetOptions = [
-  { id: 'chest', name: '胸', parts: ['上部', '中部', '下部'] },
-  { id: 'back', name: '背中', parts: ['上部', '中部', '下部', '僧帽筋'] },
-  { id: 'shoulder', name: '肩', parts: ['前部', '中部', '後部'] },
-  { id: 'legs', name: '脚', parts: ['大腿四頭筋', 'ハムストリング', '臀筋', 'カーフ', '内転筋', '外転筋'] },
-  { id: 'arms', name: '腕', parts: ['二頭筋', '三頭筋'] },
-  { id: 'core', name: '体幹', parts: ['腹直筋', '腹斜筋', '下背部'] },
+  { id: '胸', name: '胸', parts: ['上部', '中部', '下部'] },
+  { id: '背中', name: '背中', parts: ['上部', '中部', '下部', '僧帽筋'] },
+  { id: '肩', name: '肩', parts: ['前部', '中部', '後部'] },
+  { id: '脚', name: '脚', parts: ['大腿四頭筋', 'ハムストリング', '臀筋', 'カーフ', '内転筋', '外転筋'] },
+  { id: '腕', name: '腕', parts: ['二頭筋', '三頭筋'] },
+  { id: '体幹', name: '体幹', parts: ['腹直筋', '腹斜筋', '下背部'] },
 ]
 
 const typeOptions = [
@@ -58,7 +76,14 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   const [isLoadingParts, setIsLoadingParts] = useState(true)
   const [showPartsDetail, setShowPartsDetail] = useState(false)
   const [machines, setMachines] = useState<Machine[]>([])
-  const [makerOptions, setMakerOptions] = useState<MachineMaker[]>(defaultMakerOptions)
+  const [makerOptions, setMakerOptions] = useState<MachineMaker[]>([
+    { id: 'hammer', name: 'Hammer Strength' },
+    { id: 'cybex', name: 'Cybex' },
+    { id: 'life-fitness', name: 'Life Fitness' },
+    { id: 'technogym', name: 'Technogym' },
+    { id: 'matrix', name: 'Matrix' },
+    { id: 'nautilus', name: 'Nautilus' },
+  ])
   const [isLoadingMachines, setIsLoadingMachines] = useState(true)
 
   // Supabaseから筋肉部位データを取得
@@ -123,7 +148,9 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
     
     // 選択されたターゲットに該当するマシンのタイプを収集
     machines.forEach(machine => {
-      if (filter.targetCategory && machine.target_category === filter.targetCategory) {
+      // 日本語カテゴリーを英語に変換して比較
+      const englishCategory = categoryMapping[filter.targetCategory] || filter.targetCategory
+      if (filter.targetCategory && machine.target_category === englishCategory) {
         relatedTypes.add(machine.type)
       }
     })
@@ -139,11 +166,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
     
     // フィルターに該当するマシンのメーカーを収集
     machines.forEach(machine => {
-      const targetMatch = !filter.targetCategory || 
-        machine.target_category === filter.targetCategory
-      const typeMatch = filter.type.length === 0 || 
+      // 日本語カテゴリーを英語に変換して比較
+      const englishCategory = categoryMapping[filter.targetCategory] || filter.targetCategory
+      const targetMatch = !filter.targetCategory ||
+        machine.target_category === englishCategory
+      const typeMatch = filter.type.length === 0 ||
         filter.type.includes(machine.type)
-      
+
       if (targetMatch && typeMatch) {
         relatedMakers.add(machine.maker)
       }
@@ -205,43 +234,56 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   }
 
   const filteredMachines = machines.filter(machine => {
-    // カテゴリーマッチ
-    const targetMatch = !filter.targetCategory || 
-      machine.target_category === filter.targetCategory
-    
+    // カテゴリーマッチ（日本語カテゴリーを英語に変換して比較）
+    const englishCategory = categoryMapping[filter.targetCategory] || filter.targetCategory
+    const targetMatch = !filter.targetCategory ||
+      machine.target_category === englishCategory
+
     // 詳細部位マッチ（選択されている場合のみ）
-    const partMatch = filter.targetParts.length === 0 || 
+    const partMatch = filter.targetParts.length === 0 ||
       (machine.target_detail && filter.targetParts.includes(machine.target_detail))
-    
+
     // タイプマッチ
     const typeMatch = filter.type.length === 0 || filter.type.includes(machine.type)
-    
+
     // メーカーマッチ
     const makerMatch = filter.maker.length === 0 || filter.maker.includes(machine.maker)
-    
+
     return targetMatch && partMatch && typeMatch && makerMatch
   })
 
   const toggleMachine = (machineId: string) => {
-    const newSelected = new Set(selectedMachines)
+    const newSelected = new Map(selectedMachines)
     if (newSelected.has(machineId)) {
       newSelected.delete(machineId)
     } else {
-      newSelected.add(machineId)
+      newSelected.set(machineId, 1)
+    }
+    onSelectionChange(newSelected)
+  }
+
+  const updateMachineCount = (machineId: string, count: number) => {
+    const newSelected = new Map(selectedMachines)
+    if (count <= 0) {
+      newSelected.delete(machineId)
+    } else {
+      newSelected.set(machineId, count)
     }
     onSelectionChange(newSelected)
   }
 
   const selectAllFiltered = () => {
-    const newSelected = new Set(selectedMachines)
+    const newSelected = new Map(selectedMachines)
     filteredMachines.forEach(machine => {
-      newSelected.add(machine.id)
+      if (!newSelected.has(machine.id)) {
+        newSelected.set(machine.id, 1)
+      }
     })
     onSelectionChange(newSelected)
   }
 
   const deselectAllFiltered = () => {
-    const newSelected = new Set(selectedMachines)
+    const newSelected = new Map(selectedMachines)
     filteredMachines.forEach(machine => {
       newSelected.delete(machine.id)
     })
@@ -447,9 +489,9 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             {filteredMachines.length}台のマシンが見つかりました
             {selectedMachines.size > 0 && (
               <span className="ml-2 font-medium text-blue-600">
-                （{Array.from(selectedMachines).filter(id => 
+                （{Array.from(selectedMachines.keys()).filter(id =>
                   filteredMachines.some(m => m.id === id)
-                ).length}台選択中）
+                ).reduce((sum, id) => sum + (selectedMachines.get(id) || 0), 0)}台選択中）
               </span>
             )}
           </p>
@@ -479,44 +521,71 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       ) : (
         <div className="space-y-2">
           {filteredMachines.map((machine) => {
-            const target = targetOptions.find(t => t.id === machine.target_category)
+            // 英語カテゴリーを日本語に変換して表示
+            const japaneseCategory = categoryMapping[machine.target_category] || machine.target_category
+            const target = targetOptions.find(t => t.id === japaneseCategory)
             const type = typeOptions.find(t => t.id === machine.type)
             const maker = makerOptions.find(m => m.id === machine.maker)
           
+          const machineCount = selectedMachines.get(machine.id) || 0
+
           return (
-            <button
+            <div
               key={machine.id}
-              onClick={() => toggleMachine(machine.id)}
-              className={`w-full p-4 rounded-xl flex items-center justify-between transition-all ${
-                selectedMachines.has(machine.id)
+              className={`p-4 rounded-xl transition-all ${
+                machineCount > 0
                   ? 'md-primary-container border-2 border-blue-500'
-                  : 'md-surface border-2 border-slate-200 hover:md-elevation-1'
+                  : 'md-surface border-2 border-slate-200'
               }`}
             >
-              <div className="text-left">
-                <p className="font-medium text-slate-900">{machine.name}</p>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                    {target?.name}{machine.target_detail ? ` - ${machine.target_detail}` : ''}
-                  </span>
-                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
-                    {type?.name}
-                  </span>
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                    {maker?.name}
-                  </span>
+              <div className="flex items-center justify-between">
+                <div className="text-left flex-1">
+                  <p className="font-medium text-slate-900">{machine.name}</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                      {target?.name}{machine.target_detail ? ` - ${machine.target_detail}` : ''}
+                    </span>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
+                      {type?.name}
+                    </span>
+                    <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                      {maker?.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 個数調整UI */}
+                <div className="flex items-center gap-2">
+                  {machineCount > 0 ? (
+                    <>
+                      <button
+                        onClick={() => updateMachineCount(machine.id, machineCount - 1)}
+                        className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center transition-colors"
+                      >
+                        <Minus className="w-4 h-4 text-slate-700" />
+                      </button>
+                      <div className="min-w-[3rem] text-center">
+                        <span className="font-medium text-lg text-blue-600">{machineCount}</span>
+                        <span className="text-sm text-slate-500 ml-1">台</span>
+                      </div>
+                      <button
+                        onClick={() => updateMachineCount(machine.id, machineCount + 1)}
+                        className="w-8 h-8 rounded-lg bg-blue-500 hover:bg-blue-600 flex items-center justify-center transition-colors"
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => toggleMachine(machine.id)}
+                      className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-colors"
+                    >
+                      追加
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                selectedMachines.has(machine.id)
-                  ? 'bg-blue-500 border-blue-500'
-                  : 'border-slate-300'
-              }`}>
-                {selectedMachines.has(machine.id) && (
-                  <Check className="w-3 h-3 text-white" />
-                )}
-              </div>
-            </button>
+            </div>
             )
           })}
         </div>

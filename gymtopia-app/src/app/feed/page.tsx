@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { PlusCircle, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { getFeedPosts, likePost, unlikePost, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -31,7 +32,8 @@ export default function FeedPage() {
 
   const handleLike = async (post: Post) => {
     if (!user) {
-      router.push('/auth/login');
+      // 認証が必要な機能として、エラーメッセージを表示
+      console.log('ログインが必要です');
       return;
     }
 
@@ -56,18 +58,18 @@ export default function FeedPage() {
     }
   };
 
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'empty':
-        return 'text-green-600';
-      case 'normal':
-        return 'text-yellow-600';
-      case 'crowded':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
+  // const getConditionColor = (condition: string) => {
+  //   switch (condition) {
+  //     case 'empty':
+  //       return 'text-green-600';
+  //     case 'normal':
+  //       return 'text-yellow-600';
+  //     case 'crowded':
+  //       return 'text-red-600';
+  //     default:
+  //       return 'text-gray-600';
+  //   }
+  // };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -306,14 +308,14 @@ export default function FeedPage() {
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                   </svg>
                   <p className="text-gray-500">まだ投稿がありません</p>
-                  {!user && (
+                  {/* {!user && (
                     <button
                       onClick={() => router.push('/auth/login')}
                       className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                     >
                       ログインして投稿を見る
                     </button>
-                  )}
+                  )} */}
                 </div>
               )}
             </div>
@@ -322,7 +324,7 @@ export default function FeedPage() {
         
         {/* Post Button - Fixed Position */}
         <button 
-          onClick={() => user ? router.push('/add') : router.push('/auth/login')}
+          onClick={() => router.push('/add')}
           className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
           style={{ 
             zIndex: 9999,

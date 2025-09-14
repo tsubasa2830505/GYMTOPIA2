@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { LatLngExpression, Icon } from 'leaflet';
+import { LatLngExpression } from 'leaflet';
 
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
@@ -43,13 +43,13 @@ export default function Map({
 }: MapProps) {
   const [currentPosition, setCurrentPosition] = useState<LatLngExpression | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [L, setL] = useState<any>(null);
+  const [L, setL] = useState<typeof import('leaflet') | null>(null);
   const defaultCenter: LatLngExpression = [35.6762, 139.6503]; // 東京
 
   useEffect(() => {
     setIsClient(true);
     import('leaflet').then((leaflet) => {
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+      delete (leaflet.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
       leaflet.Icon.Default.mergeOptions({
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',

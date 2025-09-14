@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 // import { useRouter } from 'next/navigation'
-import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
+import { Upload, MapPin, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
 import Image from 'next/image'
 
 interface Equipment {
@@ -420,105 +420,105 @@ export default function AdminPage() {
                         formData.services.showers ? 'translate-x-[13px]' : 'translate-x-[1px]'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">シャワー</span>
+                    <span className="text-sm text-slate-700">シャワー</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('lockers')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.lockers ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.lockers ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.lockers ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.lockers ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">ロッカー</span>
+                    <span className="text-sm text-slate-700">ロッカー</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('parking')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.parking ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.parking ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.parking ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.parking ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">駐車場</span>
+                    <span className="text-sm text-slate-700">駐車場</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('wifi')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.wifi ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.wifi ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.wifi ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.wifi ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">Wi-Fi</span>
+                    <span className="text-sm text-slate-700">Wi-Fi</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('twentyFourHours')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.twentyFourHours ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.twentyFourHours ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.twentyFourHours ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.twentyFourHours ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">24時間営業</span>
+                    <span className="text-sm text-slate-700">24時間営業</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('chalk')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.chalk ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.chalk ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.chalk ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.chalk ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">チョーク利用可</span>
+                    <span className="text-sm text-slate-700">チョーク利用可</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('personalTraining')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.personalTraining ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.personalTraining ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.personalTraining ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.personalTraining ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">パーソナル</span>
+                    <span className="text-sm text-slate-700">パーソナル</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <button
                       type="button"
                       onClick={() => handleServiceToggle('sauna')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.sauna ? 'bg-indigo-500' : 'bg-slate-400'
+                      className={`relative w-10 h-6 rounded-full transition-colors ${
+                        formData.services.sauna ? 'bg-blue-500' : 'bg-slate-300'
                       }`}
                     >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.sauna ? 'translate-x-[13px]' : 'translate-x-[1px]'
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
+                        formData.services.sauna ? 'translate-x-5' : 'translate-x-1'
                       }`} />
                     </button>
-                    <span className="text-[12.3px] text-slate-900">サウナ</span>
+                    <span className="text-sm text-slate-700">サウナ</span>
                   </label>
                 </div>
               </div>
@@ -526,9 +526,9 @@ export default function AdminPage() {
                 {/* 保存ボタン */}
                 <button
                   onClick={handleSubmit}
-                  className="w-full px-6 py-2 bg-indigo-500 text-white text-[12.108px] font-medium rounded-[8.5px] hover:bg-indigo-600 transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2"
                 >
-                  <Upload className="w-3.5 h-3.5" />
+                  <Upload className="w-4 h-4" />
                   基本情報を保存
                 </button>
               </div>

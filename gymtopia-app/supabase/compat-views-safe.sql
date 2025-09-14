@@ -1,6 +1,6 @@
--- Compatibility views for UI components expecting `machines` and `machine_makers`
--- These views map to the normalized equipment/equipment_categories tables.
+-- Safe compatibility views for long-term migration
 
+-- machines and machine_makers views are idempotent
 CREATE OR REPLACE VIEW public.machine_makers AS
 SELECT DISTINCT
   LOWER(REPLACE(COALESCE(e.maker, 'unknown'), ' ', '-')) AS id,
@@ -8,8 +8,6 @@ SELECT DISTINCT
 FROM public.equipment e
 WHERE e.maker IS NOT NULL;
 
--- Map equipment to a machine-like shape
--- Note: target/target_category/target_detail are best-effort placeholders.
 CREATE OR REPLACE VIEW public.machines AS
 SELECT 
   e.id::text                         AS id,
@@ -31,10 +29,6 @@ SELECT
 FROM public.equipment e
 LEFT JOIN public.equipment_categories ec ON ec.id = e.category_id;
 
--- Compatibility view: map legacy `gym_machines` shape to normalized `gym_equipment`
--- This enables existing queries like:
---   from('gym_machines').select("*, machine:machines(*)").eq('gym_id', ...)
--- by exposing `machine_id` compatible with the `machines` view (equipment.id::text).
 CREATE OR REPLACE VIEW public.gym_machines AS
 SELECT
   ge.id,
@@ -48,19 +42,44 @@ SELECT
   ge.updated_at
 FROM public.gym_equipment ge;
 
--- Compatibility view: expose `profiles` as a projection of `users`
--- Many legacy queries and some SQL helpers expect `public.profiles`.
--- We map the commonly used columns from `public.users` and stub optional ones.
-CREATE OR REPLACE VIEW public.profiles AS
-SELECT 
-  u.id,
-  u.username,
-  u.display_name,
-  u.bio,
-  u.avatar_url,
-  NULL::text        AS location,
-  NULL::text        AS training_frequency,
-  TRUE              AS is_public,
-  u.created_at,
-  u.updated_at
-FROM public.users u;
+-- Create profiles view only if it's not a table; replace only if already a view
+DO $$
+BEGIN
+  IF to_regclass('public.profiles') IS NULL THEN
+    EXECUTE $$
+      CREATE VIEW public.profiles AS
+      SELECT 
+        u.id,
+        u.username,
+        u.display_name,
+        u.bio,
+        u.avatar_url,
+        NULL::text        AS location,
+        NULL::text        AS training_frequency,
+        TRUE              AS is_public,
+        u.created_at,
+        u.updated_at
+      FROM public.users u;
+    $$;
+  ELSIF EXISTS (SELECT 1 FROM pg_class WHERE oid = 'public.profiles'::regclass AND relkind = 'v') THEN
+    EXECUTE $$
+      CREATE OR REPLACE VIEW public.profiles AS
+      SELECT 
+        u.id,
+        u.username,
+        u.display_name,
+        u.bio,
+        u.avatar_url,
+        NULL::text        AS location,
+        NULL::text        AS training_frequency,
+        TRUE              AS is_public,
+        u.created_at,
+        u.updated_at
+      FROM public.users u;
+    $$;
+  ELSE
+    RAISE NOTICE 'public.profiles exists as a table, skip creating view';
+  END IF;
+END
+$$;
+

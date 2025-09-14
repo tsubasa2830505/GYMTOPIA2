@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { 
+import type {
   User,
   UserProfile,
   UserWithProfile,
@@ -9,7 +9,11 @@ import type {
   UserProfileUpdateData,
   SessionUser,
   DatabaseUser,
-  DatabaseUserProfile
+  DatabaseUserProfile,
+  TrainingFrequency,
+  TrainingGoal,
+  PreferredTrainingTime,
+  ProfileVisibility
 } from '@/lib/types/user'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -41,13 +45,13 @@ function mapDatabaseProfile(dbProfile: DatabaseUserProfile): UserProfile {
   return {
     userId: dbProfile.user_id,
     gymExperienceYears: dbProfile.gym_experience_years || undefined,
-    trainingFrequency: dbProfile.training_frequency as any || undefined,
-    trainingGoals: dbProfile.training_goals as any || undefined,
-    preferredTrainingTime: dbProfile.preferred_training_time as any || undefined,
+    trainingFrequency: dbProfile.training_frequency as TrainingFrequency || undefined,
+    trainingGoals: dbProfile.training_goals as TrainingGoal[] || undefined,
+    preferredTrainingTime: dbProfile.preferred_training_time as PreferredTrainingTime || undefined,
     heightCm: dbProfile.height_cm || undefined,
     weightKg: dbProfile.weight_kg || undefined,
     bodyFatPercentage: dbProfile.body_fat_percentage || undefined,
-    profileVisibility: dbProfile.profile_visibility as any || 'public',
+    profileVisibility: dbProfile.profile_visibility as ProfileVisibility || 'public',
     showStats: dbProfile.show_stats,
     createdAt: dbProfile.created_at,
     updatedAt: dbProfile.updated_at
@@ -76,7 +80,7 @@ export async function signUp(data: UserRegistrationData) {
     if (authData.user) {
       // Update the public.users table with additional info
       if (data.username || data.displayName) {
-        const updates: any = {}
+        const updates: { username?: string; display_name?: string } = {}
         if (data.username) updates.username = data.username
         if (data.displayName) updates.display_name = data.displayName
 
@@ -92,7 +96,7 @@ export async function signUp(data: UserRegistrationData) {
     }
 
     return { user: authData.user, session: authData.session, error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign up error:', error)
     return { user: null, session: null, error: error.message }
   }
@@ -116,7 +120,7 @@ export async function signIn(data: UserLoginData) {
     }
 
     return { user: authData.user, session: authData.session, error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign in error:', error)
     return { user: null, session: null, error: error.message }
   }
@@ -127,7 +131,7 @@ export async function signOut() {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     return { error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign out error:', error)
     return { error: error.message }
   }
@@ -140,7 +144,7 @@ export async function resetPassword(email: string) {
     })
     if (error) throw error
     return { error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reset password error:', error)
     return { error: error.message }
   }
@@ -153,7 +157,7 @@ export async function updatePassword(newPassword: string) {
     })
     if (error) throw error
     return { error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update password error:', error)
     return { error: error.message }
   }
@@ -241,7 +245,7 @@ export async function updateUserProfile(userId: string, data: UserUpdateData) {
     if (error) throw error
 
     return { user: mapDatabaseUser(updatedUser), error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update user profile error:', error)
     return { user: null, error: error.message }
   }
@@ -269,7 +273,7 @@ export async function updateUserExtendedProfile(userId: string, data: UserProfil
     if (error) throw error
 
     return { profile: mapDatabaseProfile(profileData), error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update extended profile error:', error)
     return { profile: null, error: error.message }
   }
@@ -309,7 +313,7 @@ export async function searchUsers(query: string, limit = 10) {
     if (error) throw error
 
     return { users: data || [], error: null }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Search users error:', error)
     return { users: [], error: error.message }
   }
