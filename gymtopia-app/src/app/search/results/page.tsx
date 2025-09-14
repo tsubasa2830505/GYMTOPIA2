@@ -69,11 +69,15 @@ function SearchResultsContent() {
   }
 
   // Fetch gyms from Supabase
-  const fetchGyms = useCallback(async () => {
+  const fetchGyms = useCallback(async (conditions: {
+    machines: Array<{ name: string; count: number }>
+    freeWeights: Array<{ name: string; count: number }>
+    facilities: string[]
+  }) => {
     try {
       setLoading(true)
       setError(null)
-      
+
       const keyword = searchParams.get('keyword') || undefined
       const prefecture = searchParams.get('prefecture') || undefined
       const city = searchParams.get('city') || undefined
@@ -81,22 +85,22 @@ function SearchResultsContent() {
       const facilities = facilitiesParam
         ? (facilitiesParam.split(',').filter(Boolean) as FacilityKey[])
         : undefined
-      
+
       const filters: { search?: string; prefecture?: string; city?: string; facilities?: FacilityKey[] } = {}
       if (keyword) filters.search = keyword
       if (prefecture) filters.prefecture = prefecture
       if (city) filters.city = city
       if (facilities && facilities.length > 0) filters.facilities = facilities
-      
+
       // Pass all condition filters to getGyms
-      if (selectedConditions.machines?.length) {
-        filters.machines = selectedConditions.machines
+      if (conditions.machines?.length) {
+        filters.machines = conditions.machines
       }
-      if (selectedConditions.freeWeights?.length) {
-        filters.machineTypes = selectedConditions.freeWeights
+      if (conditions.freeWeights?.length) {
+        filters.machineTypes = conditions.freeWeights
       }
-      if (selectedConditions.facilities?.length) {
-        filters.categories = selectedConditions.facilities
+      if (conditions.facilities?.length) {
+        filters.categories = conditions.facilities
       }
       
       const data = await getGyms(filters)
@@ -164,7 +168,7 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
-  }, [searchParams, selectedConditions])
+  }, [searchParams])
 
   useEffect(() => {
     // Parse machines with count (format: "name:count")
@@ -182,7 +186,8 @@ function SearchResultsContent() {
     })
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
 
-    setSelectedConditions({ machines, freeWeights, facilities })
+    const newConditions = { machines, freeWeights, facilities }
+    setSelectedConditions(newConditions)
 
     // マシンIDから名前を取得
     if (machines.length > 0) {
@@ -195,8 +200,8 @@ function SearchResultsContent() {
       })
     }
 
-    fetchGyms()
-  }, [searchParams, selectedConditions])
+    fetchGyms(newConditions)
+  }, [searchParams, fetchGyms])
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length

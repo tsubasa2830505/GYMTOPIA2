@@ -187,7 +187,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     }
   }
 
-useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
@@ -198,21 +198,6 @@ useEffect(() => {
       document.body.style.overflow = 'unset'
     }
   }, [isOpen])
-
-  useEffect(() => {
-    const load = async () => {
-      if (!isOpen) return
-      try {
-        const g = await getGymById(gymId)
-        if (g) setGym(g)
-      } catch {}
-      try {
-        const gm = await getGymMachines(gymId)
-        if (Array.isArray(gm)) setMachines(gm)
-      } catch {}
-    }
-    load()
-  }, [isOpen, gymId])
 
   const handleToggleLike = async () => {
     try {
@@ -282,17 +267,13 @@ useEffect(() => {
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          onClose()
-        }}
+        onClick={onClose}
       />
-      
+
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div 
-          className="bg-white w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up sm:animate-scale-in"
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
+        <div
+          className="bg-white w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up sm:animate-scale-in pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Scrollable Content */}
@@ -309,11 +290,7 @@ useEffect(() => {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onClose()
-                }}
+                onClick={onClose}
                 className="absolute top-4 right-4 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10 hover:bg-white transition-colors"
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-900" />
@@ -399,14 +376,10 @@ useEffect(() => {
               {/* CTA Buttons */}
               <div className="grid grid-cols-2 gap-3 mb-5 sm:mb-6">
                 <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleToggleLike()
-                  }}
+                  onClick={handleToggleLike}
                   className={`flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all ${
-                    liked 
-                      ? 'bg-red-500 text-white' 
+                    liked
+                      ? 'bg-red-500 text-white'
                       : 'bg-white border-2 border-slate-200 text-slate-900'
                   }`}
                 >
