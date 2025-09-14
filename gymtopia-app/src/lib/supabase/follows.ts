@@ -115,6 +115,10 @@ export async function getFollowers(userId: string) {
 // Get users that a specific user is following
 export async function getFollowing(userId: string) {
   try {
+    if (!userId) {
+      return { data: [], error: null }
+    }
+
     const { data, error } = await supabase
       .from('follows')
       .select(`
@@ -135,6 +139,10 @@ export async function getFollowing(userId: string) {
       .order('created_at', { ascending: false })
 
     if (error) throw error
+
+    if (!data || data.length === 0) {
+      return { data: [], error: null }
+    }
 
     // Get additional stats for each following user
     const followingWithStats = await Promise.all(
@@ -184,7 +192,7 @@ export async function getFollowing(userId: string) {
     return { data: followingWithStats, error: null }
   } catch (error) {
     console.error('Error fetching following:', error)
-    return { data: null, error }
+    return { data: null, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 

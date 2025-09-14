@@ -71,20 +71,21 @@ export async function getFeedPosts(
     const { data: { user } } = await supabase.auth.getUser()
     console.log('getFeedPosts: User auth status:', user ? 'authenticated' : 'not authenticated')
 
-    // Use mock user if no user authenticated
-    const actualUserId = userId || user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    // Use provided userId or authenticated user
+    const actualUserId = userId || user?.id
     
     let query = supabase
       .from('gym_posts')
       .select(`
         *,
-        user:users!user_id (
+        user:users!gym_posts_user_id_fkey (
           id,
           display_name,
           username,
           avatar_url
         ),
-        gym:gyms!gym_id (
+        gym:gyms!gym_posts_gym_id_fkey (
+          id,
           name
         )
       `)
@@ -183,24 +184,28 @@ function getSampleFeedPosts(): Post[] {
 }
 
 // ユーザーの投稿を取得
-export async function getUserPosts(userId: string) {
+export async function getUserPosts(userId: string, page = 1, limit = 10) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
-    
+    const offset = (page - 1) * limit
+
     const { data, error } = await supabase
       .from('gym_posts')
       .select(`
         *,
-        users:user_id(id, display_name, username, avatar_url),
-        gyms:gym_id(name)
+        user:users!gym_posts_user_id_fkey(id, display_name, username, avatar_url),
+        gym:gyms!gym_posts_gym_id_fkey(id, name)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (error) throw error
 
     const posts = (data || []).map(post => ({
       ...post,
+      user: post.user || { id: userId, display_name: 'ユーザー', username: 'user' },
+      gym: post.gym || null,
       is_liked: false
     }))
 
@@ -270,7 +275,11 @@ export async function deletePost(postId: string) {
 export async function likePost(postId: string) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      console.error('User not authenticated')
+      return null
+    }
+    const actualUserId = user.id
 
     const { data, error } = await supabase
       .from('post_likes')
@@ -293,7 +302,11 @@ export async function likePost(postId: string) {
 export async function unlikePost(postId: string) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      console.error('User not authenticated')
+      return false
+    }
+    const actualUserId = user.id
 
     const { error } = await supabase
       .from('post_likes')
@@ -337,7 +350,8 @@ export async function createComment(comment: {
 }) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) throw new Error('Not authenticated')
+    const actualUserId = user.id
 
     const { data, error } = await supabase
       .from('post_comments')

@@ -4,6 +4,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
 import type { UserProfileStats, WeeklyStats, GymPost, FavoriteGym } from '@/lib/types/profile';
 import type { Achievement, PersonalRecord } from '@/lib/types/workout';
@@ -83,6 +84,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('gym-activity');
   const [userType, setUserType] = useState('user');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,11 +96,8 @@ export default function ProfilePage() {
   const [userFavoriteGyms, setUserFavoriteGyms] = useState<FavoriteGym[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get user from mock auth or actual auth
-  const mockUser = typeof window !== 'undefined' && process.env.NODE_ENV === 'development'
-    ? { id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac' } // Tsubasa's user ID
-    : null;
-  const userId = mockUser?.id || 'mock-user-id';
+  // Get user from auth context
+  const userId = user?.id || null;
 
   useEffect(() => {
     async function loadProfileData() {
@@ -395,89 +394,137 @@ export default function ProfilePage() {
               </div>
             ) : (
               userPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                  {/* Post Header */}
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <div className="flex gap-2 sm:gap-3">
-                      <Image 
-                        src={post.user?.avatar_url || "/muscle-taro-avatar.svg"} 
-                        alt={post.user?.display_name || "ユーザー"} 
-                        width={48}
-                        height={48}
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow"
-                      />
-                      <div>
-                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                          <span className="text-sm sm:text-base font-bold text-slate-900">{post.user?.display_name || 'ユーザー'}</span>
-                          {post.user?.is_verified && (
-                            <span className="px-1.5 sm:px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">認証済</span>
+                <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <div className="p-4 sm:p-6">
+                    {/* Post Header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      {/* Avatar */}
+                      <div className="flex-shrink-0">
+                        {post.user?.avatar_url ? (
+                          <Image
+                            src={post.user.avatar_url}
+                            alt={post.user.display_name || ''}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
+                            {post.user?.display_name?.[0] || 'U'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Author Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900">
+                            {post.user?.display_name || 'ユーザー'}
+                          </h3>
+                          {post.user?.username && (
+                            <span className="text-sm text-gray-500">
+                              @{post.user.username}
+                            </span>
                           )}
                         </div>
-                        <p className="text-xs sm:text-sm text-slate-600">@{post.user?.username || 'user'}</p>
+                        <div className="flex items-center gap-4 mt-1">
+                          {post.gym?.name && (
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
+                              <svg className="w-3 h-3 text-indigo-900" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                              </svg>
+                              <span className="text-xs text-indigo-900">{post.gym.name}</span>
+                            </div>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {formatPostDate(post.created_at)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <button className="text-slate-500 hover:text-slate-700 p-1">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                      </svg>
-                    </button>
-                  </div>
 
-                  {/* Post Content */}
-                  <p className="text-sm sm:text-base text-slate-900 mb-3">{post.content}</p>
-                  
-                  {/* Training Details */}
-                  {formatTrainingDetails(post) && (
-                    <div className="bg-slate-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                      <h4 className="font-bold text-xs sm:text-sm mb-1.5 sm:mb-2 text-slate-900">今日のトレーニング</h4>
-                      <p className="text-xs sm:text-sm text-slate-700 whitespace-pre-line">{formatTrainingDetails(post)}</p>
-                      {post.workout_session?.gym && (
-                        <p className="text-xs text-slate-600 mt-2">
-                          🏢 {post.workout_session.gym.name} ({post.workout_session.gym.area})
+                    {/* Post Content */}
+                    {post.content && (
+                      <p className="mt-4 text-gray-800 leading-relaxed">{post.content}</p>
+                    )}
+
+                    {/* Workout Duration */}
+                    {post.workout_started_at && post.workout_ended_at && (
+                      <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                          </svg>
+                          <span>{post.workout_started_at} - {post.workout_ended_at}</span>
+                        </div>
+                        {post.workout_duration_calculated && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full">
+                            <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
+                            </svg>
+                            <span className="text-xs font-medium text-blue-600">
+                              {Math.floor(post.workout_duration_calculated / 60)}時間{post.workout_duration_calculated % 60}分
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Achievement Data */}
+                    {post.post_type === 'achievement' && post.achievement_data && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 1z"/>
+                          </svg>
+                          <span className="font-semibold text-gray-900">達成記録</span>
+                        </div>
+                        <p className="text-sm text-gray-700">
+                          {post.achievement_data.exercise}: {post.achievement_data.weight}kg × {post.achievement_data.reps}回
                         </p>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  {/* Post Image */}
-                  {post.image_url && (
-                    <div className="mb-3 sm:mb-4">
-                      <Image 
-                        src={post.image_url}
-                        alt="ワークアウト画像"
-                        width={400}
-                        height={300}
-                        className="w-full h-48 sm:h-64 object-cover rounded-lg"
-                      />
-                    </div>
-                  )}
-
-                  {/* Post Date */}
-                  <p className="text-xs sm:text-sm text-slate-600 mb-2 sm:mb-3">{formatPostDate(post.created_at)}</p>
+                    {/* Post Images */}
+                    {post.images && post.images.length > 0 && (
+                      <div className="mt-4">
+                        <div className="h-48 sm:h-64 bg-gray-200 rounded-xl"></div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Post Actions */}
-                  <div className="flex items-center gap-3 sm:gap-6 pt-2 sm:pt-3 border-t border-slate-100">
-                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-red-500 transition">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm">いいね {post.likes_count}</span>
-                    </button>
-                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-blue-500 transition">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm">コメント {post.comments_count}</span>
-                    </button>
-                    <button className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-green-500 transition">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm">シェア {post.shares_count}</span>
-                    </button>
+                  <div className="px-4 sm:px-6 py-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <button
+                          className={`flex items-center gap-2 transition ${
+                            post.is_liked
+                              ? 'text-red-500'
+                              : 'text-gray-500 hover:text-red-500'
+                          }`}
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill={post.is_liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                            <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                          </svg>
+                          <span className="text-sm">{post.likes_count}</span>
+                        </button>
+                        <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                          </svg>
+                          <span className="text-sm">{post.comments_count}</span>
+                        </button>
+                      </div>
+                      <button className="text-gray-500 hover:text-green-500 transition">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              ))
+            ))
             )}
           </div>
         )}

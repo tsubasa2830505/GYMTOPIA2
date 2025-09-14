@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase/client'
 
 interface PersonalRecord {
   id: string
@@ -15,16 +16,18 @@ interface PersonalRecord {
 
 export default function ProfileEditPage() {
   const router = useRouter()
-  const { mockSignOut } = useAuth()
+  const { user, mockSignOut } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   // Basic Info
-  const [name, setName] = useState('筋トレマニア太郎')
-  const [username, setUsername] = useState('muscle_taro')
-  const [bio, setBio] = useState('筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジムで最高の一日を')
-  const [location, setLocation] = useState('東京')
-  const [avatarUrl, setAvatarUrl] = useState('/muscle-taro-avatar.svg')
+  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
+  const [location, setLocation] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   
   // Personal Records
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([
@@ -54,6 +57,37 @@ export default function ProfileEditPage() {
     setPersonalRecords(personalRecords.filter(record => record.id !== id))
   }
 
+  // ユーザー情報の取得
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProfile()
+    }
+  }, [user])
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (error) throw error
+
+      if (data) {
+        setName(data.display_name || '')
+        setUsername(data.username || '')
+        setBio(data.bio || '')
+        setLocation(data.location || '')
+        setAvatarUrl(data.avatar_url || '')
+      }
+    } catch (error) {
+      console.error('プロフィール取得エラー:', error)
+    }
+  }
+
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -62,13 +96,14 @@ export default function ProfileEditPage() {
         alert('ファイルサイズは5MB以下にしてください')
         return
       }
-      
+
       // ファイル形式チェック
       if (!file.type.startsWith('image/')) {
         alert('画像ファイルを選択してください')
         return
       }
-      
+
+      setUploadedFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
         const result = e.target?.result as string
@@ -80,21 +115,118 @@ export default function ProfileEditPage() {
 
   const handleRemoveImage = () => {
     setPreviewImage(null)
+    setUploadedFile(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
 
-  const handleSave = () => {
-    // ここで保存処理を実装
-    console.log({
-      name,
-      username,
-      bio,
-      location,
-      personalRecords
-    })
-    router.push('/profile')
+  const handleSave = async () => {
+    console.log('保存処理開始')
+    console.log('User:', user)
+
+    // モック認証の場合はログ出力のみ
+    if (user?.email === 'taro@example.com') {
+      console.log('モック認証ユーザーでの保存処理を開始')
+    }
+
+    if (!user?.id) {
+      alert('ログインが必要です')
+      return
+    }
+
+    setIsLoading(true)
+    let uploadedAvatarUrl = avatarUrl
+
+    try {
+      // 現在のセッション状態を確認（モック認証の場合はスキップ）
+      console.log('ユーザー情報確認:', {
+        email: user?.email,
+        id: user?.id,
+        isDemo: user?.email === 'taro@example.com'
+      })
+
+      let session = null
+      const isDemo = user?.email === 'taro@example.com' || user?.id === 'demo-user-id'
+
+      if (!isDemo) {
+        const { data: { session: authSession } } = await supabase.auth.getSession()
+        session = authSession
+        console.log('現在のセッション:', session)
+
+        if (!session) {
+          throw new Error('認証セッションが見つかりません。再ログインしてください。')
+        }
+      } else {
+        console.log('デモユーザーのため、セッションチェックをスキップ')
+      }
+
+      // 画像のアップロード処理
+      if (uploadedFile) {
+        const fileExt = uploadedFile.name.split('.').pop()
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`
+        const filePath = `avatars/${fileName}`
+
+        // 古い画像を削除
+        if (avatarUrl && avatarUrl.includes('supabase')) {
+          const oldPath = avatarUrl.split('/').pop()
+          if (oldPath) {
+            await supabase.storage
+              .from('avatars')
+              .remove([`avatars/${oldPath}`])
+          }
+        }
+
+        // 新しい画像をアップロード
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, uploadedFile)
+
+        if (uploadError) throw uploadError
+
+        // 公開URLを取得
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath)
+
+        uploadedAvatarUrl = publicUrl
+      }
+
+      // プロフィール情報の更新
+      console.log('更新データ:', {
+        display_name: name,
+        username: username,
+        bio: bio,
+        location: location,
+        avatar_url: uploadedAvatarUrl,
+        updated_at: new Date().toISOString()
+      })
+
+      const { data: updateData, error: updateError } = await supabase
+        .from('users')
+        .update({
+          display_name: name,
+          username: username,
+          bio: bio,
+          location: location,
+          avatar_url: uploadedAvatarUrl,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+        .select()
+
+      console.log('更新結果:', { updateData, updateError })
+
+      if (updateError) throw updateError
+
+      alert('プロフィールを更新しました')
+      router.push('/profile')
+    } catch (error: any) {
+      console.error('保存エラー詳細:', error)
+      alert(`保存に失敗しました: ${error.message || error}`)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleLogout = async () => {
@@ -118,10 +250,11 @@ export default function ProfileEditPage() {
           </div>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+            disabled={isLoading}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
-            保存
+            {isLoading ? '保存中...' : '保存'}
           </button>
         </div>
       </header>

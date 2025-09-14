@@ -72,7 +72,17 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       .single()
 
     if (userError || !userData) {
-      console.error('Error fetching user data:', userError)
+      if (userError?.code === 'PGRST205') {
+        console.warn('Users table not found - using mock data for development')
+      } else if (userError) {
+        console.error('Error fetching user data:', {
+          message: userError.message,
+          code: userError.code,
+          details: userError.details
+        })
+      } else {
+        console.warn('User data not found for userId:', userId)
+      }
       return null
     }
 
@@ -167,34 +177,31 @@ export async function getUserPosts(
     console.log('Fetching posts for user:', userId)
     const offset = (page - 1) * limit
 
-    // First, let's try without visibility filter to see if we get any data
+    // Get posts with user and gym information
     const { data, error } = await supabase
       .from('gym_posts')
-      .select('*')
+      .select(`
+        *,
+        user:users!gym_posts_user_id_fkey(id, display_name, username, avatar_url),
+        gym:gyms!gym_posts_gym_id_fkey(id, name)
+      `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (error) {
-      // テーブルが存在しない場合（PGRST205エラー）は警告レベルでログ出力
+      // テーブルが存在しない場合（PGRST205エラー）は静かに空配列を返す
       if (error.code === 'PGRST205') {
-        console.warn('Posts table not found - returning empty array')
+        // テーブルが存在しないだけなのでログ出力は不要
+        return []
       } else {
-        console.error('Error fetching user posts:', error)
-        console.error('Error details:', { code: error.code, message: error.message, details: error.details })
+        console.error('Error fetching user posts:', {
+          message: error.message,
+          code: error.code,
+          details: error.details
+        })
       }
       return []
-    }
-    
-    // Get user info separately if posts exist
-    let userInfo = null
-    if (data && data.length > 0) {
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id, display_name, username, avatar_url')
-        .eq('id', userId)
-        .single()
-      userInfo = userData
     }
 
     // Map to GymPost format (align with types/profile.ts)
@@ -214,7 +221,9 @@ export async function getUserPosts(
         exercises: [],
         duration_minutes: post.duration_minutes || 0,
         total_weight: post.total_weight_lifted || 0
-      }
+      },
+      user: post.user || undefined,
+      gym: post.gym || undefined
     }))
     
     return posts
@@ -608,7 +617,16 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
       .from('favorite_gyms')
       .select(`
         *,
-        gym:gyms(*)
+        gym:gyms!favorite_gyms_gym_id_fkey(
+          id,
+          name,
+          prefecture,
+          city,
+          address,
+          description,
+          area,
+          users_count
+        )
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -622,8 +640,17 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
       }
       return []
     }
-    
-    return data as FavoriteGym[]
+
+    // データをマッピング
+    const favoriteGyms = (data || []).map(item => ({
+      id: item.id,
+      user_id: item.user_id,
+      gym_id: item.gym_id,
+      created_at: item.created_at,
+      gym: item.gym || null
+    }))
+
+    return favoriteGyms as FavoriteGym[]
   } catch (error) {
     console.error('Error fetching favorite gyms:', error)
     return []
@@ -755,15 +782,20 @@ export async function getUserPersonalRecords(userId: string): Promise<PersonalRe
       .order('achieved_at', { ascending: false })
 
     if (error) {
-      // テーブルが存在しない場合（PGRST205エラー）は警告レベルでログ出力
+      // テーブルが存在しない場合（PGRST205エラー）は静かに空配列を返す
       if (error.code === 'PGRST205') {
-        console.warn('Personal records table not found - returning empty array')
+        // テーブルが存在しないだけなのでログ出力は不要
+        return []
       } else {
-        console.error('Error fetching personal records:', error)
+        console.error('Error fetching personal records:', {
+          message: error.message,
+          code: error.code,
+          details: error.details
+        })
       }
       return []
     }
-    
+
     return data as PersonalRecord[]
   } catch (error) {
     console.error('Unexpected error fetching personal records:', error)

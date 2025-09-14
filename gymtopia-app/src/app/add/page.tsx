@@ -134,10 +134,14 @@ function AddGymPostContent() {
     setIsSubmitting(true)
 
     try {
+      // 選択したジムのIDを取得
+      const selectedGym = gymData.find(gym => gym.name === gymName)
+
       // 投稿データを作成
       const postData = {
         content: content.trim(),
         post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
+        gym_id: selectedGym?.id, // ジムIDを追加
         workout_started_at: workoutStartTime || undefined,
         workout_ended_at: workoutEndTime || undefined,
         // exercises があれば achievement_data に含める

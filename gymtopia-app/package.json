@@ -16,6 +16,7 @@
     "scenario:test": "node ../scripts/scenario-test.js",
     "gen:types": "node scripts/gen-types.mjs",
     "db:apply:compat": "node scripts/apply-sql.js ./supabase/compat-views-safe.sql",
+    "db:apply:legacy": "node scripts/apply-sql.js ./supabase/27-rename-legacy.sql",
     "db:apply:file": "node scripts/apply-sql.js"
   },
   "dependencies": {

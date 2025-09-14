@@ -95,19 +95,49 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
   const [activeTab, setActiveTab] = useState('freeweights')
   const [gym, setGym] = useState<any | null>(null)
   const [machines, setMachines] = useState<any[]>([])
+  const [isProcessingLike, setIsProcessingLike] = useState(false)
 
   // ジムデータを取得
   useEffect(() => {
     if (isOpen && gymId) {
+      // モーダルを開く時にデータを取得
       loadGymData()
+    } else if (!isOpen) {
+      // モーダルを閉じる時に状態をクリア
+      setLiked(false)
+      setLikesCount(0)
+      setGymData(sampleGymData)
+      setLoading(true)
     }
   }, [isOpen, gymId])
+
+  // デバッグ用: 手動でいきたい状態をチェック
+  const debugCheckLikeStatus = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.id) {
+      console.log('🔍 DEBUG: No authenticated user')
+      return false
+    }
+
+    console.log('🔍 DEBUG: Manual like status check')
+    console.log('  - Gym ID:', gymId)
+    console.log('  - User ID:', user.id)
+
+    const { data, error } = await supabase
+      .from('favorite_gyms')
+      .select('id')
+      .eq('gym_id', gymId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    console.log('  - Raw query result:', { data, error })
+    console.log('  - Has like:', data !== null)
+    return data !== null
+  }
 
   const loadGymData = async () => {
     setLoading(true)
     try {
-      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
-
       // ジム情報を取得
       const gym = await getGymById(gymId)
       if (gym) {
@@ -126,11 +156,24 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
             .select('id')
             .eq('gym_id', gymId)
             .eq('user_id', mockUserId)
-            .single()
+            .maybeSingle()
         ])
 
         const actualLikesCount = favoriteCount.count || 0
-        const isLikedByUser = !userFavorite.error && userFavorite.data
+        const isLikedByUser = userFavorite.data !== null && !userFavorite.error
+
+        console.log('=== LOADING GYM DATA ===')
+        console.log('Gym ID:', gymId)
+        console.log('User ID:', mockUserId)
+        console.log('User favorite query result:', {
+          data: userFavorite.data,
+          error: userFavorite.error,
+          hasData: userFavorite.data !== null,
+          hasError: !!userFavorite.error
+        })
+        console.log('Is liked by user (calculated):', isLikedByUser)
+        console.log('Total likes count:', actualLikesCount)
+        console.log('=======================')
 
         // データを統合
         const fullGymData = {
@@ -175,6 +218,11 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         setGymData(fullGymData)
         setLiked(fullGymData.likedByMe)
         setLikesCount(fullGymData.likesCount)
+
+        console.log('🔄 STATE UPDATE:')
+        console.log('  - setLiked called with:', fullGymData.likedByMe)
+        console.log('  - setLikesCount called with:', fullGymData.likesCount)
+        console.log('  - gymData.likedByMe set to:', fullGymData.likedByMe)
       } else {
         // データが取得できない場合はサンプルデータを使用
         setGymData(sampleGymData)
@@ -199,39 +247,112 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     }
   }, [isOpen])
 
+  // 状態変化の監視
+  useEffect(() => {
+    console.log('🎯 LIKED STATE CHANGED:', {
+      gymId,
+      liked,
+      likesCount,
+      timestamp: new Date().toISOString()
+    })
+  }, [liked, gymId])
+
+  useEffect(() => {
+    console.log('📊 LIKES COUNT CHANGED:', {
+      gymId,
+      likesCount,
+      liked,
+      timestamp: new Date().toISOString()
+    })
+  }, [likesCount, gymId])
+
   const handleToggleLike = async () => {
+    // 処理中の場合は何もしない
+    if (isProcessingLike) {
+      console.log('Already processing like action')
+      return
+    }
+
+    setIsProcessingLike(true)
+
     try {
-      // モックユーザーID（開発用）
-      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.id) {
+        console.log('User not authenticated - cannot toggle like')
+        return
+      }
+
+      console.log('=== TOGGLE LIKE START ===')
+      console.log('Current liked state:', liked)
+      console.log('Current likes count:', likesCount)
+      console.log('Gym ID:', gymId)
+      console.log('User ID:', user.id)
 
       if (liked) {
         // イキタイを解除
+        console.log('ACTION: Removing like for gym:', gymId)
         const { error } = await supabase
           .from('favorite_gyms')
           .delete()
-          .eq('user_id', mockUserId)
+          .eq('user_id', user.id)
           .eq('gym_id', gymId)
 
-        if (!error) {
+        if (error) {
+          console.error('Error removing like:', error)
+          alert('いきたいの解除に失敗しました: ' + error.message)
+        } else {
+          console.log('✅ Successfully removed like for gym:', gymId)
+          console.log('Setting liked to false, count to:', Math.max(0, likesCount - 1))
           setLiked(false)
-          setLikesCount(likesCount - 1)
+          setLikesCount(Math.max(0, likesCount - 1))
+
+          // UIを即座に更新
+          setGymData(prev => ({
+            ...prev,
+            likedByMe: false,
+            likesCount: Math.max(0, likesCount - 1)
+          }))
+          console.log('=== TOGGLE LIKE END (REMOVED) ===')
         }
       } else {
         // イキタイを追加
+        console.log('ACTION: Adding like for gym:', gymId)
         const { error } = await supabase
           .from('favorite_gyms')
           .insert({
-            user_id: mockUserId,
+            user_id: user.id,
             gym_id: gymId
           })
 
-        if (!error) {
+        if (error) {
+          // 既に存在する場合のエラーを無視
+          if (error.code === '23505') {
+            console.log('Already liked')
+            setLiked(true)
+          } else {
+            console.error('Error adding like:', error)
+            alert('いきたいの追加に失敗しました: ' + error.message)
+          }
+        } else {
+          console.log('✅ Successfully added like for gym:', gymId)
+          console.log('Setting liked to true, count to:', likesCount + 1)
           setLiked(true)
           setLikesCount(likesCount + 1)
+
+          // UIを即座に更新
+          setGymData(prev => ({
+            ...prev,
+            likedByMe: true,
+            likesCount: likesCount + 1
+          }))
+          console.log('=== TOGGLE LIKE END (ADDED) ===')
         }
       }
     } catch (error) {
       console.error('Error toggling like:', error)
+      alert('エラーが発生しました: ' + error.message)
+    } finally {
+      setIsProcessingLike(false)
     }
   }
 
@@ -374,27 +495,41 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               </div>
 
               {/* CTA Buttons */}
-              <div className="grid grid-cols-2 gap-3 mb-5 sm:mb-6">
+              <div className="space-y-3 mb-5 sm:mb-6">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleToggleLike}
+                    disabled={isProcessingLike}
+                    className={`flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all ${
+                      isProcessingLike
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : liked
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-white border-2 border-slate-200 text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''} ${isProcessingLike ? 'animate-pulse' : ''}`} />
+                    <span className="text-sm sm:text-base">
+                      {isProcessingLike ? '処理中...' : liked ? 'イキタイ済み' : 'イキタイ'}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      onClose()
+                      router.push(`/add?gymId=${gymData.id}&gymName=${encodeURIComponent(gymData.name)}`)
+                    }}
+                    className="flex items-center justify-center gap-2 py-3 bg-blue-500 text-white rounded-2xl font-medium"
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="text-sm sm:text-base">ジム活を投稿</span>
+                  </button>
+                </div>
+                {/* デバッグボタン */}
                 <button
-                  onClick={handleToggleLike}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all ${
-                    liked
-                      ? 'bg-red-500 text-white'
-                      : 'bg-white border-2 border-slate-200 text-slate-900'
-                  }`}
+                  onClick={debugCheckLikeStatus}
+                  className="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium"
                 >
-                  <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} />
-                  <span className="text-sm sm:text-base">{liked ? 'イキタイ済み' : 'イキタイ'}</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    onClose()
-                    router.push(`/add?gymId=${gymData.id}&gymName=${encodeURIComponent(gymData.name)}`)
-                  }}
-                  className="flex items-center justify-center gap-2 py-3 bg-blue-500 text-white rounded-2xl font-medium"
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  <span className="text-sm sm:text-base">ジム活を投稿</span>
+                  🔍 デバッグチェック
                 </button>
               </div>
 

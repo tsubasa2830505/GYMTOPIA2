@@ -9,44 +9,65 @@ import {
 } from 'lucide-react'
 // import Image from 'next/image'
 
-// サンプルデータ（フォールバック）
+// フォールバックデータ（DBにジムが見つからない場合のエラー表示用）
 const fallbackGym = {
-  id: 'gym_rogue_shinjuku',
-  name: 'ROGUEクロストレーニング新宿',
-  tags: ['ROGUE', 'クロスフィット', 'チョークOK'],
-  location: { area: '新宿', walkingMinutes: 7, lat: 35.0, lng: 139.0 },
-  businessHours: [{ open: '05:00', close: '24:00', days: [0, 1, 2, 3, 4, 5, 6] }],
-  isOpenNow: true,
-  likesCount: 94,
+  id: '',
+  name: 'ジム情報を読み込めませんでした',
+  tags: [],
+  location: { area: '', walkingMinutes: 0, lat: 0, lng: 0 },
+  businessHours: [{ open: '', close: '', days: [] }],
+  isOpenNow: false,
+  likesCount: 0,
   likedByMe: false,
-  pricingPlans: [
-    { id: 'monthly', title: '月額会員', priceJPY: 14800, link: 'https://example.com/monthly' },
-    { id: 'visitor', title: 'ビジター利用', priceJPY: 3800, link: 'https://example.com/visitor' }
-  ],
-  equipment: [
-    { name: 'RML-490 パワーラック', brand: 'ROGUE', count: 6, condition: '優良' },
-    { name: 'SML-2 スクワットラック', brand: 'ROGUE', count: 4, condition: '優良' },
-    { name: 'オハイオバー（オリンピックバー）', brand: 'ROGUE', count: 8, condition: '優良' },
-    { name: 'オリンピックプレートセット', brand: 'Eleiko', count: 1, condition: '優良' },
-    { name: 'アジャスタブルベンチ', brand: 'ROGUE', count: 4, condition: '優良' }
-  ],
-  contact: { phone: '03-1234-5678', website: 'https://example.com' },
-  reviews: [
-    { author: '筋トレ愛好家', date: '2024-01-15', body: 'ROGUEのパワーラックが6台もあって最高です！混雑時でも待ち時間が少なく、効率的にトレーニングできます。' },
-    { author: 'ベンチプレスサー', date: '2024-01-10', body: 'Hammer Strengthのマシンが充実していて、フリーウェイトエリアも広々。初心者から上級者まで満足できるジムです。' }
-  ],
-  assets: { heroImages: ['/gym-hero.jpg'] }
+  pricingPlans: [],
+  equipment: [],
+  contact: { phone: '', website: '' },
+  reviews: [],
+  assets: { heroImages: [] }
 }
 
-import { getGymById, getGymMachines } from '@/lib/supabase/gyms'
+import { getGymById, getGymMachines, getGymReviews, getGymReviewCount } from '@/lib/supabase/gyms'
 
 export default function GymDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [gym, setGym] = useState<any | null>(null)
   const [machines, setMachines] = useState<any[]>([])
+  const [reviews, setReviews] = useState<any[]>([])
+  const [reviewCount, setReviewCount] = useState(0)
   const [loading, setLoading] = useState(true)
-  const gymData = useMemo(() => gym || fallbackGym, [gym])
+  const gymData = useMemo(() => {
+    if (!gym) return fallbackGym
+
+    // DBのデータ構造を画面表示用に変換
+    return {
+      id: gym.id,
+      name: gym.name || 'ジム名未設定',
+      tags: gym.tags || [],
+      location: {
+        area: gym.area || gym.city || '',
+        walkingMinutes: gym.walk_time || 0,
+        lat: gym.latitude || 0,
+        lng: gym.longitude || 0
+      },
+      businessHours: gym.business_hours ? [{
+        open: gym.business_hours.weekdays?.split('-')[0] || '',
+        close: gym.business_hours.weekdays?.split('-')[1] || '',
+        days: [0, 1, 2, 3, 4, 5, 6]
+      }] : [],
+      isOpenNow: gym.is_open_now || false,
+      likesCount: gym.likes_count || 0,
+      likedByMe: false,
+      pricingPlans: gym.pricing_plans || [],
+      equipment: gym.equipment || [],
+      contact: {
+        phone: gym.phone || '',
+        website: gym.website || ''
+      },
+      reviews: [],
+      assets: { heroImages: gym.images || [] }
+    }
+  }, [gym])
 
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(0)
@@ -58,10 +79,16 @@ export default function GymDetailPage() {
         setLoading(true)
         const id = Array.isArray(params?.gymId) ? params.gymId[0] : (params as any)?.gymId
         if (id) {
-          const gymRes = await getGymById(id)
+          const [gymRes, gm, reviewsData, count] = await Promise.all([
+            getGymById(id),
+            getGymMachines(id),
+            getGymReviews(id),
+            getGymReviewCount(id)
+          ])
           if (gymRes) setGym(gymRes)
-          const gm = await getGymMachines(id)
           if (Array.isArray(gm)) setMachines(gm)
+          if (Array.isArray(reviewsData)) setReviews(reviewsData)
+          setReviewCount(count)
         }
       } finally {
         setLoading(false)
@@ -185,26 +212,32 @@ export default function GymDetailPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {gymData.pricingPlans.map((plan: { id: string; title: string; priceJPY: number; link: string }) => (
-            <a
-              key={plan.id}
-              href={plan.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl hover:shadow-lg transition-shadow"
-            >
-              <p className="text-sm sm:text-base font-medium text-slate-700 mb-2">{plan.title}</p>
-              <p className="text-2xl sm:text-3xl font-bold text-slate-900">
-                {formatPrice(plan.priceJPY)}
-              </p>
-              <div className="flex items-center justify-end mt-3">
-                <span className="text-xs sm:text-sm text-blue-600 font-medium">詳細を見る</span>
-                <ChevronRight className="w-4 h-4 text-blue-600 ml-1" />
+        {gymData.pricingPlans && gymData.pricingPlans.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            {gymData.pricingPlans.map((plan: { id: string; title: string; priceJPY: number; link?: string }) => (
+              <div
+                key={plan.id}
+                className="block p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl"
+              >
+                <p className="text-sm sm:text-base font-medium text-slate-700 mb-2">{plan.title}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900">
+                  {formatPrice(plan.priceJPY)}
+                </p>
+                {plan.link && (
+                  <a
+                    href={plan.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-end mt-3"
+                  >
+                    <span className="text-xs sm:text-sm text-blue-600 font-medium">詳細を見る</span>
+                    <ChevronRight className="w-4 h-4 text-blue-600 ml-1" />
+                  </a>
+                )}
               </div>
-            </a>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-4 sm:mb-6 overflow-x-auto">
@@ -266,60 +299,103 @@ export default function GymDetailPage() {
         <div className="bg-slate-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">アクセス・お問い合わせ</h2>
           <div className="space-y-3">
-            <a 
-              href={`tel:${gymData.contact.phone}`}
-              className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
-            >
-              <Phone className="w-5 h-5 text-blue-600" />
-              <div className="flex-1">
-                <p className="text-sm sm:text-base font-medium text-slate-900">{gymData.contact.phone}</p>
-                <p className="text-xs sm:text-sm text-slate-600">電話で問い合わせ</p>
+            {gymData.contact.phone && (
+              <a
+                href={`tel:${gymData.contact.phone}`}
+                className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
+              >
+                <Phone className="w-5 h-5 text-blue-600" />
+                <div className="flex-1">
+                  <p className="text-sm sm:text-base font-medium text-slate-900">{gymData.contact.phone}</p>
+                  <p className="text-xs sm:text-sm text-slate-600">電話で問い合わせ</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400" />
+              </a>
+            )}
+            {gymData.contact.website && (
+              <a
+                href={gymData.contact.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
+              >
+                <Globe className="w-5 h-5 text-blue-600" />
+                <div className="flex-1">
+                  <p className="text-sm sm:text-base font-medium text-slate-900">公式サイト</p>
+                  <p className="text-xs sm:text-sm text-slate-600">詳細情報を見る</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400" />
+              </a>
+            )}
+            {!gymData.contact.phone && !gymData.contact.website && (
+              <div className="p-4 text-center text-slate-500">
+                連絡先情報が登録されていません
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </a>
-            <a 
-              href={gymData.contact.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
-            >
-              <Globe className="w-5 h-5 text-blue-600" />
-              <div className="flex-1">
-                <p className="text-sm sm:text-base font-medium text-slate-900">公式サイト</p>
-                <p className="text-xs sm:text-sm text-slate-600">詳細情報を見る</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </a>
+            )}
           </div>
         </div>
 
         {/* Reviews */}
         <div className="mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">口コミ・レビュー</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+            口コミ・レビュー {reviewCount > 0 && `(${reviewCount}件)`}
+          </h2>
           <div className="space-y-3">
-            {gymData.reviews.map((review: { author: string; date: string; body: string }, index: number) => (
-              <div key={index} className="p-4 bg-white border border-slate-200 rounded-2xl">
+            {reviews.length > 0 ? reviews.map((review: any) => (
+              <div key={review.id} className="p-4 bg-white border border-slate-200 rounded-2xl">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />
+                  {review.user?.avatar_url ? (
+                    <img
+                      src={review.user.avatar_url}
+                      alt={review.user.display_name || 'User'}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />
+                  )}
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-900">{review.author}</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {review.user?.display_name || review.user?.username || 'ユーザー'}
+                    </p>
                     <p className="text-xs text-slate-600">
-                      {new Date(review.date).toLocaleDateString('ja-JP', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      {new Date(review.created_at).toLocaleDateString('ja-JP', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
                       })}
                     </p>
                   </div>
                   <div className="flex gap-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < (review.rating || 5)
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'fill-gray-200 text-gray-200'
+                        }`}
+                      />
                     ))}
                   </div>
                 </div>
-                <p className="text-sm text-slate-700 leading-relaxed">{review.body}</p>
+                {review.title && (
+                  <h4 className="text-sm font-semibold text-slate-900 mb-2">{review.title}</h4>
+                )}
+                <p className="text-sm text-slate-700 leading-relaxed">{review.content || review.body || ''}</p>
+                {review.owner_reply && (
+                  <div className="mt-3 p-3 bg-slate-50 rounded-xl">
+                    <p className="text-xs font-semibold text-slate-700 mb-1">オーナーからの返信</p>
+                    <p className="text-xs text-slate-600">{review.owner_reply}</p>
+                  </div>
+                )}
               </div>
-            ))}
+            )) : (
+              <div className="p-8 text-center text-slate-500">
+                <MessageSquare className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                <p>まだレビューがありません</p>
+                <p className="text-sm mt-2">最初のレビューを投稿してみましょう！</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

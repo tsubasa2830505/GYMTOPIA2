@@ -38,8 +38,8 @@ export default function GymStatsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month')
   const [loading, setLoading] = useState(true)
   
-  // Use mock user ID for development
-  const userId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+  // TODO: Get user ID from auth context
+  const userId = null // Will need authentication context
 
   // Statistics state
   const [stats, setStats] = useState({

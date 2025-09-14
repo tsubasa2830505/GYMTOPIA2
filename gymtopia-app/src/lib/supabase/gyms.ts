@@ -387,6 +387,22 @@ export async function getGymReviews(gymId: string) {
   }
 }
 
+// ジムのレビュー数を取得
+export async function getGymReviewCount(gymId: string) {
+  try {
+    const { count, error } = await supabase
+      .from('gym_reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('gym_id', gymId)
+
+    if (error) throw error
+    return count || 0
+  } catch (error) {
+    console.error('Error fetching review count:', error)
+    return 0
+  }
+}
+
 // レビューを投稿
 export async function createGymReview(review: {
   gym_id: string
