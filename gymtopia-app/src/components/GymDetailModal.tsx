@@ -217,9 +217,13 @@ useEffect(() => {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
-        onClick={onClose}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onClose()
+        }}
       />
       
       {/* Modal */}
@@ -241,8 +245,12 @@ useEffect(() => {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-              <button 
-                onClick={onClose}
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onClose()
+                }}
                 className="absolute top-4 right-4 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10 hover:bg-white transition-colors"
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-900" />
@@ -328,7 +336,11 @@ useEffect(() => {
               {/* CTA Buttons */}
               <div className="grid grid-cols-2 gap-3 mb-5 sm:mb-6">
                 <button
-                  onClick={handleToggleLike}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleToggleLike()
+                  }}
                   className={`flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all ${
                     liked 
                       ? 'bg-red-500 text-white' 
