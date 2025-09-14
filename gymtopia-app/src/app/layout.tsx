@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { Inter, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import "@/styles/material-theme.css";
+<<<<<<< HEAD
 import BottomNavigation from "@/components/BottomNavigation";
+=======
+import ConditionalLayout from "@/components/ConditionalLayout";
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({
@@ -52,10 +56,13 @@ export default function RootLayout({
     <html lang="ja" className={`${inter.variable} ${notoJP.variable}`}>
       <body className="antialiased">
         <AuthProvider>
+<<<<<<< HEAD
           <div className="min-h-screen pb-20">
+=======
+          <ConditionalLayout>
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
             {children}
-          </div>
-          <BottomNavigation />
+          </ConditionalLayout>
         </AuthProvider>
       </body>
     </html>

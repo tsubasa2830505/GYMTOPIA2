@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js'
 import type {
+=======
+import { supabase } from './client'
+import type { 
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
   User,
   UserProfile,
   UserWithProfile,
@@ -16,10 +21,7 @@ import type {
   ProfileVisibility
 } from '@/lib/types/user'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // =============================================
 // Helper Functions
@@ -172,28 +174,33 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
-    const { data: userData, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-    if (error || !userData) {
-      return {
-        id: user.id,
-        email: user.email!,
-        username: undefined,
-        displayName: undefined,
-        avatarUrl: undefined
+      if (userData && !error) {
+        return {
+          id: userData.id,
+          email: userData.email,
+          username: userData.username || undefined,
+          displayName: userData.display_name || undefined,
+          avatarUrl: userData.avatar_url || undefined
+        }
       }
+    } catch (dbError) {
+      console.log('users table not found, using auth user data')
     }
 
+    // Fallback to auth user data if database query fails
     return {
-      id: userData.id,
-      email: userData.email,
-      username: userData.username || undefined,
-      displayName: userData.display_name || undefined,
-      avatarUrl: userData.avatar_url || undefined
+      id: user.id,
+      email: user.email!,
+      username: user.user_metadata?.username || undefined,
+      displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || undefined,
+      avatarUrl: user.user_metadata?.avatar_url || undefined
     }
   } catch (error) {
     console.error('Get current user error:', error)

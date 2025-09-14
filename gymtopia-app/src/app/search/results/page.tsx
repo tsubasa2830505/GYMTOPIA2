@@ -1,13 +1,22 @@
 'use client'
 
+<<<<<<< HEAD
 import { MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
+=======
+import { Search, MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 // import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import SearchResultMap from '@/components/SearchResultMap'
+<<<<<<< HEAD
 import { getGyms, Gym } from '@/lib/supabase/gyms'
 import type { FacilityKey } from '@/types/facilities'
+=======
+import { getGyms } from '@/lib/supabase/gyms'
+import { getMachines } from '@/lib/supabase/machines'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -18,6 +27,7 @@ function SearchResultsContent() {
   const [gyms, setGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [machineNames, setMachineNames] = useState<Record<string, string>>({})
   
   // Parse URL parameters for selected conditions
   const [selectedConditions, setSelectedConditions] = useState<{
@@ -86,6 +96,17 @@ function SearchResultsContent() {
       if (city) filters.city = city
       if (facilities && facilities.length > 0) filters.facilities = facilities
       
+      // Pass all condition filters to getGyms
+      if (selectedConditions.machines?.length) {
+        filters.machines = selectedConditions.machines
+      }
+      if (selectedConditions.freeWeights?.length) {
+        filters.machineTypes = selectedConditions.freeWeights
+      }
+      if (selectedConditions.facilities?.length) {
+        filters.categories = selectedConditions.facilities
+      }
+      
       const data = await getGyms(filters)
       
       if (data) {
@@ -151,6 +172,7 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
+<<<<<<< HEAD
   }, [searchParams])
 
   useEffect(() => {
@@ -167,11 +189,39 @@ function SearchResultsContent() {
       const [name, count] = item.split(':')
       return { name, count: parseInt(count) || 1 }
     })
+=======
+  }, [selectedConditions, searchParams])
+
+  useEffect(() => {
+    // URLパラメータから選択された条件を取得
+    const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
+    const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
 
     setSelectedConditions({ machines, freeWeights, facilities })
+<<<<<<< HEAD
     fetchGyms()
   }, [searchParams, fetchGyms])
+=======
+    
+    // マシンIDから名前を取得
+    if (machines.length > 0) {
+      getMachines().then(allMachines => {
+        const nameMap: Record<string, string> = {}
+        allMachines.forEach((machine: any) => {
+          nameMap[machine.id] = machine.name
+        })
+        setMachineNames(nameMap)
+      })
+    }
+  }, [searchParams])
+  
+  // Fetch gyms whenever conditions change
+  useEffect(() => {
+    fetchGyms()
+  }, [selectedConditions, searchParams])
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
@@ -240,28 +290,65 @@ function SearchResultsContent() {
           )}
 
           {/* Selected Conditions Display */}
-          {getTotalConditionsCount() > 0 && (
+          {(getTotalConditionsCount() > 0 || searchParams.get('searchType')) && (
             <div className="mb-4 sm:mb-6 p-3 bg-slate-50 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-slate-700">検索条件</h3>
                 <button
-                  onClick={clearAllConditions}
+                  onClick={() => {
+                    clearAllConditions()
+                    router.push('/search/results')
+                  }}
                   className="text-xs text-red-600 hover:text-red-700 font-medium"
                 >
                   すべてクリア
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
+<<<<<<< HEAD
                 {selectedConditions.machines.map((machine, index) => (
+=======
+                {/* スマート検索条件の表示 */}
+                {searchParams.get('searchType') && (
+                  <>
+                    {searchParams.get('muscle') && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                        🏋️ 部位: {searchParams.get('muscle')}
+                      </span>
+                    )}
+                    {searchParams.get('maker') && (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                        🏭 メーカー: {searchParams.get('maker')}
+                      </span>
+                    )}
+                    {searchParams.get('name') && (
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium">
+                        🎯 マシン: {searchParams.get('name')}
+                      </span>
+                    )}
+                    {searchParams.get('type') && (
+                      <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-medium">
+                        ⚙️ タイプ: {searchParams.get('type')}
+                      </span>
+                    )}
+                  </>
+                )}
+                {/* 既存の条件表示 */}
+                {selectedConditions.machines.map((machine) => (
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
                   <button
                     key={`machine-${index}-${machine.name}`}
                     onClick={() => removeCondition('machines', machine.name)}
                     className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
                   >
+<<<<<<< HEAD
                     {machine.name}
                     {machine.count > 1 && (
                       <span className="font-bold ml-1">×{machine.count}</span>
                     )}
+=======
+                    {machineNames[machine] || machine}
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
                     <X className="w-3 h-3" />
                   </button>
                 ))}
@@ -313,7 +400,7 @@ function SearchResultsContent() {
                       : 'text-slate-600'
                   }`}
                 >
-                  <Map className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <MapIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   地図
                 </button>
                 <button

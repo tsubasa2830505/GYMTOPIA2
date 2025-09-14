@@ -9,6 +9,85 @@
 - **コンテキスト共有** - 重要な変更や決定事項は`CLAUDE.md`に記録し、両ツール間で共有
 - **相互補完** - 各ツールの強みを活かし、タスクに応じて適切に使い分ける
 
+### Claude Code拡張ツール
+
+#### 1. ccusage - 使用状況分析
+**インストール済み**: `npm install -g ccusage`
+
+```bash
+# 日次レポート（デフォルト）
+ccusage
+
+# 月次集計
+ccusage monthly
+
+# セッション別使用量
+ccusage session
+
+# 5時間の課金ウィンドウ
+ccusage blocks
+```
+
+**主な機能**:
+- リアルタイム使用量モニタリング
+- モデル別トラッキング（Opus、Sonnet）
+- コスト計算（USD）
+- キャッシュ使用量の可視化
+
+#### 2. ccexp - 設定ファイル管理
+**インストール済み**: `npm install -g ccexp`
+
+```bash
+# Claude Code設定とコマンドを探索
+ccexp
+
+# 特定ディレクトリをスキャン
+ccexp -p /path/to/project
+```
+
+**主な機能**:
+- CLAUDE.mdとスラッシュコマンドの管理
+- インタラクティブなターミナルUI
+- 設定ファイルのプレビューと編集
+
+#### 3. ccpm - プロジェクト管理
+**インストール済み**: `.claude-ccpm/`にコマンド配置
+
+**主な機能**:
+- GitHub Issuesとの連携
+- Git worktreeを使った並列エージェント実行
+- PRDからタスクへの自動変換
+- 完全な監査証跡
+
+#### 4. CCPlugins - カスタムコマンド
+**インストール済み**: `~/.claude/commands/`に配置
+
+**主な機能**:
+- 24の専門的なコマンドセット
+- 週2-3時間の作業時間短縮
+- エンタープライズグレードの開発ワークフロー
+- `/`コマンドでアクセス可能
+
+#### 5. claude-code-log - 会話履歴ビューア
+**インストール済み**: `pip3 install claude-code-log`
+
+```bash
+# 全プロジェクトの履歴をHTML化
+claude-code-log --all-projects --open-browser
+
+# インタラクティブTUIで閲覧
+claude-code-log --tui
+
+# 特定期間のログを抽出
+claude-code-log --from-date "yesterday" --to-date "today"
+```
+
+**主な機能**:
+- JSONL形式のログをHTMLに変換
+- プロジェクト別の会話履歴管理
+- トークン使用量の可視化
+- タイムライン表示とフィルタリング
+
 ## 哲学
 
 ### 核となる信念

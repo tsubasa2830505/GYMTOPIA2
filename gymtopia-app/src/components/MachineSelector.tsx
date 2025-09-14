@@ -199,6 +199,11 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       targetParts: []  // カテゴリー変更時は詳細部位をリセット
     })
     setShowPartsDetail(filter.targetCategory !== categoryId && categoryId !== null)
+    
+    // 部位を選択したら自動的にタイプセクションも開く（部位×マシンの組み合わせ検索を促進）
+    if (filter.targetCategory !== categoryId && categoryId !== null) {
+      setExpandedSections(new Set(['target', 'type']))
+    }
   }
 
   // 詳細部位選択
@@ -234,11 +239,19 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   }
 
   const filteredMachines = machines.filter(machine => {
+<<<<<<< HEAD
     // カテゴリーマッチ（日本語カテゴリーを英語に変換して比較）
     const englishCategory = categoryMapping[filter.targetCategory] || filter.targetCategory
     const targetMatch = !filter.targetCategory ||
       machine.target_category === englishCategory
 
+=======
+    // 部位とタイプとメーカーの掛け合わせ検索
+    // カテゴリーマッチ
+    const targetMatch = !filter.targetCategory || 
+      machine.target_category === filter.targetCategory
+    
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     // 詳細部位マッチ（選択されている場合のみ）
     const partMatch = filter.targetParts.length === 0 ||
       (machine.target_detail && filter.targetParts.includes(machine.target_detail))
@@ -248,7 +261,12 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
 
     // メーカーマッチ
     const makerMatch = filter.maker.length === 0 || filter.maker.includes(machine.maker)
+<<<<<<< HEAD
 
+=======
+    
+    // 部位（＋詳細部位）とタイプとメーカーの掛け合わせでフィルタリング
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     return targetMatch && partMatch && typeMatch && makerMatch
   })
 
@@ -328,7 +346,12 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                 <div className="space-y-4">
                   {/* カテゴリー選択 */}
                   <div>
-                    <p className="text-sm font-medium text-slate-700 mb-2">1. 部位カテゴリーを選択</p>
+                    <p className="text-sm font-medium text-slate-700 mb-2">
+                      1. 鍛えたい部位を選択
+                      <span className="text-xs text-slate-500 ml-2">
+                        （選択するとその部位向けのマシンのみ表示されます）
+                      </span>
+                    </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {targetOptions.map((target) => (
                         <button
@@ -350,7 +373,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   {filter.targetCategory && showPartsDetail && (
                     <div className="animate-fadeIn">
                       <p className="text-sm font-medium text-slate-700 mb-2">
-                        2. {targetOptions.find(t => t.id === filter.targetCategory)?.name}の詳細部位を選択（任意）
+                        2. {targetOptions.find(t => t.id === filter.targetCategory)?.name}の詳細部位を選択
+                        <span className="text-xs text-slate-500 ml-2">（任意：さらに絞り込めます）</span>
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {targetOptions
@@ -374,6 +398,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       </p>
                     </div>
                   )}
+
                 </div>
               )}
             </div>
@@ -388,7 +413,14 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           >
             <div className="flex items-center gap-3">
               <Settings className="w-5 h-5 text-green-600" />
-              <h3 className="font-semibold text-slate-900">タイプ</h3>
+              <h3 className="font-semibold text-slate-900">
+                タイプ
+                {filter.targetCategory && (
+                  <span className="text-xs text-slate-500 ml-2">
+                    （{targetOptions.find(t => t.id === filter.targetCategory)?.name}用のマシンタイプ）
+                  </span>
+                )}
+              </h3>
               {filter.type.length > 0 && (
                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                   {filter.type.length}
@@ -480,11 +512,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             </div>
           )}
         </div>
+
       </div>
 
       {/* フィルター結果と一括操作 */}
       <div className="md-card p-4">
         <div className="flex items-center justify-between mb-3">
+<<<<<<< HEAD
           <p className="text-sm text-slate-600">
             {filteredMachines.length}台のマシンが見つかりました
             {selectedMachines.size > 0 && (
@@ -493,8 +527,30 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   filteredMachines.some(m => m.id === id)
                 ).reduce((sum, id) => sum + (selectedMachines.get(id) || 0), 0)}台選択中）
               </span>
+=======
+          <div>
+            <p className="text-sm text-slate-600">
+              {filter.targetCategory && (
+                <span className="font-medium text-blue-700">
+                  {targetOptions.find(t => t.id === filter.targetCategory)?.name}向けの
+                </span>
+              )}
+              {filteredMachines.length}台のマシンが見つかりました
+              {selectedMachines.size > 0 && (
+                <span className="ml-2 font-medium text-blue-600">
+                  （{Array.from(selectedMachines).filter(id => 
+                    filteredMachines.some(m => m.id === id)
+                  ).length}台選択中）
+                </span>
+              )}
+            </p>
+            {filter.targetCategory && filteredMachines.length > 0 && (
+              <p className="text-xs text-slate-500 mt-1">
+                ※ {targetOptions.find(t => t.id === filter.targetCategory)?.name}を鍛えるのに最適なマシンのみ表示しています
+              </p>
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
             )}
-          </p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={selectAllFiltered}
@@ -526,11 +582,17 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             const target = targetOptions.find(t => t.id === japaneseCategory)
             const type = typeOptions.find(t => t.id === machine.type)
             const maker = makerOptions.find(m => m.id === machine.maker)
+<<<<<<< HEAD
           
           const machineCount = selectedMachines.get(machine.id) || 0
 
           return (
             <div
+=======
+            
+            return (
+            <button
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
               key={machine.id}
               className={`p-4 rounded-xl transition-all ${
                 machineCount > 0

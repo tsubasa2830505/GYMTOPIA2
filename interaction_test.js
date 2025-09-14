@@ -17,7 +17,7 @@ async function testInteractions() {
     const filterTabs = await page.$$('button[class*="tab"], div > button');
     if (filterTabs.length > 0) {
       await filterTabs[0].click();
-      await page.waitForTimeout(200);
+      await new Promise(r => setTimeout(r, 200));
       tests.push({ name: 'Home filter tabs', status: '✅ Clickable' });
     }
     
@@ -25,7 +25,7 @@ async function testInteractions() {
     const facilityButtons = await page.$$('button:has(div.w-5.h-5.rounded)');
     if (facilityButtons.length > 0) {
       await facilityButtons[0].click();
-      await page.waitForTimeout(200);
+      await new Promise(r => setTimeout(r, 200));
       tests.push({ name: 'Facility checkboxes', status: '✅ Clickable' });
     } else {
       // Try alternative selector
@@ -42,7 +42,7 @@ async function testInteractions() {
     if (navLinks.length >= 4) {
       // Click profile link (usually last)
       await navLinks[3].click();
-      await page.waitForTimeout(1000);
+      await new Promise(r => setTimeout(r, 1000));
       
       const url = page.url();
       if (url.includes('/profile')) {
@@ -61,14 +61,14 @@ async function testInteractions() {
       // Click first few buttons
       for (let i = 0; i < Math.min(3, profileButtons.length); i++) {
         await profileButtons[i].click();
-        await page.waitForTimeout(200);
+        await new Promise(r => setTimeout(r, 200));
       }
       tests.push({ name: 'Profile buttons', status: '✅ Clickable' });
     }
     
     // Search functionality
     console.log('📍 Testing Search...');
-    await page.goto('http://localhost:3000/search', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:3000/search/results', { waitUntil: 'networkidle0' });
     
     const searchInput = await page.$('input');
     if (searchInput) {
@@ -82,15 +82,15 @@ async function testInteractions() {
     }
     
     // Machine selection
-    console.log('📍 Testing Machine Selection...');
-    await page.goto('http://localhost:3000/search/machine', { waitUntil: 'networkidle0' });
+    console.log('📍 Testing Free Weight Selection...');
+    await page.goto('http://localhost:3000/search/freeweight', { waitUntil: 'networkidle0' });
     
     const machineButtons = await page.$$('button');
     let clickableButtons = 0;
     for (let i = 0; i < Math.min(5, machineButtons.length); i++) {
       try {
         await machineButtons[i].click();
-        await page.waitForTimeout(100);
+        await new Promise(r => setTimeout(r, 100));
         clickableButtons++;
       } catch (e) {
         // Button might not be clickable

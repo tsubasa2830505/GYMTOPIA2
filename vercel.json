@@ -1,12 +1,9 @@
 {
+  "name": "gymtopia-2",
   "buildCommand": "cd gymtopia-app && npm cache clean --force && npm install && npm run build",
   "outputDirectory": "gymtopia-app/.next",
   "installCommand": "cd gymtopia-app && npm cache clean --force && npm install",
   "framework": "nextjs",
   "devCommand": "cd gymtopia-app && npm run dev",
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key"
-  },
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ."
 }

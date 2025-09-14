@@ -3,17 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "dev:reset": "./scripts/dev-reset.sh",
     "dev:clean": "./scripts/dev-reset.sh --clean",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "system:test": "node ../scripts/system-test.js"
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "backup": "../scripts/auto-backup.sh",
+    "safe-commit": "../scripts/auto-backup.sh && git add -A && git commit",
+    "system:test": "node ../scripts/system-test.js",
+    "scenario:test": "node ../scripts/scenario-test.js",
+    "gen:types": "node scripts/gen-types.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.2",
     "@types/leaflet": "^1.9.20",
+    "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.542.0",
@@ -21,6 +27,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",
+    "tailwind-merge": "^3.3.1",
     "uuid": "^12.0.0"
   },
   "devDependencies": {
@@ -31,7 +38,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "puppeteer": "^24.17.1",
+    "puppeteer": "^23",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,11 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
+=======
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase/client'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -16,10 +22,25 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // 現在のポート番号を検出してリダイレクトURLを設定
+      const currentPort = typeof window !== 'undefined' 
+        ? window.location.port || '3000'
+        : '3001'
+      
+      const redirectBase = typeof window !== 'undefined' 
+        ? window.location.origin
+        : `http://localhost:${currentPort}`
+
+      console.log('Redirect URL:', `${redirectBase}/auth/callback`)
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${redirectBase}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
 
@@ -27,8 +48,13 @@ export default function LoginPage() {
         setError(error.message)
         setIsLoading(false)
       }
+<<<<<<< HEAD
     } catch (err: unknown) {
       setError('Googleログイン中にエラーが発生しました')
+=======
+    } catch (err: any) {
+      setError(err?.message || 'Googleログイン中にエラーが発生しました')
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       setIsLoading(false)
     }
   }
@@ -41,7 +67,7 @@ export default function LoginPage() {
             ログイン
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            GYMTOPIAへようこそ
+            ジムトピアへようこそ
           </p>
         </div>
         

@@ -1,23 +1,26 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+import { supabase } from './client'
 
 // 投稿の型定義
 export interface Post {
   id: string
   user_id: string
   content?: string
+  image_url?: string | null
   images?: string[]
   post_type?: 'normal' | 'workout' | 'check_in' | 'achievement'
+<<<<<<< HEAD
   workout_session_id?: string
   gym_id?: string
   checkin_id?: string
   achievement_type?: string
   achievement_data?: any
   visibility?: 'public' | 'followers' | 'private'
+=======
+  achievement_data?: any
+  workout_session_id?: string | null
+  gym_id?: string | null
+  is_public: boolean
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
   likes_count: number
   comments_count: number
   created_at: string
@@ -48,8 +51,14 @@ export interface Comment {
 }
 
 // フィードの投稿を取得
-export async function getFeedPosts(limit = 20, offset = 0) {
+export async function getFeedPosts(
+  limit = 20,
+  offset = 0,
+  filter: 'all' | 'following' | 'gym-friends' | 'same-gym' = 'all',
+  userId?: string
+) {
   try {
+<<<<<<< HEAD
     console.log('getFeedPosts: Starting to fetch posts')
     
     // まず基本的な接続をテスト
@@ -68,11 +77,16 @@ export async function getFeedPosts(limit = 20, offset = 0) {
 
     const { data: { user } } = await supabase.auth.getUser()
     console.log('getFeedPosts: User auth status:', user ? 'authenticated' : 'not authenticated')
+=======
+    // Use mock user if no user authenticated
+    const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     
     let query = supabase
       .from('gym_posts')
       .select(`
         *,
+<<<<<<< HEAD
         users:user_id (
           id,
           display_name,
@@ -125,11 +139,126 @@ export async function getFeedPosts(limit = 20, offset = 0) {
       },
       gym: post.gyms ? { name: post.gyms.name } : undefined
     })) as Post[]
+=======
+        user:user_id(id, display_name, username, avatar_url),
+        gym:gym_id(name)
+      `)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
-    return posts as Post[]
+    // Apply filters based on type
+    if (filter !== 'all' && actualUserId) {
+      if (filter === 'following') {
+        // Get posts from users the current user follows
+        const { data: following } = await supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', actualUserId)
+
+        if (following && following.length > 0) {
+          const followingIds = following.map(f => f.following_id)
+          query = query.in('user_id', followingIds)
+        } else {
+          // No following, return empty
+          return []
+        }
+      } else if (filter === 'gym-friends') {
+        // Get posts from gym friends
+        const { data: friends } = await supabase
+          .from('gym_friends')
+          .select('user1_id, user2_id, friendship_status')
+          .or(`user1_id.eq.${actualUserId},user2_id.eq.${actualUserId}`)
+          .eq('friendship_status', 'accepted')
+
+        if (friends && friends.length > 0) {
+          const friendIds = friends.map((f: any) => 
+            f.user1_id === actualUserId ? f.user2_id : f.user1_id
+          )
+          query = query.in('user_id', friendIds)
+        } else {
+          // No gym friends, return empty
+          return []
+        }
+      } else if (filter === 'same-gym') {
+        // Get posts from users who go to the same gyms
+        const { data: userGyms } = await supabase
+          .from('workout_sessions')
+          .select('gym_id')
+          .eq('user_id', actualUserId)
+          .not('gym_id', 'is', null)
+          .limit(10)
+
+        if (userGyms && userGyms.length > 0) {
+          const gymIds = [...new Set(userGyms.map(g => g.gym_id))]
+          query = query.in('gym_id', gymIds)
+        } else {
+          // No gyms, return empty
+          return []
+        }
+      }
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error fetching posts:', error)
+      return []
+    }
+
+    if (!data || data.length === 0) {
+      return []
+    }
+
+    // Get likes and comments counts
+    const postIds = data.map(p => p.id)
+    
+    // Get likes
+    const { data: likes } = await supabase
+      .from('post_likes')
+      .select('post_id, user_id')
+      .in('post_id', postIds)
+
+    // Get comments count
+    const { data: comments } = await supabase
+      .from('post_comments')
+      .select('post_id')
+      .in('post_id', postIds)
+
+    // Count likes and comments per post
+    const likeCountMap: Record<string, number> = {}
+    const commentCountMap: Record<string, number> = {}
+    const userLikedMap: Record<string, boolean> = {}
+
+    likes?.forEach(like => {
+      likeCountMap[like.post_id] = (likeCountMap[like.post_id] || 0) + 1
+      if (like.user_id === actualUserId) {
+        userLikedMap[like.post_id] = true
+      }
+    })
+
+    comments?.forEach(comment => {
+      commentCountMap[comment.post_id] = (commentCountMap[comment.post_id] || 0) + 1
+    })
+
+    // Map posts with counts
+    const postsWithCounts = data.map(post => ({
+      ...post,
+      likes_count: likeCountMap[post.id] || 0,
+      comments_count: commentCountMap[post.id] || 0,
+      is_liked: userLikedMap[post.id] || false
+    }))
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
+
+    return postsWithCounts as Post[]
   } catch (error) {
+<<<<<<< HEAD
     console.error('Error fetching feed posts:', error)
     return getSampleFeedPosts()
+=======
+    console.error('Error in getFeedPosts:', error)
+    return []
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
   }
 }
 
@@ -179,8 +308,18 @@ export async function getUserPosts(userId: string) {
     const { data: { user } } = await supabase.auth.getUser()
     
     const { data, error } = await supabase
+<<<<<<< HEAD
       .from('posts')
       .select('*')
+=======
+      .from('gym_posts')
+      .select(`
+        *,
+        user:users(id, display_name, username, avatar_url),
+        gym:gyms(name),
+        likes:post_likes!post_id(user_id)
+      `)
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -215,14 +354,23 @@ export async function createPost(post: {
     if (!user) throw new Error('Not authenticated')
 
     const { data, error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .insert({
+<<<<<<< HEAD
         user_id: user.id,
         gym_id: post.gym_id,
         content: post.content || '',
         image_urls: post.images || [],
         training_details: post.achievement_data || null,
         crowd_status: post.achievement_data?.crowd_status || null
+=======
+        content: post.content,
+        image_url: post.images?.[0] || null,
+        user_id: user.id,
+        workout_session_id: post.workout_session_id,
+        gym_id: post.gym_id || null,
+        is_public: (post.visibility ?? 'public') === 'public',
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       })
       .select()
       .single()
@@ -239,7 +387,7 @@ export async function createPost(post: {
 export async function deletePost(postId: string) {
   try {
     const { error } = await supabase
-      .from('posts')
+      .from('gym_posts')
       .delete()
       .eq('id', postId)
 
@@ -254,22 +402,27 @@ export async function deletePost(postId: string) {
 // いいねを追加
 export async function likePost(postId: string) {
   try {
+<<<<<<< HEAD
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       console.log('いいね機能はログインが必要です')
       return null
     }
+=======
+    // Use mock user for development
+    const actualUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
     const { data, error } = await supabase
       .from('post_likes')
       .insert({
-        user_id: user.id,
+        user_id: actualUserId,
         post_id: postId
       })
       .select()
       .single()
 
-    if (error) throw error
+    if (error && error.code !== '23505') throw error // Ignore duplicate key error
     return data
   } catch (error) {
     console.error('Error liking post:', error)
@@ -280,16 +433,21 @@ export async function likePost(postId: string) {
 // いいねを削除
 export async function unlikePost(postId: string) {
   try {
+<<<<<<< HEAD
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       console.log('いいね解除機能はログインが必要です')
       return false
     }
+=======
+    // Use mock user for development
+    const actualUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
     const { error } = await supabase
       .from('post_likes')
       .delete()
-      .eq('user_id', user.id)
+      .eq('user_id', actualUserId)
       .eq('post_id', postId)
 
     if (error) throw error
@@ -304,8 +462,16 @@ export async function unlikePost(postId: string) {
 export async function getPostComments(postId: string) {
   try {
     const { data, error } = await supabase
+<<<<<<< HEAD
       .from('comments')
       .select('*')
+=======
+      .from('post_comments')
+      .select(`
+        *,
+        user:user_id(display_name, username, avatar_url)
+      `)
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       .eq('post_id', postId)
       .order('created_at', { ascending: true })
 
@@ -324,16 +490,23 @@ export async function createComment(comment: {
   parent_comment_id?: string
 }) {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    // Use mock user for development
+    const actualUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
 
     const { data, error } = await supabase
-      .from('comments')
+      .from('post_comments')
       .insert({
         ...comment,
-        user_id: user.id
+        user_id: actualUserId
       })
+<<<<<<< HEAD
       .select('*')
+=======
+      .select(`
+        *,
+        user:user_id(display_name, username, avatar_url)
+      `)
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       .single()
 
     if (error) throw error
@@ -348,7 +521,7 @@ export async function createComment(comment: {
 export async function deleteComment(commentId: string) {
   try {
     const { error } = await supabase
-      .from('comments')
+      .from('post_comments')
       .delete()
       .eq('id', commentId)
 

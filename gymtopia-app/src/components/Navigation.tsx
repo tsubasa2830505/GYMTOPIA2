@@ -2,15 +2,19 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Dumbbell, BarChart3, User } from 'lucide-react'
+import { Home, Dumbbell, BarChart3, User } from 'lucide-react'
 
 export default function Navigation() {
   const pathname = usePathname()
 
   const navItems = [
     { href: '/', icon: Home, label: 'ホーム' },
+<<<<<<< HEAD
     { href: '/search', icon: Search, label: '検索' },
     { href: '/add', icon: Dumbbell, label: 'ワークアウト' },
+=======
+    { href: '/workout', icon: Dumbbell, label: 'ワークアウト' },
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     { href: '/stats', icon: BarChart3, label: '統計' },
     { href: '/profile', icon: User, label: 'プロフィール' },
   ]

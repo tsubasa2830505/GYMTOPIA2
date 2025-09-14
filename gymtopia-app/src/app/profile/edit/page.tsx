@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2 } from 'lucide-react'
+import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface PersonalRecord {
   id: string
@@ -14,12 +15,16 @@ interface PersonalRecord {
 
 export default function ProfileEditPage() {
   const router = useRouter()
+  const { mockSignOut } = useAuth()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Basic Info
   const [name, setName] = useState('筋トレマニア太郎')
   const [username, setUsername] = useState('muscle_taro')
   const [bio, setBio] = useState('筋トレ歴5年｜ベンチプレス115kg｜スクワット150kg｜デッドリフト180kg｜ジムで最高の一日を')
   const [location, setLocation] = useState('東京')
+  const [avatarUrl, setAvatarUrl] = useState('/muscle-taro-avatar.svg')
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   
   // Personal Records
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([
@@ -49,6 +54,37 @@ export default function ProfileEditPage() {
     setPersonalRecords(personalRecords.filter(record => record.id !== id))
   }
 
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // ファイルサイズチェック (最大5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('ファイルサイズは5MB以下にしてください')
+        return
+      }
+      
+      // ファイル形式チェック
+      if (!file.type.startsWith('image/')) {
+        alert('画像ファイルを選択してください')
+        return
+      }
+      
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setPreviewImage(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setPreviewImage(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   const handleSave = () => {
     // ここで保存処理を実装
     console.log({
@@ -59,6 +95,11 @@ export default function ProfileEditPage() {
       personalRecords
     })
     router.push('/profile')
+  }
+
+  const handleLogout = async () => {
+    mockSignOut()
+    router.push('/auth/login')
   }
 
   return (
@@ -96,23 +137,58 @@ export default function ProfileEditPage() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Image 
-                  src="/muscle-taro-avatar.svg" 
+                  src={previewImage || avatarUrl} 
                   alt="筋トレマニア太郎" 
                   width={96}
                   height={96}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                 />
-                <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors"
+                >
                   <Camera className="w-4 h-4 text-white" />
                 </button>
+                {previewImage && (
+                  <button
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
               <div className="flex-1">
                 <p className="text-sm text-slate-600 mb-2">プロフィール画像を変更</p>
-                <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
-                  画像を選択
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
+                  >
+                    画像を選択
+                  </button>
+                  {previewImage && (
+                    <button 
+                      onClick={handleRemoveImage}
+                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                    >
+                      削除
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  JPG、PNG、GIF形式・最大5MB
+                </p>
               </div>
             </div>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
           </div>
 
           {/* 基本情報 */}
@@ -355,6 +431,19 @@ export default function ProfileEditPage() {
                 <input type="checkbox" className="toggle" defaultChecked />
               </label>
             </div>
+          </div>
+
+          {/* ログアウトセクション */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-900 mb-4">アカウント</h3>
+            
+            <button
+              onClick={handleLogout}
+              className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-5 h-5" />
+              ログアウト
+            </button>
           </div>
 
           {/* 保存ボタン（モバイル用） */}

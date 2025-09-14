@@ -1,0 +1,24 @@
+# 重要ファイルの保護設定
+gymtopia-app/src/app/globals.css filter=check-globals-css
+gymtopia-app/package.json filter=check-package-json
+
+# バイナリファイルの識別
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# 改行コードの統一
+* text=auto
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf

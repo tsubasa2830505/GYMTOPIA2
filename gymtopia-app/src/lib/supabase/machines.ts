@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './client'
 
 // Supabaseクライアントの作成
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export interface Machine {
   id: string
@@ -48,6 +45,7 @@ export async function getMachines(): Promise<Machine[]> {
   }
 }
 
+<<<<<<< HEAD
 // デフォルトのマシンデータ
 function getDefaultMachines(): Machine[] {
   return [
@@ -88,23 +86,63 @@ function getDefaultMachines(): Machine[] {
 }
 
 // すべてのメーカーデータを取得
+=======
+// すべてのメーカーデータを取得（machinesテーブルから直接取得）
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 export async function getMachineMakers(): Promise<MachineMaker[]> {
   try {
     const { data, error } = await supabase
-      .from('machine_makers')
-      .select('*')
-      .order('name')
+      .from('machines')
+      .select('maker')
 
     if (error) {
       console.error('Error fetching machine makers:', error)
-      return []
+      return getDefaultMakers()
     }
 
-    return data || []
+    if (!data || data.length === 0) {
+      return getDefaultMakers()
+    }
+
+    // ユニークなメーカーを抽出してMachineMaker形式に変換
+    const uniqueMakers = Array.from(new Set(data.map(m => m.maker)))
+      .filter(maker => maker != null)
+      .map(maker => ({
+        id: maker,
+        name: getMakerDisplayName(maker)
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return uniqueMakers.length > 0 ? uniqueMakers : getDefaultMakers()
   } catch (error) {
     console.error('Failed to fetch machine makers:', error)
-    return []
+    return getDefaultMakers()
   }
+}
+
+// メーカーIDから表示名を取得
+function getMakerDisplayName(makerId: string): string {
+  const makerNames: { [key: string]: string } = {
+    'hammer': 'Hammer Strength',
+    'cybex': 'Cybex',
+    'life-fitness': 'Life Fitness',
+    'technogym': 'Technogym',
+    'matrix': 'Matrix',
+    'nautilus': 'Nautilus',
+  }
+  return makerNames[makerId] || makerId
+}
+
+// デフォルトのメーカーデータ
+function getDefaultMakers(): MachineMaker[] {
+  return [
+    { id: 'hammer', name: 'Hammer Strength' },
+    { id: 'cybex', name: 'Cybex' },
+    { id: 'life-fitness', name: 'Life Fitness' },
+    { id: 'technogym', name: 'Technogym' },
+    { id: 'matrix', name: 'Matrix' },
+    { id: 'nautilus', name: 'Nautilus' },
+  ]
 }
 
 // 特定のカテゴリーのマシンを取得

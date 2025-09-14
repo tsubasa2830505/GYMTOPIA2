@@ -1,11 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './client'
 import type { MusclePart } from '@/lib/types/muscle-parts'
 
 // Supabaseクライアントの作成
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // すべての筋肉部位データを取得
 // Supabaseから取得を試み、失敗したらデフォルトデータを使用

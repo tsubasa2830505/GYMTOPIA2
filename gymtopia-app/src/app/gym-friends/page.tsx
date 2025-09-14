@@ -1,9 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, UserPlus, Dumbbell, Calendar, MapPin, Search } from 'lucide-react'
+import { 
+  getGymFriends, 
+  acceptGymFriendRequest, 
+  rejectGymFriendRequest,
+  sendGymFriendRequest,
+  getGymFriendSuggestions
+} from '@/lib/supabase/gym-friends'
 
 interface GymFriend {
   id: string
@@ -23,9 +30,12 @@ interface GymFriend {
   }
   isFollowing: boolean
   mutualFriends: number
+  status?: 'pending' | 'accepted' | 'blocked'
+  is_requester?: boolean
 }
 
-const gymFriends: GymFriend[] = [
+
+const defaultGymFriends: GymFriend[] = [
   {
     id: '1',
     name: '山田太郎',
@@ -122,6 +132,80 @@ export default function GymFriendsPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
+  const [gymFriends, setGymFriends] = useState<GymFriend[]>([])
+  const [pendingRequests, setPendingRequests] = useState<any[]>([])
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadGymFriendsData()
+  }, [])
+
+  const loadGymFriendsData = async () => {
+    setLoading(true)
+    try {
+      // Load gym friends, pending requests, and suggestions
+      const [friendsData, suggestionsData] = await Promise.all([
+        getGymFriends('', 'accepted'), // TODO: Get from auth
+        getGymFriendSuggestions('', 5) // TODO: Get from auth
+      ])
+
+      // Load pending requests
+      const pendingData = await getGymFriends('', 'pending') // TODO: Get from auth
+
+      // Format friends data
+      const formattedFriends = friendsData.data?.map((friend: any) => ({
+        id: friend.id,
+        name: friend.friend?.display_name || friend.friend?.username || 'Unknown',
+        username: friend.friend?.username || 'unknown',
+        avatar: friend.friend?.avatar_url,
+        avatarBg: '#' + Math.floor(Math.random()*16777215).toString(16),
+        avatarText: (friend.friend?.display_name || friend.friend?.username || 'U')[0],
+        bio: friend.friend?.bio || 'ジム友達',
+        location: '東京',
+        joinedDate: new Date(friend.created_at).toLocaleDateString('ja-JP'),
+        trainingFrequency: '週3-4回',
+        personalRecords: {
+          benchPress: '100kg',
+          squat: '120kg',
+          deadlift: '150kg'
+        },
+        isFollowing: true,
+        mutualFriends: 0,
+        status: friend.status
+      })) || []
+
+      setGymFriends(formattedFriends.length > 0 ? formattedFriends : defaultGymFriends)
+      setPendingRequests(pendingData.data || [])
+      setSuggestions(suggestionsData.data || [])
+    } catch (error) {
+      console.error('Error loading gym friends:', error)
+      setGymFriends(defaultGymFriends)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAcceptRequest = async (requestId: string) => {
+    const result = await acceptGymFriendRequest(requestId)
+    if (result.data) {
+      await loadGymFriendsData()
+    }
+  }
+
+  const handleRejectRequest = async (requestId: string) => {
+    const result = await rejectGymFriendRequest(requestId)
+    if (result.success) {
+      await loadGymFriendsData()
+    }
+  }
+
+  const handleSendRequest = async (friendId: string) => {
+    const result = await sendGymFriendRequest('', friendId) // TODO: Get from auth
+    if (result.data) {
+      await loadGymFriendsData()
+    }
+  }
 
   const filteredFriends = gymFriends.filter(friend => {
     const matchesSearch = friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -89,3 +89,28 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
+
+/* Material Design 3 inspired classes */
+.md-card {
+  @apply bg-white rounded-xl shadow-sm border border-slate-100;
+}
+
+.md-surface {
+  @apply bg-white rounded-lg;
+}
+
+.md-primary-container {
+  @apply bg-blue-50;
+}
+
+.md-elevation-1 {
+  @apply shadow-md;
+}
+
+.md-elevation-2 {
+  @apply shadow-lg;
+}
+
+.md-transition-standard {
+  @apply transition-all duration-200 ease-in-out;
+}

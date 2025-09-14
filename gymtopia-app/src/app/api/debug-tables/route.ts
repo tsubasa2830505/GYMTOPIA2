@@ -1,16 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
 export async function GET() {
   // 本番/プレビューでは利用不可にする（開発専用）
   if (process.env.NODE_ENV !== 'development') {
     return NextResponse.json({ error: 'Not available in this environment' }, { status: 403 })
   }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
   try {
     // information_schema から public スキーマのテーブル一覧を取得
     const { data, error } = await supabase

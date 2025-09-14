@@ -85,13 +85,23 @@ const sampleGymData = {
   assets: { heroImages: ['/gym-hero.jpg'] }
 }
 
+import { getGymById, getGymMachines } from '@/lib/supabase/gyms'
+
 export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModalProps) {
   const router = useRouter()
+<<<<<<< HEAD
   const [gymData, setGymData] = useState<any>(sampleGymData)
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(0)
   const [activeTab, setActiveTab] = useState('freeweights')
+=======
+  const [liked, setLiked] = useState(gymData.likedByMe)
+  const [likesCount, setLikesCount] = useState(gymData.likesCount)
+  const [activeTab, setActiveTab] = useState('equipment')
+  const [gym, setGym] = useState<any | null>(null)
+  const [machines, setMachines] = useState<any[]>([])
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
   // ジムデータを取得
   useEffect(() => {
@@ -181,6 +191,21 @@ useEffect(() => {
       document.body.style.overflow = 'unset'
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const load = async () => {
+      if (!isOpen) return
+      try {
+        const g = await getGymById(gymId)
+        if (g) setGym(g)
+      } catch {}
+      try {
+        const gm = await getGymMachines(gymId)
+        if (Array.isArray(gm)) setMachines(gm)
+      } catch {}
+    }
+    load()
+  }, [isOpen, gymId])
 
   const handleToggleLike = () => {
     setLiked(!liked)
@@ -427,6 +452,7 @@ useEffect(() => {
               {/* Tab Content - Free Weights */}
               {activeTab === 'freeweights' && (
                 <div className="space-y-3 mb-5">
+<<<<<<< HEAD
                   {gymData.freeWeights.length === 0 ? (
                     <div className="text-center py-8 text-slate-500">
                       <p>フリーウェイト情報が登録されていません</p>
@@ -457,6 +483,36 @@ useEffect(() => {
                             )}
                             {item.range && <span>{item.range}</span>}
                           </div>
+=======
+                  {(machines.length > 0
+                    ? machines.map((gm: any) => ({
+                        name: gm.machine?.name,
+                        brand: gm.machine?.maker,
+                        count: gm.quantity || 1,
+                      }))
+                    : gymData.equipment
+                  ).map((item: any, index: number) => (
+                    <div 
+                      key={index}
+                      className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"
+                    >
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            {item.name}
+                          </h3>
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                            {item.brand}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-slate-600">
+                          <span>{item.count}台設置</span>
+                          <span>•</span>
+                          <span className={`px-2 py-0.5 rounded-lg font-medium ${getConditionColor(item.condition)}`}>
+                            状態: {item.condition}
+                          </span>
+>>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
                         </div>
                       </div>
                     ))
