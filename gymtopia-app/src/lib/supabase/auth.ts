@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { createClient } from '@supabase/supabase-js'
-import type {
-=======
 import { supabase } from './client'
-import type { 
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
+import type {
   User,
   UserProfile,
   UserWithProfile,

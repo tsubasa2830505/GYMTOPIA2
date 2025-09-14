@@ -17,7 +17,7 @@ export default function ConditionalLayout({
 
   return (
     <>
-      <Header />
+      {!isAuthPage && <Header />}
       <div className={isAuthPage ? "min-h-screen" : "min-h-screen pt-16 pb-20"}>
         {children}
       </div>

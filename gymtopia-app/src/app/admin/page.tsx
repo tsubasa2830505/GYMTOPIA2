@@ -1,13 +1,7 @@
 'use client'
 
-<<<<<<< HEAD
-import { useState } from 'react'
-// import { useRouter } from 'next/navigation'
-import { Upload, MapPin, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
-=======
 import { useState, useEffect } from 'react'
 import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 import Image from 'next/image'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters } from '@/lib/supabase/admin-statistics'

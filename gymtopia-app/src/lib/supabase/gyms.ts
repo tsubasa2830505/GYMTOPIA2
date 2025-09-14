@@ -135,28 +135,20 @@ export async function getGyms(filters?: {
   prefecture?: string
   city?: string
   search?: string
-<<<<<<< HEAD
   facilities?: FacilityKey[]
-  machines?: string[]
-  freeWeights?: string[]
-=======
   machines?: string[] // machine IDs
+  freeWeights?: string[]
   machineTypes?: string[]
   makers?: string[]
   categories?: string[] // target_category values
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 }) {
   try {
     const baseSelect = '*'
     // Include related counts for UI if needed
     let query = supabase
       .from('gyms')
-<<<<<<< HEAD
-      .select('*')
-=======
       .select(baseSelect)
       .eq('status', 'active')
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
       .order('rating', { ascending: false })
 
     if (filters?.prefecture) {

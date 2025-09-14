@@ -9,14 +9,11 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import MachineSelector from '@/components/MachineSelector'
-<<<<<<< HEAD
 import { upsertGymFacilities } from '@/lib/supabase/facilities'
 import type { FacilityFormData } from '@/types/facilities'
-=======
 import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGyms } from '@/lib/supabase/gyms'
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
 interface Exercise {
   id: string
@@ -54,15 +51,11 @@ function AddGymPostContent() {
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
-<<<<<<< HEAD
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-=======
-  
+
   // ジムリスト（Supabaseから取得）
   const [gymList, setGymList] = useState<string[]>([])
   const [gymData, setGymData] = useState<any[]>([])
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
   // URLパラメータからジム情報を取得とジムリスト読み込み
   useEffect(() => {

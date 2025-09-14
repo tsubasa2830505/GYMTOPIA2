@@ -14,7 +14,9 @@
     "safe-commit": "../scripts/auto-backup.sh && git add -A && git commit",
     "system:test": "node ../scripts/system-test.js",
     "scenario:test": "node ../scripts/scenario-test.js",
-    "gen:types": "node scripts/gen-types.mjs"
+    "gen:types": "node scripts/gen-types.mjs",
+    "db:apply:compat": "node scripts/apply-sql.js ./supabase/compat-views-safe.sql",
+    "db:apply:file": "node scripts/apply-sql.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.2",
@@ -39,6 +41,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "puppeteer": "^23",
+    "pg": "^8.12.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

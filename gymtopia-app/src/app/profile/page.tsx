@@ -3,13 +3,10 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-<<<<<<< HEAD
 import { MapPin } from 'lucide-react';
-=======
 import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
 import type { UserProfileStats, WeeklyStats, GymPost, FavoriteGym } from '@/lib/types/profile';
 import type { Achievement, PersonalRecord } from '@/lib/types/workout';
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 // Material Design icons are now inline SVGs
 
 // Helper function to format date
@@ -88,9 +85,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('gym-activity');
   const [userType, setUserType] = useState('user');
-<<<<<<< HEAD
   const [menuOpen, setMenuOpen] = useState(false);
-=======
   const [profileData, setProfileData] = useState<UserProfileStats | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null);
   const [userPosts, setUserPosts] = useState<GymPost[]>([]);
@@ -100,7 +95,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get user from mock auth or actual auth
-  const mockUser = typeof window !== 'undefined' && process.env.NODE_ENV === 'development' 
+  const mockUser = typeof window !== 'undefined' && process.env.NODE_ENV === 'development'
     ? { id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac' } // Tsubasa's user ID
     : null;
   const userId = mockUser?.id || 'mock-user-id';
@@ -133,7 +128,6 @@ export default function ProfilePage() {
 
     loadProfileData();
   }, [userId]);
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
   return (
     <div className="min-h-screen bg-slate-50">

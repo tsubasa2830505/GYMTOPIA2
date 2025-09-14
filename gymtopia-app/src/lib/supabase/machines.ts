@@ -45,7 +45,6 @@ export async function getMachines(): Promise<Machine[]> {
   }
 }
 
-<<<<<<< HEAD
 // デフォルトのマシンデータ
 function getDefaultMachines(): Machine[] {
   return [
@@ -85,10 +84,7 @@ function getDefaultMachines(): Machine[] {
   ]
 }
 
-// すべてのメーカーデータを取得
-=======
 // すべてのメーカーデータを取得（machinesテーブルから直接取得）
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 export async function getMachineMakers(): Promise<MachineMaker[]> {
   try {
     const { data, error } = await supabase

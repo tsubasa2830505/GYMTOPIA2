@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getGymById, getGymMachines, getGymFreeWeights, type Gym } from '@/lib/supabase/gyms'
+import { supabase } from '@/lib/supabase/client'
 import GymDetailedInfoDisplay from '@/components/GymDetailedInfoDisplay'
 
 interface GymDetailModalProps {
@@ -85,23 +86,15 @@ const sampleGymData = {
   assets: { heroImages: ['/gym-hero.jpg'] }
 }
 
-import { getGymById, getGymMachines } from '@/lib/supabase/gyms'
-
 export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModalProps) {
   const router = useRouter()
-<<<<<<< HEAD
   const [gymData, setGymData] = useState<any>(sampleGymData)
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(0)
   const [activeTab, setActiveTab] = useState('freeweights')
-=======
-  const [liked, setLiked] = useState(gymData.likedByMe)
-  const [likesCount, setLikesCount] = useState(gymData.likesCount)
-  const [activeTab, setActiveTab] = useState('equipment')
   const [gym, setGym] = useState<any | null>(null)
   const [machines, setMachines] = useState<any[]>([])
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 
   // ジムデータを取得
   useEffect(() => {
@@ -113,17 +106,31 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
   const loadGymData = async () => {
     setLoading(true)
     try {
+      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+
       // ジム情報を取得
       const gym = await getGymById(gymId)
       if (gym) {
-        // マシンとフリーウェイト情報を取得
-        const [machines, freeWeights] = await Promise.all([
+        // マシンとフリーウェイト情報、イキタイ情報を並列取得
+        const [machines, freeWeights, favoriteCount, userFavorite] = await Promise.all([
           getGymMachines(gymId),
-          getGymFreeWeights(gymId)
+          getGymFreeWeights(gymId),
+          // イキタイ数を取得
+          supabase
+            .from('favorite_gyms')
+            .select('id', { count: 'exact', head: true })
+            .eq('gym_id', gymId),
+          // 現在のユーザーがイキタイしているかチェック
+          supabase
+            .from('favorite_gyms')
+            .select('id')
+            .eq('gym_id', gymId)
+            .eq('user_id', mockUserId)
+            .single()
         ])
 
-        console.log('Fetched machines:', machines)
-        console.log('Fetched freeWeights:', freeWeights)
+        const actualLikesCount = favoriteCount.count || 0
+        const isLikedByUser = !userFavorite.error && userFavorite.data
 
         // データを統合
         const fullGymData = {
@@ -135,8 +142,8 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
           },
           businessHours: gym.business_hours || [{ open: '09:00', close: '22:00', days: [0, 1, 2, 3, 4, 5, 6] }],
           isOpenNow: true,
-          likesCount: gym.review_count || 0,
-          likedByMe: false,
+          likesCount: actualLikesCount,
+          likedByMe: isLikedByUser,
           images: gym.images && gym.images.length > 0 ? gym.images : [
             'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
@@ -207,9 +214,40 @@ useEffect(() => {
     load()
   }, [isOpen, gymId])
 
-  const handleToggleLike = () => {
-    setLiked(!liked)
-    setLikesCount(liked ? likesCount - 1 : likesCount + 1)
+  const handleToggleLike = async () => {
+    try {
+      // モックユーザーID（開発用）
+      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+
+      if (liked) {
+        // イキタイを解除
+        const { error } = await supabase
+          .from('favorite_gyms')
+          .delete()
+          .eq('user_id', mockUserId)
+          .eq('gym_id', gymId)
+
+        if (!error) {
+          setLiked(false)
+          setLikesCount(likesCount - 1)
+        }
+      } else {
+        // イキタイを追加
+        const { error } = await supabase
+          .from('favorite_gyms')
+          .insert({
+            user_id: mockUserId,
+            gym_id: gymId
+          })
+
+        if (!error) {
+          setLiked(true)
+          setLikesCount(likesCount + 1)
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error)
+    }
   }
 
   const formatPrice = (price: number) => {
@@ -452,7 +490,6 @@ useEffect(() => {
               {/* Tab Content - Free Weights */}
               {activeTab === 'freeweights' && (
                 <div className="space-y-3 mb-5">
-<<<<<<< HEAD
                   {gymData.freeWeights.length === 0 ? (
                     <div className="text-center py-8 text-slate-500">
                       <p>フリーウェイト情報が登録されていません</p>
@@ -483,36 +520,6 @@ useEffect(() => {
                             )}
                             {item.range && <span>{item.range}</span>}
                           </div>
-=======
-                  {(machines.length > 0
-                    ? machines.map((gm: any) => ({
-                        name: gm.machine?.name,
-                        brand: gm.machine?.maker,
-                        count: gm.quantity || 1,
-                      }))
-                    : gymData.equipment
-                  ).map((item: any, index: number) => (
-                    <div 
-                      key={index}
-                      className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl"
-                    >
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="text-sm font-semibold text-slate-900">
-                            {item.name}
-                          </h3>
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                            {item.brand}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-slate-600">
-                          <span>{item.count}台設置</span>
-                          <span>•</span>
-                          <span className={`px-2 py-0.5 rounded-lg font-medium ${getConditionColor(item.condition)}`}>
-                            状態: {item.condition}
-                          </span>
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
                         </div>
                       </div>
                     ))

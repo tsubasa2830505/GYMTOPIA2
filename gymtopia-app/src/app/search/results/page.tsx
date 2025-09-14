@@ -1,22 +1,14 @@
 'use client'
 
-<<<<<<< HEAD
-import { MapPin, List, Filter, ChevronDown, Heart, Map, Star, ArrowLeft, X } from 'lucide-react'
-=======
 import { Search, MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
 // import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import SearchResultMap from '@/components/SearchResultMap'
-<<<<<<< HEAD
 import { getGyms, Gym } from '@/lib/supabase/gyms'
-import type { FacilityKey } from '@/types/facilities'
-=======
-import { getGyms } from '@/lib/supabase/gyms'
 import { getMachines } from '@/lib/supabase/machines'
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
+import type { FacilityKey } from '@/types/facilities'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -172,8 +164,7 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
-<<<<<<< HEAD
-  }, [searchParams])
+  }, [searchParams, selectedConditions])
 
   useEffect(() => {
     // Parse machines with count (format: "name:count")
@@ -189,22 +180,10 @@ function SearchResultsContent() {
       const [name, count] = item.split(':')
       return { name, count: parseInt(count) || 1 }
     })
-=======
-  }, [selectedConditions, searchParams])
-
-  useEffect(() => {
-    // URLパラメータから選択された条件を取得
-    const machines = searchParams.get('machines')?.split(',').filter(Boolean) || []
-    const freeWeights = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
 
     setSelectedConditions({ machines, freeWeights, facilities })
-<<<<<<< HEAD
-    fetchGyms()
-  }, [searchParams, fetchGyms])
-=======
-    
+
     // マシンIDから名前を取得
     if (machines.length > 0) {
       getMachines().then(allMachines => {
@@ -215,13 +194,9 @@ function SearchResultsContent() {
         setMachineNames(nameMap)
       })
     }
-  }, [searchParams])
-  
-  // Fetch gyms whenever conditions change
-  useEffect(() => {
+
     fetchGyms()
-  }, [selectedConditions, searchParams])
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
+  }, [searchParams, selectedConditions])
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
@@ -305,9 +280,6 @@ function SearchResultsContent() {
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-<<<<<<< HEAD
-                {selectedConditions.machines.map((machine, index) => (
-=======
                 {/* スマート検索条件の表示 */}
                 {searchParams.get('searchType') && (
                   <>
@@ -334,21 +306,16 @@ function SearchResultsContent() {
                   </>
                 )}
                 {/* 既存の条件表示 */}
-                {selectedConditions.machines.map((machine) => (
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
+                {selectedConditions.machines.map((machine, index) => (
                   <button
                     key={`machine-${index}-${machine.name}`}
                     onClick={() => removeCondition('machines', machine.name)}
                     className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors flex items-center gap-1"
                   >
-<<<<<<< HEAD
                     {machine.name}
                     {machine.count > 1 && (
                       <span className="font-bold ml-1">×{machine.count}</span>
                     )}
-=======
-                    {machineNames[machine] || machine}
->>>>>>> 38df0b724fb3d2bd7e182e6009474159e417fad7
                     <X className="w-3 h-3" />
                   </button>
                 ))}
