@@ -1,7 +1,10 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm uninstall tailwindcss && npm install tailwindcss@3.4.17 --save-exact && npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "installCommand": "npm cache clean --force && rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "env": {
+    "FORCE_COLOR": "1"
+  }
 }
