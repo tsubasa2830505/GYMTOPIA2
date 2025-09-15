@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering - prevent static generation
+export const dynamic = 'force-dynamic'
+
 import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
@@ -8,7 +11,7 @@ import GymDetailModal from '@/components/GymDetailModal'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseClient } from '@/lib/supabase/client'
 
 function SearchResultsContent() {
   const router = useRouter()

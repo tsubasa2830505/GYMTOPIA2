@@ -1,4 +1,4 @@
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 
 // Supabaseクライアントの作成
 
@@ -21,6 +21,7 @@ export interface MachineMaker {
 // すべてのマシンデータを取得
 export async function getMachines(): Promise<Machine[]> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('machines')
       .select('*')
