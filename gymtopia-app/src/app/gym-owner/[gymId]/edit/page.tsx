@@ -10,10 +10,15 @@ import { getGymDetailedInfo, saveGymDetailedInfo } from '@/lib/supabase/gym-deta
 import type { GymDetailedInfo } from '@/lib/supabase/gym-detailed-info'
 
 interface GymOwnerEditPageProps {
-  params: { gymId: string }
+  params: Promise<{ gymId: string }>
 }
 
-export default function GymOwnerEditPage({ params }: GymOwnerEditPageProps) {
+export default async function GymOwnerEditPage({ params }: GymOwnerEditPageProps) {
+  const resolvedParams = await params;
+  return <GymOwnerEditContent gymId={resolvedParams.gymId} />
+}
+
+function GymOwnerEditContent({ gymId }: { gymId: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -22,11 +27,11 @@ export default function GymOwnerEditPage({ params }: GymOwnerEditPageProps) {
 
   useEffect(() => {
     loadGymDetailedInfo()
-  }, [params.gymId])
+  }, [gymId])
 
   const loadGymDetailedInfo = async () => {
     setLoading(true)
-    const info = await getGymDetailedInfo(params.gymId)
+    const info = await getGymDetailedInfo(gymId)
     if (info) {
       setFormData(info)
     }
@@ -35,7 +40,7 @@ export default function GymOwnerEditPage({ params }: GymOwnerEditPageProps) {
 
   const handleSave = async () => {
     setSaving(true)
-    const result = await saveGymDetailedInfo(params.gymId, formData)
+    const result = await saveGymDetailedInfo(gymId, formData)
     if (result.success) {
       // 成功通知（トーストなど）
       console.log('保存成功')

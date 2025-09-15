@@ -8,7 +8,7 @@ interface ReviewWithGym {
   id: string
   rating: number
   title?: string
-  content: string
+  content?: string
   created_at: string
   gym_name: string
   gym_id: string
@@ -17,6 +17,10 @@ interface ReviewWithGym {
   cleanliness_rating?: number
   staff_rating?: number
   accessibility_rating?: number
+  user?: {
+    display_name: string
+    username: string
+  }
 }
 
 export default function AdminReviewsPage() {
@@ -253,7 +257,7 @@ export default function AdminReviewsPage() {
                 <h4 className="font-medium text-gray-900 mb-2">{review.title}</h4>
               )}
 
-              <p className="text-gray-700 mb-4 leading-relaxed">{review.content}</p>
+              <p className="text-gray-700 mb-4 leading-relaxed">{review.content || ''}</p>
 
               {/* 詳細評価（管理者のみ表示） */}
               {showRatings && (review.equipment_rating || review.cleanliness_rating || review.staff_rating || review.accessibility_rating) && (

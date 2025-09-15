@@ -5,6 +5,7 @@ import {
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,
   Settings, Package, Building, AlertCircle
 } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
@@ -298,12 +299,20 @@ function AddGymPostContent() {
         <div className="max-w-3xl mx-auto px-4">
           <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => router.back()}
                 className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
+              <Image
+                src="/images/gymtopia-logo.svg"
+                alt="ジムトピア"
+                width={80}
+                height={24}
+                className="h-5 w-auto"
+              />
+              <span className="text-slate-400">|</span>
               <h1 className="text-xl font-bold text-slate-900">
                 {activeTab === 'post' ? 'ジム活を投稿' : 'ジム機器を登録'}
               </h1>

@@ -1,11 +1,10 @@
 'use client'
 
-import { Search, MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
-// import Image from 'next/image'
+import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
-import SearchResultMap from '@/components/SearchResultMap'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
@@ -313,7 +312,13 @@ function SearchResultsContent() {
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-[21px] font-bold text-slate-900">ジムトピア</h1>
+              <Image
+                src="/images/gymtopia-logo.svg"
+                alt="ジムトピア"
+                width={120}
+                height={32}
+                className="h-6 sm:h-8 w-auto"
+              />
               <p className="text-xs text-slate-600">理想のジムを見つけよう</p>
             </div>
           </div>

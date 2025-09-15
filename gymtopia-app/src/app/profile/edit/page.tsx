@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Save, X, Camera, MapPin, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
+import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
 
@@ -23,7 +23,6 @@ export default function ProfileEditPage() {
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [bio, setBio] = useState('')
-  const [location, setLocation] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -80,7 +79,6 @@ export default function ProfileEditPage() {
         setName(data.display_name || '')
         setUsername(data.username || '')
         setBio(data.bio || '')
-        setLocation(data.location || '')
         setAvatarUrl(data.avatar_url || '')
       }
     } catch (error) {
@@ -192,12 +190,11 @@ export default function ProfileEditPage() {
         uploadedAvatarUrl = publicUrl
       }
 
-      // プロフィール情報の更新
+      // プロフィール情報の更新（locationフィールドは存在しないため除外）
       console.log('更新データ:', {
         display_name: name,
         username: username,
         bio: bio,
-        location: location,
         avatar_url: uploadedAvatarUrl,
         updated_at: new Date().toISOString()
       })
@@ -208,7 +205,6 @@ export default function ProfileEditPage() {
           display_name: name,
           username: username,
           bio: bio,
-          location: location,
           avatar_url: uploadedAvatarUrl,
           updated_at: new Date().toISOString()
         })
@@ -362,20 +358,8 @@ export default function ProfileEditPage() {
               <p className="text-xs text-slate-500 mt-1">半角英数字とアンダースコアのみ使用可能</p>
             </div>
 
-            {/* 位置情報 */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                <MapPin className="w-4 h-4 inline mr-1" />
-                位置情報
-              </label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-                placeholder="都市名を入力"
-              />
-            </div>
+            {/* 位置情報 - データベースに存在しないため非表示 */}
+            {/* locationフィールドは将来的に追加予定 */}
 
             {/* 自己紹介 */}
             <div>

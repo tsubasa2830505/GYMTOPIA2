@@ -1,6 +1,7 @@
 'use client'
 
-import { MapPin, Calendar, ChevronRight, Dumbbell, Search } from 'lucide-react'
+import { MapPin, Calendar, Dumbbell, Search } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'
@@ -10,8 +11,6 @@ import ConditionSelector from '@/components/ConditionSelector'
 export default function Home() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('machine')
-  const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
-  const [selectedMakers, setSelectedMakers] = useState<string[]>([])
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
@@ -36,58 +35,6 @@ export default function Home() {
     return selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size > 0
   }
 
-  const muscles = ['胸', '背中', '脚', '肩', '腕']
-  const makers = [
-    { name: 'ROGUE Fitness', location: 'USA' },
-    { name: 'Hammer Strength', location: 'USA' },
-    { name: 'Prime Fitness', location: 'USA' },
-    { name: 'Cybex', location: 'USA' },
-    { name: 'Life Fitness', location: 'USA' },
-    { name: 'Technogym', location: 'Italy' },
-  ]
-
-  const searchResults = [
-    {
-      name: 'アイソラテラル チェストプレス',
-      brand: 'Hammer Strength',
-      tags: ['大胸筋上部', '大胸筋中部', '+2'],
-    },
-    {
-      name: 'アイソラテラル インクラインプレス',
-      brand: 'Hammer Strength',
-      tags: ['大胸筋上部', '三角筋前部', '+1'],
-    },
-    {
-      name: 'ラットプルダウン',
-      brand: 'Hammer Strength',
-      tags: ['広背筋上部', '広背筋中部', '+2'],
-    },
-    {
-      name: 'リニア レッグプレス',
-      brand: 'Hammer Strength',
-      tags: ['大腿四頭筋', 'ハムストリングス', '+1'],
-    },
-    {
-      name: 'HV-1 ケーブルマシン',
-      brand: 'Prime Fitness',
-      tags: ['大胸筋上部', '大胸筋中部', '+8'],
-    },
-    {
-      name: 'プロディジー ケーブル クロスオーバー',
-      brand: 'Prime Fitness',
-      tags: ['大胸筋上部', '大胸筋中部', '+3'],
-    },
-    {
-      name: '95T Achieve トレッドミル',
-      brand: 'Life Fitness',
-      tags: ['大腿四頭筋', 'ハムストリングス', '+2'],
-    },
-    {
-      name: '95E Achieve エリプティカル',
-      brand: 'Life Fitness',
-      tags: ['大腿四頭筋', 'ハムストリングス', '+2'],
-    },
-  ]
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--md-background)' }}>
@@ -99,7 +46,13 @@ export default function Home() {
               <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-[21px] font-bold text-slate-900">ジムトピア</h1>
+              <Image
+                src="/images/gymtopia-logo.svg"
+                alt="ジムトピア"
+                width={120}
+                height={32}
+                className="h-6 sm:h-8 w-auto"
+              />
               <p className="text-xs text-slate-600">理想のジムを見つけよう</p>
             </div>
           </div>
@@ -150,7 +103,7 @@ export default function Home() {
                           <span>{machine}</span>
                           <button
                             onClick={() => {
-                              const newMachines = new Set(selectedMachines)
+                              const newMachines = new Map(selectedMachines)
                               newMachines.delete(machine)
                               setSelectedMachines(newMachines)
                             }}
@@ -196,7 +149,7 @@ export default function Home() {
                     <div className="flex items-center justify-between mt-3">
                       <button
                         onClick={() => {
-                          setSelectedMachines(new Set())
+                          setSelectedMachines(new Map())
                           setSelectedFreeWeights(new Map())
                           setSelectedFacilities(new Set())
                         }}
@@ -292,109 +245,6 @@ export default function Home() {
                   />
                 )}
                 
-                {/* Muscle Tab - Original content */}
-                {activeTab === 'muscle' && (
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 mb-3 sm:mb-4">鍛えたい部位を選択</h4>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
-                  {muscles.map((muscle) => (
-                    <button
-                      key={muscle}
-                      onClick={() => {
-                        setSelectedMuscles(prev =>
-                          prev.includes(muscle)
-                            ? prev.filter(m => m !== muscle)
-                            : [...prev, muscle]
-                        )
-                      }}
-                      className={`py-3 sm:py-4 px-2 sm:px-3 rounded-xl sm:rounded-2xl shadow-sm transition-all ${
-                        selectedMuscles.includes(muscle)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2">
-                        <Dumbbell className="w-full h-full" />
-                      </div>
-                      <p className="text-[10px] sm:text-xs font-medium">{muscle}</p>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Makers */}
-                <h4 className="text-sm font-bold text-slate-900 mt-4 sm:mt-6 mb-3 sm:mb-4">メーカーを選択</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {makers.map((maker) => (
-                    <button
-                      key={maker.name}
-                      onClick={() => {
-                        setSelectedMakers(prev =>
-                          prev.includes(maker.name)
-                            ? prev.filter(m => m !== maker.name)
-                            : [...prev, maker.name]
-                        )
-                      }}
-                      className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-sm text-left transition-all ${
-                        selectedMakers.includes(maker.name)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white hover:bg-slate-50'
-                      }`}
-                    >
-                      <p className="text-xs sm:text-sm font-semibold">{maker.name}</p>
-                      <p className="text-[10px] sm:text-xs opacity-75">{maker.location}</p>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Divider */}
-                <div className="h-px bg-slate-200 my-4 sm:my-6" />
-
-                {/* Search Results */}
-                <div className="flex justify-between items-center mb-3 sm:mb-4">
-                  <h4 className="text-sm font-bold text-slate-900">検索結果</h4>
-                  <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-purple-100 text-purple-700 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium">
-                    8台のマシン
-                  </span>
-                </div>
-
-                <div className="space-y-2 sm:space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-                  {searchResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className="md-card-outlined rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:md-elevation-2 md-transition-standard cursor-pointer"
-                      onClick={() => router.push('/search/results')}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h5 className="text-xs sm:text-sm font-medium text-slate-900 mb-1">
-                            {result.name}
-                          </h5>
-                          <span className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 border border-slate-200 rounded-md sm:rounded-lg text-[10px] sm:text-xs text-slate-700 mb-1.5 sm:mb-2">
-                            {result.brand}
-                          </span>
-                          <div className="flex flex-wrap gap-1">
-                            {result.tags.slice(0, 2).map((tag, tagIndex) => (
-                              <span
-                                key={tagIndex}
-                                className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-purple-100 text-purple-700 rounded-md sm:rounded-lg text-[10px] sm:text-xs"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                            {result.tags.length > 2 && (
-                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-purple-100 text-purple-700 rounded-md sm:rounded-lg text-[10px] sm:text-xs">
-                                {result.tags[2]}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                  </div>
-                )}
               </div>
 
               {/* Always visible search button */}
@@ -465,7 +315,7 @@ export default function Home() {
                       <span className="text-sm font-medium text-purple-700">{machine}</span>
                       <button
                         onClick={() => {
-                          const newMachines = new Set(selectedMachines)
+                          const newMachines = new Map(selectedMachines)
                           newMachines.delete(machine)
                           setSelectedMachines(newMachines)
                         }}

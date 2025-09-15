@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { PlusCircle, Heart, MessageCircle, Share2, Download, Instagram } from 'lucide-react';
+import { Heart, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
+import TrainingDetails from '@/components/TrainingDetails';
 
 // サンプル投稿データを生成する関数
 const getSamplePosts = (): Post[] => [
@@ -95,6 +97,9 @@ export default function FeedPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
   const [generatingStory, setGeneratingStory] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadPosts();
@@ -175,29 +180,103 @@ export default function FeedPage() {
   };
 
   const handleGenerateStory = async (post: Post) => {
+    console.log('handleGenerateStory called with post:', post);
     setGeneratingStory(post.id);
     try {
+      console.log('Starting image generation...');
       await downloadStoryImage(post, `gymtopia-story-${post.id}.png`);
+      console.log('Image generation completed successfully');
     } catch (error) {
       console.error('Error generating story image:', error);
-      alert('ストーリー画像の生成に失敗しました。');
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      alert('ストーリー画像の生成に失敗しました。コンソールを確認してください。');
     } finally {
       setGeneratingStory(null);
     }
   };
 
-  // const getConditionColor = (condition: string) => {
-  //   switch (condition) {
-  //     case 'empty':
-  //       return 'text-green-600';
-  //     case 'normal':
-  //       return 'text-yellow-600';
-  //     case 'crowded':
-  //       return 'text-red-600';
-  //     default:
-  //       return 'text-gray-600';
-  //   }
-  // };
+  const handleEditPost = (post: Post) => {
+    setEditingPost(post);
+    setShowEditModal(true);
+    setActiveDropdown(null);
+  };
+
+  const handleSaveEdit = async (updatedData: Partial<Post> & { workout_started_at?: string; workout_ended_at?: string }) => {
+    if (!editingPost) return;
+
+    console.log('Saving edit with data:', updatedData);
+    console.log('Editing post ID:', editingPost.id);
+    console.log('Current posts:', posts);
+
+    try {
+      // ここでSupabaseの更新処理を実装
+      const updatedPosts = posts.map(p => {
+        if (p.id === editingPost.id) {
+          // 完全に新しいオブジェクトを作成して確実に更新
+          const updated: any = {
+            ...p,
+            content: updatedData.content !== undefined ? updatedData.content : p.content,
+            images: updatedData.images !== undefined ? updatedData.images : p.images,
+            training_details: updatedData.training_details !== undefined
+              ? updatedData.training_details
+              : p.training_details,
+            workout_started_at: updatedData.workout_started_at !== undefined
+              ? updatedData.workout_started_at
+              : (p as any).workout_started_at,
+            workout_ended_at: updatedData.workout_ended_at !== undefined
+              ? updatedData.workout_ended_at
+              : (p as any).workout_ended_at
+          };
+
+          // 時間が設定されている場合は時間差を計算
+          if (updated.workout_started_at && updated.workout_ended_at) {
+            const [startHour, startMin] = updated.workout_started_at.split(':').map(Number);
+            const [endHour, endMin] = updated.workout_ended_at.split(':').map(Number);
+            const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+            updated.workout_duration_calculated = duration > 0 ? duration : 0;
+          }
+
+          console.log('Original post:', p);
+          console.log('Updated post:', updated);
+          return updated;
+        }
+        return p;
+      });
+
+      console.log('All updated posts:', updatedPosts);
+
+      // 新しい配列として設定して強制的に再レンダリング
+      setPosts([...updatedPosts]);
+      setShowEditModal(false);
+      setEditingPost(null);
+    } catch (error) {
+      console.error('Error updating post:', error);
+      alert('投稿の更新に失敗しました');
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('この投稿を削除してもよろしいですか？')) {
+      return;
+    }
+
+    try {
+      // ここでSupabaseの削除処理を実装
+      setPosts(posts.filter(p => p.id !== postId));
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('投稿の削除に失敗しました');
+    }
+  };
+
+  const toggleDropdown = (postId: string) => {
+    setActiveDropdown(activeDropdown === postId ? null : postId);
+  };
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -232,7 +311,13 @@ export default function FeedPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg sm:text-[21px] font-bold text-slate-900">ジムトピア</h1>
+              <Image
+                src="/images/gymtopia-logo.svg"
+                alt="ジムトピア"
+                width={120}
+                height={32}
+                className="h-6 sm:h-8 w-auto"
+              />
               <p className="text-xs text-slate-600">理想のジムを見つけよう</p>
             </div>
           </div>
@@ -366,6 +451,37 @@ export default function FeedPage() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Dropdown Menu - 開発環境ではすべての投稿で表示 */}
+                      {(true || (user && post.user_id === user.id)) && (
+                        <div className="relative">
+                          <button
+                            onClick={() => toggleDropdown(post.id)}
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <MoreVertical className="w-5 h-5 text-gray-500" />
+                          </button>
+
+                          {activeDropdown === post.id && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                              <button
+                                onClick={() => handleEditPost(post)}
+                                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                              >
+                                <Edit className="w-4 h-4 text-gray-500" />
+                                <span className="text-sm text-gray-700">編集</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeletePost(post.id)}
+                                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-red-50 transition-colors border-t border-gray-100"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                                <span className="text-sm text-red-600">削除</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -402,63 +518,14 @@ export default function FeedPage() {
                     </div>
                   )}
 
-                  {/* Training Details - Collapsible */}
-                  {post.training_details && post.training_details.exercises && Array.isArray(post.training_details.exercises) && post.training_details.exercises.length > 0 && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                        <button
-                          onClick={() => toggleTrainingDetails(post.id)}
-                          className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 border-b border-slate-200 transition-all duration-200"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm text-slate-700">トレーニング詳細</span>
-                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full">
-                                {post.training_details?.exercises?.length || 0}種目
-                              </span>
-                            </div>
-                            <svg
-                              className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${expandedTraining.has(post.id) ? 'rotate-180' : ''
-                                }`}
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                            >
-                              <path d="M7 10l5 5 5-5z" />
-                            </svg>
-                          </div>
-                        </button>
-
-                        {expandedTraining.has(post.id) && (
-                          <div className="p-4 border-t border-slate-200">
-                            <div className="grid gap-3">
-                              {post.training_details?.exercises?.map((exercise, index: number) => (
-                                <div key={index} className="flex items-center justify-between py-3 px-4 bg-slate-50 rounded-lg border border-slate-100">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                      {index + 1}
-                                    </div>
-                                    <span className="font-medium text-gray-900">{exercise?.name || '種目名不明'}</span>
-                                  </div>
-                                  <div className="flex items-center gap-4 text-sm">
-                                    <span className="text-gray-600">
-                                      <span className="font-semibold text-blue-600">
-                                        {(exercise?.weight ?? 0) > 0 ? `${exercise.weight}kg` : '自重'}
-                                      </span>
-                                    </span>
-                                    <span className="text-gray-600">
-                                      <span className="font-semibold text-indigo-600">{exercise?.sets ?? 0}</span>セット
-                                    </span>
-                                    <span className="text-gray-600">
-                                      <span className="font-semibold text-purple-600">{exercise?.reps ?? 0}</span>回
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  {/* Training Details - Using shared component */}
+                  {post.training_details && post.training_details.exercises && (
+                    <TrainingDetails
+                      exercises={post.training_details.exercises}
+                      crowdStatus={post.training_details.crowd_status}
+                      isExpanded={expandedTraining.has(post.id)}
+                      onToggle={() => toggleTrainingDetails(post.id)}
+                    />
                   )}
 
                   {/* Achievement Data (Legacy) */}
@@ -532,19 +599,22 @@ export default function FeedPage() {
                           <span className="text-sm">{post.comments_count}</span>
                         </button>
                       </div>
-                      <button
-                        onClick={() => handleGenerateStory(post)}
-                        disabled={generatingStory === post.id}
-                        className="flex items-center gap-2 text-gray-500 hover:text-pink-500 transition disabled:opacity-50"
-                        title="インスタストーリー用画像を生成"
-                      >
-                        {generatingStory === post.id ? (
-                          <div className="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                          <Instagram className="w-5 h-5" />
-                        )}
-                        <span className="text-sm hidden sm:inline">ストーリー</span>
-                      </button>
+                      {/* ストーリー生成ボタン - 開発環境ではすべての投稿で表示 */}
+                      {(true || (user && post.user_id === user.id)) && (
+                        <button
+                          onClick={() => handleGenerateStory(post)}
+                          disabled={generatingStory === post.id}
+                          className="flex items-center gap-2 text-gray-500 hover:text-purple-500 transition disabled:opacity-50"
+                          title="ストーリー画像を生成"
+                        >
+                          {generatingStory === post.id ? (
+                            <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Camera className="w-5 h-5" />
+                          )}
+                          <span className="text-sm hidden sm:inline">ストーリー</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -586,6 +656,19 @@ export default function FeedPage() {
           </svg>
         </button>
       </div>
+
+      {/* Edit Modal */}
+      {editingPost && (
+        <PostEditModal
+          post={editingPost}
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingPost(null);
+          }}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 }

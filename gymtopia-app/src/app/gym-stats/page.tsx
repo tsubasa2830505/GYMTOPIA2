@@ -39,7 +39,7 @@ export default function GymStatsPage() {
   const [loading, setLoading] = useState(true)
   
   // TODO: Get user ID from auth context
-  const userId = null // Will need authentication context
+  const userId = 'user-demo-001' // Temporary default for development
 
   // Statistics state
   const [stats, setStats] = useState({

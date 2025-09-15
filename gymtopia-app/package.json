@@ -47,6 +47,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
+    "node-fetch": "^2.7.0",
     "pg": "^8.12.0",
     "puppeteer": "^23",
     "tailwindcss": "^3.4.17",

@@ -9,10 +9,11 @@ echo "📍 Next.jsプロセスを停止中..."
 pkill -9 -f "next dev" 2>/dev/null || true
 pkill -9 -f "next-server" 2>/dev/null || true
 
-# Node.jsの開発関連プロセスを停止
-echo "📍 Node.js開発プロセスを停止中..."
-pkill -9 -f "node.*dev" 2>/dev/null || true
-pkill -9 -f "npm run dev" 2>/dev/null || true
+# Node.jsの開発関連プロセスを停止（Claude Codeは除外）
+echo "📍 Node.js開発プロセスを停止中（Claude Codeは保持）..."
+# 開発プロセスのみを対象にして終了
+ps aux | grep -E "node.*dev" | grep -v grep | grep -v ".claude" | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
+ps aux | grep -E "npm run dev" | grep -v grep | grep -v ".claude" | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
 
 # ポート3000-3010を使用しているプロセスを強制終了
 echo "📍 ポート3000-3010を解放中..."
@@ -30,11 +31,11 @@ rm -rf .next/cache/*.lock 2>/dev/null || true
 # プロセスが完全に終了するまで待機
 sleep 2
 
-# 残っているプロセスを確認
-remaining=$(ps aux | grep -E "(next|node.*dev)" | grep -v grep | wc -l | tr -d ' ')
+# 残っている開発サーバープロセスを確認
+remaining=$(ps aux | grep -E "(next|node.*dev)" | grep -v grep | grep -v ".claude" | wc -l | tr -d ' ')
 if [ "$remaining" -gt 0 ]; then
-    echo "⚠️  まだ$remaining個のプロセスが残っています。強制終了中..."
-    ps aux | grep -E "(next|node.*dev)" | grep -v grep | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+    echo "⚠️  まだ$remaining個の開発サーバープロセスが残っています。強制終了中..."
+    ps aux | grep -E "(next|node.*dev)" | grep -v grep | grep -v ".claude" | awk '{print $2}' | xargs kill -9 2>/dev/null || true
 fi
 
 echo "✅ すべてのプロセスを終了しました！"

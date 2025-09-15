@@ -69,12 +69,11 @@ export default function OwnerApplicationPage() {
           .from('gym_owner_applications')
           .insert({
             user_id: user.id,
-            user_email: user.email,
+            gym_id: '00000000-0000-0000-0000-000000000000', // Placeholder gym ID
+            contact_email: user.email || '',
+            contact_phone: '', // Required field, but empty for Google Form submission
             status: 'pending',
-            application_data: {
-              submitted_via: 'google_form',
-              submitted_at: new Date().toISOString()
-            }
+            applied_at: new Date().toISOString()
           })
 
         setApplicationStatus('pending')

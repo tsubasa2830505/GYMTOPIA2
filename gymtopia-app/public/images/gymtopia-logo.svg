@@ -1,0 +1,13 @@
+<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .logo-text {
+        font-family: Arial, "Noto Sans JP", sans-serif;
+        font-weight: 900;
+        font-size: 120px;
+        fill: #000000;
+      }
+    </style>
+  </defs>
+  <text x="50" y="150" class="logo-text">ジムトピア</text>
+</svg>
