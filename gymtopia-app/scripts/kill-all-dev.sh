@@ -15,14 +15,12 @@ echo "📍 Node.js開発プロセスを停止中（Claude Codeは保持）..."
 ps aux | grep -E "node.*dev" | grep -v grep | grep -v ".claude" | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
 ps aux | grep -E "npm run dev" | grep -v grep | grep -v ".claude" | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
 
-# ポート3000-3010を使用しているプロセスを強制終了
-echo "📍 ポート3000-3010を解放中..."
-for port in {3000..3010}; do
-    if lsof -i :$port >/dev/null 2>&1; then
-        echo "  ポート$portを解放..."
-        lsof -ti :$port | xargs kill -9 2>/dev/null || true
-    fi
-done
+# ポート3000のみを解放（Claude Code用の3001は保持）
+echo "📍 ポート3000を解放中（3001はClaude Code用に保持）..."
+if lsof -i :3000 >/dev/null 2>&1; then
+    echo "  ポート3000を解放..."
+    lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+fi
 
 # .nextディレクトリのロックファイルを削除
 echo "🗑️  ロックファイルを削除中..."

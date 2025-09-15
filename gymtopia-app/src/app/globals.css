@@ -8,12 +8,13 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
+/* ダークモードを無効化して常にライトモードを使用 */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
@@ -90,12 +91,24 @@ body {
   @apply bg-white rounded-xl shadow-sm border border-slate-100;
 }
 
+.md-card-elevated {
+  @apply bg-white rounded-2xl shadow-lg;
+}
+
 .md-surface {
   @apply bg-white rounded-lg;
 }
 
+.md-surface-variant {
+  @apply bg-slate-50 rounded-lg;
+}
+
 .md-primary-container {
   @apply bg-blue-50;
+}
+
+.md-secondary-container {
+  @apply bg-purple-50;
 }
 
 .md-elevation-1 {
@@ -106,6 +119,75 @@ body {
   @apply shadow-lg;
 }
 
+.md-elevation-3 {
+  @apply shadow-xl;
+}
+
 .md-transition-standard {
   @apply transition-all duration-200 ease-in-out;
+}
+
+.md-ripple {
+  @apply relative overflow-hidden;
+}
+
+/* Material Design Typography */
+.md-display-large {
+  @apply text-5xl font-normal leading-tight;
+}
+
+.md-display-medium {
+  @apply text-4xl font-normal leading-tight;
+}
+
+.md-display-small {
+  @apply text-3xl font-normal leading-tight;
+}
+
+.md-headline-large {
+  @apply text-3xl font-normal;
+}
+
+.md-headline-medium {
+  @apply text-2xl font-normal;
+}
+
+.md-headline-small {
+  @apply text-xl font-normal;
+}
+
+.md-title-large {
+  @apply text-xl font-medium;
+}
+
+.md-title-medium {
+  @apply text-base font-medium;
+}
+
+.md-title-small {
+  @apply text-sm font-medium;
+}
+
+.md-label-large {
+  @apply text-sm font-medium;
+}
+
+.md-label-medium {
+  @apply text-xs font-medium;
+}
+
+.md-label-small {
+  @apply text-xs font-medium;
+}
+
+.md-body-large {
+  @apply text-base font-normal;
+}
+
+.md-body-medium {
+  @apply text-sm font-normal;
+}
+
+.md-body-small {
+  @apply text-xs font-normal;
 }

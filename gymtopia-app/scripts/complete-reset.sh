@@ -12,11 +12,10 @@ pkill -9 -f "next-server" 2>/dev/null || true
 pkill -9 -f "npm run dev" 2>/dev/null || true
 sleep 2
 
-# Step 2: ポート3000-3010を強制解放
-echo "2️⃣ ポート3000-3010を解放..."
-for port in {3000..3010}; do
-    lsof -ti :$port 2>/dev/null | xargs -r kill -9 2>/dev/null || true
-done
+# Step 2: ポート3000のみを解放（3001はClaude Code用に保持）
+echo "2️⃣ ポート3000を解放..."
+# Claude Codeが使用する3001番ポートは除外
+lsof -ti :3000 2>/dev/null | xargs -r kill -9 2>/dev/null || true
 
 # Step 3: .nextディレクトリとnode_modulesのクリーンアップ
 echo "3️⃣ キャッシュをクリーンアップ..."
