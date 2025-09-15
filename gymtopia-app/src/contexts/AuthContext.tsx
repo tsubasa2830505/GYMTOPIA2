@@ -48,18 +48,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check if we're in development mode and should use mock auth
     const isDevelopment = process.env.NODE_ENV === 'development'
-    // For development, always use mock auth to avoid database dependency
-    const useMockAuth = isDevelopment
+    const useMockAuth = isDevelopment && process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
 
     if (useMockAuth && !isLoggedOut) {
       console.log('📱 AuthContext: Using mock auth for development')
-      // Set mock user for development
+      // Get mock user data from environment variables or use defaults
       const mockUser: SessionUser = {
-        id: 'mock-user-id',
-        email: 'test@gymtopia.app',
-        username: 'muscle_taro',
-        displayName: '筋トレマニア太郎',
-        avatarUrl: '/muscle-taro-avatar.svg'
+        id: process.env.NEXT_PUBLIC_MOCK_USER_ID || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+        email: process.env.NEXT_PUBLIC_MOCK_USER_EMAIL || 'tsubasa.a.283.0505@gmail.com',
+        username: process.env.NEXT_PUBLIC_MOCK_USERNAME || 'tsubasa_gym',
+        displayName: process.env.NEXT_PUBLIC_MOCK_DISPLAY_NAME || 'Tsubasa',
+        avatarUrl: process.env.NEXT_PUBLIC_MOCK_AVATAR_URL || null
       }
       setUser(mockUser)
       setSession({

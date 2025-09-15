@@ -117,7 +117,9 @@
       "Bash(./scripts/kill-all-dev.sh:*)",
       "Read(//Users/tsubasa/.serena/**)",
       "Read(//Users/tsubasa/serena_project/**)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "WebFetch(domain:gym-topia.com)",
+      "Bash(PORT=3001 npm run dev)"
     ],
     "deny": [],
     "ask": []
