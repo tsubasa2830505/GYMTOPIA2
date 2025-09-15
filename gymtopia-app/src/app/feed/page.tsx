@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Heart, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import PostEditModal from '@/components/PostEditModal';
-import { getFeedPosts, likePost, unlikePost, type Post } from '@/lib/supabase/posts';
+import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
 import TrainingDetails from '@/components/TrainingDetails';
@@ -209,49 +209,77 @@ export default function FeedPage() {
 
     console.log('Saving edit with data:', updatedData);
     console.log('Editing post ID:', editingPost.id);
-    console.log('Current posts:', posts);
+    console.log('Images being saved:', updatedData.images);
 
     try {
-      // ここでSupabaseの更新処理を実装
+      // サンプルデータの場合はローカルでのみ更新
+      if (editingPost.id.startsWith('sample-')) {
+        const updatedPosts = posts.map(p => {
+          if (p.id === editingPost.id) {
+            const updated: any = {
+              ...p,
+              content: updatedData.content !== undefined ? updatedData.content : p.content,
+              images: updatedData.images !== undefined ? updatedData.images : p.images,
+              training_details: updatedData.training_details !== undefined
+                ? updatedData.training_details
+                : p.training_details,
+              workout_started_at: updatedData.workout_started_at !== undefined
+                ? updatedData.workout_started_at
+                : (p as any).workout_started_at,
+              workout_ended_at: updatedData.workout_ended_at !== undefined
+                ? updatedData.workout_ended_at
+                : (p as any).workout_ended_at
+            };
+
+            // 時間が設定されている場合は時間差を計算
+            if (updated.workout_started_at && updated.workout_ended_at) {
+              const [startHour, startMin] = updated.workout_started_at.split(':').map(Number);
+              const [endHour, endMin] = updated.workout_ended_at.split(':').map(Number);
+              const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+              updated.workout_duration_calculated = duration > 0 ? duration : 0;
+            }
+
+            console.log('Updated sample post:', updated);
+            return updated;
+          }
+          return p;
+        });
+
+        setPosts([...updatedPosts]);
+        setShowEditModal(false);
+        setEditingPost(null);
+        return;
+      }
+
+      // データベースの更新
+      const updatePayload = {
+        content: updatedData.content,
+        images: updatedData.images,
+        training_details: updatedData.training_details,
+        workout_started_at: updatedData.workout_started_at,
+        workout_ended_at: updatedData.workout_ended_at
+      };
+
+      console.log('Updating post in database:', editingPost.id, updatePayload);
+      const updatedPost = await updatePost(editingPost.id, updatePayload);
+
+      // UIを更新
       const updatedPosts = posts.map(p => {
         if (p.id === editingPost.id) {
-          // 完全に新しいオブジェクトを作成して確実に更新
-          const updated: any = {
+          return {
             ...p,
-            content: updatedData.content !== undefined ? updatedData.content : p.content,
-            images: updatedData.images !== undefined ? updatedData.images : p.images,
-            training_details: updatedData.training_details !== undefined
-              ? updatedData.training_details
-              : p.training_details,
-            workout_started_at: updatedData.workout_started_at !== undefined
-              ? updatedData.workout_started_at
-              : (p as any).workout_started_at,
-            workout_ended_at: updatedData.workout_ended_at !== undefined
-              ? updatedData.workout_ended_at
-              : (p as any).workout_ended_at
+            ...updatedPost,
+            user: p.user,
+            gym: p.gym
           };
-
-          // 時間が設定されている場合は時間差を計算
-          if (updated.workout_started_at && updated.workout_ended_at) {
-            const [startHour, startMin] = updated.workout_started_at.split(':').map(Number);
-            const [endHour, endMin] = updated.workout_ended_at.split(':').map(Number);
-            const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
-            updated.workout_duration_calculated = duration > 0 ? duration : 0;
-          }
-
-          console.log('Original post:', p);
-          console.log('Updated post:', updated);
-          return updated;
         }
         return p;
       });
 
-      console.log('All updated posts:', updatedPosts);
-
-      // 新しい配列として設定して強制的に再レンダリング
       setPosts([...updatedPosts]);
       setShowEditModal(false);
       setEditingPost(null);
+      console.log('Post updated successfully');
     } catch (error) {
       console.error('Error updating post:', error);
       alert('投稿の更新に失敗しました');

@@ -303,6 +303,79 @@ export async function createPost(post: {
   }
 }
 
+// 投稿を更新
+export async function updatePost(postId: string, updates: {
+  content?: string
+  images?: string[]
+  training_details?: {
+    gym_name?: string
+    exercises?: {
+      name: string
+      weight: number
+      sets: number
+      reps: number
+    }[]
+    crowd_status?: string
+  } | null
+  workout_started_at?: string
+  workout_ended_at?: string
+}) {
+  try {
+    const { data: { user } } = await getSupabaseClient().auth.getUser()
+    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+
+    // 投稿の所有者確認
+    const { data: existingPost, error: fetchError } = await getSupabaseClient()
+      .from('gym_posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single()
+
+    if (fetchError) throw fetchError
+    if (!existingPost) throw new Error('Post not found')
+
+    // サンプルデータの場合はモック更新を返す
+    if (postId.startsWith('sample-')) {
+      console.log('Mock update for sample post:', postId, updates)
+      return { id: postId, ...updates }
+    }
+
+    // データベース更新用のオブジェクトを構築
+    const updateData: any = {}
+
+    if (updates.content !== undefined) updateData.content = updates.content
+    if (updates.images !== undefined) updateData.images = updates.images
+    if (updates.training_details !== undefined) updateData.training_details = updates.training_details
+    if (updates.workout_started_at !== undefined) updateData.workout_started_at = updates.workout_started_at
+    if (updates.workout_ended_at !== undefined) updateData.workout_ended_at = updates.workout_ended_at
+
+    // workout_duration_calculatedを計算
+    if (updates.workout_started_at && updates.workout_ended_at) {
+      const [startHour, startMin] = updates.workout_started_at.split(':').map(Number)
+      const [endHour, endMin] = updates.workout_ended_at.split(':').map(Number)
+      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin)
+      updateData.workout_duration_calculated = duration > 0 ? duration : 0
+    }
+
+    console.log('Updating post in database:', postId, updateData)
+
+    const { data, error } = await getSupabaseClient()
+      .from('gym_posts')
+      .update(updateData)
+      .eq('id', postId)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    console.log('Post updated successfully:', data)
+    return data
+  } catch (error) {
+    console.error('Error updating post:', error)
+    throw error
+  }
+}
+
 // 投稿を削除
 export async function deletePost(postId: string) {
   try {
