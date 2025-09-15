@@ -15,24 +15,9 @@ const nextConfig = {
 
   // 静的生成エラーを無視してデプロイを続行
   staticPageGenerationTimeout: 60,
-  
-  // Turbopack設定（警告解決とパフォーマンス向上）
-  turbopack: {
-    root: __dirname,
-  },
-  
-  // HMRエラー対策
-  webpack: (config, { dev, isServer }) => {
-    if (dev && !isServer) {
-      // HMRの安定化
-      config.watchOptions = {
-        ...config.watchOptions,
-        poll: 1000,
-        aggregateTimeout: 300,
-      }
-    }
-    return config
-  },
+
+  // outputFileTracingRootを明示的に設定
+  outputFileTracingRoot: __dirname,
   
   // 画像の最適化設定
   images: {
