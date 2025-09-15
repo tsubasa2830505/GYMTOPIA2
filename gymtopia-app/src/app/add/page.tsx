@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering - prevent static generation
+export const dynamic = 'force-dynamic'
+
 import {
   Save, X, MapPin, Camera, Plus, Minus, Users,
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,

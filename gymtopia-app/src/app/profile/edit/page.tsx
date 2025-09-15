@@ -147,6 +147,10 @@ export default function ProfileEditPage() {
       let session = null
       const isDemo = user?.email === 'taro@example.com' || user?.id === 'demo-user-id'
 
+      if (!supabase) {
+        throw new Error('Supabaseクライアントが初期化されていません')
+      }
+
       if (!isDemo) {
         const { data: { session: authSession } } = await supabase.auth.getSession()
         session = authSession
@@ -198,6 +202,10 @@ export default function ProfileEditPage() {
         avatar_url: uploadedAvatarUrl,
         updated_at: new Date().toISOString()
       })
+
+      if (!supabase) {
+        throw new Error('Supabaseクライアントが初期化されていません')
+      }
 
       const { data: updateData, error: updateError } = await supabase
         .from('users')

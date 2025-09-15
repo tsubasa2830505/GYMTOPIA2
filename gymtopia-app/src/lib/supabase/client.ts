@@ -3,6 +3,15 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
+// Validate environment variables
+if (!supabaseUrl || supabaseUrl === 'https://placeholder.supabase.co') {
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+}
+
+if (!supabaseAnonKey || supabaseAnonKey === 'placeholder-key') {
+  console.error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+}
+
 // Debug logging for environment variables (only in development)
 if (process.env.NODE_ENV === 'development') {
   console.log('Supabase Client Debug:', {
