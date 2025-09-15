@@ -119,7 +119,9 @@
       "Read(//Users/tsubasa/serena_project/**)",
       "Bash(cp:*)",
       "WebFetch(domain:gym-topia.com)",
-      "Bash(PORT=3001 npm run dev)"
+      "Bash(PORT=3001 npm run dev)",
+      "Bash(npm uninstall:*)",
+      "Bash(./scripts/complete-reset.sh:*)"
     ],
     "deny": [],
     "ask": []
