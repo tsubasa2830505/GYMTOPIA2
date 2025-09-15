@@ -334,6 +334,12 @@ export async function updatePost(postId: string, updates: {
     if (fetchError) throw fetchError
     if (!existingPost) throw new Error('Post not found')
 
+    // 所有者のみが編集可能
+    if (existingPost.user_id !== actualUserId) {
+      console.error('Unauthorized: User does not own this post')
+      throw new Error('投稿の編集権限がありません')
+    }
+
     // サンプルデータの場合はモック更新を返す
     if (postId.startsWith('sample-')) {
       console.log('Mock update for sample post:', postId, updates)
@@ -379,6 +385,25 @@ export async function updatePost(postId: string, updates: {
 // 投稿を削除
 export async function deletePost(postId: string) {
   try {
+    const { data: { user } } = await getSupabaseClient().auth.getUser()
+    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+
+    // 投稿の所有者確認
+    const { data: existingPost, error: fetchError } = await getSupabaseClient()
+      .from('gym_posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single()
+
+    if (fetchError) throw fetchError
+    if (!existingPost) throw new Error('Post not found')
+
+    // 所有者のみが削除可能
+    if (existingPost.user_id !== actualUserId) {
+      console.error('Unauthorized: User does not own this post')
+      throw new Error('投稿の削除権限がありません')
+    }
+
     const { error } = await getSupabaseClient()
       .from('gym_posts')
       .delete()

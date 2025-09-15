@@ -121,7 +121,9 @@
       "WebFetch(domain:gym-topia.com)",
       "Bash(PORT=3001 npm run dev)",
       "Bash(npm uninstall:*)",
-      "Bash(./scripts/complete-reset.sh:*)"
+      "Bash(./scripts/complete-reset.sh:*)",
+      "Bash(awk:*)",
+      "Bash(xargs kill:*)"
     ],
     "deny": [],
     "ask": []

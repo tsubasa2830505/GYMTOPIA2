@@ -480,8 +480,8 @@ export default function FeedPage() {
                         </div>
                       </div>
 
-                      {/* Dropdown Menu - 開発環境ではすべての投稿で表示 */}
-                      {(true || (user && post.user_id === user.id)) && (
+                      {/* Dropdown Menu - 自分の投稿のみ表示 */}
+                      {(user && post.user_id === user.id) && (
                         <div className="relative">
                           <button
                             onClick={() => toggleDropdown(post.id)}
