@@ -15,7 +15,7 @@ import type { FacilityFormData } from '@/types/facilities'
 import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGyms } from '@/lib/supabase/gyms'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseClient } from '@/lib/supabase/client'
 
 interface Exercise {
   id: string
@@ -87,6 +87,7 @@ function AddGymPostContent() {
     const uploadedUrls: string[] = []
 
     try {
+      const supabase = getSupabaseClient()
       for (const file of files) {
         const fileExt = file.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
