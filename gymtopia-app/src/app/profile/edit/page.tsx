@@ -164,7 +164,7 @@ export default function ProfileEditPage() {
       }
 
       // 画像のアップロード処理
-      if (uploadedFile) {
+      if (uploadedFile && !isDemo) {
         const fileExt = uploadedFile.name.split('.').pop()
         const fileName = `${user.id}-${Date.now()}.${fileExt}`
         const filePath = `avatars/${fileName}`
@@ -192,6 +192,10 @@ export default function ProfileEditPage() {
           .getPublicUrl(filePath)
 
         uploadedAvatarUrl = publicUrl
+      } else if (uploadedFile && isDemo) {
+        // デモモードでは画像アップロードをスキップし、プレビュー画像をそのまま使用
+        console.log('デモモードのため画像アップロードをスキップ')
+        uploadedAvatarUrl = previewImage || avatarUrl
       }
 
       // プロフィール情報の更新（locationフィールドは存在しないため除外）
@@ -207,17 +211,41 @@ export default function ProfileEditPage() {
         throw new Error('Supabaseクライアントが初期化されていません')
       }
 
-      const { data: updateData, error: updateError } = await supabase
-        .from('users')
-        .update({
-          display_name: name,
-          username: username,
-          bio: bio,
-          avatar_url: uploadedAvatarUrl,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id)
-        .select()
+      let updateData, updateError
+
+      if (isDemo) {
+        // デモモードでは通常のクライアントでデータベース更新
+        const result = await supabase
+          .from('users')
+          .update({
+            display_name: name,
+            username: username,
+            bio: bio,
+            avatar_url: uploadedAvatarUrl,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id)
+          .select()
+
+        updateData = result.data
+        updateError = result.error
+      } else {
+        // 本番モードでは認証済みクライアントでデータベース更新
+        const result = await supabase
+          .from('users')
+          .update({
+            display_name: name,
+            username: username,
+            bio: bio,
+            avatar_url: uploadedAvatarUrl,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id)
+          .select()
+
+        updateData = result.data
+        updateError = result.error
+      }
 
       console.log('更新結果:', { updateData, updateError })
 

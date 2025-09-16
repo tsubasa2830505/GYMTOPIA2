@@ -37,76 +37,18 @@ export async function getUserWorkoutStatistics(userId: string) {
       .eq('user_id', userId)
       .gte('started_at', startOfYear.toISOString())
 
-    // Calculate current streak
-    const { data: recentSessions } = await supabase
-      .from('workout_sessions')
-      .select('started_at')
-      .eq('user_id', userId)
-      .order('started_at', { ascending: false })
-      .limit(100)
+    // Calculate streak using SQL function to avoid RLS issues
+    const { data: streakResult } = await supabase
+      .rpc('calculate_user_streak', { target_user_id: userId })
 
-    let currentStreak = 0
-    let longestStreak = 0
-    let tempStreak = 0
-    let lastDate: Date | null = null
+    const currentStreak = streakResult?.current_streak || 0
+    const longestStreak = streakResult?.longest_streak || 0
 
-    if (recentSessions) {
-      recentSessions.forEach((session, index) => {
-        const sessionDate = new Date(session.started_at)
-        sessionDate.setHours(0, 0, 0, 0)
+    // Calculate total weight lifted using SQL to bypass RLS issues
+    const { data: weightResult } = await supabase
+      .rpc('calculate_user_total_weight', { target_user_id: userId })
 
-        if (index === 0) {
-          // Check if last workout was today or yesterday
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          const yesterday = new Date(today)
-          yesterday.setDate(yesterday.getDate() - 1)
-
-          if (sessionDate.getTime() === today.getTime() || sessionDate.getTime() === yesterday.getTime()) {
-            tempStreak = 1
-            currentStreak = 1
-          }
-        } else if (lastDate) {
-          const dayDiff = Math.floor((lastDate.getTime() - sessionDate.getTime()) / (1000 * 60 * 60 * 24))
-          if (dayDiff === 1) {
-            tempStreak++
-            if (index < 30) currentStreak = tempStreak // Only count current streak from recent sessions
-          } else {
-            longestStreak = Math.max(longestStreak, tempStreak)
-            tempStreak = 1
-          }
-        }
-        lastDate = sessionDate
-      })
-      longestStreak = Math.max(longestStreak, tempStreak)
-    }
-
-    // Calculate total weight lifted
-    const { data: sessionIdRows } = await supabase
-      .from('workout_sessions')
-      .select('id')
-      .eq('user_id', userId)
-
-    const sessionIds = sessionIdRows?.map((r: any) => r.id) || []
-    const { data: exercises } = sessionIds.length > 0
-      ? await supabase
-          .from('workout_exercises')
-          .select('sets')
-          .in('session_id', sessionIds)
-      : { data: [] as any[] }
-
-    let totalWeight = 0
-    if (exercises) {
-      exercises.forEach(exercise => {
-        if (exercise.sets && Array.isArray(exercise.sets)) {
-          exercise.sets.forEach((set: any) => {
-            if (set.weight && set.reps) {
-              totalWeight += set.weight * set.reps
-            }
-          })
-        }
-      })
-    }
+    const totalWeight = weightResult || 0
 
     // Calculate total duration
     const { data: sessions } = await supabase

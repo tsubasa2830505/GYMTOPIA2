@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  ArrowLeft, TrendingUp, Calendar, Clock, MapPin, 
-  Activity, Award, 
+import {
+  ArrowLeft, TrendingUp, Calendar, Clock, MapPin,
+  Activity, Award,
   Dumbbell, Flame, ChevronRight
 } from 'lucide-react'
 import {
@@ -15,6 +15,7 @@ import {
   getTimeDistribution,
   getAchievementProgress
 } from '@/lib/supabase/statistics'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface GymVisit {
   id: string
@@ -35,11 +36,9 @@ interface GymRanking {
 
 export default function GymStatsPage() {
   const router = useRouter()
+  const { user, isLoading: authLoading } = useAuth()
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month')
   const [loading, setLoading] = useState(true)
-  
-  // TODO: Get user ID from auth context
-  const userId = 'user-demo-001' // Temporary default for development
 
   // Statistics state
   const [stats, setStats] = useState({
@@ -61,11 +60,24 @@ export default function GymStatsPage() {
   const [achievements, setAchievements] = useState<any[]>([])
 
   useEffect(() => {
-    loadStatistics()
-  }, [selectedPeriod])
+    console.log('🔍 GymStatsPage useEffect:', { authLoading, user: user?.id, selectedPeriod })
+    if (!authLoading && user) {
+      console.log('✅ Starting to load statistics for user:', user.id)
+      loadStatistics()
+    } else {
+      console.log('⏳ Waiting for auth or user is null', { authLoading, hasUser: !!user })
+    }
+  }, [selectedPeriod, user, authLoading])
 
   const loadStatistics = async () => {
+    console.log('📊 loadStatistics called with user:', user?.id)
+    if (!user?.id) {
+      console.log('❌ No user ID, cannot load statistics')
+      return
+    }
+
     setLoading(true)
+    console.log('🔄 Loading statistics...')
     try {
       // Load all statistics in parallel
       const [
@@ -76,13 +88,19 @@ export default function GymStatsPage() {
         timeDist,
         achievementData
       ] = await Promise.all([
-        getUserWorkoutStatistics(userId),
-        getGymVisitRankings(userId),
-        getRecentGymVisits(userId),
-        getWeeklyPattern(userId),
-        getTimeDistribution(userId),
-        getAchievementProgress(userId)
+        getUserWorkoutStatistics(user.id),
+        getGymVisitRankings(user.id),
+        getRecentGymVisits(user.id),
+        getWeeklyPattern(user.id),
+        getTimeDistribution(user.id),
+        getAchievementProgress(user.id)
       ])
+
+      console.log('📈 Statistics loaded successfully:', {
+        totalVisits: userStats.totalVisits,
+        totalWeight: userStats.totalWeight,
+        currentStreak: userStats.currentStreak
+      })
 
       setStats(userStats)
       setGymRankings(rankings)
@@ -92,18 +110,23 @@ export default function GymStatsPage() {
       setAchievements(achievementData)
     } catch (error) {
       console.error('Error loading statistics:', error)
-      // Set default data if error
+      // エラー時は空のデータを設定（ハードコーディングを避ける）
       setStats({
-        totalVisits: 108,
-        currentStreak: 5,
-        longestStreak: 23,
-        totalWeight: 145680,
-        totalDurationHours: 162,
-        monthlyVisits: 9,
-        weeklyVisits: 3,
-        yearlyVisits: 108,
-        avgDurationMinutes: 90
+        totalVisits: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        totalWeight: 0,
+        totalDurationHours: 0,
+        monthlyVisits: 0,
+        weeklyVisits: 0,
+        yearlyVisits: 0,
+        avgDurationMinutes: 0
       })
+      setGymRankings([])
+      setRecentVisits([])
+      setWeeklyPattern([])
+      setTimeDistribution([])
+      setAchievements([])
     } finally {
       setLoading(false)
     }
@@ -147,12 +170,28 @@ export default function GymStatsPage() {
     }
   }
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">統計データを読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600 mb-4">ログインしてください</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            ログインへ
+          </button>
         </div>
       </div>
     )

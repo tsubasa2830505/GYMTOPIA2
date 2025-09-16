@@ -7,7 +7,8 @@ import { MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import TrainingDetails from '@/components/TrainingDetails';
+import PostCard from '@/components/PostCard';
+import type { Post } from '@/lib/supabase/posts';
 import type { UserProfileStats, WeeklyStats, GymPost, FavoriteGym } from '@/lib/types/profile';
 import type { Achievement, PersonalRecord } from '@/lib/types/workout';
 // Material Design icons are now inline SVGs
@@ -98,6 +99,11 @@ export default function ProfilePage() {
   const [userFavoriteGyms, setUserFavoriteGyms] = useState<FavoriteGym[]>([]);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [currentPostPage, setCurrentPostPage] = useState(1);
+
+  const POSTS_PER_PAGE = 20;
 
   const toggleTrainingDetails = (postId: string) => {
     setExpandedTraining(prev => {
@@ -163,7 +169,7 @@ export default function ProfilePage() {
             ],
             workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
           } as WeeklyStats)),
-          getUserPosts(userId, 1, 10).catch(() => []),
+          getUserPosts(userId, 1, POSTS_PER_PAGE).catch(() => []),
           getUserAchievements(userId).catch(() => []),
           getUserPersonalRecords(userId).catch(() => []),
           getFavoriteGyms(userId).catch(() => [])
@@ -182,6 +188,10 @@ export default function ProfilePage() {
         setUserAchievements(achievements || []);
         setUserPersonalRecords(personalRecords || []);
         setUserFavoriteGyms(favoriteGyms || []);
+
+        // 投稿のページネーション設定
+        setHasMorePosts((posts || []).length === POSTS_PER_PAGE);
+        setCurrentPostPage(1);
 
         // データが取得できない場合、サンプルデータを追加
         if (!posts || posts.length === 0) {
@@ -280,6 +290,31 @@ export default function ProfilePage() {
       isActive = false;
     };
   }, [userId]);
+
+  const loadMorePosts = async () => {
+    if (!hasMorePosts || isLoadingMorePosts) return;
+
+    setIsLoadingMorePosts(true);
+    try {
+      const nextPage = currentPostPage + 1;
+      console.log('Loading more posts, page:', nextPage);
+
+      const morePosts = await getUserPosts(userId, nextPage, POSTS_PER_PAGE);
+
+      if (morePosts.length === 0) {
+        setHasMorePosts(false);
+      } else {
+        setUserPosts(prevPosts => [...prevPosts, ...morePosts]);
+        setCurrentPostPage(nextPage);
+        setHasMorePosts(morePosts.length === POSTS_PER_PAGE);
+      }
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+      setHasMorePosts(false);
+    } finally {
+      setIsLoadingMorePosts(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -552,178 +587,80 @@ export default function ProfilePage() {
                 <p className="text-slate-500 text-sm">初めてのジム活を投稿してみましょう！</p>
               </div>
             ) : (
-              userPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                  {/* Post Header */}
-                  <div className="p-4 sm:p-6 pb-2 sm:pb-2">
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        {post.user?.avatar_url ? (
-                          <Image
-                            src={post.user.avatar_url}
-                            alt={post.user.display_name || ''}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                            {post.user?.display_name?.[0] || 'U'}
-                          </div>
-                        )}
-                      </div>
+              userPosts.map((post) => {
+                // Convert GymPost to Post type for PostCard
+                const postForCard: Post = {
+                  id: post.id,
+                  user_id: post.user_id,
+                  content: post.content,
+                  images: post.images,
+                  post_type: post.post_type,
+                  workout_session_id: post.workout_session_id,
+                  gym_id: post.gym_id,
+                  training_details: post.training_details,
+                  visibility: post.visibility,
+                  likes_count: post.likes_count,
+                  comments_count: post.comments_count,
+                  created_at: post.created_at,
+                  user: post.user,
+                  gym: post.gym,
+                  is_liked: post.is_liked,
+                  achievement_data: post.achievement_data,
+                  achievement_type: post.achievement_type
+                };
 
-                      {/* Author Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900">
-                            {post.user?.display_name || 'ユーザー'}
-                          </h3>
-                          {post.user?.username && (
-                            <span className="text-sm text-gray-500">
-                              @{post.user.username}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 mt-1">
-                          {post.gym?.name && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
-                              <svg className="w-3 h-3 text-indigo-900" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                              </svg>
-                              <span className="text-xs text-indigo-900">{post.gym.name}</span>
-                            </div>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {formatPostDate(post.created_at)}
-                          </span>
-                        </div>
-                      </div>
+                return (
+                  <PostCard
+                    key={post.id}
+                    post={postForCard}
+                    currentUserId={userId}
+                    showActions={true} // ストーリー機能を含むアクションを表示
+                    onToggleTraining={() => toggleTrainingDetails(post.id)}
+                    expandedTraining={expandedTraining}
+                  />
+                );
+              })
+            )}
+
+            {/* Load More Posts Button */}
+            {activeTab === 'posts' && hasMorePosts && (
+              <div className="text-center py-8">
+                <button
+                  onClick={loadMorePosts}
+                  disabled={isLoadingMorePosts}
+                  className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
+                    isLoadingMorePosts
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {isLoadingMorePosts ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span>読み込み中...</span>
                     </div>
-                  </div>
-
-                  {/* Post Content */}
-                  {post.content && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-line">{post.content}</p>
-                    </div>
-                  )}
-
-                  {/* Workout Duration */}
-                  {(post as any).workout_started_at && (post as any).workout_ended_at && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <div className="flex items-center gap-4 text-sm text-gray-600 bg-amber-50 rounded-lg p-3 border border-amber-200">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                          </svg>
-                          <span className="font-medium text-amber-800">
-                            {(post as any).workout_started_at} - {(post as any).workout_ended_at}
-                          </span>
-                        </div>
-                        {(post as any).workout_duration_calculated && (
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 rounded-full">
-                            <svg className="w-3.5 h-3.5 text-amber-700" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
-                            </svg>
-                            <span className="text-xs font-bold text-amber-800">
-                              {Math.floor((post as any).workout_duration_calculated / 60)}時間{(post as any).workout_duration_calculated % 60}分
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 5v14M5 12l7 7 7-7" />
+                      </svg>
+                      <span>さらに読み込む</span>
                     </div>
                   )}
+                </button>
+              </div>
+            )}
 
-                  {/* Training Details - Using shared component */}
-                  {post.training_details && post.training_details.exercises && (
-                    <TrainingDetails
-                      exercises={post.training_details.exercises}
-                      crowdStatus={post.training_details.crowd_status}
-                      isExpanded={expandedTraining.has(post.id)}
-                      onToggle={() => toggleTrainingDetails(post.id)}
-                    />
-                  )}
-
-                    {/* Achievement Data */}
-                    {post.post_type === 'achievement' && post.achievement_data && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 1z"/>
-                          </svg>
-                          <span className="font-semibold text-gray-900">達成記録</span>
-                        </div>
-                        <p className="text-sm text-gray-700">
-                          {post.achievement_data.exercise}: {post.achievement_data.weight}kg × {post.achievement_data.reps}回
-                        </p>
-                      </div>
-                    )}
-
-                  {/* Post Images */}
-                  {post.images && post.images.length > 0 && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      {post.images.length === 1 ? (
-                        <div className="relative h-48 sm:h-64 rounded-xl overflow-hidden">
-                          <Image
-                            src={post.images[0]}
-                            alt="投稿画像"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-2">
-                          {post.images.map((imageUrl, index) => (
-                            <div key={index} className="relative h-32 sm:h-40 rounded-lg overflow-hidden">
-                              <Image
-                                src={imageUrl}
-                                alt={`投稿画像 ${index + 1}`}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Post Actions */}
-                  <div className="px-4 sm:px-6 py-3 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <button
-                          className={`flex items-center gap-2 transition ${
-                            post.is_liked
-                              ? 'text-red-500'
-                              : 'text-gray-500 hover:text-red-500'
-                          }`}
-                        >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill={post.is_liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                            <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                          </svg>
-                          <span className="text-sm">{post.likes_count}</span>
-                        </button>
-                        <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                          </svg>
-                          <span className="text-sm">{post.comments_count}</span>
-                        </button>
-                      </div>
-                      <button className="text-gray-500 hover:text-green-500 transition">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+            {/* End of Posts Indicator */}
+            {activeTab === 'posts' && !hasMorePosts && userPosts.length > 0 && (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 text-sm">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
+                  </svg>
+                  <span>全ての投稿を表示しました</span>
                 </div>
-            ))
+              </div>
             )}
           </div>
         )}

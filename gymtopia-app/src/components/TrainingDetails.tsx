@@ -10,18 +10,24 @@ interface Exercise {
 }
 
 interface TrainingDetailsProps {
-  exercises?: Exercise[]
-  crowdStatus?: string
+  details?: {
+    exercises?: Exercise[]
+    crowd_status?: string
+  }
+  postId: string
   isExpanded: boolean
-  onToggle: () => void
+  onToggle?: () => void
 }
 
 export default function TrainingDetails({
-  exercises = [],
-  crowdStatus,
+  details,
+  postId,
   isExpanded,
   onToggle
 }: TrainingDetailsProps) {
+  const exercises = details?.exercises || []
+  const crowdStatus = details?.crowd_status
+
   if (!exercises || exercises.length === 0) return null
 
   return (
@@ -30,6 +36,7 @@ export default function TrainingDetails({
         <button
           onClick={onToggle}
           className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 border-b border-slate-200 transition-all duration-200"
+          disabled={!onToggle}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

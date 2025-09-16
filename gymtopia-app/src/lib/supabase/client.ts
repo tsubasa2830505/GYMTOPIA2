@@ -33,11 +33,12 @@ export function getSupabaseClient() {
   }
 
   if (!supabaseClient) {
-    // Use placeholder values if env vars are missing to prevent SDK errors
-    const url = supabaseUrl || 'https://placeholder.supabase.co'
-    const key = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder.placeholder'
+    // 環境変数が設定されていない場合はエラーをスロー
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Supabase環境変数が設定されていません。NEXT_PUBLIC_SUPABASE_URLとNEXT_PUBLIC_SUPABASE_ANON_KEYを.env.localに設定してください。')
+    }
 
-    supabaseClient = createClient(url, key, {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,

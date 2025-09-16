@@ -3,12 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Heart, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import PostCard from '@/components/PostCard';
 import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
-import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
-import TrainingDetails from '@/components/TrainingDetails';
 
 // サンプル投稿データを生成する関数
 const getSamplePosts = (): Post[] => [
@@ -95,24 +93,29 @@ export default function FeedPage() {
   const [filter, setFilter] = useState<'all' | 'following' | 'gym-friends' | 'same-gym'>('all');
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
-  const [generatingStory, setGeneratingStory] = useState<string | null>(null);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  const POSTS_PER_PAGE = 20;
+
   useEffect(() => {
-    loadPosts();
+    loadInitialPosts();
   }, [filter]); // Reload when filter changes
 
-  const loadPosts = async () => {
+  const loadInitialPosts = async () => {
     setIsLoading(true);
+    setCurrentPage(0);
+    setHasMore(true);
     try {
-      console.log('FeedPage: Loading posts with filter:', filter);
+      console.log('FeedPage: Loading initial posts with filter:', filter);
       // Use mock user ID for development
       const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-      const feedPosts = await getFeedPosts(20, 0, filter, user?.id || mockUserId);
-      console.log('FeedPage: Loaded posts:', {
+      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, filter, user?.id || mockUserId);
+      console.log('FeedPage: Loaded initial posts:', {
         count: feedPosts.length,
         isFromDatabase: feedPosts.length > 0 && !feedPosts[0].id.startsWith('sample-'),
         firstPost: feedPosts[0] || null
@@ -121,9 +124,12 @@ export default function FeedPage() {
       // データベースから投稿が取得できない場合はサンプルデータを使用
       if (feedPosts.length === 0) {
         console.log('FeedPage: No posts from database, using sample data');
-        setPosts(getSamplePosts());
+        const samplePosts = getSamplePosts();
+        setPosts(samplePosts);
+        setHasMore(false); // サンプルデータの場合は追加読み込みなし
       } else {
         setPosts(feedPosts);
+        setHasMore(feedPosts.length === POSTS_PER_PAGE); // フルページ取得できた場合は続きがある可能性
       }
     } catch (error) {
       console.error('FeedPage: Critical error loading posts:', {
@@ -133,9 +139,37 @@ export default function FeedPage() {
       });
       // エラーが発生した場合はサンプルデータを表示
       console.log('FeedPage: Using sample data due to error');
-      setPosts(getSamplePosts());
+      const samplePosts = getSamplePosts();
+      setPosts(samplePosts);
+      setHasMore(false);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadMorePosts = async () => {
+    if (!hasMore || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      console.log('FeedPage: Loading more posts, page:', nextPage);
+
+      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, nextPage * POSTS_PER_PAGE, filter, user?.id || mockUserId);
+
+      if (feedPosts.length === 0) {
+        setHasMore(false);
+      } else {
+        setPosts(prevPosts => [...prevPosts, ...feedPosts]);
+        setCurrentPage(nextPage);
+        setHasMore(feedPosts.length === POSTS_PER_PAGE);
+      }
+    } catch (error) {
+      console.error('FeedPage: Error loading more posts:', error);
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -179,29 +213,9 @@ export default function FeedPage() {
     });
   };
 
-  const handleGenerateStory = async (post: Post) => {
-    console.log('handleGenerateStory called with post:', post);
-    setGeneratingStory(post.id);
-    try {
-      console.log('Starting image generation...');
-      await downloadStoryImage(post, `gymtopia-story-${post.id}.png`);
-      console.log('Image generation completed successfully');
-    } catch (error) {
-      console.error('Error generating story image:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      alert('ストーリー画像の生成に失敗しました。コンソールを確認してください。');
-    } finally {
-      setGeneratingStory(null);
-    }
-  };
-
   const handleEditPost = (post: Post) => {
     setEditingPost(post);
     setShowEditModal(true);
-    setActiveDropdown(null);
   };
 
   const handleSaveEdit = async (updatedData: Partial<Post> & { workout_started_at?: string; workout_ended_at?: string }) => {
@@ -292,40 +306,15 @@ export default function FeedPage() {
     }
 
     try {
-      // ここでSupabaseの削除処理を実装
+      await deletePostAPI(postId);
       setPosts(posts.filter(p => p.id !== postId));
-      setActiveDropdown(null);
     } catch (error) {
       console.error('Error deleting post:', error);
       alert('投稿の削除に失敗しました');
     }
   };
 
-  const toggleDropdown = (postId: string) => {
-    setActiveDropdown(activeDropdown === postId ? null : postId);
-  };
 
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (hours < 1) {
-      const minutes = Math.floor(diff / (1000 * 60));
-      return `${minutes}分前`;
-    } else if (hours < 24) {
-      return `${hours}時間前`;
-    } else if (days < 7) {
-      return `${days}日前`;
-    } else {
-      return date.toLocaleDateString('ja-JP');
-    }
-  };
-
-  const filteredPosts = posts; // Filtering is now handled in getFeedPosts
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -359,7 +348,7 @@ export default function FeedPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
             <span className="text-sm text-gray-500">
-              {filteredPosts.length}件の投稿
+              {posts.length}件の投稿
             </span>
           </div>
 
@@ -422,7 +411,7 @@ export default function FeedPage() {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <p className="text-sm text-gray-500 mt-2">投稿を読み込み中...</p>
           </div>
-        ) : filteredPosts.length === 0 ? (
+        ) : posts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">投稿がありません</p>
             <p className="text-sm text-gray-400 mt-2">最初の投稿を作成してみましょう！</p>
@@ -431,238 +420,67 @@ export default function FeedPage() {
           <>
             {/* Feed Posts */}
             <div className="space-y-4">
-              {filteredPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                  {/* Post Header */}
-                  <div className="p-4 sm:p-6 pb-2 sm:pb-2">
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        {post.user?.avatar_url ? (
-                          <Image
-                            src={post.user.avatar_url}
-                            alt={post.user.display_name || ''}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                            {post.user?.display_name?.[0] || 'U'}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Author Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900">
-                            {post.user?.display_name || 'ユーザー'}
-                          </h3>
-                          {post.user?.username && (
-                            <span className="text-sm text-gray-500">
-                              @{post.user.username}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 mt-1">
-                          {post.gym?.name && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 rounded-full">
-                              <svg className="w-3 h-3 text-indigo-900" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                              </svg>
-                              <span className="text-xs text-indigo-900">{post.gym.name}</span>
-                            </div>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {formatDate(post.created_at)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Dropdown Menu - 自分の投稿のみ表示 */}
-                      {(user && post.user_id === user.id) && (
-                        <div className="relative">
-                          <button
-                            onClick={() => toggleDropdown(post.id)}
-                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <MoreVertical className="w-5 h-5 text-gray-500" />
-                          </button>
-
-                          {activeDropdown === post.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                              <button
-                                onClick={() => handleEditPost(post)}
-                                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                              >
-                                <Edit className="w-4 h-4 text-gray-500" />
-                                <span className="text-sm text-gray-700">編集</span>
-                              </button>
-                              <button
-                                onClick={() => handleDeletePost(post.id)}
-                                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-red-50 transition-colors border-t border-gray-100"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                                <span className="text-sm text-red-600">削除</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Post Content */}
-                  {post.content && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-line">{post.content}</p>
-                    </div>
-                  )}
-
-                  {/* Workout Duration */}
-                  {(post as any).workout_started_at && (post as any).workout_ended_at && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <div className="flex items-center gap-4 text-sm text-gray-600 bg-amber-50 rounded-lg p-3 border border-amber-200">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                          </svg>
-                          <span className="font-medium text-amber-800">
-                            {(post as any).workout_started_at} - {(post as any).workout_ended_at}
-                          </span>
-                        </div>
-                        {(post as any).workout_duration_calculated && (
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 rounded-full">
-                            <svg className="w-3.5 h-3.5 text-amber-700" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z" />
-                            </svg>
-                            <span className="text-xs font-bold text-amber-800">
-                              {Math.floor((post as any).workout_duration_calculated / 60)}時間{(post as any).workout_duration_calculated % 60}分
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Training Details - Using shared component */}
-                  {post.training_details && post.training_details.exercises && (
-                    <TrainingDetails
-                      exercises={post.training_details.exercises}
-                      crowdStatus={post.training_details.crowd_status}
-                      isExpanded={expandedTraining.has(post.id)}
-                      onToggle={() => toggleTrainingDetails(post.id)}
-                    />
-                  )}
-
-                  {/* Achievement Data (Legacy) */}
-                  {post.post_type === 'achievement' && post.achievement_data && !post.training_details && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 1z" />
-                          </svg>
-                          <span className="font-semibold text-gray-900">達成記録</span>
-                        </div>
-                        <p className="text-sm text-gray-700">
-                          {post.achievement_data.exercise}: {post.achievement_data.weight}kg × {post.achievement_data.reps}回
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Post Images */}
-                  {post.images && post.images.length > 0 && (
-                    <div className="px-4 sm:px-6 pb-4">
-                      {post.images.length === 1 ? (
-                        <div className="relative h-48 sm:h-64 rounded-xl overflow-hidden">
-                          <Image
-                            src={post.images[0]}
-                            alt="投稿画像"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-2">
-                          {post.images.map((imageUrl, index) => (
-                            <div key={index} className="relative h-32 sm:h-40 rounded-lg overflow-hidden">
-                              <Image
-                                src={imageUrl}
-                                alt={`投稿画像 ${index + 1}`}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Post Actions */}
-                  <div className="px-4 sm:px-6 py-3 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => handleLike(post)}
-                          className={`flex items-center gap-2 transition ${post.is_liked
-                            ? 'text-red-500'
-                            : 'text-gray-500 hover:text-red-500'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill={post.is_liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                            <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                          </svg>
-                          <span className="text-sm">{post.likes_count}</span>
-                        </button>
-                        <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                          </svg>
-                          <span className="text-sm">{post.comments_count}</span>
-                        </button>
-                      </div>
-                      {/* ストーリー生成ボタン - 開発環境ではすべての投稿で表示 */}
-                      {(true || (user && post.user_id === user.id)) && (
-                        <button
-                          onClick={() => handleGenerateStory(post)}
-                          disabled={generatingStory === post.id}
-                          className="flex items-center gap-2 text-gray-500 hover:text-purple-500 transition disabled:opacity-50"
-                          title="ストーリー画像を生成"
-                        >
-                          {generatingStory === post.id ? (
-                            <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <Camera className="w-5 h-5" />
-                          )}
-                          <span className="text-sm hidden sm:inline">ストーリー</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  currentUserId={user?.id}
+                  onEdit={handleEditPost}
+                  onDelete={handleDeletePost}
+                  onLike={handleLike}
+                  onToggleTraining={() => toggleTrainingDetails(post.id)}
+                  expandedTraining={expandedTraining}
+                />
               ))}
 
+              {/* Load More Button */}
+              {hasMore && !isLoading && (
+                <div className="text-center py-8">
+                  <button
+                    onClick={loadMorePosts}
+                    disabled={isLoadingMore}
+                    className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
+                      isLoadingMore
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                    }`}
+                  >
+                    {isLoadingMore ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span>読み込み中...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 5v14M5 12l7 7 7-7" />
+                        </svg>
+                        <span>さらに読み込む</span>
+                      </div>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* End of Posts Indicator */}
+              {!hasMore && posts.length > 0 && (
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 text-sm">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
+                    </svg>
+                    <span>全ての投稿を表示しました</span>
+                  </div>
+                </div>
+              )}
+
               {/* Empty State */}
-              {filteredPosts.length === 0 && !isLoading && (
+              {posts.length === 0 && !isLoading && (
                 <div className="text-center py-12">
                   <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                   </svg>
                   <p className="text-gray-500">まだ投稿がありません</p>
-                  {/* {!user && (
-                    <button
-                      onClick={() => router.push('/auth/login')}
-                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                    >
-                      ログインして投稿を見る
-                    </button>
-                  )} */}
                 </div>
               )}
             </div>

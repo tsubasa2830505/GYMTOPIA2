@@ -13,7 +13,7 @@ interface PostCardProps {
   onEdit?: (post: Post) => void;
   onDelete?: (postId: string) => void;
   onLike?: (post: Post) => void;
-  onToggleTraining?: (postId: string) => void;
+  onToggleTraining?: () => void;
   expandedTraining?: Set<string>;
   showActions?: boolean;
 }
@@ -219,7 +219,7 @@ export default function PostCard({
             details={post.training_details}
             postId={post.id}
             isExpanded={expandedTraining.has(post.id)}
-            onToggle={() => onToggleTraining?.(post.id)}
+            onToggle={onToggleTraining}
           />
         </div>
       )}

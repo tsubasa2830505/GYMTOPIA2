@@ -5,7 +5,15 @@ import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activit
 import Image from 'next/image'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters } from '@/lib/supabase/admin-statistics'
-import { getUserManagedGyms, updateGymBasicInfo } from '@/lib/supabase/admin'
+import {
+  getUserManagedGyms,
+  updateGymBasicInfo,
+  getGymEquipment,
+  addGymEquipment,
+  deleteGymEquipment,
+  getGymReviews,
+  replyToReview
+} from '@/lib/supabase/admin'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
@@ -60,14 +68,26 @@ export default function AdminPage() {
       visitorFee: '3200'
     },
     services: {
-      lockers: true,
-      showers: true,
-      twentyFourHours: true,
+      '24hours': true,
+      shower: true,
       parking: false,
-      personalTraining: false,
+      locker: true,
       wifi: true,
+      chalk: true,
+      belt_rental: false,
+      personal_training: false,
+      group_lesson: false,
+      studio: false,
       sauna: false,
-      chalk: true
+      pool: false,
+      jacuzzi: false,
+      massage_chair: false,
+      cafe: false,
+      women_only: false,
+      barrier_free: false,
+      kids_room: false,
+      english_support: false,
+      drop_in: true
     }
   })
 
@@ -151,12 +171,77 @@ export default function AdminPage() {
     loadManagedGyms()
   }, [])
   
-  // Load statistics when gym is selected
+  // Load statistics and data when gym is selected
   useEffect(() => {
     if (selectedGym) {
       loadGymStatistics(selectedGym.id)
+      loadGymEquipmentData(selectedGym.id)
+      loadGymReviewsData(selectedGym.id)
     }
   }, [selectedGym])
+
+  const loadGymEquipmentData = async (gymId: string) => {
+    try {
+      const equipment = await getGymEquipment(gymId)
+      const equipmentFromDB = [
+        ...equipment.machines.map((m: any) => ({
+          id: m.id,
+          category: 'マシン',
+          name: m.name,
+          maker: m.brand || 'ROGUE',
+          count: m.count || 1
+        })),
+        ...equipment.freeWeights.map((f: any) => ({
+          id: f.id,
+          category: 'フリーウェイト',
+          name: f.name,
+          maker: f.brand || 'ROGUE',
+          maxWeight: parseInt(f.weight_range?.replace(/[^0-9]/g, '') || '50')
+        }))
+      ]
+
+      if (equipmentFromDB.length > 0) {
+        setEquipmentList(equipmentFromDB)
+      }
+    } catch (error) {
+      console.error('Error loading equipment:', error)
+    }
+  }
+
+  const loadGymReviewsData = async (gymId: string) => {
+    try {
+      const reviewsData = await getGymReviews(gymId)
+      if (reviewsData && reviewsData.length > 0) {
+        const formattedReviews = reviewsData.map((r: any) => ({
+          id: r.id,
+          author: {
+            name: r.user?.display_name || r.user?.username || '名無し',
+            initial: (r.user?.display_name || r.user?.username || '名')?.[0]
+          },
+          date: new Date(r.created_at).toLocaleDateString('ja-JP', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
+          content: r.content,
+          reply: r.replies?.[0] ? {
+            storeName: selectedGym.name,
+            role: 'オーナー',
+            content: r.replies[0].content,
+            date: new Date(r.replies[0].created_at).toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          } : undefined
+        }))
+
+        setReviews(formattedReviews)
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error)
+    }
+  }
   
   const loadManagedGyms = async () => {
     setLoading(true)
@@ -206,14 +291,26 @@ export default function AdminPage() {
             visitorFee: firstGym.price_info?.visitor || '3200'
           },
           services: {
-            lockers: firstGym.facilities?.lockers || true,
-            showers: firstGym.facilities?.showers || true,
-            twentyFourHours: firstGym.business_hours?.is_24h || true,
+            '24hours': firstGym.business_hours?.is_24h || true,
+            shower: firstGym.facilities?.shower || true,
             parking: firstGym.facilities?.parking || false,
-            personalTraining: firstGym.facilities?.personal_training || false,
+            locker: firstGym.facilities?.locker || true,
             wifi: firstGym.facilities?.wifi || true,
+            chalk: firstGym.facilities?.chalk || true,
+            belt_rental: firstGym.facilities?.belt_rental || false,
+            personal_training: firstGym.facilities?.personal_training || false,
+            group_lesson: firstGym.facilities?.group_lesson || false,
+            studio: firstGym.facilities?.studio || false,
             sauna: firstGym.facilities?.sauna || false,
-            chalk: firstGym.facilities?.chalk_allowed || true
+            pool: firstGym.facilities?.pool || false,
+            jacuzzi: firstGym.facilities?.jacuzzi || false,
+            massage_chair: firstGym.facilities?.massage_chair || false,
+            cafe: firstGym.facilities?.cafe || false,
+            women_only: firstGym.facilities?.women_only || false,
+            barrier_free: firstGym.facilities?.barrier_free || false,
+            kids_room: firstGym.facilities?.kids_room || false,
+            english_support: firstGym.facilities?.english_support || false,
+            drop_in: firstGym.facilities?.drop_in || false
           }
         })
         
@@ -297,48 +394,95 @@ export default function AdminPage() {
     }))
   }
 
-  const handleSubmit = () => {
-    // 仮の保存処理
-    console.log('保存データ:', formData)
-    alert('施設情報を保存しました')
+  const handleSubmit = async () => {
+    if (!selectedGym) return
+
+    try {
+      const updates = {
+        name: formData.basicInfo.name,
+        city: formData.basicInfo.area,
+        address: formData.basicInfo.address,
+        business_hours: {
+          weekday: formData.basicInfo.openingHours,
+          is_24h: formData.services['24hours']
+        },
+        price_info: {
+          monthly: formData.basicInfo.monthlyFee,
+          visitor: formData.basicInfo.visitorFee
+        },
+        facilities: formData.services
+      }
+
+      await updateGymBasicInfo(selectedGym.id, updates)
+      alert('施設情報を保存しました')
+    } catch (error) {
+      console.error('Error saving gym info:', error)
+      alert('保存に失敗しました')
+    }
   }
 
-  const handleAddEquipment = () => {
-    console.log('Adding equipment:', newEquipment)
-    
+  const handleAddEquipment = async () => {
+    if (!selectedGym) return
+
     if (!newEquipment.category || !newEquipment.name || !newEquipment.maker) {
       alert('すべての項目を入力してください')
       return
     }
 
-    const equipment: Equipment = {
-      id: Date.now().toString(),
-      category: newEquipment.category,
-      name: newEquipment.name,
-      maker: newEquipment.maker,
-      ...(isWeightType(newEquipment.category) 
-        ? { maxWeight: newEquipment.maxWeight }
-        : { count: newEquipment.count })
-    }
+    try {
+      const equipmentData = {
+        type: (isWeightType(newEquipment.category) ? 'freeweight' : 'machine') as 'machine' | 'freeweight',
+        name: newEquipment.name,
+        brand: newEquipment.maker,
+        ...(isWeightType(newEquipment.category)
+          ? { weight_range: `最大${newEquipment.maxWeight}kg` }
+          : { count: newEquipment.count })
+      }
 
-    console.log('New equipment object:', equipment)
-    const updatedList = [...equipmentList, equipment]
-    console.log('Updated equipment list:', updatedList)
-    
-    setEquipmentList(updatedList)
-    setNewEquipment({
-      category: '',
-      name: '',
-      maker: '',
-      count: 1,
-      maxWeight: 50
-    })
-    
-    alert('設備を追加しました')
+      const added = await addGymEquipment(selectedGym.id, equipmentData)
+
+      const equipment: Equipment = {
+        id: added.id,
+        category: newEquipment.category,
+        name: newEquipment.name,
+        maker: newEquipment.maker,
+        ...(isWeightType(newEquipment.category)
+          ? { maxWeight: newEquipment.maxWeight }
+          : { count: newEquipment.count })
+      }
+
+      setEquipmentList([...equipmentList, equipment])
+      setNewEquipment({
+        category: '',
+        name: '',
+        maker: '',
+        count: 1,
+        maxWeight: 50
+      })
+
+      alert('設備を追加しました')
+    } catch (error) {
+      console.error('Error adding equipment:', error)
+      alert('設備の追加に失敗しました')
+    }
   }
 
-  const handleDeleteEquipment = (id: string) => {
-    setEquipmentList(equipmentList.filter(item => item.id !== id))
+  const handleDeleteEquipment = async (id: string) => {
+    if (!selectedGym) return
+
+    try {
+      const equipment = equipmentList.find(item => item.id === id)
+      if (!equipment) return
+
+      const type = isWeightType(equipment.category) ? 'freeweight' : 'machine'
+      await deleteGymEquipment(selectedGym.id, id, type)
+
+      setEquipmentList(equipmentList.filter(item => item.id !== id))
+      alert('設備を削除しました')
+    } catch (error) {
+      console.error('Error deleting equipment:', error)
+      alert('設備の削除に失敗しました')
+    }
   }
 
   // レビュー管理用のハンドラー
@@ -349,33 +493,44 @@ export default function AdminPage() {
     }))
   }
 
-  const handleReplySubmit = (reviewId: string) => {
+  const handleReplySubmit = async (reviewId: string) => {
+    if (!selectedGym) return
+
     const replyText = replyTexts[reviewId]
     if (!replyText || replyText.trim() === '') return
 
-    setReviews(prev => prev.map(review => {
-      if (review.id === reviewId) {
-        return {
-          ...review,
-          reply: {
-            storeName: 'ハンマーストレングス渋谷',
-            role: 'オーナー',
-            content: replyText,
-            date: new Date().toLocaleDateString('ja-JP', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })
+    try {
+      await replyToReview(selectedGym.id, reviewId, replyText)
+
+      setReviews(prev => prev.map(review => {
+        if (review.id === reviewId) {
+          return {
+            ...review,
+            reply: {
+              storeName: selectedGym.name,
+              role: 'オーナー',
+              content: replyText,
+              date: new Date().toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })
+            }
           }
         }
-      }
-      return review
-    }))
+        return review
+      }))
 
-    setReplyTexts(prev => ({
-      ...prev,
-      [reviewId]: ''
-    }))
+      setReplyTexts(prev => ({
+        ...prev,
+        [reviewId]: ''
+      }))
+
+      alert('返信を送信しました')
+    } catch (error) {
+      console.error('Error replying to review:', error)
+      alert('返信の送信に失敗しました')
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent, reviewId: string) => {
@@ -643,120 +798,50 @@ export default function AdminPage() {
               {/* 施設・サービス */}
               <div className="mb-6">
                 <h3 className="text-[14px] font-bold text-slate-900 mb-4">施設・サービス</h3>
-                
-                <div className="grid grid-cols-4 gap-x-8 gap-y-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('showers')}
-                      className={`relative w-7 h-4 rounded-full transition-colors ${
-                        formData.services.showers ? 'bg-indigo-500' : 'bg-slate-400'
-                      }`}
-                    >
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-transform ${
-                        formData.services.showers ? 'translate-x-[13px]' : 'translate-x-[1px]'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">シャワー</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('lockers')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.lockers ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.lockers ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">ロッカー</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('parking')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.parking ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.parking ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">駐車場</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('wifi')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.wifi ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.wifi ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">Wi-Fi</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('twentyFourHours')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.twentyFourHours ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.twentyFourHours ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">24時間営業</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('chalk')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.chalk ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.chalk ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">チョーク利用可</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('personalTraining')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.personalTraining ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.personalTraining ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">パーソナル</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <button
-                      type="button"
-                      onClick={() => handleServiceToggle('sauna')}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${
-                        formData.services.sauna ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${
-                        formData.services.sauna ? 'translate-x-5' : 'translate-x-1'
-                      }`} />
-                    </button>
-                    <span className="text-sm text-slate-700">サウナ</span>
-                  </label>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { key: '24hours', label: '24時間営業' },
+                    { key: 'shower', label: 'シャワー' },
+                    { key: 'parking', label: '駐車場' },
+                    { key: 'locker', label: 'ロッカー' },
+                    { key: 'wifi', label: 'Wi-Fi' },
+                    { key: 'chalk', label: 'チョーク利用可' },
+                    { key: 'belt_rental', label: 'ベルト貸出' },
+                    { key: 'personal_training', label: 'パーソナル' },
+                    { key: 'group_lesson', label: 'グループレッスン' },
+                    { key: 'studio', label: 'スタジオ' },
+                    { key: 'sauna', label: 'サウナ' },
+                    { key: 'pool', label: 'プール' },
+                    { key: 'jacuzzi', label: 'ジャグジー' },
+                    { key: 'massage_chair', label: 'マッサージチェア' },
+                    { key: 'cafe', label: 'カフェ/売店' },
+                    { key: 'women_only', label: '女性専用エリア' },
+                    { key: 'barrier_free', label: 'バリアフリー' },
+                    { key: 'kids_room', label: 'キッズルーム' },
+                    { key: 'english_support', label: '英語対応' },
+                    { key: 'drop_in', label: 'ドロップイン' }
+                  ].map((service) => (
+                    <div key={service.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                      <span className="text-sm font-medium text-slate-900">{service.label}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleServiceToggle(service.key)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          formData.services[service.key as keyof typeof formData.services] ? 'bg-blue-500' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span className="sr-only">
+                          {formData.services[service.key as keyof typeof formData.services] ? 'オフにする' : 'オンにする'}
+                        </span>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                            formData.services[service.key as keyof typeof formData.services] ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
 
