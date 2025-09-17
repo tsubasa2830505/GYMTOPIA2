@@ -3,7 +3,7 @@
 // Force dynamic rendering - prevent static generation
 export const dynamic = 'force-dynamic'
 
-import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, Navigation } from 'lucide-react'
+import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, Navigation, X } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -622,11 +622,6 @@ function SearchResultsContent() {
                     {searchParams.get('name') && (
                       <span className="gt-chip text-[11px] sm:text-xs" style={{ background: 'rgba(255, 166, 77, 0.15)', borderColor: 'rgba(255, 166, 77, 0.35)', color: '#c35a11' }}>
                         🎯 マシン: {searchParams.get('name')}
-                      </span>
-                    )}
-                    {searchParams.get('type') && (
-                      <span className="gt-chip text-[11px] sm:text-xs" style={{ background: 'rgba(126, 108, 255, 0.16)', borderColor: 'rgba(126, 108, 255, 0.36)', color: '#5f53ff' }}>
-                        ⚙️ タイプ: {searchParams.get('type')}
                       </span>
                     )}
                   </>

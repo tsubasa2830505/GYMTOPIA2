@@ -118,12 +118,12 @@ export default function UserProfilePage() {
 
   // Get user ID from params
   const userId = params?.id as string;
-  const currentUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+  const currentUserId = user?.id;
   const isOwnProfile = userId === currentUserId;
 
   // Check if following this user
   useEffect(() => {
-    if (!userId || isOwnProfile) return;
+    if (!userId || !currentUserId || isOwnProfile) return;
 
     const checkFollowStatus = async () => {
       setIsCheckingFollow(true);
@@ -134,13 +134,16 @@ export default function UserProfilePage() {
           .select('id')
           .eq('follower_id', currentUserId)
           .eq('following_id', userId)
-          .single();
+          .maybeSingle();
 
-        if (!error && data) {
+        if (data) {
           setIsFollowing(true);
+        } else {
+          setIsFollowing(false);
         }
       } catch (error) {
         console.error('Error checking follow status:', error);
+        setIsFollowing(false);
       } finally {
         setIsCheckingFollow(false);
       }
@@ -151,39 +154,78 @@ export default function UserProfilePage() {
 
   // Handle follow/unfollow
   const handleFollowToggle = async () => {
-    if (!userId || isOwnProfile) return;
+    if (!userId || !currentUserId || isOwnProfile) return;
 
+    // ログインしていない場合はアラート
+    if (!user) {
+      alert('フォローするにはログインが必要です');
+      return;
+    }
+
+    setIsCheckingFollow(true);
     try {
       const supabase = getSupabaseClient();
 
       if (isFollowing) {
         // Unfollow
-        await supabase
+        const { error } = await supabase
           .from('follows')
           .delete()
           .eq('follower_id', currentUserId)
           .eq('following_id', userId);
 
+        if (error) throw error;
         setIsFollowing(false);
+
+        // フォロワー数を減らす
+        if (profileData) {
+          setProfileData({
+            ...profileData,
+            followers_count: Math.max(0, (profileData.followers_count || 0) - 1)
+          });
+        }
       } else {
         // Follow
-        await supabase
+        const { error } = await supabase
           .from('follows')
           .insert({
             follower_id: currentUserId,
             following_id: userId
           });
 
+        if (error) throw error;
         setIsFollowing(true);
-      }
 
-      // Reload profile data to update counts
-      if (profileData) {
-        const updatedProfile = await getUserProfileStats(userId);
-        setProfileData(updatedProfile);
+        // フォロワー数を増やす
+        if (profileData) {
+          setProfileData({
+            ...profileData,
+            followers_count: (profileData.followers_count || 0) + 1
+          });
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling follow:', error);
+      alert('フォロー操作に失敗しました');
+      // エラーの場合は状態を元に戻す
+      const checkFollowStatus = async () => {
+        try {
+          const supabase = getSupabaseClient();
+          const { data } = await supabase
+            .from('follows')
+            .select('id')
+            .eq('follower_id', currentUserId)
+            .eq('following_id', userId)
+            .maybeSingle();
+
+          setIsFollowing(!!data);
+        } catch (e) {
+          console.error('Error rechecking follow status:', e);
+        }
+      };
+      checkFollowStatus();
+    } finally {
+      setIsCheckingFollow(false);
     }
   };
 

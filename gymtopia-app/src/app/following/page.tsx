@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, UserPlus, MapPin, Calendar, Search, UserMinus, Clock } from 'lucide-react'
 import { getFollowing, getFollowCounts, unfollowUser } from '@/lib/supabase/follows'
@@ -263,7 +264,7 @@ export default function FollowingPage() {
               <div key={user.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
-                  <div className="flex-shrink-0">
+                  <Link href={`/user/${user.id}`} className="flex-shrink-0">
                     {user.avatar_url ? (
                       <Image
                         src={user.avatar_url}
@@ -280,23 +281,23 @@ export default function FollowingPage() {
                         {(user.display_name || user.username).charAt(0)}
                       </div>
                     )}
-                  </div>
+                  </Link>
 
                   {/* Info */}
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-lg text-slate-900">
+                          <Link href={`/user/${user.id}`} className="font-bold text-lg text-slate-900 hover:text-blue-600 transition-colors">
                             {user.display_name || user.username}
-                          </h3>
+                          </Link>
                           {user.is_mutual_follow && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
                               相互
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-600">@{user.username}</p>
+                        <Link href={`/user/${user.id}`} className="text-sm text-slate-600 hover:text-blue-600 transition-colors inline-block">@{user.username}</Link>
                         {user.bio && (
                           <p className="text-sm text-slate-700 mt-1">{user.bio}</p>
                         )}

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut, MapPin } from 'lucide-react'
+import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut, MapPin, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
 
@@ -34,6 +34,12 @@ export default function ProfileEditPage() {
   const [gymSearchQuery, setGymSearchQuery] = useState('')
   const [gymSearchResults, setGymSearchResults] = useState<any[]>([])
   const [isSearchingGym, setIsSearchingGym] = useState(false)
+
+  // Privacy Settings
+  const [gymActivityPrivate, setGymActivityPrivate] = useState(false)
+  const [showStatsPublic, setShowStatsPublic] = useState(true)
+  const [showAchievementsPublic, setShowAchievementsPublic] = useState(true)
+  const [showFavoriteGymsPublic, setShowFavoriteGymsPublic] = useState(true)
 
   // Personal Records
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([
@@ -88,6 +94,11 @@ export default function ProfileEditPage() {
         setUsername(data.username || '')
         setBio(data.bio || '')
         setAvatarUrl(data.avatar_url || '')
+        // プライバシー設定を取得
+        setGymActivityPrivate(data.gym_activity_private || false)
+        setShowStatsPublic(data.show_stats_public !== false)
+        setShowAchievementsPublic(data.show_achievements_public !== false)
+        setShowFavoriteGymsPublic(data.show_favorite_gyms_public !== false)
       }
 
       // ユーザープロフィール（ホームジム情報）を取得
@@ -292,6 +303,10 @@ export default function ProfileEditPage() {
             username: username,
             bio: bio,
             avatar_url: uploadedAvatarUrl,
+            gym_activity_private: gymActivityPrivate,
+            show_stats_public: showStatsPublic,
+            show_achievements_public: showAchievementsPublic,
+            show_favorite_gyms_public: showFavoriteGymsPublic,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id)
@@ -308,6 +323,10 @@ export default function ProfileEditPage() {
             username: username,
             bio: bio,
             avatar_url: uploadedAvatarUrl,
+            gym_activity_private: gymActivityPrivate,
+            show_stats_public: showStatsPublic,
+            show_achievements_public: showAchievementsPublic,
+            show_favorite_gyms_public: showFavoriteGymsPublic,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id)
@@ -743,25 +762,113 @@ export default function ProfileEditPage() {
 
           {/* プライバシー設定 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">プライバシー設定</h3>
-            
-            <div className="space-y-3">
-              <label className="flex items-center justify-between">
-                <span className="text-sm text-slate-700">プロフィールを公開</span>
-                <input type="checkbox" className="toggle" defaultChecked />
-              </label>
-              <label className="flex items-center justify-between">
-                <span className="text-sm text-slate-700">ジム活を公開</span>
-                <input type="checkbox" className="toggle" defaultChecked />
-              </label>
-              <label className="flex items-center justify-between">
-                <span className="text-sm text-slate-700">パーソナルレコードを公開</span>
-                <input type="checkbox" className="toggle" defaultChecked />
-              </label>
-              <label className="flex items-center justify-between">
-                <span className="text-sm text-slate-700">位置情報を表示</span>
-                <input type="checkbox" className="toggle" defaultChecked />
-              </label>
+            <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Lock className="w-4 h-4" />
+              プライバシー設定
+            </h3>
+
+            <div className="space-y-4">
+              {/* ジム活動全体の非公開設定 */}
+              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-green-500" />}
+                    <div>
+                      <span className="text-sm font-medium text-slate-900">ジム活動を非公開にする</span>
+                      <p className="text-xs text-slate-600 mt-1">
+                        オンにすると、投稿・統計・アチーブメントなど全てが他のユーザーから見えなくなります
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setGymActivityPrivate(!gymActivityPrivate)}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      gymActivityPrivate ? 'bg-red-500' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                      gymActivityPrivate ? 'translate-x-6' : ''
+                    }`} />
+                  </button>
+                </label>
+              </div>
+
+              {/* 個別の公開設定（ジム活動が公開の場合のみ） */}
+              {!gymActivityPrivate && (
+                <>
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {showStatsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      <div>
+                        <span className="text-sm font-medium text-slate-900">統計情報を公開</span>
+                        <p className="text-xs text-slate-600">トレーニング回数、時間など</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowStatsPublic(!showStatsPublic)}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        showStatsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        showStatsPublic ? 'translate-x-6' : ''
+                      }`} />
+                    </button>
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {showAchievementsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      <div>
+                        <span className="text-sm font-medium text-slate-900">アチーブメントを公開</span>
+                        <p className="text-xs text-slate-600">獲得したバッジや実績</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAchievementsPublic(!showAchievementsPublic)}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        showAchievementsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        showAchievementsPublic ? 'translate-x-6' : ''
+                      }`} />
+                    </button>
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      <div>
+                        <span className="text-sm font-medium text-slate-900">お気に入りジムを公開</span>
+                        <p className="text-xs text-slate-600">登録したお気に入りのジム</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowFavoriteGymsPublic(!showFavoriteGymsPublic)}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        showFavoriteGymsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        showFavoriteGymsPublic ? 'translate-x-6' : ''
+                      }`} />
+                    </button>
+                  </label>
+                </>
+              )}
+
+              {gymActivityPrivate && (
+                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <p className="text-xs text-amber-800">
+                    ⚠️ ジム活動が非公開に設定されています。他のユーザーからあなたの投稿や統計は見えません。
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

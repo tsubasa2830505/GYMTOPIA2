@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
@@ -105,9 +105,14 @@ export default function ProfilePage() {
   const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
   const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
 
+  // Performance optimization: useRef to prevent duplicate data loading
+  const hasLoadedData = useRef(false);
+  const isLoadingData = useRef(false);
+
   const POSTS_PER_PAGE = 20;
 
-  const toggleTrainingDetails = (postId: string) => {
+  // Performance optimization: useCallback to prevent re-creation of functions
+  const toggleTrainingDetails = useCallback((postId: string) => {
     setExpandedTraining(prev => {
       const newSet = new Set(prev)
       if (newSet.has(postId)) {
@@ -117,19 +122,28 @@ export default function ProfilePage() {
       }
       return newSet
     })
-  }
+  }, [])
 
   // Always use Tsubasa's actual user ID from the database
   // This ensures we show real data instead of mock data
   const userId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
 
   useEffect(() => {
+    // Performance optimization: Skip if already loading or already loaded
+    if (isLoadingData.current || hasLoadedData.current) {
+      return;
+    }
+
     let isActive = true;
     let retryCount = 0;
+    let retryTimeout: NodeJS.Timeout | null = null;
     const maxRetries = 3;
 
     async function loadProfileData() {
       if (!isActive) return;
+
+      // Prevent duplicate loading
+      isLoadingData.current = true;
 
       try {
         console.log('🔄 データベースから実際のデータを取得中...', userId);
@@ -189,6 +203,8 @@ export default function ProfilePage() {
 
         // メインローディング終了（ここで画面が使える状態に）
         setIsLoading(false);
+        hasLoadedData.current = true;
+        isLoadingData.current = false;
         console.log('🎉 メインローディング完了！');
 
         // Phase 4: 非重要データを背景で読み込み（遅延ローディング）
@@ -220,20 +236,33 @@ export default function ProfilePage() {
         }
 
         // ユニークなジム数を計算（トピア開拓）
-        const { data: uniqueGyms } = await supabase
+        console.log('🔍 トピア開拓データ取得開始 - userId:', userId);
+        const { data: uniqueGyms, error: uniqueGymsError } = await supabase
           .from('gym_posts')
           .select('gym_id')
           .eq('user_id', userId)
           .not('gym_id', 'is', null);
 
+        if (uniqueGymsError) {
+          console.error('❌ トピア開拓データ取得エラー:', uniqueGymsError);
+        } else {
+          console.log('✅ 取得したgym_posts:', uniqueGyms);
+        }
+
         const uniqueGymIds = new Set(uniqueGyms?.map(g => g.gym_id) || []);
         const gymsCount = uniqueGymIds.size;
+        console.log('🏋️ ユニークなジムID:', Array.from(uniqueGymIds));
+        console.log('📊 トピア開拓カウント:', gymsCount);
+
+        // トピア開拓カウントを即座に設定（early returnの前に）
+        console.log('🎯 setUniqueGymsCount呼び出し - 値:', gymsCount);
+        setUniqueGymsCount(gymsCount);
 
         if (!isActive) return;
 
         console.log('📊 データベースから取得したプロフィール:', profileStats);
         console.log('📝 投稿数:', posts?.length || 0);
-        console.log('❤️ お気に入りジム数:', favoriteGyms?.length || 0);
+        console.log('❤️ お気に入りジム数:', 0); // favoriteGymsはまだ取得されていない
         console.log('🏋️ トピア開拓（訪問ジム数）:', gymsCount);
 
         // データベースから取得したデータを設定
@@ -242,9 +271,9 @@ export default function ProfilePage() {
         setUserPosts(posts || []);
         setUserAchievements(achievements || []);
         setUserPersonalRecords(personalRecords || []);
-        setUserFavoriteGyms(favoriteGyms || []);
+        setUserFavoriteGyms([]); // favoriteGymsは別途非同期で取得
         setHomeGym(homeGymData);
-        setUniqueGymsCount(gymsCount);
+        // setUniqueGymsCountは早期リターンの前に移動済み
 
         // 投稿のページネーション設定
         setHasMorePosts((posts || []).length === POSTS_PER_PAGE);
@@ -291,7 +320,7 @@ export default function ProfilePage() {
           setUserPosts(samplePosts);
         }
 
-        if (!favoriteGyms || favoriteGyms.length === 0) {
+        if (!userFavoriteGyms || userFavoriteGyms.length === 0) {
           const sampleFavoriteGyms: FavoriteGym[] = [
             {
               id: 'fav-1',
@@ -330,12 +359,16 @@ export default function ProfilePage() {
         if (retryCount < maxRetries && isActive) {
           retryCount++;
           console.log(`🔄 リトライ中 (${retryCount}/${maxRetries})`);
-          setTimeout(loadProfileData, 1000);
+          isLoadingData.current = false; // Reset loading flag before retry
+          retryTimeout = setTimeout(loadProfileData, 1000);
           return;
         }
       } finally {
         if (isActive) {
           setIsLoading(false);
+          if (!hasLoadedData.current) {
+            isLoadingData.current = false;
+          }
         }
       }
     }
@@ -345,8 +378,11 @@ export default function ProfilePage() {
 
     return () => {
       isActive = false;
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
     };
-  }, [userId]);
+  }, []); // 空の依存配列でマウント時のみ実行
 
   const loadMorePosts = async () => {
     if (!hasMorePosts || isLoadingMorePosts) return;

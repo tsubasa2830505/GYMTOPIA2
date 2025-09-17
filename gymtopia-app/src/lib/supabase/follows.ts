@@ -149,7 +149,7 @@ export async function getFollowing(userId: string) {
         const following = follow.following as any
 
         // Check if they follow back (mutual follow)
-        const { data: followsBack } = await supabase
+        const { data: followsBack } = await getSupabaseClient()
           .from('follows')
           .select('id')
           .eq('follower_id', following.id)
@@ -170,7 +170,7 @@ export async function getFollowing(userId: string) {
           .select('following_id')
           .eq('follower_id', actualUserId)
 
-        const { data: targetFollowing } = await supabase
+        const { data: targetFollowing } = await getSupabaseClient()
           .from('follows')
           .select('following_id')
           .eq('follower_id', following.id)
@@ -224,6 +224,18 @@ export async function getFollowCounts(userId: string) {
 // Follow a user
 export async function followUser(followerId: string, followingId: string) {
   try {
+    // 既にフォローしているかチェック
+    const { data: existingFollow } = await getSupabaseClient()
+      .from('follows')
+      .select('id')
+      .eq('follower_id', followerId)
+      .eq('following_id', followingId)
+      .single()
+
+    if (existingFollow) {
+      return { data: existingFollow, error: null }
+    }
+
     const { data, error } = await getSupabaseClient()
       .from('follows')
       .insert({
@@ -250,7 +262,8 @@ export async function followUser(followerId: string, followingId: string) {
     return { data, error: null }
   } catch (error) {
     console.error('Error following user:', error)
-    return { data: null, error }
+    // より詳細なエラー情報を返す
+    return { data: null, error: error instanceof Error ? error.message : String(error) }
   }
 }
 

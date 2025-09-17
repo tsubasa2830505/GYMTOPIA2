@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, MessageCircle, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import TrainingDetails from '@/components/TrainingDetails';
 import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
@@ -78,7 +79,7 @@ export default function PostCard({
       <div className="p-4 sm:p-6 pb-2 sm:pb-2">
         <div className="flex items-start gap-3">
           {/* Avatar */}
-          <a href={`/user/${post.user_id}`} className="relative flex-shrink-0">
+          <Link href={`/user/${post.user_id}`} className="relative flex-shrink-0">
             {post.user?.avatar_url ? (
               <Image
                 src={post.user.avatar_url}
@@ -92,24 +93,24 @@ export default function PostCard({
                 {post.user?.display_name?.[0] || 'U'}
               </div>
             )}
-          </a>
+          </Link>
 
           {/* Author Info */}
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <a
+              <Link
                 href={`/user/${post.user_id}`}
                 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors"
               >
                 {post.user?.display_name || 'ユーザー'}
-              </a>
+              </Link>
               {post.user?.username && (
-                <a
+                <Link
                   href={`/user/${post.user_id}`}
                   className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
                 >
                   @{post.user.username}
-                </a>
+                </Link>
               )}
             </div>
             <div className="flex items-center gap-4 mt-1">

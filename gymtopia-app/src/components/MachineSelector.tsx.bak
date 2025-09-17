@@ -386,8 +386,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           )}
         </div>
 
-        {/* タイプセクション削除済み */}
-        {/* <div className="gt-card overflow-hidden">
+        {/* タイプ */}
+        <div className="gt-card overflow-hidden">
           <button
             onClick={() => toggleSection('type')}
             className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
@@ -441,7 +441,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               })}
             </div>
           )}
-        </div> */}
+        </div>
 
         {/* メーカー */}
         <div className="gt-card overflow-hidden">
@@ -569,6 +569,9 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   <div className="flex flex-wrap gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
                       {target?.name}{machine.target_detail ? ` - ${machine.target_detail}` : ''}
+                    </span>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
+                      {type?.name}
                     </span>
                     <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
                       {maker?.name}

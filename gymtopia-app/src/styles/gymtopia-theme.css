@@ -1,32 +1,32 @@
 /* GymTopia bespoke theme tokens and utility styles */
 :root {
-  --gt-background: #edf1ff;
-  --gt-background-strong: #e3e9ff;
-  --gt-background-gradient: radial-gradient(circle at 18% 18%, rgba(96, 86, 255, 0.18), transparent 42%), radial-gradient(circle at 82% 22%, rgba(255, 107, 159, 0.16), transparent 46%), linear-gradient(180deg, #f1f5ff 0%, #eef3ff 100%);
+  --gt-background: #ffffff;
+  --gt-background-strong: #f8f9fc;
+  --gt-background-gradient: radial-gradient(circle at 18% 18%, rgba(96, 86, 255, 0.06), transparent 42%), radial-gradient(circle at 82% 22%, rgba(255, 107, 159, 0.05), transparent 46%), linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
 
   --gt-surface: #ffffff;
-  --gt-surface-muted: #f6f8ff;
-  --gt-surface-strong: #f9faff;
-  --gt-overlay: rgba(95, 98, 160, 0.08);
-  --gt-overlay-strong: rgba(95, 98, 160, 0.16);
+  --gt-surface-muted: #fafbfc;
+  --gt-surface-strong: #f5f7fa;
+  --gt-overlay: rgba(95, 98, 160, 0.04);
+  --gt-overlay-strong: rgba(95, 98, 160, 0.08);
 
-  --gt-border-soft: rgba(76, 90, 146, 0.18);
-  --gt-border-strong: rgba(76, 90, 146, 0.32);
+  --gt-border-soft: rgba(226, 232, 240, 0.8);
+  --gt-border-strong: rgba(203, 213, 224, 1);
 
-  --gt-primary: #6056ff;
-  --gt-primary-strong: #4334d6;
-  --gt-primary-soft: rgba(96, 86, 255, 0.16);
-  --gt-secondary: #ff6b9f;
-  --gt-secondary-strong: #ff3b82;
-  --gt-secondary-soft: rgba(255, 107, 159, 0.18);
-  --gt-tertiary: #38d7a7;
-  --gt-tertiary-strong: #1f9b76;
-  --gt-tertiary-soft: rgba(56, 215, 167, 0.18);
-  --gt-highlight: #5ff5ff;
+  --gt-primary: #5046e5;
+  --gt-primary-strong: #4338ca;
+  --gt-primary-soft: rgba(80, 70, 229, 0.12);
+  --gt-secondary: #ec4899;
+  --gt-secondary-strong: #db2777;
+  --gt-secondary-soft: rgba(236, 72, 153, 0.12);
+  --gt-tertiary: #10b981;
+  --gt-tertiary-strong: #059669;
+  --gt-tertiary-soft: rgba(16, 185, 129, 0.12);
+  --gt-highlight: #38bdf8;
 
-  --gt-text-main: #1b2544;
-  --gt-text-sub: #4d5c7d;
-  --gt-text-muted: #93a0c2;
+  --gt-text-main: #0f172a;
+  --gt-text-sub: #475569;
+  --gt-text-muted: #94a3b8;
   --gt-text-inverse: #ffffff;
   --gt-on-primary: #f9f9ff;
   --gt-on-secondary: #fff9fb;
@@ -49,14 +49,16 @@ body {
   background-image: var(--gt-background-gradient);
   background-color: var(--gt-background);
   color: var(--gt-text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .gt-page-shell {
   position: relative;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 255, 0.85));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 253, 255, 0.95));
   border-radius: var(--gt-radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: var(--gt-shadow-soft);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
@@ -65,29 +67,7 @@ body {
   background: var(--gt-surface);
   border-radius: var(--gt-radius-lg);
   border: 1px solid var(--gt-border-soft);
-  box-shadow: var(--gt-shadow-card);
-  transition: transform 200ms ease, box-shadow 220ms ease, border-color 250ms ease;
-}
-
-.gt-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(circle at 85% 15%, rgba(255, 107, 159, 0.28), transparent 60%), radial-gradient(circle at 15% 15%, rgba(96, 86, 255, 0.22), transparent 55%);
-  opacity: 0;
-  transition: opacity 260ms ease;
-}
-
-.gt-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--gt-shadow-hover);
-  border-color: rgba(96, 86, 255, 0.28);
-}
-
-.gt-card:hover::after {
-  opacity: 1;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .gt-layer {
@@ -98,8 +78,8 @@ body {
 }
 
 .gt-layer-muted {
-  background: linear-gradient(135deg, rgba(96, 86, 255, 0.12), rgba(96, 86, 255, 0));
-  border: 1px solid rgba(96, 86, 255, 0.18);
+  background: linear-gradient(135deg, rgba(80, 70, 229, 0.08), rgba(80, 70, 229, 0));
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: var(--gt-radius-pill);
   padding: 4px;
 }
@@ -172,22 +152,23 @@ body {
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--gt-radius-pill);
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(248, 250, 252, 1);
   border: 1px solid var(--gt-border-soft);
   color: var(--gt-text-sub);
   font-weight: 600;
   letter-spacing: 0.03em;
+  transition: all 180ms ease;
 }
 
 .gt-chip--primary {
-  background: rgba(96, 86, 255, 0.12);
-  border-color: rgba(96, 86, 255, 0.35);
+  background: rgba(80, 70, 229, 0.1);
+  border-color: rgba(80, 70, 229, 0.25);
   color: var(--gt-primary-strong);
 }
 
 .gt-chip--secondary {
-  background: rgba(255, 107, 159, 0.12);
-  border-color: rgba(255, 107, 159, 0.32);
+  background: rgba(236, 72, 153, 0.1);
+  border-color: rgba(236, 72, 153, 0.25);
   color: var(--gt-secondary-strong);
 }
 
