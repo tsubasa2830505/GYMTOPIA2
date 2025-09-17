@@ -697,7 +697,7 @@ function AddGymPostContent() {
           <button
             type="submit"
             disabled={!gymName || !content || isSubmitting}
-            className="w-full py-4 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             {isSubmitting ? (
               <>
@@ -777,7 +777,7 @@ function AddGymPostContent() {
             <button
               type="submit"
               disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
-              className="w-full py-4 bg-gradient-to-r from-[#38d7a7] to-[#6056ff] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+              className="w-full py-4 bg-gradient-to-r from-[#4aa0d9] to-[#3b63f3] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
             >
               {isSubmitting ? (
                 <>

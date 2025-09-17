@@ -38,7 +38,7 @@ export default function BottomNavigation() {
   return (
     <nav className="fixed bottom-4 left-0 right-0 z-[60] sm:hidden px-4">
       <div className="max-w-md mx-auto">
-        <div className="gt-shell bg-white/80 backdrop-blur-xl border border-white/50 shadow-[0_18px_40px_-28px_rgba(20,31,68,0.55)]">
+        <div className="gt-shell bg-[rgba(243,247,255,0.92)] backdrop-blur-xl border border-[rgba(157,176,226,0.45)] shadow-[0_20px_44px_-30px_rgba(26,44,94,0.5)]">
           <div className="flex">
             {navItems.map((item) => (
               <Link
@@ -58,7 +58,7 @@ export default function BottomNavigation() {
                       }`}
                     />
                     {item.badge && (
-                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
+                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5 shadow-[0_8px_18px_-12px_rgba(26,44,94,0.55)]">
                         {item.badge}
                       </span>
                     )}
@@ -71,7 +71,7 @@ export default function BottomNavigation() {
                     {item.label}
                   </span>
                   {item.isActive && (
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] rounded-full" />
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] rounded-full" />
                   )}
                 </div>
               </Link>

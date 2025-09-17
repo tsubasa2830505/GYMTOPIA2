@@ -135,7 +135,7 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
 
               {/* Category Items */}
               {expandedCategories.has(category.id) && (
-                <div className="border-t border-white/60 p-4">
+                <div className="border-t border-[rgba(168,184,228,0.35)] p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {category.items.map((item) => (
                       <button
@@ -143,8 +143,8 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
                         onClick={() => handleFacilityToggle(item.id)}
                         className={`p-3 rounded-2xl flex items-center justify-between gt-transition gt-pressable ${
                           selectedFacilities.has(item.id)
-                            ? 'gt-primary-plate border border-white/70 ring-1 ring-[#6056ff33]'
-                            : 'gt-surface-outline hover:shadow-[0_18px_36px_-28px_rgba(20,31,68,0.45)]'
+                            ? 'gt-primary-plate border border-[rgba(157,176,226,0.45)] ring-1 ring-[rgba(59,99,243,0.3)]'
+                            : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(26,44,94,0.42)]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -162,8 +162,8 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
                         </div>
                         <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${
                           selectedFacilities.has(item.id)
-                            ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] border-transparent text-white'
-                            : 'border-white/60 text-[color:var(--text-muted)] bg-white/70'
+                            ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] border-transparent text-white shadow-[0_10px_26px_-18px_rgba(26,44,94,0.45)]'
+                            : 'border-[rgba(168,184,228,0.45)] text-[color:var(--text-muted)] bg-[rgba(243,247,255,0.85)]'
                         }`}>
                           {selectedFacilities.has(item.id) && (
                             <Check className="w-3 h-3 text-white" />
@@ -195,7 +195,7 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
               onClick={() => {
                 onSelectionChange(new Set())
               }}
-              className="text-sm text-blue-600 font-medium hover:text-blue-700"
+              className="text-sm text-[color:var(--gt-on-primary)]/80 font-medium hover:text-[color:var(--gt-on-primary)]"
             >
               すべてクリア
             </button>

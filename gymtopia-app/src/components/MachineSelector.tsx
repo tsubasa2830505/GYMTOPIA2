@@ -386,64 +386,6 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             </div>
           )}
         </div>
-
-        {/* タイプセクション削除済み */}
-        {/* <div className="gt-card overflow-hidden">
-          <button
-            onClick={() => toggleSection('type')}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
-          >
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5" style={{ color: 'var(--gt-tertiary-strong)' }} />
-              <h3 className="font-semibold text-[color:var(--foreground)]">
-                タイプ
-                {filter.targetCategory && (
-                  <span className="text-xs text-[color:var(--text-muted)] ml-2">
-                    （{targetOptions.find(t => t.id === filter.targetCategory)?.name}用のマシンタイプ）
-                  </span>
-                )}
-              </h3>
-              {filter.type.length > 0 && (
-                <span className="gt-badge text-[11px]" style={{ background: 'rgba(56,215,167,0.18)', color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(56,215,167,0.35)' }}>
-                  {filter.type.length}
-                </span>
-              )}
-            </div>
-            <ChevronRight 
-              className={`w-5 h-5 text-[color:var(--text-muted)] transition-transform ${
-                expandedSections.has('type') ? 'rotate-90' : ''
-              }`} 
-            />
-          </button>
-          
-          {expandedSections.has('type') && (
-            <div className="border-t border-white/60 p-4 space-y-2">
-              {typeOptions.map((type) => {
-                const relatedTypes = getRelatedTypes()
-                const isRelated = relatedTypes.includes(type.id)
-                const isSelected = filter.type.includes(type.id)
-                
-                return (
-                  <button
-                    key={type.id}
-                    onClick={() => toggleFilter('type', type.id)}
-                    className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-[#38d7a7] via-[#4fa7ff] to-[#7e6cff] text-white shadow-[0_18px_38px_-24px_rgba(56,215,167,0.45)]'
-                        : isRelated && filter.targetCategory
-                        ? 'bg-white/75 text-[#1f9b76] border border-[#56d7b2]/40 hover:bg-white'
-                        : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
-                    }`}
-                  >
-                    <type.icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{type.name}</span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div> */}
-
         {/* メーカー */}
         <div className="gt-card overflow-hidden">
           <button
@@ -559,18 +501,18 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               key={machine.id}
               className={`p-4 rounded-xl transition-all ${
                 machineCount > 0
-                  ? 'gt-primary-plate border-2 border-blue-500'
-                  : 'gt-layer border-2 border-slate-200'
+                  ? 'gt-primary-plate border-2 border-[rgba(59,99,243,0.45)]'
+                  : 'gt-layer border-2 border-[rgba(168,184,228,0.45)]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="text-left flex-1">
                   <p className="font-medium text-slate-900">{machine.name}</p>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                    <span className="px-2 py-0.5 rounded text-xs bg-[rgba(59,99,243,0.14)] text-[color:var(--gt-primary-strong)]">
                       {target?.name}{machine.target_detail ? ` - ${machine.target_detail}` : ''}
                     </span>
-                    <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                    <span className="px-2 py-0.5 rounded text-xs bg-[rgba(123,139,255,0.16)] text-[color:var(--gt-tertiary-strong)]">
                       {maker?.name}
                     </span>
                   </div>
@@ -582,17 +524,17 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     <>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount - 1)}
-                        className="w-8 h-8 rounded-lg bg-white/65 border border-white/60 hover:bg-white flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-[rgba(243,247,255,0.88)] border border-[rgba(168,184,228,0.45)] hover:bg-white flex items-center justify-center transition-colors"
                       >
                         <Minus className="w-4 h-4 text-[color:var(--foreground)]" />
                       </button>
                       <div className="min-w-[3rem] text-center">
-                        <span className="font-medium text-lg text-blue-600">{machineCount}</span>
+                        <span className="font-medium text-lg text-[color:var(--gt-primary-strong)]">{machineCount}</span>
                         <span className="text-sm text-[color:var(--text-muted)] ml-1">台</span>
                       </div>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount + 1)}
-                        className="w-8 h-8 rounded-lg bg-blue-500 hover:bg-blue-600 flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-[var(--gt-primary)] hover:bg-[#2c4ecc] flex items-center justify-center transition-colors"
                       >
                         <Plus className="w-4 h-4 text-white" />
                       </button>
@@ -600,7 +542,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   ) : (
                     <button
                       onClick={() => toggleMachine(machine.id)}
-                      className="px-4 py-2 rounded-lg bg-white/70 hover:bg-white text-slate-700 font-medium text-sm transition-colors border-2 border-slate-300 hover:border-slate-400"
+                      className="px-4 py-2 rounded-lg bg-[rgba(243,247,255,0.9)] hover:bg-white text-[color:var(--text-subtle)] font-medium text-sm transition-colors border-2 border-[rgba(168,184,228,0.45)] hover:border-[rgba(59,99,243,0.36)]"
                     >
                       追加
                     </button>

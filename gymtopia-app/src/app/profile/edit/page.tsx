@@ -422,7 +422,7 @@ export default function ProfileEditPage() {
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="px-4 py-2 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
+            className="px-4 py-2 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
           >
             <Save className="w-4 h-4" />
             {isLoading ? '保存中...' : '保存'}
@@ -449,7 +449,7 @@ export default function ProfileEditPage() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 w-8 h-8 bg-[#6056ff] rounded-full flex items-center justify-center shadow-lg hover:bg-[#5046e5] transition-colors border-2 border-[#6056ff]"
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-[var(--gt-primary)] rounded-full flex items-center justify-center shadow-lg hover:bg-[#2c4ecc] transition-colors border-2 border-[var(--gt-primary)]"
                 >
                   <Camera className="w-4 h-4 text-white" />
                 </button>
@@ -509,7 +509,7 @@ export default function ProfileEditPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
                 placeholder="表示名を入力"
               />
             </div>
@@ -526,7 +526,7 @@ export default function ProfileEditPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                  className="w-full pl-8 pr-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
                   placeholder="username"
                 />
               </div>
@@ -565,7 +565,7 @@ export default function ProfileEditPage() {
                         setGymSearchQuery(e.target.value)
                         searchGyms(e.target.value)
                       }}
-                      className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                      className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
                       placeholder="ジム名で検索..."
                     />
                     {isSearchingGym && (
@@ -575,7 +575,7 @@ export default function ProfileEditPage() {
                     )}
                   </div>
                   {gymSearchResults.length > 0 && (
-                    <div className="bg-white border-2 border-gray-300 focus:border-[#6056ff] rounded-lg max-h-48 overflow-y-auto">
+                    <div className="bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg max-h-48 overflow-y-auto">
                       {gymSearchResults.map((gym) => (
                         <button
                           key={gym.id}
@@ -605,7 +605,7 @@ export default function ProfileEditPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 resize-none"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900 resize-none"
                 placeholder="自己紹介を入力"
               />
               <p className="text-xs text-slate-500 mt-1">{bio.length} / 150文字</p>
@@ -658,7 +658,7 @@ export default function ProfileEditPage() {
                   placeholder="種目名（例：ベンチプレス）"
                   value={newRecord.exercise}
                   onChange={(e) => setNewRecord({ ...newRecord, exercise: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -666,14 +666,14 @@ export default function ProfileEditPage() {
                     placeholder="重量(kg)"
                     value={newRecord.weight}
                     onChange={(e) => setNewRecord({ ...newRecord, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
                   />
                   <input
                     type="text"
                     placeholder="回数（例：5回×3セット）"
                     value={newRecord.reps}
                     onChange={(e) => setNewRecord({ ...newRecord, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -708,7 +708,7 @@ export default function ProfileEditPage() {
               </label>
               <select 
                 defaultValue="週5-6回"
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
               >
                 <option>週1-2回</option>
                 <option>週3-4回</option>
@@ -724,7 +724,7 @@ export default function ProfileEditPage() {
               </label>
               <select 
                 defaultValue="夜（17:00-22:00）"
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
               >
                 <option>早朝（5:00-8:00）</option>
                 <option>午前（8:00-12:00）</option>
@@ -888,7 +888,7 @@ export default function ProfileEditPage() {
           {/* 保存ボタン（モバイル用） */}
           <button
             onClick={handleSave}
-            className="w-full py-4 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             <Save className="w-5 h-5" />
             プロフィールを保存

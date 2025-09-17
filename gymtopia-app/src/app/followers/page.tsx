@@ -200,7 +200,7 @@ export default function FollowersPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-slate-300 focus:border-[#6056ff] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#6056ff]"
+                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-slate-300 focus:border-[#3b63f3] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
               />
             </div>
             <div className="gt-tab-track flex flex-wrap gap-2 py-1">
@@ -340,8 +340,8 @@ export default function FollowersPage() {
                           disabled={processingIds.includes(user.id)}
                           className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                             user.is_following_back
-                              ? 'bg-white/80 border border-white/60 text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
-                              : 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_16px_30px_-20px_rgba(96,86,255,0.6)] hover:-translate-y-[2px]'
+                              ? 'bg-[rgba(243,247,255,0.92)] border border-[rgba(168,184,228,0.45)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
+                              : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_18px_32px_-22px_rgba(26,44,94,0.5)] hover:-translate-y-[2px]'
                           } ${processingIds.includes(user.id) ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                           {processingIds.includes(user.id) ? (

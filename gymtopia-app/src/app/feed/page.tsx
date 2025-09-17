@@ -357,7 +357,7 @@ export default function FeedPage() {
         {/* Feed Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-700">ジム活フィード (テスト)</h2>
+            <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
             <span className="text-sm text-gray-500">
               {posts.length}件の投稿
             </span>
@@ -368,7 +368,7 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'all'
-                ? 'bg-blue-500 text-white shadow-sm'
+                ? 'bg-[#6056ff] text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
             >

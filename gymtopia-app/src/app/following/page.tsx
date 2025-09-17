@@ -175,7 +175,7 @@ export default function FollowingPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6056ff]"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
               />
             </div>
             <div className="flex gap-2">
@@ -183,7 +183,7 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedFilter === 'all'
-                    ? 'bg-[#6056ff] text-white'
+                    ? 'bg-[#3b63f3] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -193,7 +193,7 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedFilter === 'mutual'
-                    ? 'bg-[#6056ff] text-white'
+                    ? 'bg-[#3b63f3] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -203,7 +203,7 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('recent')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedFilter === 'recent'
-                    ? 'bg-[#6056ff] text-white'
+                    ? 'bg-[#3b63f3] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >

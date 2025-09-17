@@ -673,10 +673,10 @@ export default function ProfilePage() {
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
             {/* 新規投稿ボタン */}
-            <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-[#6056ff] transition-colors">
+            <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-[#3b63f3] transition-colors">
               <button 
                 onClick={() => router.push('/add')}
-                className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-[#6056ff] transition-colors"
+                className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-[#3b63f3] transition-colors"
               >
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">

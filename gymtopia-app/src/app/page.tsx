@@ -72,75 +72,12 @@ export default function Home() {
                 height={32}
                 className="h-6 sm:h-8 w-auto"
               />
-              <p className="text-xs text-[color:var(--text-muted)]">街の熱量に寄り添うジム探し</p>
             </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-12 sm:pt-12 sm:pb-16 space-y-10">
-        <section className="grid gap-10 lg:grid-cols-[1.05fr_1fr] items-start">
-          <div className="space-y-5 text-left relative">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(157,176,226,0.55)] bg-[rgba(240,245,255,0.9)] px-4 py-2 text-[11px] font-semibold tracking-[0.12em] uppercase text-[color:var(--text-subtle)]">
-              街のリアルな声で選ぶ
-            </span>
-            <h1 className="gt-heading-xl sm:text-5xl font-black leading-tight text-[color:var(--foreground)]">
-              青の熱量で、<br className="sm:hidden" />理想のジムと出会おう。
-            </h1>
-            <p className="gt-body text-base sm:text-lg max-w-xl">
-              鍛えたい部位や欲しい設備を入力すると、<span className="text-[color:var(--gt-primary-strong)] font-semibold">街の温度や常連さんの視点</span>まで伝わる検索結果が届きます。
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-2xl border border-[rgba(157,176,226,0.5)] bg-[rgba(243,247,255,0.94)] px-4 py-3 shadow-[0_16px_40px_-30px_rgba(26,44,94,0.45)]">
-                <Dumbbell className="w-5 h-5 text-[var(--gt-primary-strong)]" />
-                <span className="text-sm text-[color:var(--text-subtle)]">機材の台数や配置までチェック</span>
-              </div>
-              <div className="flex items-center gap-3 rounded-2xl border border-[rgba(157,176,226,0.5)] bg-[rgba(243,247,255,0.94)] px-4 py-3 shadow-[0_16px_40px_-30px_rgba(26,44,94,0.45)]">
-                <MapPin className="w-5 h-5 text-[var(--gt-secondary-strong)]" />
-                <span className="text-sm text-[color:var(--text-subtle)]">通いやすさや雰囲気を並べて比較</span>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Button
-                variant="primary"
-                size="lg"
-                startIcon={<Search className="w-4 h-4" />}
-                onClick={scrollToFilters}
-              >
-                条件から探し始める
-              </Button>
-              <button
-                onClick={() => router.push('/feed')}
-                className="text-sm font-semibold text-[color:var(--gt-secondary-strong)] underline-offset-4 hover:underline"
-              >
-                みんなのジム活を見る
-              </button>
-            </div>
-          </div>
-
-          <div className="relative flex justify-center">
-            <div className="absolute -top-6 right-6 h-24 w-24 rounded-full bg-[radial-gradient(circle_at_center,rgba(59,99,243,0.28),transparent_72%)] blur-2xl opacity-70" />
-            <div className="absolute -bottom-12 left-0 h-28 w-28 rounded-full bg-[radial-gradient(circle_at_center,rgba(132,210,255,0.26),transparent_74%)] blur-2xl opacity-60" />
-            <div className="relative w-full max-w-sm">
-              <div className="relative overflow-hidden rounded-[34px] border border-[rgba(157,176,226,0.55)] shadow-[0_28px_54px_-30px_rgba(26,44,94,0.5)]">
-                <Image
-                  src="/images/test/test-gym.jpg"
-                  alt="ライトが差し込むジムフロア"
-                  width={640}
-                  height={800}
-                  className="h-full w-full object-cover"
-                  priority
-                />
-              </div>
-              <div className="absolute -bottom-12 left-8 max-w-[220px] rounded-2xl border border-[rgba(157,176,226,0.55)] bg-[rgba(243,247,255,0.95)] p-4 shadow-[0_20px_40px_-30px_rgba(26,44,94,0.42)]">
-                <p className="text-xs font-semibold text-[color:var(--gt-secondary-strong)] tracking-[0.14em] uppercase mb-1">LOCAL TIPS</p>
-                <p className="text-sm text-[color:var(--text-subtle)] leading-relaxed">
-                  早朝は常連さんがフォームチェックをし合う温かな空気。新顔でもすぐ溶け込めるコミュニティです。
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="col-span-1 lg:col-span-2">

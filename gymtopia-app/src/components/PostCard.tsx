@@ -241,7 +241,7 @@ export default function PostCard({
                 onClick={() => onLike?.(post)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border-2 ${
                   post.is_liked
-                    ? 'text-[#ff6b9f] bg-pink-50 hover:bg-pink-100 border-pink-300'
+                    ? 'text-[color:var(--gt-primary-strong)] bg-[rgba(59,99,243,0.12)] hover:bg-[rgba(59,99,243,0.18)] border-[rgba(59,99,243,0.32)]'
                     : 'text-slate-600 hover:bg-slate-50 border-slate-300 hover:border-slate-400'
                 }`}
               >

@@ -17,7 +17,7 @@ export default function Navigation() {
 
   return (
     <nav className="fixed bottom-4 left-0 right-0 px-4 z-[60]">
-      <div className="max-w-2xl mx-auto gt-shell bg-white/85 backdrop-blur-xl border border-white/50">
+      <div className="max-w-2xl mx-auto gt-shell bg-[rgba(243,247,255,0.92)] backdrop-blur-xl border border-[rgba(157,176,226,0.45)]">
         <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon
@@ -38,8 +38,8 @@ export default function Navigation() {
               <div
                 className={`p-2 rounded-xl flex items-center justify-center transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_14px_30px_-20px_rgba(96,86,255,0.6)]'
-                    : 'bg-white/70 border border-white/60'
+                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_16px_34px_-22px_rgba(26,44,94,0.5)]'
+                    : 'bg-[rgba(243,247,255,0.85)] border border-[rgba(168,184,228,0.45)]'
                 }`}
               >
                 <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
