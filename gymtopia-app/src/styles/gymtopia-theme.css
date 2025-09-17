@@ -28,6 +28,9 @@
   --gt-text-sub: #4d5c7d;
   --gt-text-muted: #93a0c2;
   --gt-text-inverse: #ffffff;
+  --gt-on-primary: #f9f9ff;
+  --gt-on-secondary: #fff9fb;
+  --gt-on-tertiary: #052f25;
 
   --gt-shadow-soft: 0 24px 60px -38px rgba(20, 31, 68, 0.65);
   --gt-shadow-hover: 0 30px 90px -42px rgba(20, 31, 68, 0.65);
@@ -239,4 +242,3 @@ body {
 .gt-pill-button:active {
   transform: translateY(1px);
 }
-

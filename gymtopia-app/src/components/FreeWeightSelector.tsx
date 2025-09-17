@@ -146,25 +146,25 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
         {freeWeightCategories.map((category) => (
           <div 
             key={category.id}
-            className="md-card overflow-hidden"
+            className="gt-card overflow-hidden"
           >
             {/* Category Header */}
             <button
               onClick={() => toggleExpandCategory(category.id)}
-              className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard md-ripple"
+              className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition gt-pressable"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 md-primary-container rounded-xl flex items-center justify-center">
-                  <category.icon className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 gt-primary-plate rounded-xl flex items-center justify-center">
+                  <category.icon className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
                 </div>
                 <div className="text-left">
-                  <h3 className="md-title-small font-semibold" style={{ color: 'var(--md-on-surface)' }}>{category.name}</h3>
-                  <p className="md-label-small" style={{ color: 'var(--md-on-surface-variant)' }}>{category.description}</p>
+                  <h3 className="gt-title-sm font-semibold" style={{ color: 'var(--gt-text-main)' }}>{category.name}</h3>
+                  <p className="gt-label-sm" style={{ color: 'var(--text-muted)' }}>{category.description}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {getCategoryItemCount(category.id) > 0 && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <span className="gt-badge text-[11px]">
                     {getCategoryItemCount(category.id)}個
                   </span>
                 )}
@@ -185,34 +185,34 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                   return (
                     <div
                       key={item.id}
-                      className={`w-full p-3 rounded-xl flex items-center justify-between md-transition-standard ${
+                      className={`w-full p-3 rounded-2xl flex items-center justify-between gt-transition ${
                         quantity > 0
-                          ? 'md-primary-container border-2 border-blue-500'
-                          : 'md-surface border-2 border-slate-200'
+                          ? 'gt-primary-plate border border-white/70 ring-1 ring-[#6056ff33]'
+                          : 'gt-surface-outline hover:shadow-[0_18px_36px_-28px_rgba(20,31,68,0.45)]'
                       }`}
                     >
                       <div className="text-left flex-1">
-                        <p className="md-label-large" style={{ color: 'var(--md-on-surface)' }}>{item.name}</p>
+                        <p className="gt-label-lg" style={{ color: 'var(--gt-text-main)' }}>{item.name}</p>
                         {item.description && (
-                          <p className="md-label-small mt-0.5" style={{ color: 'var(--md-on-surface-variant)' }}>{item.description}</p>
+                          <p className="gt-label-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.description}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => decrementQuantity(item.id)}
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors border ${
                             quantity > 0
-                              ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                              ? 'bg-white/80 text-[color:var(--gt-primary-strong)] border-white/70 hover:bg-white'
+                              : 'bg-white/60 text-[color:var(--text-muted)] border-white/60 cursor-not-allowed'
                           }`}
                           disabled={quantity === 0}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <div className="w-12 text-center">
-                          <span className={`font-medium ${
-                            quantity > 0 ? 'text-blue-600' : 'text-slate-400'
+                          <span className={`font-semibold ${
+                            quantity > 0 ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'
                           }`}>
                             {quantity}
                           </span>
@@ -220,7 +220,7 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                         <button
                           type="button"
                           onClick={() => incrementQuantity(item.id)}
-                          className="w-8 h-8 rounded-lg bg-blue-500 text-white hover:bg-blue-600 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white hover:shadow-[0_10px_30px_-20px_rgba(96,86,255,0.65)] flex items-center justify-center transition-all"
                         >
                           <Plus className="w-4 h-4" />
                         </button>

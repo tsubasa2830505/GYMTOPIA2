@@ -300,42 +300,42 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       {/* フィルター部分 */}
       <div className="space-y-3">
         {/* ターゲット（部位） */}
-        <div className="md-card overflow-hidden">
+        <div className="gt-card overflow-hidden">
           <button
             onClick={() => toggleSection('target')}
-            className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard"
+            className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
           >
             <div className="flex items-center gap-3">
-              <Target className="w-5 h-5 text-blue-600" />
-              <h3 className="font-semibold text-slate-900">ターゲット（部位）</h3>
+              <Target className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
+              <h3 className="font-semibold text-[color:var(--foreground)]">ターゲット（部位）</h3>
               {filter.targetCategory && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                <span className="gt-badge text-[11px]">
                   {targetOptions.find(t => t.id === filter.targetCategory)?.name}
                   {filter.targetParts.length > 0 && ` (${filter.targetParts.length})`}
                 </span>
               )}
             </div>
             <ChevronRight 
-              className={`w-5 h-5 text-slate-400 transition-transform ${
+              className={`w-5 h-5 text-[color:var(--text-muted)] transition-transform ${
                 expandedSections.has('target') ? 'rotate-90' : ''
               }`} 
             />
           </button>
           
           {expandedSections.has('target') && (
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-white/60 p-4">
               {isLoadingParts ? (
                 <div className="text-center py-4">
-                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <p className="text-sm text-slate-500 mt-2">部位データを読み込み中...</p>
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[color:var(--gt-primary-strong)]"></div>
+                  <p className="gt-body-muted mt-2">部位データを読み込み中...</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {/* カテゴリー選択 */}
                   <div>
-                    <p className="text-sm font-medium text-slate-700 mb-2">
+                    <p className="text-sm font-semibold text-[color:var(--foreground)] mb-2">
                       1. 鍛えたい部位を選択
-                      <span className="text-xs text-slate-500 ml-2">
+                      <span className="gt-body-muted ml-2">
                         （選択するとその部位向けのマシンのみ表示されます）
                       </span>
                     </p>
@@ -344,10 +344,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                         <button
                           key={target.id}
                           onClick={() => selectCategory(target.id)}
-                          className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                          className={`p-3 rounded-xl text-sm font-semibold transition-all ${
                             filter.targetCategory === target.id
-                              ? 'bg-blue-500 text-white shadow-md'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_18px_38px_-24px_rgba(96,86,255,0.65)]'
+                              : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
                           }`}
                         >
                           {target.name}
@@ -359,9 +359,9 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   {/* 詳細部位選択 */}
                   {filter.targetCategory && showPartsDetail && (
                     <div className="animate-fadeIn">
-                      <p className="text-sm font-medium text-slate-700 mb-2">
+                      <p className="text-sm font-medium text-[color:var(--foreground)] mb-2">
                         2. {targetOptions.find(t => t.id === filter.targetCategory)?.name}の詳細部位を選択
-                        <span className="text-xs text-slate-500 ml-2">（任意：さらに絞り込めます）</span>
+                        <span className="text-xs text-[color:var(--text-muted)] ml-2">（任意：さらに絞り込めます）</span>
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {targetOptions
@@ -370,17 +370,17 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                             <button
                               key={part}
                               onClick={() => togglePart(part)}
-                              className={`p-2 rounded-lg text-xs font-medium transition-all ${
+                              className={`p-2 rounded-lg text-xs font-semibold transition-all ${
                                 filter.targetParts.includes(part)
-                                  ? 'bg-blue-400 text-white'
-                                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                                  ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_12px_28px_-18px_rgba(96,86,255,0.6)]'
+                                  : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
                               }`}
                             >
                               {part}
                             </button>
                           ))}
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-[color:var(--text-muted)] mt-2">
                         ※ 詳細部位を選択しない場合は、{targetOptions.find(t => t.id === filter.targetCategory)?.name}全体が対象になります
                       </p>
                     </div>
@@ -393,36 +393,36 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
         </div>
 
         {/* タイプ */}
-        <div className="md-card overflow-hidden">
+        <div className="gt-card overflow-hidden">
           <button
             onClick={() => toggleSection('type')}
-            className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard"
+            className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
           >
             <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-green-600" />
-              <h3 className="font-semibold text-slate-900">
+              <Settings className="w-5 h-5" style={{ color: 'var(--gt-tertiary-strong)' }} />
+              <h3 className="font-semibold text-[color:var(--foreground)]">
                 タイプ
                 {filter.targetCategory && (
-                  <span className="text-xs text-slate-500 ml-2">
+                  <span className="text-xs text-[color:var(--text-muted)] ml-2">
                     （{targetOptions.find(t => t.id === filter.targetCategory)?.name}用のマシンタイプ）
                   </span>
                 )}
               </h3>
               {filter.type.length > 0 && (
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                <span className="gt-badge text-[11px]" style={{ background: 'rgba(56,215,167,0.18)', color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(56,215,167,0.35)' }}>
                   {filter.type.length}
                 </span>
               )}
             </div>
             <ChevronRight 
-              className={`w-5 h-5 text-slate-400 transition-transform ${
+              className={`w-5 h-5 text-[color:var(--text-muted)] transition-transform ${
                 expandedSections.has('type') ? 'rotate-90' : ''
               }`} 
             />
           </button>
           
           {expandedSections.has('type') && (
-            <div className="border-t border-slate-100 p-4 space-y-2">
+            <div className="border-t border-white/60 p-4 space-y-2">
               {typeOptions.map((type) => {
                 const relatedTypes = getRelatedTypes()
                 const isRelated = relatedTypes.includes(type.id)
@@ -432,12 +432,12 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   <button
                     key={type.id}
                     onClick={() => toggleFilter('type', type.id)}
-                    className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
+                    className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${
                       isSelected
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-gradient-to-r from-[#38d7a7] via-[#4fa7ff] to-[#7e6cff] text-white shadow-[0_18px_38px_-24px_rgba(56,215,167,0.45)]'
                         : isRelated && filter.targetCategory
-                        ? 'bg-green-50 text-green-700 border-2 border-green-300 hover:bg-green-100'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        ? 'bg-white/75 text-[#1f9b76] border border-[#56d7b2]/40 hover:bg-white'
+                        : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
                     }`}
                   >
                     <type.icon className="w-4 h-4" />
@@ -450,29 +450,29 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
         </div>
 
         {/* メーカー */}
-        <div className="md-card overflow-hidden">
+        <div className="gt-card overflow-hidden">
           <button
             onClick={() => toggleSection('maker')}
-            className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard"
+            className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
           >
             <div className="flex items-center gap-3">
-              <Factory className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-slate-900">メーカー</h3>
+              <Factory className="w-5 h-5 text-[#7e6cff]" />
+              <h3 className="font-semibold text-[color:var(--foreground)]">メーカー</h3>
               {filter.maker.length > 0 && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                <span className="gt-badge text-[11px]" style={{ background: 'rgba(126,108,255,0.18)', color: '#5f53ff', borderColor: 'rgba(126,108,255,0.4)' }}>
                   {filter.maker.length}
                 </span>
               )}
             </div>
             <ChevronRight 
-              className={`w-5 h-5 text-slate-400 transition-transform ${
+              className={`w-5 h-5 text-[color:var(--text-muted)] transition-transform ${
                 expandedSections.has('maker') ? 'rotate-90' : ''
               }`} 
             />
           </button>
           
           {expandedSections.has('maker') && (
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-white/60 p-4">
               <div className="grid grid-cols-2 gap-2">
                 {makerOptions.map((maker) => {
                   const relatedMakers = getRelatedMakers()
@@ -485,10 +485,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       onClick={() => toggleFilter('maker', maker.id)}
                       className={`p-2 rounded-lg text-sm font-medium transition-all ${
                         isSelected
-                          ? 'bg-purple-500 text-white'
+                          ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_16px_36px_-22px_rgba(96,86,255,0.6)]'
                           : isRelated && (filter.targetCategory || filter.type.length > 0)
-                          ? 'bg-purple-50 text-purple-700 border-2 border-purple-300 hover:bg-purple-100'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          ? 'bg-white/75 text-[#5f53ff] border border-[#7e6cff]/40 hover:bg-white'
+                          : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
                       }`}
                     >
                       {maker.name}
@@ -503,18 +503,18 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       </div>
 
       {/* フィルター結果と一括操作 */}
-      <div className="md-card p-4">
+      <div className="gt-card p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-slate-600">
+            <p className="gt-body">
               {filter.targetCategory && (
-                <span className="font-medium text-blue-700">
+                <span className="font-semibold text-[color:var(--gt-primary-strong)]">
                   {targetOptions.find(t => t.id === filter.targetCategory)?.name}向けの
                 </span>
               )}
               {filteredMachines.length}台のマシンが見つかりました
               {selectedMachines.size > 0 && (
-                <span className="ml-2 font-medium text-blue-600">
+                <span className="ml-2 font-semibold text-[color:var(--gt-primary-strong)]">
                   （{Array.from(selectedMachines.keys()).filter(id =>
                     filteredMachines.some(m => m.id === id)
                   ).reduce((sum, id) => sum + (selectedMachines.get(id) || 0), 0)}台選択中）
@@ -522,7 +522,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               )}
             </p>
             {filter.targetCategory && filteredMachines.length > 0 && (
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-[color:var(--text-muted)] mt-1">
                 ※ {targetOptions.find(t => t.id === filter.targetCategory)?.name}を鍛えるのに最適なマシンのみ表示しています
               </p>
             )}
@@ -530,13 +530,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           <div className="flex gap-2">
             <button
               onClick={selectAllFiltered}
-              className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors"
+              className="px-3 py-1 rounded-full bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white text-xs sm:text-sm font-semibold shadow-[0_12px_30px_-20px_rgba(96,86,255,0.6)] transition-all hover:translate-y-[-1px]"
             >
               すべて選択
             </button>
             <button
               onClick={deselectAllFiltered}
-              className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
+              className="px-3 py-1 rounded-full bg-white/70 text-[color:var(--foreground)] text-xs sm:text-sm font-semibold border border-white/60 hover:bg-white transition-colors"
             >
               選択解除
             </button>
@@ -547,8 +547,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       {/* マシン一覧 */}
       {isLoadingMachines ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-sm text-slate-500 mt-2">マシンデータを読み込み中...</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[color:var(--gt-primary-strong)]"></div>
+          <p className="text-sm text-[color:var(--text-muted)] mt-2">マシンデータを読み込み中...</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -565,8 +565,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               key={machine.id}
               className={`p-4 rounded-xl transition-all ${
                 machineCount > 0
-                  ? 'md-primary-container border-2 border-blue-500'
-                  : 'md-surface border-2 border-slate-200'
+                  ? 'gt-primary-plate border-2 border-blue-500'
+                  : 'gt-layer border-2 border-slate-200'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -591,13 +591,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     <>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount - 1)}
-                        className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-white/65 border border-white/60 hover:bg-white flex items-center justify-center transition-colors"
                       >
-                        <Minus className="w-4 h-4 text-slate-700" />
+                        <Minus className="w-4 h-4 text-[color:var(--foreground)]" />
                       </button>
                       <div className="min-w-[3rem] text-center">
                         <span className="font-medium text-lg text-blue-600">{machineCount}</span>
-                        <span className="text-sm text-slate-500 ml-1">台</span>
+                        <span className="text-sm text-[color:var(--text-muted)] ml-1">台</span>
                       </div>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount + 1)}
@@ -609,7 +609,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   ) : (
                     <button
                       onClick={() => toggleMachine(machine.id)}
-                      className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-colors"
+                      className="px-4 py-2 rounded-lg bg-white/70 hover:bg-white text-[color:var(--foreground)] font-medium text-sm transition-colors"
                     >
                       追加
                     </button>
@@ -623,7 +623,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
       )}
 
       {!isLoadingMachines && filteredMachines.length === 0 && (
-        <div className="text-center py-8 text-slate-500">
+        <div className="text-center py-8 text-[color:var(--text-muted)]">
           <Settings className="w-12 h-12 mx-auto mb-3 text-slate-300" />
           <p>条件に一致するマシンが見つかりません</p>
           <p className="text-sm mt-1">フィルターを調整してください</p>

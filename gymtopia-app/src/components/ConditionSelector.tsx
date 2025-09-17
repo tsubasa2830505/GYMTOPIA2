@@ -98,25 +98,25 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
           {facilityConditions.map((category) => (
             <div 
               key={category.id}
-              className="md-card overflow-hidden"
+              className="gt-card overflow-hidden"
             >
               {/* Category Header */}
               <button
                 onClick={() => toggleExpandCategory(category.id)}
-                className="w-full p-4 flex items-center justify-between hover:bg-slate-50 md-transition-standard md-ripple"
+                className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition gt-pressable"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md-tertiary-container rounded-xl flex items-center justify-center">
-                    <category.icon className="w-5 h-5 text-green-600" />
+                  <div className="w-10 h-10 gt-tertiary-plate rounded-xl flex items-center justify-center">
+                    <category.icon className="w-5 h-5" style={{ color: 'var(--gt-tertiary-strong)' }} />
                   </div>
                   <div className="text-left">
-                    <h3 className="md-title-small font-semibold" style={{ color: 'var(--md-on-surface)' }}>{category.name}</h3>
-                    <p className="md-label-small" style={{ color: 'var(--md-on-surface-variant)' }}>{category.description}</p>
+                    <h3 className="gt-title-sm font-semibold" style={{ color: 'var(--gt-text-main)' }}>{category.name}</h3>
+                    <p className="gt-label-sm" style={{ color: 'var(--text-muted)' }}>{category.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {category.items.some(item => selectedFacilities.has(item.id)) && (
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                    <span className="gt-badge text-[11px]">
                       {category.items.filter(item => selectedFacilities.has(item.id)).length}
                     </span>
                   )}
@@ -135,35 +135,35 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
 
               {/* Category Items */}
               {expandedCategories.has(category.id) && (
-                <div className="border-t border-slate-100 p-4">
+                <div className="border-t border-white/60 p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {category.items.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => handleFacilityToggle(item.id)}
-                        className={`p-3 rounded-xl flex items-center justify-between md-transition-standard md-ripple ${
+                        className={`p-3 rounded-2xl flex items-center justify-between gt-transition gt-pressable ${
                           selectedFacilities.has(item.id)
-                            ? 'md-primary-container border-2 border-blue-500'
-                            : 'md-surface border-2 border-slate-200 hover:md-elevation-1'
+                            ? 'gt-primary-plate border border-white/70 ring-1 ring-[#6056ff33]'
+                            : 'gt-surface-outline hover:shadow-[0_18px_36px_-28px_rgba(20,31,68,0.45)]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           {item.icon && (
                             <item.icon className={`w-4 h-4 ${
-                              selectedFacilities.has(item.id) ? 'text-blue-600' : 'text-slate-500'
+                              selectedFacilities.has(item.id) ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'
                             }`} />
                           )}
                           <div className="text-left">
-                            <p className="md-label-large" style={{ color: 'var(--md-on-surface)' }}>{item.name}</p>
+                            <p className="gt-label-lg" style={{ color: 'var(--gt-text-main)' }}>{item.name}</p>
                             {item.description && (
-                              <p className="md-label-small mt-0.5" style={{ color: 'var(--md-on-surface-variant)' }}>{item.description}</p>
+                              <p className="gt-label-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.description}</p>
                             )}
                           </div>
                         </div>
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${
                           selectedFacilities.has(item.id)
-                            ? 'bg-blue-500 border-blue-500'
-                            : 'border-slate-300'
+                            ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] border-transparent text-white'
+                            : 'border-white/60 text-[color:var(--text-muted)] bg-white/70'
                         }`}>
                           {selectedFacilities.has(item.id) && (
                             <Check className="w-3 h-3 text-white" />
@@ -181,13 +181,13 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
 
       {/* Selected Count */}
       {selectedFacilities.size > 0 && (
-        <div className="mt-6 p-4 md-primary-container rounded-xl">
+        <div className="mt-6 p-4 gt-primary-plate rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="md-label-large font-semibold" style={{ color: 'var(--md-on-primary)' }}>
+              <p className="gt-label-lg font-semibold" style={{ color: 'var(--gt-on-primary)' }}>
                 選択中の条件
               </p>
-              <p className="md-label-small mt-1" style={{ color: 'var(--md-on-primary)' }}>
+              <p className="gt-label-sm mt-1" style={{ color: 'var(--gt-on-primary)' }}>
                 施設: {selectedFacilities.size}件
               </p>
             </div>

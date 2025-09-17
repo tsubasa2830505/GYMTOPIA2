@@ -37,10 +37,10 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--md-background)' }}>
+    <div className="min-h-screen pb-16">
       {/* Header */}
-      <header className="md-surface md-elevation-1 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
+      <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(20,31,68,0.45)]">
+        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
               <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -63,10 +63,10 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="text-center mb-6 sm:mb-8">
-          <h2 className="md-headline-medium sm:md-display-small font-black mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--md-on-background)', fontWeight: '900', textShadow: '0 0 1px rgba(0,0,0,0.3)' }}>
+          <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-[color:var(--foreground)] drop-shadow-[0_12px_30px_rgba(96,86,255,0.25)]">
             理想のジムトピアが<br className="sm:hidden" />ここにある
           </h2>
-          <p className="text-slate-600 text-sm sm:text-lg px-4 sm:px-0">
+          <p className="gt-body text-sm sm:text-lg px-4 sm:px-0">
             マシンや設備から条件を選んで、<br />
             あなたにぴったりのトレーニング環境を見つけましょう。
           </p>
@@ -75,31 +75,31 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Panel - Search */}
           <div className="col-span-1 lg:col-span-2">
-            <div className="md-card rounded-3xl">
+            <div className="gt-card rounded-3xl">
               {/* Search Header */}
-              <div className="bg-slate-100 p-2 sm:p-3" ref={conditionSectionRef}>
+              <div className="bg-gradient-to-r from-[#eef1ff] via-[#f7f1ff] to-[#ffe9f6] p-3 sm:p-4 border-b border-white/60" ref={conditionSectionRef}>
                 <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] rounded-xl flex items-center justify-center shadow-lg">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900">施設条件を選択</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-[color:var(--foreground)]">施設条件を選択</h3>
                   </div>
                 </div>
 
                 {/* Selected Tags Display */}
                 {(selectedMachines.size > 0 || selectedFreeWeights.size > 0 || selectedFacilities.size > 0) && (
-                  <div className="mt-4 p-3 bg-white rounded-xl border-2 border-blue-400 shadow-lg animate-pulse-once">
+                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-white/90 via-[#f6f0ff]/90 to-[#fef2fa]/95 border border-white/60 shadow-[0_24px_60px_-38px_rgba(20,31,68,0.55)] animate-pulse-once">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-slate-700">選択中の条件:</span>
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                      <span className="text-sm font-semibold text-[color:var(--text-subtle)]">選択中の条件:</span>
+                      <span className="gt-badge">
                         {selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {/* Machine Tags */}
                       {Array.from(selectedMachines).map((machine) => (
-                        <div key={`machine-${machine}`} className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs">
+                        <div key={`machine-${machine}`} className="gt-chip gt-chip--secondary text-[11px] sm:text-xs">
                           <span>{machine}</span>
                           <button
                             onClick={() => {
@@ -107,7 +107,7 @@ export default function Home() {
                               newMachines.delete(machine)
                               setSelectedMachines(newMachines)
                             }}
-                            className="text-purple-500 hover:text-purple-700 font-semibold"
+                            className="text-[color:var(--gt-secondary-strong)] hover:text-[#ff3b82] leading-none"
                           >
                             ×
                           </button>
@@ -115,7 +115,7 @@ export default function Home() {
                       ))}
                       {/* Free Weight Tags */}
                       {Array.from(selectedFreeWeights).map(([weightId, count]) => (
-                        <div key={`weight-${weightId}`} className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs">
+                        <div key={`weight-${weightId}`} className="gt-chip gt-chip--primary text-[11px] sm:text-xs">
                           <span>{weightId} ({count}個)</span>
                           <button
                             onClick={() => {
@@ -123,7 +123,7 @@ export default function Home() {
                               newWeights.delete(weightId)
                               setSelectedFreeWeights(newWeights)
                             }}
-                            className="text-blue-500 hover:text-blue-700 font-semibold"
+                            className="text-[color:var(--gt-primary-strong)] hover:text-[#4334d6] leading-none"
                           >
                             ×
                           </button>
@@ -131,7 +131,7 @@ export default function Home() {
                       ))}
                       {/* Facility Tags */}
                       {Array.from(selectedFacilities).map((facility) => (
-                        <div key={`facility-${facility}`} className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">
+                        <div key={`facility-${facility}`} className="gt-chip text-[11px] sm:text-xs" style={{ color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(56, 215, 167, 0.4)' }}>
                           <span>{facility}</span>
                           <button
                             onClick={() => {
@@ -139,7 +139,7 @@ export default function Home() {
                               newFacilities.delete(facility)
                               setSelectedFacilities(newFacilities)
                             }}
-                            className="text-green-500 hover:text-green-700 font-semibold"
+                            className="text-[#1f9b76] hover:text-[#178964] leading-none"
                           >
                             ×
                           </button>
@@ -189,33 +189,33 @@ export default function Home() {
               </div>
 
               {/* Filter Tabs */}
-              <div className="p-4 sm:p-6 border-b">
-                <div className="md-surface-variant rounded-xl sm:rounded-2xl p-0.5 sm:p-1 flex gap-0.5 sm:gap-1">
+              <div className="p-4 sm:p-6 border-b border-white/50">
+                <div className="gt-tab-track flex gap-1">
                   <button 
                     onClick={() => setActiveTab('machine')}
-                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl md-label-medium font-medium md-transition-standard md-ripple ${
+                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 gt-tab gt-pill-label gt-transition gt-pressable ${
                       activeTab === 'machine' 
-                        ? 'md-surface md-elevation-1' 
-                        : 'text-slate-600 hover:bg-white/50'
+                        ? 'gt-tab-active' 
+                        : 'gt-tab-inactive'
                     }`}>
                     <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline mr-0.5 sm:mr-1" />
                     マシン
                   </button>
                   <button 
                     onClick={() => setActiveTab('freeweight')}
-                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl md-label-medium font-medium md-transition-standard md-ripple whitespace-nowrap ${
+                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 gt-tab gt-pill-label gt-transition gt-pressable whitespace-nowrap ${
                       activeTab === 'freeweight' 
-                        ? 'md-surface md-elevation-1' 
-                        : 'text-slate-600 hover:bg-white/50'
+                        ? 'gt-tab-active' 
+                        : 'gt-tab-inactive'
                     }`}>
                     フリーウェイト
                   </button>
                   <button 
                     onClick={() => setActiveTab('condition')}
-                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl md-label-medium font-medium md-transition-standard md-ripple ${
+                    className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 gt-tab gt-pill-label gt-transition gt-pressable ${
                       activeTab === 'condition' 
-                        ? 'md-surface md-elevation-1' 
-                        : 'text-slate-600 hover:bg-white/50'
+                        ? 'gt-tab-active' 
+                        : 'gt-tab-inactive'
                     }`}>
                     条件
                   </button>
@@ -251,7 +251,7 @@ export default function Home() {
               </div>
 
               {/* Always visible search button */}
-              <div className="p-4 sm:p-6 border-t bg-slate-50">
+              <div className="p-4 sm:p-6 border-t border-white/50 bg-white/70">
                 <button
                   onClick={() => {
                     const params = new URLSearchParams()
@@ -273,7 +273,7 @@ export default function Home() {
 
                     router.push(`/search/results?${params.toString()}`)
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full gt-pill-button justify-center text-sm sm:text-base"
                 >
                   <Search className="w-5 h-5" />
                   {(selectedMachines.size > 0 || selectedFreeWeights.size > 0 || selectedFacilities.size > 0) 
@@ -287,15 +287,15 @@ export default function Home() {
 
           {/* Right Panel - Selected Conditions */}
           <div className="col-span-1 lg:col-span-1 hidden lg:block">
-            <div className="md-surface md-elevation-3 backdrop-blur-md rounded-2xl p-6 sticky top-24">
-              <div className="bg-gradient-to-r from-emerald-50 to-blue-50 -m-6 mb-6 p-6 rounded-t-2xl">
+            <div className="gt-card p-6 sticky top-24 backdrop-blur-xl">
+              <div className="bg-gradient-to-r from-[#e4fff5] via-[#eef7ff] to-[#fff0f6] -m-6 mb-6 p-6 rounded-t-[26px] border-b border-white/60">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-md">
+                  <div className="w-11 h-11 bg-gradient-to-br from-[#38d7a7] via-[#4fa7ff] to-[#ff6b9f] rounded-2xl flex items-center justify-center shadow-lg">
                     <MapPin className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">選択した条件</h3>
-                    <p className="text-xs text-slate-600">
+                    <h3 className="gt-heading-md text-[color:var(--foreground)]">選択した条件</h3>
+                    <p className="gt-body-muted">
                       {selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size}個の条件を選択中
                     </p>
                   </div>
@@ -304,11 +304,11 @@ export default function Home() {
 
               {!hasAnySelection() ? (
                 <div className="text-center py-12">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-7 h-7 text-slate-400" />
+                  <div className="w-14 h-14 bg-white/70 border border-white/60 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(20,31,68,0.45)]">
+                    <Calendar className="w-7 h-7 text-[color:var(--text-muted)]" />
                   </div>
-                  <p className="text-slate-700 font-medium mb-2">条件を選択してください</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="gt-title-sm text-[color:var(--foreground)] mb-2">条件を選択してください</p>
+                  <p className="gt-body-muted">
                     マシン・設備・施設条件を選択して<br />
                     理想のジムを見つけましょう
                   </p>
@@ -317,15 +317,18 @@ export default function Home() {
                 <div className="space-y-3">
                   {/* マシン条件 */}
                   {Array.from(selectedMachines).map((machine) => (
-                    <div key={`machine-${machine}`} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
-                      <span className="text-sm font-medium text-purple-700">{machine}</span>
+                    <div
+                      key={`machine-${machine}`}
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_14px_32px_-26px_rgba(20,31,68,0.55)]"
+                    >
+                      <span className="gt-label-lg text-[color:var(--gt-secondary-strong)]">{machine}</span>
                       <button
                         onClick={() => {
                           const newMachines = new Map(selectedMachines)
                           newMachines.delete(machine)
                           setSelectedMachines(newMachines)
                         }}
-                        className="text-purple-500 hover:text-purple-700"
+                        className="text-[color:var(--gt-secondary-strong)] hover:text-[#ff3b82] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -334,15 +337,18 @@ export default function Home() {
                   
                   {/* フリーウェイト条件 */}
                   {Array.from(selectedFreeWeights).map(([weightId, count]) => (
-                    <div key={`weight-${weightId}`} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
-                      <span className="text-sm font-medium text-blue-700">{weightId} ({count}個)</span>
+                    <div
+                      key={`weight-${weightId}`}
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_14px_32px_-26px_rgba(20,31,68,0.55)]"
+                    >
+                      <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId} ({count}個)</span>
                       <button
                         onClick={() => {
                           const newWeights = new Map(selectedFreeWeights)
                           newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}
-                        className="text-blue-500 hover:text-blue-700"
+                        className="text-[color:var(--gt-primary-strong)] hover:text-[#4334d6] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -351,15 +357,18 @@ export default function Home() {
                   
                   {/* 施設条件 */}
                   {Array.from(selectedFacilities).map((facility) => (
-                    <div key={`facility-${facility}`} className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
-                      <span className="text-sm font-medium text-green-700">{facility}</span>
+                    <div
+                      key={`facility-${facility}`}
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_14px_32px_-26px_rgba(20,31,68,0.55)]"
+                    >
+                      <span className="gt-label-lg" style={{ color: 'var(--gt-tertiary-strong)' }}>{facility}</span>
                       <button
                         onClick={() => {
                           const newFacilities = new Set(selectedFacilities)
                           newFacilities.delete(facility)
                           setSelectedFacilities(newFacilities)
                         }}
-                        className="text-green-500 hover:text-green-700"
+                        className="text-[#1f9b76] hover:text-[#178964] text-sm leading-none"
                       >
                         ×
                       </button>

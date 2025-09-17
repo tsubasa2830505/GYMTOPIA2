@@ -36,38 +36,42 @@ export default function BottomNavigation() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[60] sm:hidden shadow-lg">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white">
+    <nav className="fixed bottom-4 left-0 right-0 z-[60] sm:hidden px-4">
+      <div className="max-w-md mx-auto">
+        <div className="gt-shell bg-white/80 backdrop-blur-xl border border-white/50 shadow-[0_18px_40px_-28px_rgba(20,31,68,0.55)]">
           <div className="flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex-1 relative block hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150`}
+                className="flex-1 relative block"
               >
                 <div className={`flex flex-col items-center justify-center py-3 px-2 min-h-[60px] transition-all ${
-                  item.isActive
-                    ? 'transform scale-105'
-                    : 'transform scale-100'
+                  item.isActive ? 'scale-[1.08]' : 'scale-100'
                 }`}>
                   <div className="relative">
-                    <item.icon className={`w-5 h-5 transition-colors duration-150 ${
-                      item.isActive ? 'text-blue-600' : 'text-slate-500'
-                    }`} />
+                    <item.icon
+                      className={`w-5 h-5 transition-colors duration-150 ${
+                        item.isActive
+                          ? 'text-[color:var(--gt-primary-strong)]'
+                          : 'text-[color:var(--text-muted)]'
+                      }`}
+                    />
                     {item.badge && (
-                      <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
                         {item.badge}
                       </span>
                     )}
                   </div>
                   <span className={`text-[10px] mt-1 font-medium transition-colors duration-150 ${
-                    item.isActive ? 'text-blue-600' : 'text-slate-500'
+                    item.isActive
+                      ? 'text-[color:var(--gt-primary-strong)]'
+                      : 'text-[color:var(--text-muted)]'
                   }`}>
                     {item.label}
                   </span>
                   {item.isActive && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full animate-pulse" />
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] rounded-full" />
                   )}
                 </div>
               </Link>

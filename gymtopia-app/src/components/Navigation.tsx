@@ -16,8 +16,9 @@ export default function Navigation() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-      <div className="flex justify-around items-center h-20">
+    <nav className="fixed bottom-4 left-0 right-0 px-4 z-[60]">
+      <div className="max-w-2xl mx-auto gt-shell bg-white/85 backdrop-blur-xl border border-white/50">
+        <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = item.href === '/search/results'
@@ -28,21 +29,26 @@ export default function Navigation() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
+              className={`flex flex-col items-center justify-center w-full h-full transition-all ${
                 isActive
-                  ? 'text-gray-900'
-                  : 'text-gray-400 hover:text-gray-600'
+                  ? 'text-[color:var(--gt-primary-strong)]'
+                  : 'text-[color:var(--text-muted)] hover:text-[color:var(--foreground)]'
               }`}
             >
-              <div className={`p-2 rounded-lg ${
-                isActive ? 'bg-gray-100' : ''
-              }`}>
-                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              <div
+                className={`p-2 rounded-xl flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_14px_30px_-20px_rgba(96,86,255,0.6)]'
+                    : 'bg-white/70 border border-white/60'
+                }`}
+              >
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
               </div>
               <span className="text-xs mt-1 font-medium">{item.label}</span>
             </Link>
           )
         })}
+        </div>
       </div>
     </nav>
   )
