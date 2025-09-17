@@ -46,9 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Check if we're in development mode and should use mock auth
-    const isDevelopment = process.env.NODE_ENV === 'development'
-    const useMockAuth = isDevelopment && process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+    // Check if we should use mock auth (for development or testing in production)
+    const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
 
     if (useMockAuth && !isLoggedOut) {
       console.log('📱 AuthContext: Using mock auth for development')

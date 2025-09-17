@@ -26,7 +26,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       'inline-flex items-center justify-center whitespace-nowrap',
       'font-semibold rounded-2xl transition-all duration-200 ease-out transform-gpu',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'focus-visible:ring-[var(--gt-primary)] focus-visible:ring-offset-[#fefbf6]',
+      'focus-visible:ring-[var(--gt-primary)] focus-visible:ring-offset-[color:var(--gt-background)]',
       'disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none',
       'hover:-translate-y-[2px] active:translate-y-[1px] disabled:hover:translate-y-0 disabled:active:translate-y-0'
     ];
@@ -34,25 +34,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variants = {
       primary: [
         'bg-[var(--gt-primary)] text-[var(--gt-on-primary)] border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(37,82,62,0.55)]',
-        'hover:shadow-[0_20px_38px_-20px_rgba(37,82,62,0.55)]',
-        'active:shadow-[0_12px_24px_-18px_rgba(37,82,62,0.5)]'
+        'shadow-[0_16px_32px_-22px_rgba(18,44,150,0.48)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(18,44,150,0.5)]',
+        'active:shadow-[0_12px_24px_-18px_rgba(18,44,150,0.46)]'
       ],
       secondary: [
         'bg-[var(--gt-secondary)] text-[var(--gt-on-secondary)] border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(161,83,47,0.5)]',
-        'hover:shadow-[0_20px_36px_-20px_rgba(161,83,47,0.5)]',
-        'active:shadow-[0_12px_22px_-18px_rgba(161,83,47,0.45)]'
+        'shadow-[0_16px_32px_-22px_rgba(17,40,142,0.42)]',
+        'hover:shadow-[0_20px_36px_-20px_rgba(17,40,142,0.45)]',
+        'active:shadow-[0_12px_22px_-18px_rgba(17,40,142,0.42)]'
       ],
       outline: [
-        'border border-[rgba(173,154,120,0.7)] text-[var(--gt-text-main)]',
-        'bg-[rgba(255,253,247,0.88)] hover:bg-[rgba(255,253,247,0.98)]',
-        'hover:border-[rgba(173,154,120,0.9)]',
-        'shadow-[0_12px_30px_-22px_rgba(31,39,35,0.38)]'
+        'border border-[rgba(44,82,190,0.35)] text-[var(--gt-text-main)]',
+        'bg-[rgba(244,248,255,0.92)] hover:bg-[rgba(244,248,255,0.98)]',
+        'hover:border-[rgba(44,82,190,0.55)]',
+        'shadow-[0_12px_30px_-22px_rgba(18,44,150,0.32)]'
       ],
       ghost: [
         'bg-transparent text-[var(--gt-text-sub)] border border-transparent',
-        'hover:bg-[rgba(203,186,160,0.18)] hover:text-[var(--gt-text-main)]'
+        'hover:bg-[rgba(31,79,255,0.08)] hover:text-[var(--gt-text-main)]'
       ],
       danger: [
         'bg-[#b7413e] text-white border border-transparent',

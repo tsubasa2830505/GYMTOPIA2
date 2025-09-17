@@ -161,16 +161,17 @@ export default function FollowersPage() {
   ]
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.18),transparent_65%)]" />
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(20,31,68,0.45)]">
+      <header className="sticky top-0 z-40 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
         <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl gt-pressable border-2 border-slate-300 hover:border-slate-400 bg-white/80 text-slate-700 shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
+              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(168,184,228,0.45)] hover:bg-white transition-colors"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
             <div className="flex items-center gap-2 sm:gap-3">
               <button 
@@ -180,7 +181,7 @@ export default function FollowersPage() {
                 <span className="font-semibold text-[color:var(--text-subtle)]">フォロー</span>
                 <span className="gt-pill-label text-[color:var(--gt-primary-strong)]">{followCounts.following}</span>
               </button>
-              <div className="gt-chip gt-chip--primary text-xs sm:text-sm">
+              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(26,44,94,0.5)]">
                 <span className="font-semibold text-[color:var(--foreground)]">フォロワー</span>
                 <span className="gt-pill-label">{followCounts.followers}</span>
               </div>
@@ -200,7 +201,7 @@ export default function FollowersPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-slate-300 focus:border-[#3b63f3] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
+                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(168,184,228,0.45)] focus:border-[#3b63f3] bg-[rgba(243,247,255,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
               />
             </div>
             <div className="gt-tab-track flex flex-wrap gap-2 py-1">

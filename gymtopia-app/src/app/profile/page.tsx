@@ -587,7 +587,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-[rgba(247,250,255,0.92)] border-b border-[rgba(168,184,228,0.45)]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-4 sm:gap-8">
             <button 
@@ -657,23 +657,23 @@ export default function ProfilePage() {
                   <div key={index} className="gt-card p-4 sm:p-6">
                     <div className="animate-pulse">
                       <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
+                        <div className="w-10 h-10 bg-[rgba(168,184,228,0.35)] rounded-full"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-slate-200 rounded w-1/4 mb-2"></div>
-                          <div className="h-3 bg-slate-200 rounded w-1/3"></div>
+                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/4 mb-2"></div>
+                          <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/3"></div>
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                        <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                        <div className="h-32 bg-slate-200 rounded"></div>
+                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-3/4"></div>
+                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/2"></div>
+                        <div className="h-32 bg-[rgba(168,184,228,0.35)] rounded"></div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : userPosts.length === 0 ? (
-              <div className="bg-white rounded-lg p-6 sm:p-8 shadow-sm text-center">
+              <div className="gt-card p-6 sm:p-8 text-center">
                 <div className="text-[color:var(--text-muted)] mb-4">
                   <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
@@ -735,7 +735,7 @@ export default function ProfilePage() {
                   className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                     isLoadingMorePosts
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                      : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white hover:from-[#2f54d3] hover:to-[#3a8ac3] shadow-[0_18px_34px_-20px_rgba(26,44,94,0.5)] hover:shadow-[0_22px_40px_-20px_rgba(26,44,94,0.55)]'
                   }`}
                 >
                   {isLoadingMorePosts ? (
@@ -834,26 +834,26 @@ export default function ProfilePage() {
                     <div key={index} className="bg-[rgba(243,247,255,0.92)] rounded-lg p-4">
                       <div className="animate-pulse">
                         <div className="flex justify-between items-start mb-2">
-                          <div className="h-4 bg-slate-200 rounded w-2/3"></div>
-                          <div className="h-6 bg-slate-200 rounded w-1/4"></div>
+                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-2/3"></div>
+                          <div className="h-6 bg-[rgba(168,184,228,0.35)] rounded w-1/4"></div>
                         </div>
-                        <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                        <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/2"></div>
                       </div>
                     </div>
                   ))
                 ) : userPersonalRecords.length === 0 ? (
                   <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
                     </svg>
                     <p className="text-[color:var(--text-muted)] mb-2">パーソナルレコードがまだありません</p>
-                    <p className="text-slate-500 text-sm">トレーニングを記録して自己新記録を達成しましょう！</p>
+                    <p className="text-[color:var(--text-muted)] text-sm">トレーニングを記録して自己新記録を達成しましょう！</p>
                   </div>
                 ) : (
                   userPersonalRecords.map((record, index) => (
                     <div key={record.id || index} className="bg-[rgba(243,247,255,0.92)] rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm sm:text-base font-semibold text-slate-800">{record.exercise_name}</span>
+                        <span className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">{record.exercise_name}</span>
                         <span className="text-lg sm:text-xl font-bold text-[color:var(--gt-primary-strong)]">
                           {record.weight ? `${record.weight}kg` : '-'}
                         </span>
@@ -862,7 +862,7 @@ export default function ProfilePage() {
                         {record.record_type}
                         {record.reps && ` • ${record.reps}回`}
                         {record.achieved_at && (
-                          <span className="block text-slate-500 mt-1">
+                          <span className="block text-[color:var(--text-muted)] mt-1">
                             {new Date(record.achieved_at).toLocaleDateString('ja-JP')}
                           </span>
                         )}
@@ -886,25 +886,25 @@ export default function ProfilePage() {
                   Array.from({ length: 4 }, (_, index) => (
                     <div key={index} className="text-center p-3 sm:p-4 bg-[rgba(243,247,255,0.92)] rounded-lg">
                       <div className="animate-pulse">
-                        <div className="w-8 h-8 bg-slate-200 rounded-full mx-auto mb-2"></div>
-                        <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto mb-1"></div>
-                        <div className="h-3 bg-slate-200 rounded w-1/2 mx-auto"></div>
+                        <div className="w-8 h-8 bg-[rgba(168,184,228,0.35)] rounded-full mx-auto mb-2"></div>
+                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-3/4 mx-auto mb-1"></div>
+                        <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/2 mx-auto"></div>
                       </div>
                     </div>
                   ))
                 ) : userAchievements.length === 0 ? (
                   <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
                     </svg>
                     <p className="text-[color:var(--text-muted)] mb-2">達成記録がまだありません</p>
-                    <p className="text-slate-500 text-sm">トレーニングを続けて達成記録を獲得しましょう！</p>
+                    <p className="text-[color:var(--text-muted)] text-sm">トレーニングを続けて達成記録を獲得しましょう！</p>
                   </div>
                 ) : (
                   userAchievements.map((achievement, index) => (
                     <div key={achievement.id || index} className="text-center p-3 sm:p-4 bg-[rgba(243,247,255,0.92)] rounded-lg hover:bg-[rgba(243,247,255,0.92)] transition cursor-pointer">
                       <div className="mb-2 flex justify-center">{getAchievementIcon(achievement.badge_icon, achievement.achievement_type)}</div>
-                      <div className="text-sm font-medium text-slate-800">{achievement.title}</div>
+                      <div className="text-sm font-medium text-[color:var(--foreground)]">{achievement.title}</div>
                       <div className="text-xs text-[color:var(--text-muted)] mt-1">
                         {new Date(achievement.earned_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })}
                       </div>
@@ -921,32 +921,32 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {isLoading ? (
                 Array.from({ length: 4 }, (_, index) => (
-                  <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
+                  <div key={index} className="gt-card p-4">
                     <div className="animate-pulse">
                       <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-200 rounded-lg flex-shrink-0"></div>
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(168,184,228,0.35)] rounded-lg flex-shrink-0"></div>
                         <div className="flex-1">
-                          <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
-                          <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
-                          <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+                          <div className="h-5 bg-[rgba(168,184,228,0.35)] rounded w-3/4 mb-2"></div>
+                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/2 mb-2"></div>
+                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/4"></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))
               ) : userFavoriteGyms.length === 0 ? (
-                <div className="bg-white rounded-lg p-8 shadow-sm text-center">
-                  <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                <div className="gt-card p-8 text-center">
+                  <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                   </svg>
                   <p className="text-[color:var(--text-muted)] mb-2">お気に入りジムがまだありません</p>
-                  <p className="text-slate-500 text-sm">気になるジムをお気に入りに追加してみましょう！</p>
+                  <p className="text-[color:var(--text-muted)] text-sm">気になるジムをお気に入りに追加してみましょう！</p>
                 </div>
               ) : (
                 userFavoriteGyms.map((favoriteGym, index) => (
-                  <div key={favoriteGym.id || index} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                  <div key={favoriteGym.id || index} className="gt-card p-4 hover:-translate-y-[2px] transition-transform">
                     <div className="flex gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-200 rounded-lg flex-shrink-0"></div>
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(168,184,228,0.35)] rounded-lg flex-shrink-0"></div>
                       <div className="flex-1">
                         <h4 className="font-bold text-base sm:text-lg mb-1 text-[color:var(--foreground)]">
                           {favoriteGym.gym?.name || 'ジム名不明'}
@@ -966,7 +966,7 @@ export default function ProfilePage() {
                           </p>
                         )}
                         <div className="flex items-center gap-4">
-                          <div className="text-xs text-slate-500">
+                          <div className="text-xs text-[color:var(--text-muted)]">
                             {new Date(favoriteGym.created_at).toLocaleDateString('ja-JP')}に追加
                           </div>
                         </div>

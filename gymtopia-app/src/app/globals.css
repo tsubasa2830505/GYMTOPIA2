@@ -126,36 +126,36 @@ body {
 
 .gt-shell {
   @apply rounded-3xl border backdrop-blur-sm;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.94), rgba(236, 242, 255, 0.86));
-  border-color: rgba(157, 176, 226, 0.5);
-  box-shadow: 0 22px 48px -28px rgba(26, 44, 94, 0.5);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(238, 243, 255, 0.88));
+  border-color: rgba(44, 82, 190, 0.18);
+  box-shadow: 0 22px 48px -28px rgba(15, 36, 118, 0.45);
 }
 
 .gt-surface {
   @apply rounded-3xl;
   background: linear-gradient(182deg, rgba(255, 255, 255, 0.97), rgba(235, 242, 255, 0.92));
-  border: 1px solid rgba(157, 176, 226, 0.45);
-  box-shadow: 0 20px 44px -30px rgba(26, 44, 94, 0.44);
+  border: 1px solid rgba(44, 82, 190, 0.2);
+  box-shadow: 0 20px 44px -30px rgba(15, 36, 118, 0.42);
 }
 
 .gt-surface-outline {
   @apply rounded-2xl border;
-  border-color: rgba(168, 184, 228, 0.5);
-  background: rgba(244, 248, 255, 0.94);
+  border-color: rgba(44, 82, 190, 0.26);
+  background: rgba(244, 248, 255, 0.95);
 }
 
 .gt-border-soft {
-  border-color: rgba(168, 184, 228, 0.52);
+  border-color: rgba(44, 82, 190, 0.22);
 }
 
 .gt-border-strong {
-  border-color: rgba(114, 136, 197, 0.82);
+  border-color: rgba(26, 60, 160, 0.4);
 }
 
 .gt-tab-track {
   @apply rounded-full p-0.5 sm:p-1;
-  background: linear-gradient(135deg, rgba(59, 99, 243, 0.14), rgba(74, 160, 217, 0.12));
-  border: 1px solid rgba(59, 99, 243, 0.18);
+  background: linear-gradient(135deg, rgba(31, 79, 255, 0.14), rgba(76, 122, 255, 0.1));
+  border: 1px solid rgba(31, 79, 255, 0.18);
 }
 
 .gt-tab {
@@ -177,25 +177,25 @@ body {
 .gt-blur-panel {
   background: rgba(243, 247, 255, 0.92);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(157, 176, 226, 0.4);
+  border: 1px solid rgba(44, 82, 190, 0.18);
   border-radius: 24px;
 }
 
 .gt-badge {
   @apply inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full;
-  background: rgba(59, 99, 243, 0.16);
+  background: rgba(31, 79, 255, 0.16);
   color: var(--gt-primary-strong);
 }
 
 .gt-badge-muted {
-  background: rgba(157, 176, 226, 0.18);
-  color: var(--text-subtle);
+  background: rgba(44, 82, 190, 0.12);
+  color: var(--text-muted);
 }
 
 .gt-shadow-soft {
-  box-shadow: 0 22px 46px -30px rgba(26, 44, 94, 0.5);
+  box-shadow: 0 22px 46px -30px rgba(15, 36, 118, 0.44);
 }
 
 .gt-shadow-strong {
-  box-shadow: 0 32px 70px -32px rgba(26, 44, 94, 0.58);
+  box-shadow: 0 32px 70px -32px rgba(15, 36, 118, 0.52);
 }
