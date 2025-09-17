@@ -111,6 +111,8 @@ export default function FeedPage() {
     setIsLoading(true);
     setCurrentPage(0);
     setHasMore(true);
+    setError(null);
+
     try {
       console.log('FeedPage: Loading initial posts with filter:', filter);
       // If user is not authenticated, show sample data
