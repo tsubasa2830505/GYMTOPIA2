@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
 
-// サンプル投稿データを生成する関数
+// 開発用のサンプル投稿データを生成する関数
 const getSamplePosts = (): Post[] => [
   {
     id: 'sample-1',
@@ -115,43 +116,62 @@ export default function FeedPage() {
 
     try {
       console.log('FeedPage: Loading initial posts with filter:', filter);
-      // If user is not authenticated, show sample data
-      if (!user?.id) {
-        console.log('FeedPage: No user authentication, using sample data');
+
+      // 認証状態に関わらず、まずデータベースからの取得を試行
+      let feedPosts: Post[] = [];
+
+      if (user?.id) {
+        console.log('FeedPage: Authenticated user, loading personalized feed');
+        feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, filter, user.id);
+      } else {
+        console.log('FeedPage: Anonymous user, loading public feed');
+        // 匿名ユーザーでも公開投稿を表示（フィルターは'all'固定）
+        feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, 'all', null);
+      }
+
+      console.log('FeedPage: Database query result:', {
+        count: feedPosts.length,
+        isFromDatabase: feedPosts.length > 0 && !feedPosts[0].id.startsWith('sample-'),
+        firstPost: feedPosts[0] || null,
+        userAuthenticated: !!user?.id
+      });
+
+      // データベースから投稿を取得できた場合
+      if (feedPosts.length > 0) {
+        setPosts(feedPosts);
+        setHasMore(feedPosts.length === POSTS_PER_PAGE);
+      } else {
+        // データベースに投稿がない場合の適切な処理
+        console.log('FeedPage: No posts found in database');
+        setPosts([]);
+        setHasMore(false);
+
+        // 本番環境では空の状態を表示、開発環境ではサンプルデータを表示
+        if (process.env.NODE_ENV === 'development') {
+          console.log('FeedPage: Development mode - showing sample data');
+          const samplePosts = getSamplePosts();
+          setPosts(samplePosts);
+        }
+      }
+    } catch (error) {
+      console.error('FeedPage: Error loading posts:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        userAuthenticated: !!user?.id
+      });
+
+      setError('投稿の読み込みに失敗しました');
+      setPosts([]);
+      setHasMore(false);
+
+      // 開発環境でのみエラー時にサンプルデータを表示
+      if (process.env.NODE_ENV === 'development') {
+        console.log('FeedPage: Development mode - showing sample data after error');
         const samplePosts = getSamplePosts();
         setPosts(samplePosts);
         setHasMore(false);
-        setIsLoading(false);
-        return;
       }
-      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, filter, user.id);
-      console.log('FeedPage: Loaded initial posts:', {
-        count: feedPosts.length,
-        isFromDatabase: feedPosts.length > 0 && !feedPosts[0].id.startsWith('sample-'),
-        firstPost: feedPosts[0] || null
-      });
-
-      // データベースから投稿が取得できない場合はサンプルデータを使用
-      if (feedPosts.length === 0) {
-        console.log('FeedPage: No posts from database, using sample data');
-        const samplePosts = getSamplePosts();
-        setPosts(samplePosts);
-        setHasMore(false); // サンプルデータの場合は追加読み込みなし
-      } else {
-        setPosts(feedPosts);
-        setHasMore(feedPosts.length === POSTS_PER_PAGE); // フルページ取得できた場合は続きがある可能性
-      }
-    } catch (error) {
-      console.error('FeedPage: Critical error loading posts:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      // エラーが発生した場合はサンプルデータを表示
-      console.log('FeedPage: Using sample data due to error');
-      const samplePosts = getSamplePosts();
-      setPosts(samplePosts);
-      setHasMore(false);
     } finally {
       setIsLoading(false);
     }
@@ -336,28 +356,7 @@ export default function FeedPage() {
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.18),transparent_65%)]" />
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[#3b63f3] to-[#4aa0d9] rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(26,44,94,0.5)]">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z" />
-              </svg>
-            </div>
-            <div>
-              <Image
-                src="/images/gymtopia-logo.svg"
-                alt="ジムトピア"
-                width={120}
-                height={32}
-                className="h-6 sm:h-8 w-auto"
-              />
-              <p className="text-xs text-[color:var(--text-muted)]">街の熱量と一緒にジムを探そう</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <div className="relative max-w-4xl mx-auto px-4 py-6 space-y-6">
@@ -423,16 +422,37 @@ export default function FeedPage() {
           </div>
         </div>
 
+        {/* Error State */}
+        {error && (
+          <div className="gt-card border border-[rgba(248,113,113,0.35)] bg-[rgba(255,237,237,0.95)] p-4 sm:p-5">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <p className="text-sm font-semibold text-rose-600">{error}</p>
+            </div>
+            <button
+              onClick={() => {
+                setError(null);
+                loadInitialPosts();
+              }}
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white/80 border border-[rgba(248,113,113,0.35)] text-rose-600 hover:bg-white transition-colors"
+            >
+              再試行
+            </button>
+          </div>
+        )}
+
         {/* Loading State */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-sm text-gray-500 mt-2">投稿を読み込み中...</p>
+          <div className="gt-card p-10 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[color:var(--gt-primary-strong)] border-t-transparent"></div>
+            <p className="text-sm text-[color:var(--text-subtle)] mt-3">投稿を読み込み中...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">投稿がありません</p>
-            <p className="text-sm text-gray-400 mt-2">最初の投稿を作成してみましょう！</p>
+          <div className="gt-card p-10 text-center">
+            <h3 className="text-lg font-semibold text-[color:var(--foreground)]">投稿がありません</h3>
+            <p className="text-sm text-[color:var(--text-subtle)] mt-2">最初のジム活をシェアしてみましょう。</p>
           </div>
         ) : (
           <>
@@ -459,13 +479,13 @@ export default function FeedPage() {
                     disabled={isLoadingMore}
                     className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                       isLoadingMore
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        ? 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(168,184,228,0.35)]'
                         : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white hover:from-[#2f54d3] hover:to-[#3a8ac3] shadow-[0_18px_34px_-20px_rgba(26,44,94,0.5)] hover:shadow-[0_22px_40px_-20px_rgba(26,44,94,0.55)]'
                     }`}
                   >
                     {isLoadingMore ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin"></div>
                         <span>読み込み中...</span>
                       </div>
                     ) : (
@@ -483,7 +503,7 @@ export default function FeedPage() {
               {/* End of Posts Indicator */}
               {!hasMore && posts.length > 0 && (
                 <div className="text-center py-8">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 text-sm">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(243,247,255,0.92)] border border-[rgba(168,184,228,0.35)] rounded-full text-[color:var(--text-subtle)] text-sm">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
                     </svg>
@@ -495,10 +515,10 @@ export default function FeedPage() {
               {/* Empty State */}
               {posts.length === 0 && !isLoading && (
                 <div className="text-center py-12">
-                  <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-16 h-16 mx-auto text-[rgba(168,184,228,0.6)] mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                   </svg>
-                  <p className="text-gray-500">まだ投稿がありません</p>
+                  <p className="text-sm text-[color:var(--text-subtle)]">まだ投稿がありません</p>
                 </div>
               )}
             </div>
