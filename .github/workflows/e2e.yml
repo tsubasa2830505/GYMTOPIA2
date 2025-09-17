@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: 'gymtopia-app/package-lock.json'
 
       - name: Install root deps
         run: npm ci || npm install
