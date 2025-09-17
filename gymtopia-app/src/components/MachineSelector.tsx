@@ -339,10 +339,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                         <button
                           key={target.id}
                           onClick={() => selectCategory(target.id)}
-                          className={`p-3 rounded-xl text-sm font-semibold transition-all border ${
+                          className={`p-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                             filter.targetCategory === target.id
-                              ? 'bg-gradient-to-r from-[#5046e5] via-[#6056ff] to-[#ec4899] text-white shadow-lg border-transparent'
-                              : 'bg-white text-[color:var(--text-sub)] border-[color:var(--gt-border-soft)] hover:border-[color:var(--gt-primary)] hover:bg-gray-50'
+                              ? 'bg-gradient-to-r from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] text-white shadow-lg border-transparent'
+                              : 'bg-white text-slate-600 border-slate-300 hover:border-[#6056ff] hover:bg-slate-50'
                           }`}
                         >
                           {target.name}
@@ -365,10 +365,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                             <button
                               key={part}
                               onClick={() => togglePart(part)}
-                              className={`p-2 rounded-lg text-xs font-semibold transition-all ${
+                              className={`p-2 rounded-lg text-xs font-semibold transition-all border-2 ${
                                 filter.targetParts.includes(part)
-                                  ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_12px_28px_-18px_rgba(96,86,255,0.6)]'
-                                  : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
+                                  ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_12px_28px_-18px_rgba(96,86,255,0.6)] border-transparent'
+                                  : 'bg-white/70 text-slate-600 border-slate-300 hover:bg-white hover:border-slate-400'
                               }`}
                             >
                               {part}
@@ -478,12 +478,12 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     <button
                       key={maker.id}
                       onClick={() => toggleFilter('maker', maker.id)}
-                      className={`p-2 rounded-lg text-sm font-medium transition-all border ${
+                      className={`p-2 rounded-lg text-sm font-medium transition-all border-2 ${
                         isSelected
                           ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_16px_36px_-22px_rgba(96,86,255,0.6)] border-transparent'
                           : isRelated && (filter.targetCategory || filter.type.length > 0)
-                          ? 'bg-white/75 text-[#5f53ff] border-[#7e6cff]/40 hover:bg-white'
-                          : 'bg-white/70 text-[color:var(--text-subtle)] border-white/60 hover:bg-white'
+                          ? 'bg-white/75 text-[#6056ff] border-[#6056ff] hover:bg-white'
+                          : 'bg-white/70 text-slate-600 border-slate-300 hover:bg-white hover:border-slate-400'
                       }`}
                     >
                       {maker.name}
@@ -600,7 +600,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   ) : (
                     <button
                       onClick={() => toggleMachine(machine.id)}
-                      className="px-4 py-2 rounded-lg bg-white/70 hover:bg-white text-[color:var(--foreground)] font-medium text-sm transition-colors"
+                      className="px-4 py-2 rounded-lg bg-white/70 hover:bg-white text-slate-700 font-medium text-sm transition-colors border-2 border-slate-300 hover:border-slate-400"
                     >
                       追加
                     </button>

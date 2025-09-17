@@ -315,8 +315,10 @@ export async function createPost(post: {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
 
-    // モック環境での開発用: 認証ユーザーがいない場合はTSUBASAユーザーIDを使用
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     const { data, error } = await getSupabaseClient()
       .from('gym_posts')
@@ -360,7 +362,10 @@ export async function updatePost(postId: string, updates: {
 }) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     // 投稿の所有者確認
     const { data: existingPost, error: fetchError } = await getSupabaseClient()
@@ -421,7 +426,10 @@ export async function updatePost(postId: string, updates: {
 export async function deletePost(postId: string) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     // 投稿の所有者確認
     const { data: existingPost, error: fetchError } = await getSupabaseClient()
@@ -456,7 +464,10 @@ export async function deletePost(postId: string) {
 export async function likePost(postId: string) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     const { data, error } = await getSupabaseClient()
       .from('post_likes')
@@ -479,7 +490,10 @@ export async function likePost(postId: string) {
 export async function unlikePost(postId: string) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     const { error } = await getSupabaseClient()
       .from('post_likes')
@@ -523,7 +537,10 @@ export async function createComment(comment: {
 }) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    const actualUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+    const actualUserId = user.id
 
     const { data, error } = await getSupabaseClient()
       .from('post_comments')

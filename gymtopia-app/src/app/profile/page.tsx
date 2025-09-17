@@ -124,13 +124,20 @@ export default function ProfilePage() {
     })
   }, [])
 
-  // Always use Tsubasa's actual user ID from the database
-  // This ensures we show real data instead of mock data
-  const userId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+  // Use authenticated user's ID - requires login
+  const userId = user?.id;
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+  }, [user, router]);
 
   useEffect(() => {
     // Performance optimization: Skip if already loading or already loaded
-    if (isLoadingData.current || hasLoadedData.current) {
+    if (isLoadingData.current || hasLoadedData.current || !userId) {
       return;
     }
 
@@ -140,7 +147,7 @@ export default function ProfilePage() {
     const maxRetries = 3;
 
     async function loadProfileData() {
-      if (!isActive) return;
+      if (!isActive || !userId) return;
 
       // Prevent duplicate loading
       isLoadingData.current = true;
@@ -382,10 +389,10 @@ export default function ProfilePage() {
         clearTimeout(retryTimeout);
       }
     };
-  }, []); // 空の依存配列でマウント時のみ実行
+  }, [userId]); // userIdが変更されたときに実行
 
   const loadMorePosts = async () => {
-    if (!hasMorePosts || isLoadingMorePosts) return;
+    if (!hasMorePosts || isLoadingMorePosts || !userId) return;
 
     setIsLoadingMorePosts(true);
     try {
@@ -410,7 +417,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
@@ -458,7 +465,7 @@ export default function ProfilePage() {
                     router.push('/admin')
                     setMenuOpen(false)
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors"
                 >
                   <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
@@ -473,7 +480,7 @@ export default function ProfilePage() {
                     // TODO: ログイン処理を実装
                     setMenuOpen(false)
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors"
                 >
                   <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -569,7 +576,7 @@ export default function ProfilePage() {
               <div className="flex gap-4 sm:gap-8 w-full sm:w-auto justify-center sm:justify-start">
                 <button
                   onClick={() => router.push('/gym-stats')}
-                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                  className="flex flex-col items-center min-w-[60px] hover:bg-blue-50 rounded-lg px-2 py-2 transition-colors"
                 >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">
                     {isLoading ? '...' : (profileData?.workout_count || 0)}
@@ -584,7 +591,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => router.push('/following')}
-                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                  className="flex flex-col items-center min-w-[60px] hover:bg-blue-50 rounded-lg px-2 py-2 transition-colors"
                 >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">
                     {isLoading ? '...' : (profileData?.mutual_follows_count || 0)}
@@ -593,7 +600,7 @@ export default function ProfilePage() {
                 </button>
                 <button 
                   onClick={() => router.push('/following')}
-                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                  className="flex flex-col items-center min-w-[60px] hover:bg-blue-50 rounded-lg px-2 py-2 transition-colors"
                 >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">
                     {isLoading ? '...' : (profileData?.following_count || 0)}
@@ -602,7 +609,7 @@ export default function ProfilePage() {
                 </button>
                 <button 
                   onClick={() => router.push('/followers')}
-                  className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
+                  className="flex flex-col items-center min-w-[60px] hover:bg-blue-50 rounded-lg px-2 py-2 transition-colors"
                 >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">
                     {isLoading ? '...' : (profileData?.followers_count || 0)}
@@ -666,10 +673,10 @@ export default function ProfilePage() {
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
             {/* 新規投稿ボタン */}
-            <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors">
+            <div className="bg-white rounded-lg p-4 shadow-sm border-2 border-dashed border-slate-300 hover:border-[#6056ff] transition-colors">
               <button 
                 onClick={() => router.push('/add')}
-                className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-blue-600 transition-colors"
+                className="w-full flex items-center justify-center gap-3 py-3 text-slate-600 hover:text-[#6056ff] transition-colors"
               >
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
@@ -861,7 +868,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {isLoading ? (
                   Array.from({ length: 4 }, (_, index) => (
-                    <div key={index} className="bg-slate-50 rounded-lg p-4">
+                    <div key={index} className="bg-blue-50 rounded-lg p-4">
                       <div className="animate-pulse">
                         <div className="flex justify-between items-start mb-2">
                           <div className="h-4 bg-slate-200 rounded w-2/3"></div>
@@ -881,7 +888,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   userPersonalRecords.map((record, index) => (
-                    <div key={record.id || index} className="bg-slate-50 rounded-lg p-4">
+                    <div key={record.id || index} className="bg-blue-50 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-sm sm:text-base font-semibold text-slate-800">{record.exercise_name}</span>
                         <span className="text-lg sm:text-xl font-bold text-blue-600">
@@ -914,7 +921,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {isLoading ? (
                   Array.from({ length: 4 }, (_, index) => (
-                    <div key={index} className="text-center p-3 sm:p-4 bg-slate-50 rounded-lg">
+                    <div key={index} className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
                       <div className="animate-pulse">
                         <div className="w-8 h-8 bg-slate-200 rounded-full mx-auto mb-2"></div>
                         <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto mb-1"></div>
@@ -932,7 +939,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   userAchievements.map((achievement, index) => (
-                    <div key={achievement.id || index} className="text-center p-3 sm:p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                    <div key={achievement.id || index} className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition cursor-pointer">
                       <div className="mb-2 flex justify-center">{getAchievementIcon(achievement.badge_icon, achievement.achievement_type)}</div>
                       <div className="text-sm font-medium text-slate-800">{achievement.title}</div>
                       <div className="text-xs text-slate-600 mt-1">

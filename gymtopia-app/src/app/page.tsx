@@ -288,9 +288,9 @@ export default function Home() {
           {/* Right Panel - Selected Conditions */}
           <div className="col-span-1 lg:col-span-1 hidden lg:block">
             <div className="gt-card p-6 sticky top-24 backdrop-blur-xl">
-              <div className="bg-gradient-to-r from-[#e4fff5] via-[#eef7ff] to-[#fff0f6] -m-6 mb-6 p-6 rounded-t-[26px] border-b border-white/60">
+              <div className="bg-gradient-to-r from-[#eef1ff] via-[#f0f4ff] to-[#fff0f6] -m-6 mb-6 p-6 rounded-t-[26px] border-b border-white/60">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 bg-gradient-to-br from-[#38d7a7] via-[#4fa7ff] to-[#ff6b9f] rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-11 h-11 bg-gradient-to-br from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] rounded-2xl flex items-center justify-center shadow-lg">
                     <MapPin className="w-5 h-5 text-white" />
                   </div>
                   <div>

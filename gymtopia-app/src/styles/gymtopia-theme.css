@@ -1,44 +1,44 @@
 /* GymTopia bespoke theme tokens and utility styles */
 :root {
-  --gt-background: #ffffff;
-  --gt-background-strong: #f8f9fc;
-  --gt-background-gradient: radial-gradient(circle at 18% 18%, rgba(96, 86, 255, 0.06), transparent 42%), radial-gradient(circle at 82% 22%, rgba(255, 107, 159, 0.05), transparent 46%), linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+  --gt-background: #f3f7ff;
+  --gt-background-strong: #e6eeff;
+  --gt-background-gradient: linear-gradient(180deg, rgba(243, 247, 255, 0.96) 0%, rgba(232, 240, 255, 0.94) 65%, rgba(239, 244, 255, 0.98) 100%), radial-gradient(circle at 10% 16%, rgba(122, 162, 255, 0.12), transparent 44%), radial-gradient(circle at 80% 12%, rgba(80, 174, 255, 0.1), transparent 46%);
 
   --gt-surface: #ffffff;
-  --gt-surface-muted: #fafbfc;
-  --gt-surface-strong: #f5f7fa;
-  --gt-overlay: rgba(95, 98, 160, 0.04);
-  --gt-overlay-strong: rgba(95, 98, 160, 0.08);
+  --gt-surface-muted: #eef3ff;
+  --gt-surface-strong: #dde6ff;
+  --gt-overlay: rgba(21, 38, 92, 0.04);
+  --gt-overlay-strong: rgba(21, 38, 92, 0.08);
 
-  --gt-border-soft: rgba(226, 232, 240, 0.8);
-  --gt-border-strong: rgba(203, 213, 224, 1);
+  --gt-border-soft: rgba(157, 176, 226, 0.55);
+  --gt-border-strong: rgba(114, 136, 197, 0.85);
 
-  --gt-primary: #5046e5;
-  --gt-primary-strong: #4338ca;
-  --gt-primary-soft: rgba(80, 70, 229, 0.12);
-  --gt-secondary: #ec4899;
-  --gt-secondary-strong: #db2777;
-  --gt-secondary-soft: rgba(236, 72, 153, 0.12);
-  --gt-tertiary: #10b981;
-  --gt-tertiary-strong: #059669;
-  --gt-tertiary-soft: rgba(16, 185, 129, 0.12);
-  --gt-highlight: #38bdf8;
+  --gt-primary: #3b63f3;
+  --gt-primary-strong: #2847c2;
+  --gt-primary-soft: rgba(59, 99, 243, 0.16);
+  --gt-secondary: #4aa0d9;
+  --gt-secondary-strong: #2a7fbf;
+  --gt-secondary-soft: rgba(74, 160, 217, 0.18);
+  --gt-tertiary: #7b8bff;
+  --gt-tertiary-strong: #5f6bdc;
+  --gt-tertiary-soft: rgba(123, 139, 255, 0.18);
+  --gt-highlight: #8ed0ff;
 
-  --gt-text-main: #0f172a;
-  --gt-text-sub: #475569;
-  --gt-text-muted: #94a3b8;
-  --gt-text-inverse: #ffffff;
-  --gt-on-primary: #f9f9ff;
-  --gt-on-secondary: #fff9fb;
-  --gt-on-tertiary: #052f25;
+  --gt-text-main: #0f1c3a;
+  --gt-text-sub: #40507a;
+  --gt-text-muted: #7583a8;
+  --gt-text-inverse: #f6f8ff;
+  --gt-on-primary: #ecf0ff;
+  --gt-on-secondary: #f3f9ff;
+  --gt-on-tertiary: #f5f6ff;
 
-  --gt-shadow-soft: 0 24px 60px -38px rgba(20, 31, 68, 0.65);
-  --gt-shadow-hover: 0 30px 90px -42px rgba(20, 31, 68, 0.65);
-  --gt-shadow-card: 0 18px 45px -30px rgba(33, 43, 82, 0.55);
-  --gt-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --gt-shadow-soft: 0 22px 44px -28px rgba(26, 44, 94, 0.5);
+  --gt-shadow-hover: 0 30px 66px -26px rgba(26, 44, 94, 0.48);
+  --gt-shadow-card: 0 22px 48px -28px rgba(26, 44, 94, 0.42);
+  --gt-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
   --gt-radius-pill: 999px;
-  --gt-radius-xl: 32px;
+  --gt-radius-xl: 34px;
   --gt-radius-lg: 24px;
   --gt-radius-md: 18px;
   --gt-radius-sm: 12px;
@@ -51,61 +51,73 @@ body {
   color: var(--gt-text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  opacity: 0.24;
 }
 
 .gt-page-shell {
   position: relative;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 253, 255, 0.95));
+  background: linear-gradient(188deg, rgba(255, 255, 255, 0.98) 0%, rgba(236, 242, 255, 0.92) 100%);
   border-radius: var(--gt-radius-xl);
-  border: 1px solid rgba(226, 232, 240, 0.6);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(157, 176, 226, 0.48);
+  box-shadow: 0 18px 36px -28px rgba(30, 49, 110, 0.55);
   overflow: hidden;
 }
 
 .gt-card {
   position: relative;
-  background: var(--gt-surface);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(237, 244, 255, 0.94));
   border-radius: var(--gt-radius-lg);
   border: 1px solid var(--gt-border-soft);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: var(--gt-shadow-card);
 }
 
 .gt-layer {
-  background: var(--gt-surface);
+  background: rgba(255, 255, 255, 0.94);
   border-radius: var(--gt-radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(206, 218, 255, 0.55);
   box-shadow: var(--gt-shadow-inset);
 }
 
 .gt-layer-muted {
-  background: linear-gradient(135deg, rgba(80, 70, 229, 0.08), rgba(80, 70, 229, 0));
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(135deg, rgba(59, 99, 243, 0.16), rgba(59, 99, 243, 0));
+  border: 1px solid rgba(168, 184, 228, 0.52);
   border-radius: var(--gt-radius-pill);
   padding: 4px;
 }
 
 .gt-primary-plate {
-  background: linear-gradient(140deg, rgba(96, 86, 255, 0.2), rgba(96, 86, 255, 0.08));
-  border: 1px solid rgba(96, 86, 255, 0.4);
+  background: linear-gradient(138deg, rgba(59, 99, 243, 0.24), rgba(59, 99, 243, 0.08));
+  border: 1px solid rgba(59, 99, 243, 0.38);
   border-radius: var(--gt-radius-lg);
-  color: var(--gt-primary-strong);
-  box-shadow: 0 12px 30px -18px rgba(96, 86, 255, 0.55);
+  color: var(--gt-on-primary);
+  box-shadow: 0 16px 38px -26px rgba(44, 70, 171, 0.6);
 }
 
 .gt-secondary-plate {
-  background: linear-gradient(140deg, rgba(255, 107, 159, 0.28), rgba(255, 107, 159, 0.08));
-  border: 1px solid rgba(255, 107, 159, 0.38);
+  background: linear-gradient(140deg, rgba(74, 160, 217, 0.28), rgba(74, 160, 217, 0.08));
+  border: 1px solid rgba(74, 160, 217, 0.35);
   border-radius: var(--gt-radius-lg);
-  color: var(--gt-secondary-strong);
-  box-shadow: 0 12px 30px -18px rgba(255, 107, 159, 0.45);
+  color: var(--gt-on-secondary);
+  box-shadow: 0 16px 38px -26px rgba(39, 111, 173, 0.52);
 }
 
 .gt-tertiary-plate {
-  background: linear-gradient(140deg, rgba(56, 215, 167, 0.25), rgba(56, 215, 167, 0.08));
-  border: 1px solid rgba(56, 215, 167, 0.35);
+  background: linear-gradient(140deg, rgba(123, 139, 255, 0.28), rgba(123, 139, 255, 0.1));
+  border: 1px solid rgba(123, 139, 255, 0.32);
   border-radius: var(--gt-radius-lg);
-  color: var(--gt-tertiary-strong);
-  box-shadow: 0 12px 28px -18px rgba(56, 215, 167, 0.32);
+  color: var(--gt-on-tertiary);
+  box-shadow: 0 16px 36px -26px rgba(86, 103, 214, 0.5);
 }
 
 .gt-transition {
@@ -123,7 +135,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(96, 86, 255, 0.18), rgba(255, 107, 159, 0.16));
+  background: linear-gradient(135deg, rgba(59, 99, 243, 0.18), rgba(74, 160, 217, 0.16));
   opacity: 0;
   transition: opacity 200ms ease;
   pointer-events: none;
@@ -135,40 +147,40 @@ body {
 }
 
 .gt-lift-1 {
-  box-shadow: 0 12px 28px -22px rgba(20, 31, 68, 0.55);
+  box-shadow: 0 16px 34px -24px rgba(27, 46, 104, 0.46);
 }
 
 .gt-lift-2 {
-  box-shadow: 0 20px 50px -28px rgba(20, 31, 68, 0.6);
+  box-shadow: 0 24px 54px -26px rgba(27, 46, 104, 0.5);
 }
 
 .gt-lift-3 {
-  box-shadow: 0 28px 70px -32px rgba(20, 31, 68, 0.65);
+  box-shadow: 0 32px 74px -30px rgba(27, 46, 104, 0.55);
 }
 
 .gt-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: var(--gt-radius-pill);
-  background: rgba(248, 250, 252, 1);
-  border: 1px solid var(--gt-border-soft);
+  background: rgba(240, 245, 255, 0.92);
+  border: 1px solid rgba(168, 184, 228, 0.55);
   color: var(--gt-text-sub);
   font-weight: 600;
-  letter-spacing: 0.03em;
-  transition: all 180ms ease;
+  letter-spacing: 0.02em;
+  transition: transform 140ms ease, background 140ms ease;
 }
 
 .gt-chip--primary {
-  background: rgba(80, 70, 229, 0.1);
-  border-color: rgba(80, 70, 229, 0.25);
+  background: rgba(59, 99, 243, 0.12);
+  border-color: rgba(59, 99, 243, 0.32);
   color: var(--gt-primary-strong);
 }
 
 .gt-chip--secondary {
-  background: rgba(236, 72, 153, 0.1);
-  border-color: rgba(236, 72, 153, 0.25);
+  background: rgba(74, 160, 217, 0.12);
+  border-color: rgba(74, 160, 217, 0.3);
   color: var(--gt-secondary-strong);
 }
 
@@ -181,43 +193,43 @@ body {
 
 .gt-tab-pill[aria-pressed="true"],
 .gt-tab-pill.gt-tab-pill--active {
-  background: rgba(96, 86, 255, 0.18);
-  border-color: rgba(96, 86, 255, 0.4);
+  background: rgba(59, 99, 243, 0.16);
+  border-color: rgba(59, 99, 243, 0.28);
   color: var(--gt-primary-strong);
-  box-shadow: 0 10px 30px -20px rgba(96, 86, 255, 0.6);
+  box-shadow: 0 12px 30px -24px rgba(30, 49, 110, 0.4);
 }
 
 .gt-tab-pill:hover {
-  border-color: rgba(96, 86, 255, 0.2);
-  background: rgba(96, 86, 255, 0.12);
+  border-color: rgba(59, 99, 243, 0.22);
+  background: rgba(59, 99, 243, 0.12);
 }
 
 .gt-focus-ring {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(96, 86, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 99, 243, 0.28);
 }
 
 .gt-divider {
-  border-color: rgba(76, 90, 146, 0.18);
+  border-color: rgba(168, 184, 228, 0.52);
 }
 
 .gt-pill-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: linear-gradient(135deg, var(--gt-primary) 0%, var(--gt-secondary) 100%);
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(59, 99, 243, 0.98) 0%, rgba(74, 160, 217, 0.94) 55%, rgba(142, 208, 255, 0.9) 100%);
   border-radius: var(--gt-radius-pill);
   color: var(--gt-text-inverse);
   font-weight: 600;
-  padding: 10px 20px;
-  box-shadow: 0 20px 40px -24px rgba(96, 86, 255, 0.6);
+  padding: 12px 26px;
+  box-shadow: 0 24px 46px -28px rgba(26, 44, 94, 0.52);
   transition: transform 200ms ease, box-shadow 220ms ease;
 }
 
 .gt-pill-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 24px 48px -20px rgba(96, 86, 255, 0.65);
+  box-shadow: 0 30px 54px -28px rgba(26, 44, 94, 0.58);
 }
 
 .gt-pill-button:active {

@@ -168,7 +168,7 @@ export default function FollowersPage() {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl gt-pressable border border-white/60 bg-white/80 text-[color:var(--foreground)] shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
+              className="p-2 rounded-xl gt-pressable border-2 border-slate-300 hover:border-slate-400 bg-white/80 text-slate-700 shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -200,7 +200,7 @@ export default function FollowersPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border border-white/60 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#6056ff]"
+                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-slate-300 focus:border-[#6056ff] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#6056ff]"
               />
             </div>
             <div className="gt-tab-track flex flex-wrap gap-2 py-1">

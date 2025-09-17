@@ -201,10 +201,10 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                         <button
                           type="button"
                           onClick={() => decrementQuantity(item.id)}
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors border ${
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors border-2 ${
                             quantity > 0
-                              ? 'bg-white/80 text-[color:var(--gt-primary-strong)] border-white/70 hover:bg-white'
-                              : 'bg-white/60 text-[color:var(--text-muted)] border-white/60 cursor-not-allowed'
+                              ? 'bg-white/80 text-[#6056ff] border-slate-300 hover:bg-white hover:border-slate-400'
+                              : 'bg-white/60 text-slate-400 border-slate-300 cursor-not-allowed'
                           }`}
                           disabled={quantity === 0}
                         >
@@ -220,7 +220,7 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                         <button
                           type="button"
                           onClick={() => incrementQuantity(item.id)}
-                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white hover:shadow-[0_10px_30px_-20px_rgba(96,86,255,0.65)] flex items-center justify-center transition-all"
+                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] text-white hover:shadow-[0_10px_30px_-20px_rgba(96,86,255,0.65)] flex items-center justify-center transition-all border-2 border-transparent"
                         >
                           <Plus className="w-4 h-4" />
                         </button>

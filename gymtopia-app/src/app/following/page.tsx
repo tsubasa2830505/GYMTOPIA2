@@ -132,7 +132,7 @@ export default function FollowingPage() {
   }).length
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -175,15 +175,15 @@ export default function FollowingPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-300 focus:border-[#6056ff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6056ff]"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'all' 
-                    ? 'bg-blue-500 text-white' 
+                  selectedFilter === 'all'
+                    ? 'bg-[#6056ff] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -192,8 +192,8 @@ export default function FollowingPage() {
               <button
                 onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'mutual' 
-                    ? 'bg-blue-500 text-white' 
+                  selectedFilter === 'mutual'
+                    ? 'bg-[#6056ff] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -202,8 +202,8 @@ export default function FollowingPage() {
               <button
                 onClick={() => setSelectedFilter('recent')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'recent' 
-                    ? 'bg-blue-500 text-white' 
+                  selectedFilter === 'recent'
+                    ? 'bg-[#6056ff] text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >

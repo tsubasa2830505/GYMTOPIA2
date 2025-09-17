@@ -29,8 +29,10 @@ export interface FollowRelation {
 // Get followers for a specific user
 export async function getFollowers(userId: string) {
   try {
-    // TSUBASAユーザーIDのフォールバック
-    const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+    if (!userId) {
+      throw new Error('ユーザーIDが必要です')
+    }
+    const actualUserId = userId;
 
     const { data, error } = await getSupabaseClient()
       .from('follows')
@@ -111,12 +113,11 @@ export async function getFollowers(userId: string) {
 // Get users that a specific user is following
 export async function getFollowing(userId: string) {
   try {
-    // TSUBASAユーザーIDのフォールバック
-    const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-
-    if (!actualUserId) {
-      return { data: [], error: null }
+    if (!userId) {
+      throw new Error('ユーザーIDが必要です')
     }
+    const actualUserId = userId;
+
 
     const { data, error } = await getSupabaseClient()
       .from('follows')

@@ -23,45 +23,55 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles = [
-      'inline-flex items-center justify-center',
-      'font-medium rounded-lg transition-all duration-200',
-      'focus:outline-none focus:ring-2 focus:ring-offset-2',
-      'disabled:opacity-50 disabled:cursor-not-allowed'
+      'inline-flex items-center justify-center whitespace-nowrap',
+      'font-semibold rounded-2xl transition-all duration-200 ease-out transform-gpu',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      'focus-visible:ring-[var(--gt-primary)] focus-visible:ring-offset-[#fefbf6]',
+      'disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none',
+      'hover:-translate-y-[2px] active:translate-y-[1px] disabled:hover:translate-y-0 disabled:active:translate-y-0'
     ];
 
     const variants = {
       primary: [
-        'bg-blue-600 text-white hover:bg-blue-700',
-        'focus:ring-blue-500 active:bg-blue-800'
+        'bg-[var(--gt-primary)] text-[var(--gt-on-primary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(37,82,62,0.55)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(37,82,62,0.55)]',
+        'active:shadow-[0_12px_24px_-18px_rgba(37,82,62,0.5)]'
       ],
       secondary: [
-        'bg-gray-200 text-gray-900 hover:bg-gray-300',
-        'focus:ring-gray-500 active:bg-gray-400'
+        'bg-[var(--gt-secondary)] text-[var(--gt-on-secondary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(161,83,47,0.5)]',
+        'hover:shadow-[0_20px_36px_-20px_rgba(161,83,47,0.5)]',
+        'active:shadow-[0_12px_22px_-18px_rgba(161,83,47,0.45)]'
       ],
       outline: [
-        'border border-gray-300 bg-white text-gray-700',
-        'hover:bg-gray-50 focus:ring-blue-500 active:bg-gray-100'
+        'border border-[rgba(173,154,120,0.7)] text-[var(--gt-text-main)]',
+        'bg-[rgba(255,253,247,0.88)] hover:bg-[rgba(255,253,247,0.98)]',
+        'hover:border-[rgba(173,154,120,0.9)]',
+        'shadow-[0_12px_30px_-22px_rgba(31,39,35,0.38)]'
       ],
       ghost: [
-        'bg-transparent text-gray-700 hover:bg-gray-100',
-        'focus:ring-gray-500 active:bg-gray-200'
+        'bg-transparent text-[var(--gt-text-sub)] border border-transparent',
+        'hover:bg-[rgba(203,186,160,0.18)] hover:text-[var(--gt-text-main)]'
       ],
       danger: [
-        'bg-red-600 text-white hover:bg-red-700',
-        'focus:ring-red-500 active:bg-red-800'
+        'bg-[#b7413e] text-white border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(183,65,62,0.45)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(183,65,62,0.45)]'
       ],
       success: [
-        'bg-green-600 text-white hover:bg-green-700',
-        'focus:ring-green-500 active:bg-green-800'
+        'bg-[#2f7b63] text-white border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(47,123,99,0.48)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(47,123,99,0.48)]'
       ]
-    };
+    } as const;
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-sm',
-      lg: 'px-6 py-3 text-base',
-      xl: 'px-8 py-4 text-lg'
-    };
+      sm: 'px-3.5 py-2 text-sm',
+      md: 'px-5 py-2.5 text-sm',
+      lg: 'px-7 py-3 text-base',
+      xl: 'px-8 py-3.5 text-lg'
+    } as const;
 
     const widthClass = fullWidth ? 'w-full' : 'w-auto';
 

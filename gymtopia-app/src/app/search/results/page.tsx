@@ -7,6 +7,7 @@ import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLe
 import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import GymDetailModal from '@/components/GymDetailModal'
 import { UberStyleMapView } from '@/components/UberStyleMapView'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
@@ -79,10 +80,14 @@ function SearchResultsContent() {
   const [selectedGymForMap, setSelectedGymForMap] = useState<DatabaseGym | null>(null)
   const sortControlRef = useRef<HTMLDivElement | null>(null)
 
-  const MOCK_USER_ID = 'user-demo-001'
+  const { user, isAuthenticated } = useAuth()
 
   // Handle toggle like function
   const toggleLike = async (gymId: string) => {
+    if (!isAuthenticated || !user) {
+      alert('ログインが必要です')
+      return
+    }
     if (processingLikes.has(gymId)) {
       return
     }
@@ -102,7 +107,7 @@ function SearchResultsContent() {
         const { error } = await supabase
           .from('favorite_gyms')
           .delete()
-          .eq('user_id', MOCK_USER_ID)
+          .eq('user_id', user.id)
           .eq('gym_id', gymId)
 
         if (error) {
@@ -124,7 +129,7 @@ function SearchResultsContent() {
         const { error } = await supabase
           .from('favorite_gyms')
           .insert({
-            user_id: MOCK_USER_ID,
+            user_id: user.id,
             gym_id: gymId
           })
 
@@ -138,8 +143,8 @@ function SearchResultsContent() {
             }
             setGyms(updatedGyms)
           } else {
-            console.error('Error adding like:', error)
-            alert('いきたいの追加に失敗しました: ' + error.message)
+            console.error('Error adding like:', error, error?.message, error?.details)
+            alert('いきたいの追加に失敗しました: ' + (error?.message || JSON.stringify(error)))
           }
         } else {
           // UI更新
@@ -523,12 +528,12 @@ function SearchResultsContent() {
   }
 
   return (
-    <div className="min-h-screen pb-16">
+    <div className="min-h-screen pb-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100">
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(20,31,68,0.45)]">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
@@ -539,7 +544,7 @@ function SearchResultsContent() {
                 height={32}
                 className="h-6 sm:h-8 w-auto"
               />
-              <p className="text-xs text-[color:var(--text-muted)]">理想のジムを見つけよう</p>
+              <p className="text-xs text-[color:var(--text-muted)]">街の熱量と一緒にジムを探そう</p>
             </div>
           </div>
         </div>
@@ -560,7 +565,7 @@ function SearchResultsContent() {
                 }
               }}
               aria-label="戻る"
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl gt-pressable bg-gradient-to-br from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] text-white flex items-center justify-center shadow-[0_22px_40px_-26px_rgba(96,86,255,0.65)] transition-all hover:-translate-y-[2px]"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl gt-pressable bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_22px_40px_-26px_rgba(59,130,246,0.65)] transition-all hover:-translate-y-[2px]"
             >
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -586,7 +591,7 @@ function SearchResultsContent() {
           </div>
 
           {error && (
-            <div className="gt-layer p-3 border border-[#ff6b9f33] bg-[#fff5f9] text-[#b4285e] rounded-2xl text-sm">
+            <div className="gt-layer p-3 border border-blue-200 bg-blue-50 text-blue-700 rounded-2xl text-sm">
               {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}
@@ -601,7 +606,7 @@ function SearchResultsContent() {
                     clearAllConditions()
                     router.push('/search/results')
                   }}
-                  className="gt-pill-label text-[color:var(--gt-secondary-strong)] hover:text-[#ff3b82]"
+                  className="gt-pill-label text-blue-600 hover:text-blue-800"
                 >
                   すべてクリア
                 </button>
@@ -686,7 +691,7 @@ function SearchResultsContent() {
                   onClick={() => setViewMode('map')}
                   className={`gt-tab gt-pill-label flex items-center gap-1 ${viewMode === 'map' ? 'gt-tab-active' : 'gt-tab-inactive'}`}
                 >
-                  <MapIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'map' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'}`} />
+                  <MapIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'map' ? 'text-blue-600' : 'text-slate-500'}`} />
                   地図
                 </button>
                 <button
@@ -694,14 +699,14 @@ function SearchResultsContent() {
                   onClick={() => setViewMode('list')}
                   className={`gt-tab gt-pill-label flex items-center gap-1 ${viewMode === 'list' ? 'gt-tab-active' : 'gt-tab-inactive'}`}
                 >
-                  <List className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'list' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'}`} />
+                  <List className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'list' ? 'text-blue-600' : 'text-slate-500'}`} />
                   リスト
                 </button>
               </div>
               <button
                 type="button"
                 aria-label="フィルター"
-                className="p-1.5 sm:p-2 gt-pressable border border-white/60 rounded-2xl bg-white/70 text-[color:var(--foreground)] shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
+                className="p-1.5 sm:p-2 gt-pressable border-2 border-slate-300 hover:border-slate-400 rounded-2xl bg-white/70 text-slate-700 shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
               >
                 <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
@@ -714,14 +719,14 @@ function SearchResultsContent() {
                   event.stopPropagation()
                   setSortDropdownOpen(!sortDropdownOpen)
                 }}
-                className="flex items-center gap-1 sm:gap-2 gt-pressable border border-white/60 rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
+                className="flex items-center gap-1 sm:gap-2 gt-pressable border-2 border-slate-300 hover:border-slate-400 rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
               >
                 {sortBy === 'distance' ? (
-                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-primary-strong)]" />
+                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
                 ) : sortBy === 'rating' ? (
-                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-primary-strong)]" />
+                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
                 ) : (
-                  <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
+                  <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600" />
                 )}
                 <span className="gt-pill-label text-[10px] sm:text-xs text-[color:var(--foreground)]">
                   {sortBy === 'distance' ? '近い順' :
@@ -743,7 +748,7 @@ function SearchResultsContent() {
                       setSortBy('popular')
                       setSortDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'popular' ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white' : 'text-[color:var(--text-subtle)] hover:bg-white/70'}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'popular' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' : 'text-slate-600 hover:bg-blue-50'}`}
                   >
                     <Heart className="w-3 h-3" />
                     イキタイの多い順
@@ -757,7 +762,7 @@ function SearchResultsContent() {
                       setSortDropdownOpen(false)
                     }}
                     disabled={!userLocation}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'distance' ? 'bg-gradient-to-r from-[#38d7a7] to-[#7e6cff] text-white' : 'text-[color:var(--text-subtle)] hover:bg-white/70'} ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'distance' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white' : 'text-slate-600 hover:bg-blue-50'} ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Navigation className="w-3 h-3" />
                     近い順
@@ -770,7 +775,7 @@ function SearchResultsContent() {
                       setSortBy('rating')
                       setSortDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'rating' ? 'bg-gradient-to-r from-[#6056ff] to-[#38d7a7] text-white' : 'text-[color:var(--text-subtle)] hover:bg-white/70'}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'rating' ? 'bg-gradient-to-r from-blue-500 to-blue-400 text-white' : 'text-slate-600 hover:bg-blue-50'}`}
                   >
                     <Star className="w-3 h-3" />
                     評価の高い順
@@ -808,7 +813,7 @@ function SearchResultsContent() {
                 return (
                   <div
                     key={gym.id}
-                    className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-[#6056ff66]' : 'hover:-translate-y-[3px]'}`}
+                    className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-blue-300' : 'hover:-translate-y-[3px]'}`}
                   >
                     <div className="flex gap-3 sm:gap-4">
                       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 overflow-hidden border border-white/60 bg-white/70">
@@ -839,7 +844,7 @@ function SearchResultsContent() {
                             )}
                             <div className="flex items-center gap-3 mt-2">
                               <div className="flex items-center gap-1 text-[color:var(--text-muted)]">
-                                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-[#ff3b82] text-[#ff3b82]' : ''}`} />
+                                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-blue-500 text-blue-500' : ''}`} />
                                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--foreground)]">{gym.likes}</span>
                               </div>
                               <span className="text-base sm:text-lg font-bold text-[color:var(--gt-primary-strong)]">{gym.price}</span>
@@ -852,7 +857,7 @@ function SearchResultsContent() {
                               disabled={processingLikes.has(gym.id)}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold gt-pressable transition-all ${
                                 gym.isLiked
-                                  ? 'bg-gradient-to-r from-[#ff6b9f] to-[#6056ff] text-white'
+                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
                                   : 'bg-white/80 text-[color:var(--foreground)] border border-white/60 hover:-translate-y-[2px]'
                               } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
@@ -862,7 +867,7 @@ function SearchResultsContent() {
                             <button
                               type="button"
                               onClick={() => setSelectedGymId(gym.id)}
-                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white rounded-xl text-xs sm:text-sm font-semibold shadow-[0_18px_36px_-26px_rgba(96,86,255,0.6)] hover:-translate-y-[2px] transition-all"
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-[0_18px_36px_-26px_rgba(59,130,246,0.6)] hover:-translate-y-[2px] transition-all"
                             >
                               詳細を見る
                             </button>
@@ -888,7 +893,7 @@ function SearchResultsContent() {
                             disabled={processingLikes.has(gym.id)}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-semibold gt-pressable transition-all ${
                               gym.isLiked
-                                ? 'bg-gradient-to-r from-[#ff6b9f] to-[#6056ff] text-white'
+                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
                                 : 'bg-white/80 text-[color:var(--foreground)] border border-white/60'
                             } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
@@ -898,7 +903,7 @@ function SearchResultsContent() {
                           <button
                             type="button"
                             onClick={() => setSelectedGymId(gym.id)}
-                            className="flex-1 py-1.5 bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white rounded-xl text-xs font-semibold shadow-[0_14px_30px_-24px_rgba(96,86,255,0.6)]"
+                            className="flex-1 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs font-semibold shadow-[0_14px_30px_-24px_rgba(59,130,246,0.6)]"
                           >
                             詳細を見る
                           </button>

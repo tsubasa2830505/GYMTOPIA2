@@ -239,10 +239,10 @@ export default function PostCard({
               {/* Like Button */}
               <button
                 onClick={() => onLike?.(post)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border-2 ${
                   post.is_liked
-                    ? 'text-red-500 bg-red-50 hover:bg-red-100'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'text-[#ff6b9f] bg-pink-50 hover:bg-pink-100 border-pink-300'
+                    : 'text-slate-600 hover:bg-slate-50 border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <Heart
@@ -254,7 +254,7 @@ export default function PostCard({
               </button>
 
               {/* Comment Button */}
-              <button className="flex items-center gap-2 px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors border-2 border-slate-300 hover:border-slate-400">
                 <MessageCircle className="w-5 h-5" />
                 {post.comments_count > 0 && (
                   <span className="text-sm font-medium">{post.comments_count}</span>
@@ -265,10 +265,10 @@ export default function PostCard({
               <button
                 onClick={handleGenerateStory}
                 disabled={generatingStory}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border-2 ${
                   generatingStory
-                    ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'text-slate-400 bg-slate-50 cursor-not-allowed border-slate-300'
+                    : 'text-slate-600 hover:bg-slate-50 border-slate-300 hover:border-slate-400'
                 }`}
               >
                 {generatingStory ? (
@@ -286,7 +286,7 @@ export default function PostCard({
             </div>
 
             {/* Share Button */}
-            <button className="p-2 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="p-2 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors border-2 border-slate-300 hover:border-slate-400">
               <Share2 className="w-5 h-5" />
             </button>
           </div>

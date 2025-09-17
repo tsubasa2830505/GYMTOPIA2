@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { getGymById, getGymMachines, getGymFreeWeights, type Gym } from '@/lib/supabase/gyms'
 import { supabase } from '@/lib/supabase/client'
 import GymDetailedInfoDisplay from '@/components/GymDetailedInfoDisplay'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface GymDetailModalProps {
   isOpen: boolean
@@ -17,8 +18,7 @@ interface GymDetailModalProps {
   gymId: string
 }
 
-// モックユーザーID（開発用）
-const MOCK_USER_ID = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+// This constant is no longer needed - using authenticated user via useAuth hook
 
 // サンプルデータ（フォールバック用）
 const sampleGymData = {
@@ -91,6 +91,7 @@ const sampleGymData = {
 
 export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModalProps) {
   const router = useRouter()
+  const { user, isAuthenticated } = useAuth()
   const [gymData, setGymData] = useState<any>(sampleGymData)
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
@@ -135,7 +136,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
             .from('favorite_gyms')
             .select('id')
             .eq('gym_id', gymId)
-            .eq('user_id', MOCK_USER_ID)
+            .eq('user_id', user?.id)
             .maybeSingle()
         ])
 
@@ -144,7 +145,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
 
         console.log('=== LOADING GYM DATA ===')
         console.log('Gym ID:', gymId)
-        console.log('User ID:', MOCK_USER_ID)
+        console.log('User ID:', user?.id)
         console.log('User favorite query result:', {
           data: userFavorite.data,
           error: userFavorite.error,
@@ -262,6 +263,11 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
       return
     }
 
+    if (!isAuthenticated || !user) {
+      alert('ログインが必要です')
+      return
+    }
+
     setIsProcessingLike(true)
 
     try {
@@ -269,7 +275,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
       console.log('Current liked state:', liked)
       console.log('Current likes count:', likesCount)
       console.log('Gym ID:', gymId)
-      console.log('User ID:', MOCK_USER_ID)
+      console.log('User ID:', user?.id)
 
       if (liked) {
         // イキタイを解除
@@ -277,7 +283,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         const { error } = await supabase
           .from('favorite_gyms')
           .delete()
-          .eq('user_id', MOCK_USER_ID)
+          .eq('user_id', user?.id)
           .eq('gym_id', gymId)
 
         if (error) {
@@ -303,7 +309,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         const { error } = await supabase
           .from('favorite_gyms')
           .insert({
-            user_id: MOCK_USER_ID,
+            user_id: user?.id,
             gym_id: gymId
           })
 
@@ -313,8 +319,8 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
             console.log('Already liked')
             setLiked(true)
           } else {
-            console.error('Error adding like:', error)
-            alert('いきたいの追加に失敗しました: ' + error.message)
+            console.error('Error adding like:', error, error?.message, error?.details)
+            alert('いきたいの追加に失敗しました: ' + (error?.message || JSON.stringify(error)))
           }
         } else {
           console.log('✅ Successfully added like for gym:', gymId)

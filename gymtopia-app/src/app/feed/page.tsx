@@ -112,9 +112,13 @@ export default function FeedPage() {
     setHasMore(true);
     try {
       console.log('FeedPage: Loading initial posts with filter:', filter);
-      // Use mock user ID for development
-      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, filter, user?.id || mockUserId);
+      // Require authentication for feed access
+      if (!user?.id) {
+        setError('ログインが必要です');
+        setIsLoading(false);
+        return;
+      }
+      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, filter, user.id);
       console.log('FeedPage: Loaded initial posts:', {
         count: feedPosts.length,
         isFromDatabase: feedPosts.length > 0 && !feedPosts[0].id.startsWith('sample-'),
@@ -155,8 +159,11 @@ export default function FeedPage() {
       const nextPage = currentPage + 1;
       console.log('FeedPage: Loading more posts, page:', nextPage);
 
-      const mockUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, nextPage * POSTS_PER_PAGE, filter, user?.id || mockUserId);
+      if (!user?.id) {
+        console.error('User not authenticated for loading more posts');
+        return;
+      }
+      const feedPosts = await getFeedPosts(POSTS_PER_PAGE, nextPage * POSTS_PER_PAGE, filter, user.id);
 
       if (feedPosts.length === 0) {
         setHasMore(false);
@@ -175,7 +182,11 @@ export default function FeedPage() {
 
   const handleLike = async (post: Post) => {
     // モック認証またはログイン済みユーザーの場合は処理を続行
-    const currentUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+    if (!user?.id) {
+      console.error('User not authenticated for like action');
+      return;
+    }
+    const currentUserId = user.id;
     console.log('いいね処理開始:', { postId: post.id, isLiked: post.is_liked, userId: currentUserId });
 
     try {
@@ -317,7 +328,7 @@ export default function FeedPage() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
