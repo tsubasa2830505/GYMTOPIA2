@@ -154,34 +154,7 @@ export default function SearchPage() {
             </div>
           </div>
 
-          {/* 近くのジムを探す */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => {
-                if (!navigator.geolocation) {
-                  alert('位置情報がサポートされていません')
-                  return
-                }
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    const lat = pos.coords.latitude
-                    const lon = pos.coords.longitude
-                    const radius = 5 // km デフォルト
-                    const params = new URLSearchParams({ nearby: '1', lat: String(lat), lon: String(lon), radius: String(radius) })
-                    window.location.href = `/search/results?${params.toString()}`
-                  },
-                  (err) => {
-                    console.error('Geolocation error', err)
-                    alert('位置情報の取得に失敗しました')
-                  },
-                  { enableHighAccuracy: true, timeout: 8000 }
-                )
-              }}
-              className="px-3 py-2 text-xs sm:text-sm bg-emerald-600 text-white rounded hover:bg-emerald-700"
-            >
-              現在地の近くのジムを探す（半径5km）
-            </button>
-          </div>
+          {/* 近くのジムボタン（/searchでは表示しない方針に変更） */}
           
           <div className="flex gap-2 overflow-x-auto">
             <button

@@ -684,32 +684,9 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {userPosts.map((post) => (
-                  <div key={post.id} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                    <div className="animate-pulse">
-                  <div className="flex gap-3 mb-4">
-                    <div className="w-12 h-12 bg-slate-200 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-slate-200 rounded w-1/3 mb-2"></div>
-                      <div className="h-3 bg-slate-200 rounded w-1/4"></div>
-                    </div>
-                  </div>
-                  <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                </div>
-              </div>
-            ) : userPosts.length === 0 ? (
-              <div className="bg-white rounded-lg p-8 shadow-sm text-center">
-                <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                <p className="text-slate-600 mb-2">投稿がまだありません</p>
-                <p className="text-slate-500 text-sm">初めてのジム活を投稿してみましょう！</p>
-              </div>
-            ) : (
-              userPosts.map((post) => {
-                // Convert GymPost to Post type for PostCard
-                const postForCard: Post = {
+                {userPosts.map((post) => {
+                  // Convert GymPost to Post type for PostCard
+                  const postForCard: Post = {
                   id: post.id,
                   user_id: post.user_id,
                   content: post.content,
@@ -739,7 +716,8 @@ export default function ProfilePage() {
                     expandedTraining={expandedTraining}
                   />
                 );
-              })
+              })}
+              </div>
             )}
 
             {/* Load More Posts Button */}
