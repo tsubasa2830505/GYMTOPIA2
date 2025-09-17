@@ -4,22 +4,20 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--gt-background);
+  --background-strong: var(--gt-background-strong);
+  --foreground: var(--gt-text-main);
+  --text-subtle: var(--gt-text-sub);
+  --text-muted: var(--gt-text-muted);
 }
-
-/* ダークモードを無効化して常にライトモードを使用 */
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
 
 body {
   background: var(--background);
+  background-image: var(--gt-background-gradient);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-jp), var(--font-latin), ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
 }
 
 @keyframes pulse-once {
@@ -86,108 +84,113 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Material Design 3 inspired classes */
-.md-card {
-  @apply bg-white rounded-xl shadow-sm border border-slate-100;
+/* GymTopia typography utilities */
+.gt-heading-xl {
+  @apply text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight;
 }
 
-.md-card-elevated {
-  @apply bg-white rounded-2xl shadow-lg;
+.gt-heading-lg {
+  @apply text-3xl sm:text-4xl font-bold tracking-tight;
 }
 
-.md-surface {
-  @apply bg-white rounded-lg;
+.gt-heading-md {
+  @apply text-2xl font-semibold;
 }
 
-.md-surface-variant {
-  @apply bg-slate-50 rounded-lg;
+.gt-title-sm {
+  @apply text-lg font-semibold;
 }
 
-.md-primary-container {
-  @apply bg-blue-50;
+.gt-label-lg {
+  @apply text-sm font-semibold tracking-wide;
 }
 
-.md-secondary-container {
-  @apply bg-purple-50;
+.gt-label-sm {
+  @apply text-xs font-semibold uppercase tracking-[0.18em];
 }
 
-.md-elevation-1 {
-  @apply shadow-md;
+.gt-pill-label {
+  @apply text-[11px] sm:text-xs font-semibold tracking-wide;
 }
 
-.md-elevation-2 {
-  @apply shadow-lg;
+.gt-body {
+  @apply text-sm sm:text-base leading-relaxed text-[color:var(--text-subtle)];
 }
 
-.md-elevation-3 {
-  @apply shadow-xl;
+.gt-body-muted {
+  @apply text-xs sm:text-sm text-[color:var(--text-muted)];
 }
 
-.md-transition-standard {
-  @apply transition-all duration-200 ease-in-out;
+/* Surfaces */
+.gt-shell {
+  @apply rounded-3xl border border-transparent backdrop-blur-sm;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72));
+  box-shadow: 0 20px 40px -28px rgba(18, 29, 68, 0.45);
 }
 
-.md-ripple {
-  @apply relative overflow-hidden;
+.gt-surface {
+  @apply rounded-3xl;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 30px -18px rgba(20, 31, 68, 0.28);
 }
 
-/* Material Design Typography */
-.md-display-large {
-  @apply text-5xl font-normal leading-tight;
+.gt-surface-outline {
+  @apply rounded-2xl border;
+  border-color: rgba(76, 90, 146, 0.16);
+  background: rgba(255, 255, 255, 0.92);
 }
 
-.md-display-medium {
-  @apply text-4xl font-normal leading-tight;
+.gt-border-soft {
+  border-color: rgba(76, 90, 146, 0.18);
 }
 
-.md-display-small {
-  @apply text-3xl font-normal leading-tight;
+.gt-border-strong {
+  border-color: rgba(76, 90, 146, 0.32);
 }
 
-.md-headline-large {
-  @apply text-3xl font-normal;
+.gt-tab-track {
+  @apply rounded-full p-0.5 sm:p-1;
+  background: linear-gradient(135deg, rgba(96, 86, 255, 0.12), rgba(255, 107, 159, 0.1));
+  border: 1px solid rgba(96, 86, 255, 0.15);
 }
 
-.md-headline-medium {
-  @apply text-2xl font-normal;
+.gt-tab {
+  @apply rounded-full font-medium;
+  transition: all 220ms ease;
 }
 
-.md-headline-small {
-  @apply text-xl font-normal;
+.gt-tab-active {
+  @apply bg-white shadow-lg;
+  color: var(--gt-primary-strong);
 }
 
-.md-title-large {
-  @apply text-xl font-medium;
+.gt-tab-inactive {
+  @apply text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)];
 }
 
-.md-title-medium {
-  @apply text-base font-medium;
+.gt-blur-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(96, 86, 255, 0.16);
+  border-radius: 22px;
 }
 
-.md-title-small {
-  @apply text-sm font-medium;
+.gt-badge {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full;
+  background: rgba(96, 86, 255, 0.16);
+  color: var(--gt-primary-strong);
 }
 
-.md-label-large {
-  @apply text-sm font-medium;
+.gt-badge-muted {
+  background: rgba(76, 90, 146, 0.12);
+  color: var(--text-subtle);
 }
 
-.md-label-medium {
-  @apply text-xs font-medium;
+.gt-shadow-soft {
+  box-shadow: 0 18px 40px -32px rgba(20, 31, 68, 0.58);
 }
 
-.md-label-small {
-  @apply text-xs font-medium;
+.gt-shadow-strong {
+  box-shadow: 0 24px 60px -30px rgba(20, 31, 68, 0.68);
 }
 
-.md-body-large {
-  @apply text-base font-normal;
-}
-
-.md-body-medium {
-  @apply text-sm font-normal;
-}
-
-.md-body-small {
-  @apply text-xs font-normal;
-}

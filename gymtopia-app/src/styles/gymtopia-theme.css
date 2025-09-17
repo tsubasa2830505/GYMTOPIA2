@@ -1,0 +1,242 @@
+/* GymTopia bespoke theme tokens and utility styles */
+:root {
+  --gt-background: #edf1ff;
+  --gt-background-strong: #e3e9ff;
+  --gt-background-gradient: radial-gradient(circle at 18% 18%, rgba(96, 86, 255, 0.18), transparent 42%), radial-gradient(circle at 82% 22%, rgba(255, 107, 159, 0.16), transparent 46%), linear-gradient(180deg, #f1f5ff 0%, #eef3ff 100%);
+
+  --gt-surface: #ffffff;
+  --gt-surface-muted: #f6f8ff;
+  --gt-surface-strong: #f9faff;
+  --gt-overlay: rgba(95, 98, 160, 0.08);
+  --gt-overlay-strong: rgba(95, 98, 160, 0.16);
+
+  --gt-border-soft: rgba(76, 90, 146, 0.18);
+  --gt-border-strong: rgba(76, 90, 146, 0.32);
+
+  --gt-primary: #6056ff;
+  --gt-primary-strong: #4334d6;
+  --gt-primary-soft: rgba(96, 86, 255, 0.16);
+  --gt-secondary: #ff6b9f;
+  --gt-secondary-strong: #ff3b82;
+  --gt-secondary-soft: rgba(255, 107, 159, 0.18);
+  --gt-tertiary: #38d7a7;
+  --gt-tertiary-strong: #1f9b76;
+  --gt-tertiary-soft: rgba(56, 215, 167, 0.18);
+  --gt-highlight: #5ff5ff;
+
+  --gt-text-main: #1b2544;
+  --gt-text-sub: #4d5c7d;
+  --gt-text-muted: #93a0c2;
+  --gt-text-inverse: #ffffff;
+
+  --gt-shadow-soft: 0 24px 60px -38px rgba(20, 31, 68, 0.65);
+  --gt-shadow-hover: 0 30px 90px -42px rgba(20, 31, 68, 0.65);
+  --gt-shadow-card: 0 18px 45px -30px rgba(33, 43, 82, 0.55);
+  --gt-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  --gt-radius-pill: 999px;
+  --gt-radius-xl: 32px;
+  --gt-radius-lg: 24px;
+  --gt-radius-md: 18px;
+  --gt-radius-sm: 12px;
+  --gt-radius-xs: 8px;
+}
+
+body {
+  background-image: var(--gt-background-gradient);
+  background-color: var(--gt-background);
+  color: var(--gt-text-main);
+}
+
+.gt-page-shell {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 255, 0.85));
+  border-radius: var(--gt-radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--gt-shadow-soft);
+  overflow: hidden;
+}
+
+.gt-card {
+  position: relative;
+  background: var(--gt-surface);
+  border-radius: var(--gt-radius-lg);
+  border: 1px solid var(--gt-border-soft);
+  box-shadow: var(--gt-shadow-card);
+  transition: transform 200ms ease, box-shadow 220ms ease, border-color 250ms ease;
+}
+
+.gt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(circle at 85% 15%, rgba(255, 107, 159, 0.28), transparent 60%), radial-gradient(circle at 15% 15%, rgba(96, 86, 255, 0.22), transparent 55%);
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.gt-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--gt-shadow-hover);
+  border-color: rgba(96, 86, 255, 0.28);
+}
+
+.gt-card:hover::after {
+  opacity: 1;
+}
+
+.gt-layer {
+  background: var(--gt-surface);
+  border-radius: var(--gt-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: var(--gt-shadow-inset);
+}
+
+.gt-layer-muted {
+  background: linear-gradient(135deg, rgba(96, 86, 255, 0.12), rgba(96, 86, 255, 0));
+  border: 1px solid rgba(96, 86, 255, 0.18);
+  border-radius: var(--gt-radius-pill);
+  padding: 4px;
+}
+
+.gt-primary-plate {
+  background: linear-gradient(140deg, rgba(96, 86, 255, 0.2), rgba(96, 86, 255, 0.08));
+  border: 1px solid rgba(96, 86, 255, 0.4);
+  border-radius: var(--gt-radius-lg);
+  color: var(--gt-primary-strong);
+  box-shadow: 0 12px 30px -18px rgba(96, 86, 255, 0.55);
+}
+
+.gt-secondary-plate {
+  background: linear-gradient(140deg, rgba(255, 107, 159, 0.28), rgba(255, 107, 159, 0.08));
+  border: 1px solid rgba(255, 107, 159, 0.38);
+  border-radius: var(--gt-radius-lg);
+  color: var(--gt-secondary-strong);
+  box-shadow: 0 12px 30px -18px rgba(255, 107, 159, 0.45);
+}
+
+.gt-tertiary-plate {
+  background: linear-gradient(140deg, rgba(56, 215, 167, 0.25), rgba(56, 215, 167, 0.08));
+  border: 1px solid rgba(56, 215, 167, 0.35);
+  border-radius: var(--gt-radius-lg);
+  color: var(--gt-tertiary-strong);
+  box-shadow: 0 12px 28px -18px rgba(56, 215, 167, 0.32);
+}
+
+.gt-transition {
+  transition: all 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform, background, box-shadow;
+}
+
+.gt-pressable {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.gt-pressable::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(96, 86, 255, 0.18), rgba(255, 107, 159, 0.16));
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.gt-pressable:active::before,
+.gt-pressable:hover::before {
+  opacity: 0.18;
+}
+
+.gt-lift-1 {
+  box-shadow: 0 12px 28px -22px rgba(20, 31, 68, 0.55);
+}
+
+.gt-lift-2 {
+  box-shadow: 0 20px 50px -28px rgba(20, 31, 68, 0.6);
+}
+
+.gt-lift-3 {
+  box-shadow: 0 28px 70px -32px rgba(20, 31, 68, 0.65);
+}
+
+.gt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--gt-radius-pill);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--gt-border-soft);
+  color: var(--gt-text-sub);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.gt-chip--primary {
+  background: rgba(96, 86, 255, 0.12);
+  border-color: rgba(96, 86, 255, 0.35);
+  color: var(--gt-primary-strong);
+}
+
+.gt-chip--secondary {
+  background: rgba(255, 107, 159, 0.12);
+  border-color: rgba(255, 107, 159, 0.32);
+  color: var(--gt-secondary-strong);
+}
+
+.gt-tab-pill {
+  background: transparent;
+  border-radius: var(--gt-radius-pill);
+  border: 1px solid transparent;
+  transition: all 200ms ease;
+}
+
+.gt-tab-pill[aria-pressed="true"],
+.gt-tab-pill.gt-tab-pill--active {
+  background: rgba(96, 86, 255, 0.18);
+  border-color: rgba(96, 86, 255, 0.4);
+  color: var(--gt-primary-strong);
+  box-shadow: 0 10px 30px -20px rgba(96, 86, 255, 0.6);
+}
+
+.gt-tab-pill:hover {
+  border-color: rgba(96, 86, 255, 0.2);
+  background: rgba(96, 86, 255, 0.12);
+}
+
+.gt-focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(96, 86, 255, 0.3);
+}
+
+.gt-divider {
+  border-color: rgba(76, 90, 146, 0.18);
+}
+
+.gt-pill-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--gt-primary) 0%, var(--gt-secondary) 100%);
+  border-radius: var(--gt-radius-pill);
+  color: var(--gt-text-inverse);
+  font-weight: 600;
+  padding: 10px 20px;
+  box-shadow: 0 20px 40px -24px rgba(96, 86, 255, 0.6);
+  transition: transform 200ms ease, box-shadow 220ms ease;
+}
+
+.gt-pill-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 48px -20px rgba(96, 86, 255, 0.65);
+}
+
+.gt-pill-button:active {
+  transform: translateY(1px);
+}
+

@@ -3,7 +3,7 @@
 // Force dynamic rendering - prevent static generation
 export const dynamic = 'force-dynamic'
 
-import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft } from 'lucide-react'
+import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, Navigation } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -17,11 +17,25 @@ import { getSupabaseClient } from '@/lib/supabase/client'
 import type { DatabaseGym } from '@/types/database'
 import { enrichGymWithStationInfo } from '@/lib/utils/distance'
 
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function SearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
-  // const [sortBy, setSortBy] = useState('popular')
+  const [sortBy, setSortBy] = useState<'popular' | 'distance' | 'rating'>('popular')
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   const [gyms, setGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -316,6 +330,16 @@ function SearchResultsContent() {
   }, []);
 
   useEffect(() => {
+    // Check if there are any search parameters or if this is a direct access
+    const hasSearchParams = searchParams.toString().length > 0
+
+    // If no search parameters, show all gyms as default
+    if (!hasSearchParams) {
+      setSelectedConditions({ machines: [], freeWeights: [], facilities: [] })
+      fetchGyms({ machines: [], freeWeights: [], facilities: [] })
+      return
+    }
+
     // Parse machines with count (format: "name:count")
     const machinesParam = searchParams.get('machines')?.split(',').filter(Boolean) || []
     const machines = machinesParam.map(item => {
@@ -451,8 +475,15 @@ function SearchResultsContent() {
         {/* Results Summary Card */}
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <button 
-              onClick={() => router.back()}
+            <button
+              onClick={() => {
+                // If there are search params, go back. Otherwise go to search page
+                if (searchParams.toString().length > 0) {
+                  router.back()
+                } else {
+                  router.push('/search')
+                }
+              }}
               aria-label="戻る"
               className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md hover:bg-slate-200 transition-colors"
             >
@@ -467,9 +498,9 @@ function SearchResultsContent() {
                     const r = searchParams.get('radius') || '5'
                     return `現在地から半径${r}km`
                   }
-                  return getTotalConditionsCount() > 0 
+                  return getTotalConditionsCount() > 0
                     ? `${getTotalConditionsCount()}件の条件で検索`
-                    : '理想のジムが見つかりました'
+                    : 'おすすめのジムをご紹介'
                 })()}
               </p>
             </div>
@@ -483,6 +514,35 @@ function SearchResultsContent() {
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
               {typeof error === 'string' ? error : JSON.stringify(error)}
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          {getTotalConditionsCount() === 0 && !searchParams.get('nearby') && (
+            <div className="mb-4 sm:mb-6">
+              <button
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        const lat = position.coords.latitude
+                        const lng = position.coords.longitude
+                        router.push(`/search/results?nearby=1&lat=${lat}&lon=${lng}&radius=5`)
+                      },
+                      (error) => {
+                        console.error('Location error:', error)
+                        alert('位置情報を取得できませんでした。設定から位置情報の許可を確認してください。')
+                      }
+                    )
+                  } else {
+                    alert('お使いのブラウザでは位置情報を利用できません。')
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Navigation className="w-5 h-5" />
+                現在地の近くのジムを探す（半径5km）
+              </button>
             </div>
           )}
 

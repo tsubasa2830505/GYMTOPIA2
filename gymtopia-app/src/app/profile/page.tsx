@@ -149,16 +149,16 @@ export default function ProfilePage() {
             avatar_url: '/muscle-taro-avatar.svg',
             bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
             location: '東京',
-              joined_at: '2024-01-01T00:00:00Z',
-              is_verified: true,
-              workout_count: 142,
-              workout_streak: 7,
-              followers_count: 89,
-              following_count: 126,
-              mutual_follows_count: 24,  // 相互フォロー数
-              posts_count: 38,
-              achievements_count: 12,
-              favorite_gyms_count: 5
+            joined_at: '2024-01-01T00:00:00Z',
+            is_verified: true,
+            workout_count: 142,
+            workout_streak: 7,
+            followers_count: 89,
+            following_count: 126,
+            mutual_follows_count: 24,  // 相互フォロー数
+            posts_count: 38,
+            achievements_count: 12,
+            favorite_gyms_count: 5
             } as UserProfileStats;
           });
 
@@ -687,36 +687,36 @@ export default function ProfilePage() {
                 {userPosts.map((post) => {
                   // Convert GymPost to Post type for PostCard
                   const postForCard: Post = {
-                  id: post.id,
-                  user_id: post.user_id,
-                  content: post.content,
-                  images: post.images,
-                  post_type: post.post_type,
-                  workout_session_id: post.workout_session_id,
-                  gym_id: post.gym_id,
-                  training_details: post.training_details,
-                  visibility: post.visibility,
-                  likes_count: post.likes_count,
-                  comments_count: post.comments_count,
-                  created_at: post.created_at,
-                  user: post.user,
-                  gym: post.gym,
-                  is_liked: post.is_liked,
-                  achievement_data: post.achievement_data,
-                  achievement_type: post.achievement_type
-                };
+                    id: post.id,
+                    user_id: post.user_id,
+                    content: post.content,
+                    images: post.images,
+                    post_type: post.post_type,
+                    workout_session_id: post.workout_session_id,
+                    gym_id: post.gym_id,
+                    training_details: post.training_details,
+                    visibility: post.visibility,
+                    likes_count: post.likes_count,
+                    comments_count: post.comments_count,
+                    created_at: post.created_at,
+                    user: post.user,
+                    gym: post.gym,
+                    is_liked: post.is_liked,
+                    achievement_data: post.achievement_data,
+                    achievement_type: post.achievement_type
+                  };
 
-                return (
-                  <PostCard
-                    key={post.id}
-                    post={postForCard}
-                    currentUserId={userId}
-                    showActions={true} // ストーリー機能を含むアクションを表示
-                    onToggleTraining={() => toggleTrainingDetails(post.id)}
-                    expandedTraining={expandedTraining}
-                  />
-                );
-              })}
+                  return (
+                    <PostCard
+                      key={post.id}
+                      post={postForCard}
+                      currentUserId={userId}
+                      showActions={true} // ストーリー機能を含むアクションを表示
+                      onToggleTraining={() => toggleTrainingDetails(post.id)}
+                      expandedTraining={expandedTraining}
+                    />
+                  );
+                })}
               </div>
             )}
 

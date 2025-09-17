@@ -9,7 +9,7 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', icon: Home, label: 'ホーム' },
-    { href: '/search', icon: Search, label: '検索' },
+    { href: '/search/results', icon: Search, label: '検索' },
     { href: '/add', icon: Dumbbell, label: 'ワークアウト' },
     { href: '/stats', icon: BarChart3, label: '統計' },
     { href: '/profile', icon: User, label: 'プロフィール' },
@@ -20,7 +20,9 @@ export default function Navigation() {
       <div className="flex justify-around items-center h-20">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
+          const isActive = item.href === '/search/results'
+            ? (pathname === '/search/results' || pathname === '/search')
+            : pathname === item.href
           
           return (
             <Link

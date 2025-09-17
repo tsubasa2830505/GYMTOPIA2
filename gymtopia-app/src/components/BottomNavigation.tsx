@@ -14,11 +14,11 @@ export default function BottomNavigation() {
       label: 'ジムを探す',
       isActive: pathname === '/'
     },
-    { 
-      href: '/search/results', 
-      icon: FileSearch, 
+    {
+      href: '/search/results',
+      icon: FileSearch,
       label: '検索結果',
-      isActive: pathname === '/search/results',
+      isActive: pathname === '/search/results' || pathname === '/search',
       badge: 3
     },
     { 
