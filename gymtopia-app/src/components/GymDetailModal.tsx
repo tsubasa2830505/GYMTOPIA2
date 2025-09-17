@@ -351,10 +351,10 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     return (
       <>
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] transition-opacity duration-300"
           onClick={onClose}
         />
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
           <div className="bg-white rounded-3xl p-8 shadow-2xl">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -375,12 +375,12 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] transition-opacity duration-300"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
+      <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
         <div
           className="bg-white w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up sm:animate-scale-in pointer-events-auto"
           onClick={(e) => e.stopPropagation()}

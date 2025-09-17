@@ -31,6 +31,37 @@
 - **Cursor**: 3000番ポートを使用 (デフォルト)
 - **プロセス確認**: `ps aux | grep -E "(node|npm|next)" | grep -v grep`
 
+## 🚀 デプロイメント完全ガイド
+
+### 必須: Vercel環境変数設定
+**すべてのVercelプロジェクトで必須**:
+1. **NEXT_PUBLIC_SUPABASE_URL**: `https://htytewqvkgwyuvcsvjwm.supabase.co`
+2. **NEXT_PUBLIC_SUPABASE_ANON_KEY**: 必須（Supabaseクライアント用）
+
+### デプロイメント前チェックリスト
+- [ ] 環境変数が正しく設定されている
+- [ ] `npm run build` でローカルビルドが成功
+- [ ] GitHub Actionsが正常実行
+- [ ] Vercelデプロイメントが `Ready` 状態
+
+### よくあるエラーと解決法
+1. **"supabaseUrl is required"** → Vercel環境変数を確認・設定
+2. **"Dependencies lock file not found"** → `.github/workflows/e2e.yml`の`cache-dependency-path`を修正
+3. **"Xcode license agreements"** → `sudo xcodebuild -license` で解決
+
+### 緊急時対応
+```bash
+# 1. 環境変数確認（Vercelダッシュボード）
+# 2. 強制デプロイ
+git add -A && git commit -m "Fix deployment" && git push
+# 3. Vercel手動Redeploy
+```
+
+### 参考文書
+- `gymtopia-app/DEPLOYMENT.md`: 基本的なデプロイ手順
+- `gymtopia-app/TROUBLESHOOTING.md`: 問題解決ガイド
+- `gymtopia-app/MIGRATION_PLAN.md`: プロジェクト移行記録
+
 ### Claude Code拡張ツール
 
 #### 1. ccusage - 使用状況分析

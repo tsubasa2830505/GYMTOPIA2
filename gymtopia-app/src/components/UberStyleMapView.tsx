@@ -9,11 +9,12 @@ interface UberStyleMapViewProps {
   gyms: DatabaseGym[];
   userLocation?: { lat: number; lng: number } | null;
   onGymSelect?: (gym: DatabaseGym) => void;
+  onBackToList?: () => void;
 }
 
 type SheetPosition = 'mini' | 'half' | 'full';
 
-export function UberStyleMapView({ gyms, userLocation, onGymSelect }: UberStyleMapViewProps) {
+export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList }: UberStyleMapViewProps) {
   const [selectedGym, setSelectedGym] = useState<DatabaseGym | null>(null);
   const [sheetPosition, setSheetPosition] = useState<SheetPosition>('mini');
   const [isDragging, setIsDragging] = useState(false);
@@ -117,7 +118,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect }: UberStyleM
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative w-full overflow-hidden" style={{ height: '70vh' }}>
       {/* Map container */}
       <div className="absolute inset-0">
         <ClientOnlyMap
@@ -130,6 +131,16 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect }: UberStyleM
 
       {/* Floating action buttons */}
       <div className="absolute top-4 right-4 z-10 space-y-2">
+        {onBackToList && (
+          <button
+            className="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow"
+            onClick={onBackToList}
+          >
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </button>
+        )}
         <button
           className="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow"
           onClick={() => {
@@ -158,7 +169,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect }: UberStyleM
       {/* Bottom sheet */}
       <div
         ref={sheetRef}
-        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
+        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out z-40 ${
           isDragging ? '' : 'transition-transform'
         }`}
         style={{

@@ -8,15 +8,18 @@
 ## 移行に必要なアクション
 
 ### 1. アクセス権限の取得
-- [ ] takanami-yutaさんからVercelチーム招待を受ける
-- [ ] または、GitHubリポジトリへのアクセス権を付与
+- [x] takanami-yutaさんからVercelチーム招待を受ける
+- [x] GitHubリポジトリへのアクセス権を付与
 
 ### 2. 環境変数の移行
-```
-NEXT_PUBLIC_SUPABASE_URL=https://htytewqvkgwyuvcsvjwm.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[移行が必要]
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=[移行が必要]
-```
+- [x] **NEXT_PUBLIC_SUPABASE_URL**: `https://htytewqvkgwyuvcsvjwm.supabase.co`
+- [x] **NEXT_PUBLIC_SUPABASE_ANON_KEY**: 設定完了
+- [ ] **NEXT_PUBLIC_GOOGLE_MAPS_API_KEY**: [移行が必要]
+
+### 3. 解決済み問題
+- [x] **Supabaseエラー**: 環境変数設定により解決
+- [x] **GitHub Actions**: cache-dependency-path修正により解決
+- [x] **デプロイメント**: 正常に稼働中
 
 ### 3. デプロイ設定
 - プロダクションブランチ: main

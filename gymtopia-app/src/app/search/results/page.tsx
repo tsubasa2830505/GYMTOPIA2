@@ -14,6 +14,7 @@ import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
 import { getSupabaseClient } from '@/lib/supabase/client'
 import type { DatabaseGym } from '@/types/database'
+import { enrichGymWithStationInfo } from '@/lib/utils/distance'
 
 function SearchResultsContent() {
   const router = useRouter()
@@ -200,30 +201,44 @@ function SearchResultsContent() {
       
       if (data) {
         // Transform data to match component format
-        const transformedData = data.map((gym: Gym) => ({
-          id: gym.id,
-          name: gym.name || 'ジム名未設定',
-          location: gym.city || gym.prefecture || '場所未設定',
-          distance: '徒歩5分', // Placeholder - would calculate from actual location
-          likes: gym.review_count || 0,
-          tags: gym.equipment_types || [],
-          image: gym.images && gym.images.length > 0
-            ? gym.images[0]
-            : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
-          price: '¥10,000～', // Placeholder
-          isLiked: false,
-          address: gym.address || '',
-          images: gym.images || [], // 全画像を保持
-          // DatabaseGym format for map (convert string to number)
-          latitude: gym.latitude ? parseFloat(gym.latitude) : null,
-          longitude: gym.longitude ? parseFloat(gym.longitude) : null,
-          description: gym.description,
-          prefecture: gym.prefecture,
-          city: gym.city,
-          facilities: gym.facilities,
-          rating: gym.rating,
-          review_count: gym.review_count
-        }))
+        const transformedData = data.map((gym: Gym) => {
+          // 距離と駅情報を計算
+          const stationInfo = enrichGymWithStationInfo({
+            address: gym.address,
+            latitude: gym.latitude,
+            longitude: gym.longitude
+          })
+
+          return {
+            id: gym.id,
+            name: gym.name || 'ジム名未設定',
+            location: stationInfo.walkingMinutes > 0
+              ? `${stationInfo.station}から徒歩${stationInfo.walkingMinutes}分`
+              : stationInfo.area,
+            distance: stationInfo.walkingText,
+            likes: gym.review_count || 0,
+            tags: gym.equipment_types || [],
+            image: gym.images && gym.images.length > 0
+              ? gym.images[0]
+              : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+            price: '¥10,000～', // Placeholder
+            isLiked: false,
+            address: gym.address || '',
+            images: gym.images || [], // 全画像を保持
+            // DatabaseGym format for map (convert string to number)
+            latitude: gym.latitude ? parseFloat(gym.latitude) : null,
+            longitude: gym.longitude ? parseFloat(gym.longitude) : null,
+            description: gym.description,
+            prefecture: gym.prefecture,
+            city: gym.city,
+            facilities: gym.facilities,
+            rating: gym.rating,
+            review_count: gym.review_count,
+            // 追加情報
+            nearestStation: stationInfo.station,
+            walkingMinutes: stationInfo.walkingMinutes
+          }
+        })
 
         setGyms(transformedData)
       }
@@ -543,18 +558,17 @@ function SearchResultsContent() {
 
       </div>
 
-      {/* Map and List Views */}
+      {/* Content Views */}
       {viewMode === 'map' ? (
-        // Uber-style Map with Bottom Sheet
-        <div className="fixed inset-0 top-[60px] z-30">
-          <UberStyleMapView
-            gyms={gyms.filter(gym => gym.latitude && gym.longitude) as DatabaseGym[]}
-            userLocation={userLocation}
-            onGymSelect={(gym) => {
-              setSelectedGymId(gym.id);
-            }}
-          />
-        </div>
+        // Uber-style Map with Bottom Sheet (keeps all UI above)
+        <UberStyleMapView
+          gyms={gyms.filter(gym => gym.latitude && gym.longitude) as DatabaseGym[]}
+          userLocation={userLocation}
+          onGymSelect={(gym) => {
+            setSelectedGymId(gym.id);
+          }}
+          onBackToList={() => setViewMode('list')}
+        />
       ) : (
         // List View Container
         <div className="container mx-auto px-4 py-4">
@@ -587,7 +601,7 @@ function SearchResultsContent() {
                           <h3 className="text-base sm:text-lg font-bold text-slate-900">{gym.name}</h3>
                           <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-slate-600 mt-1">
                             <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span>{gym.location} • {gym.distance}</span>
+                            <span>{gym.location}</span>
                           </div>
                           {gym.address && (
                             <p className="text-xs text-slate-500 mt-1">{gym.address}</p>

@@ -172,22 +172,36 @@ export async function getGyms(filters?: {
 
     // Machine-based filters
     if (filters?.machines?.length) {
-      // UIから name or {name,count} が来るケースに対応
-      const raw = (filters.machines as any[])
+      // UIから string(id|name|"id:count") or {name,count} が来るケースに対応
+      const tokens = (filters.machines as any[])
         .map(m => (typeof m === 'string' ? m : m?.name))
         .filter((v: any) => typeof v === 'string' && v.trim().length > 0) as string[]
-      if (raw.length > 0) {
-        // 機材ID/名前の両方にマッチさせ、ジムIDをユニオン
+      if (tokens.length > 0) {
+        // id:count → id に分解
+        const ids: string[] = []
+        const names: string[] = []
+        tokens.forEach(t => {
+          const [a, b] = t.split(':')
+          if (a && b && /^\d+$/.test(b) === true) {
+            ids.push(a)
+          } else {
+            // 不明なら両方に候補として入れる（ID一致 or name一致）
+            ids.push(t)
+            names.push(t)
+          }
+        })
+
         const gymIdSet = new Set<string>()
         const addIds = (rows?: any[] | null) => {
           if (rows) rows.forEach(r => r?.gym_id && gymIdSet.add(r.gym_id))
         }
-        const [byId, byName] = await Promise.all([
-          supabase.from('gym_machines').select('gym_id').in('machine_id', raw).catch(() => ({ data: null } as any)),
-          supabase.from('gym_machines').select('gym_id').in('name', raw).catch(() => ({ data: null } as any)),
-        ])
-        addIds((byId as any).data)
-        addIds((byName as any).data)
+        const promises: Promise<any>[] = []
+        if (ids.length) promises.push(supabase.from('gym_machines').select('gym_id').in('machine_id', ids))
+        if (names.length) promises.push(supabase.from('gym_machines').select('gym_id').in('name', names))
+        const results = await Promise.allSettled(promises)
+        results.forEach(r => {
+          if (r.status === 'fulfilled') addIds((r.value as any).data)
+        })
         const uniqueGymIds = [...gymIdSet]
         if (uniqueGymIds.length > 0) {
           query = query.in('id', uniqueGymIds)
