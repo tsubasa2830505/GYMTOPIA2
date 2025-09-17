@@ -12,8 +12,7 @@ import type {
   PostComment,
   CreatePostCommentInput,
   Follow,
-  GymFriend,
-  GymFriendRequestInput,
+  // GymFriend and GymFriendRequestInput removed
   FavoriteGym,
   WeeklyStats,
   ProfileDashboard,
@@ -109,7 +108,8 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
       supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('favorite_gyms').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      supabase.from('gym_friends').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'accepted'),
+      // Calculate mutual follows instead of gym_friends
+      supabase.rpc('get_mutual_follow_count', { user_id: userId }),
       supabase.from('achievements').select('*', { count: 'exact', head: true }).eq('user_id', userId)
     ])
 
@@ -120,7 +120,7 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
     console.log('Following count:', followingCount.count)
     console.log('Workouts count:', workoutsCount.count)
     console.log('Favorite gyms count:', favoriteGymsCount.count)
-    console.log('Gym friends count:', gymFriendsCount.count)
+    console.log('Mutual follows count:', gymFriendsCount || 0)
     console.log('Achievements count:', achievementsCount.count)
     console.log('===========================')
     
@@ -138,7 +138,7 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       workout_streak: 0,
       followers_count: followersCount.count || 0,
       following_count: followingCount.count || 0,
-      gym_friends_count: gymFriendsCount.count || 0,
+      mutual_follows_count: gymFriendsCount || 0,  // Changed from gym_friends_count
       posts_count: postsCount.count || 0,
       achievements_count: achievementsCount.count || 0,
       favorite_gyms_count: favoriteGymsCount.count || 0
@@ -559,89 +559,10 @@ export async function getUserFollowing(
 }
 
 // ========================================
-// GYM FRIENDS FUNCTIONS
+// GYM FRIENDS FUNCTIONS - REMOVED
 // ========================================
-
-export async function sendGymFriendRequest(
-  requestData: GymFriendRequestInput
-): Promise<GymFriend | null> {
-  try {
-    const { data, error } = await getSupabaseClient()
-      .from('gym_friends')
-      .insert(requestData)
-      .select(`
-        *,
-        user1:users!user1_id(id, display_name, username, avatar_url),
-        user2:users!user2_id(id, display_name, username, avatar_url),
-        gym:gyms(id, name, area)
-      `)
-      .single()
-
-    if (error) {
-      console.error('Error sending gym friend request:', error)
-      return null
-    }
-    
-    return data as GymFriend
-  } catch (error) {
-    console.error('Error sending gym friend request:', error)
-    return null
-  }
-}
-
-export async function acceptGymFriendRequest(
-  requestId: string
-): Promise<boolean> {
-  try {
-    const { error } = await getSupabaseClient()
-      .from('gym_friends')
-      .update({
-        friendship_status: 'accepted',
-        accepted_at: new Date().toISOString()
-      })
-      .eq('id', requestId)
-
-    if (error) {
-      console.error('Error accepting gym friend request:', error)
-      return false
-    }
-    
-    return true
-  } catch (error) {
-    console.error('Error accepting gym friend request:', error)
-    return false
-  }
-}
-
-export async function getUserGymFriends(userId: string): Promise<GymFriend[]> {
-  try {
-    const { data, error } = await getSupabaseClient()
-      .from('gym_friends')
-      .select(`
-        *,
-        user1:users!user1_id(id, display_name, username, avatar_url),
-        user2:users!user2_id(id, display_name, username, avatar_url),
-        gym:gyms(id, name, area)
-      `)
-      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
-      .eq('friendship_status', 'accepted')
-
-    if (error) {
-      // テーブルが存在しない場合（PGRST205エラー）は警告レベルでログ出力
-      if (error.code === 'PGRST205') {
-        console.warn('Gym friends table not found - returning empty array')
-      } else {
-        console.error('Error fetching gym friends:', error)
-      }
-      return []
-    }
-    
-    return data as GymFriend[]
-  } catch (error) {
-    console.error('Error fetching gym friends:', error)
-    return []
-  }
-}
+// All gym friend functions have been removed.
+// Use follow system with mutual follow detection instead.
 
 // ========================================
 // FAVORITE GYMS FUNCTIONS

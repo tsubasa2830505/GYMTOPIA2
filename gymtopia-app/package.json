@@ -18,6 +18,7 @@
     "safe-commit": "../scripts/auto-backup.sh && git add -A && git commit",
     "system:test": "node ../scripts/system-test.js",
     "scenario:test": "node ../scripts/scenario-test.js",
+    "e2e:test": "npm run system:test && npm run scenario:test",
     "gen:types": "node scripts/gen-types.mjs",
     "db:apply:compat": "node scripts/apply-sql.js ./supabase/compat-views-safe.sql",
     "db:apply:legacy": "node scripts/apply-sql.js ./supabase/27-rename-legacy.sql",

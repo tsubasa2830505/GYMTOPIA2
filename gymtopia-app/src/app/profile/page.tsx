@@ -151,7 +151,7 @@ export default function ProfilePage() {
               workout_streak: 7,
               followers_count: 89,
               following_count: 126,
-              gym_friends_count: 24,
+              mutual_follows_count: 24,  // 相互フォロー数
               posts_count: 38,
               achievements_count: 12,
               favorite_gyms_count: 5
@@ -466,14 +466,14 @@ export default function ProfilePage() {
                   </span>
                   <span className="text-xs text-slate-600 font-medium">ジム通い</span>
                 </button>
-                <button 
-                  onClick={() => router.push('/gym-friends')}
+                <button
+                  onClick={() => router.push('/following')}
                   className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
                 >
                   <span className="text-xl sm:text-2xl font-bold text-slate-900">
-                    {isLoading ? '...' : (profileData?.gym_friends_count || 0)}
+                    {isLoading ? '...' : (profileData?.mutual_follows_count || 0)}
                   </span>
-                  <span className="text-xs text-slate-600 font-medium">ジム友</span>
+                  <span className="text-xs text-slate-600 font-medium">相互</span>
                 </button>
                 <button 
                   onClick={() => router.push('/following')}

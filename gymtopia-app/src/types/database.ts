@@ -206,16 +206,6 @@ export interface DatabaseFollow {
   created_at: string;
 }
 
-export interface DatabaseGymFriend {
-  id: string;
-  user1_id: string;
-  user2_id: string;
-  gym_id: string;
-  friendship_status: string; // 'pending' | 'accepted' | 'blocked'
-  initiated_by: string;
-  created_at: string;
-  accepted_at: string | null;
-}
 
 export interface DatabaseFavoriteGym {
   id: string;
@@ -321,7 +311,6 @@ export type DatabaseTables = {
   post_likes: DatabasePostLike;
   post_comments: DatabasePostComment;
   follows: DatabaseFollow;
-  gym_friends: DatabaseGymFriend;
   favorite_gyms: DatabaseFavoriteGym;
   achievements: DatabaseAchievement;
   user_statistics: DatabaseUserStatistics;

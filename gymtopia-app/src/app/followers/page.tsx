@@ -18,7 +18,7 @@ interface Follower {
   last_seen_at: string | null
   follow_date: string
   is_following_back: boolean
-  is_gym_friend: boolean
+  is_mutual_follow: boolean  // 相互フォロー
   posts_count: number
   mutual_friends_count: number
 }
@@ -136,7 +136,7 @@ export default function FollowersPage() {
       (user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
     
     if (selectedFilter === 'all') return matchesSearch
-    if (selectedFilter === 'gym-friends') return matchesSearch && user.is_gym_friend
+    if (selectedFilter === 'mutual') return matchesSearch && user.is_mutual_follow
     if (selectedFilter === 'not-following') return matchesSearch && !user.is_following_back
     if (selectedFilter === 'recent') {
       const lastActive = formatLastActive(user.last_seen_at)
@@ -207,14 +207,14 @@ export default function FollowersPage() {
                 すべて
               </button>
               <button
-                onClick={() => setSelectedFilter('gym-friends')}
+                onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'gym-friends' 
+                  selectedFilter === 'mutual' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                ジム友
+                相互
               </button>
               <button
                 onClick={() => setSelectedFilter('not-following')}
@@ -318,9 +318,9 @@ export default function FollowersPage() {
                           <h3 className="font-bold text-lg text-slate-900">
                             {user.display_name || user.username}
                           </h3>
-                          {user.is_gym_friend && (
+                          {user.is_mutual_follow && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                              ジム友
+                              相互
                             </span>
                           )}
                           {user.is_following_back && (

@@ -58,7 +58,7 @@ export interface Comment {
 export async function getFeedPosts(
   limit = 20,
   offset = 0,
-  filter: 'all' | 'following' | 'gym-friends' | 'same-gym' = 'all',
+  filter: 'all' | 'following' | 'mutual' | 'same-gym' = 'all',
   userId?: string
 ) {
   try {

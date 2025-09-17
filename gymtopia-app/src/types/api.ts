@@ -376,15 +376,6 @@ export interface FollowUserRequest {
   userId: string;
 }
 
-export interface SendGymFriendRequestRequest {
-  userId: string;
-  gymId: string;
-}
-
-export interface RespondToGymFriendRequestRequest {
-  requestId: string;
-  action: 'accept' | 'reject';
-}
 
 // ========================================
 // Statistics & Analytics API

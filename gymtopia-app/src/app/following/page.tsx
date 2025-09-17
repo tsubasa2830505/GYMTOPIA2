@@ -17,7 +17,7 @@ interface Following {
   is_active: boolean
   last_seen_at: string | null
   follow_date: string
-  is_gym_friend: boolean
+  is_mutual_follow: boolean  // 相互フォロー
   posts_count: number
   mutual_friends_count: number
 }
@@ -119,7 +119,7 @@ export default function FollowingPage() {
       (user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
     
     if (selectedFilter === 'all') return matchesSearch
-    if (selectedFilter === 'gym-friends') return matchesSearch && user.is_gym_friend
+    if (selectedFilter === 'mutual') return matchesSearch && user.is_mutual_follow
     if (selectedFilter === 'recent') {
       const lastActive = formatLastActive(user.last_seen_at)
       return matchesSearch && (lastActive.includes('分前') || lastActive.includes('時間前') || lastActive === 'オンライン')
@@ -127,7 +127,7 @@ export default function FollowingPage() {
     return matchesSearch
   })
 
-  const gymFriendsCount = following.filter(f => f.is_gym_friend).length
+  const mutualFollowsCount = following.filter(f => f.is_mutual_follow).length
   const activeToday = following.filter(f => {
     const lastActive = formatLastActive(f.last_seen_at)
     return lastActive === 'オンライン' || lastActive.includes('分前') || lastActive.includes('時間前')
@@ -192,14 +192,14 @@ export default function FollowingPage() {
                 すべて
               </button>
               <button
-                onClick={() => setSelectedFilter('gym-friends')}
+                onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFilter === 'gym-friends' 
+                  selectedFilter === 'mutual' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                ジム友
+                相互
               </button>
               <button
                 onClick={() => setSelectedFilter('recent')}
@@ -227,13 +227,13 @@ export default function FollowingPage() {
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">ジム友</span>
+              <span className="text-sm text-slate-700">相互</span>
               <MapPin className="w-5 h-5 text-green-600" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{gymFriendsCount}人</div>
+            <div className="text-2xl font-bold text-slate-900">{mutualFollowsCount}人</div>
             <div className="text-xs text-slate-600 mt-1">
               {followCounts.following > 0 ? 
-                `フォロー中の${Math.round(gymFriendsCount / followCounts.following * 100)}%` : 
+                `フォロー中の${Math.round(mutualFollowsCount / followCounts.following * 100)}%` : 
                 '0%'
               }
             </div>
@@ -293,9 +293,9 @@ export default function FollowingPage() {
                           <h3 className="font-bold text-lg text-slate-900">
                             {user.display_name || user.username}
                           </h3>
-                          {user.is_gym_friend && (
+                          {user.is_mutual_follow && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                              ジム友
+                              相互
                             </span>
                           )}
                         </div>

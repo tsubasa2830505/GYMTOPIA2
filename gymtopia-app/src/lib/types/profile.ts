@@ -36,7 +36,7 @@ export interface UserProfileStats {
   // Social stats
   followers_count: number
   following_count: number
-  gym_friends_count: number
+  mutual_follows_count: number  // 相互フォロー数
   
   // Content stats
   posts_count: number
@@ -57,23 +57,7 @@ export interface Follow {
   following?: UserProfile
 }
 
-export interface GymFriend {
-  id: string
-  user1_id: string
-  user2_id: string
-  gym_id: string
-  friendship_status: 'pending' | 'accepted' | 'blocked'
-  initiated_by: string
-  created_at: string
-  accepted_at?: string
-  user1?: UserProfile
-  user2?: UserProfile
-  gym?: {
-    id: string
-    name: string
-    area: string
-  }
-}
+// GymFriend interface removed - using mutual follows instead
 
 // ========================================
 // GYM POSTS
@@ -189,10 +173,7 @@ export interface FollowUserInput {
   following_id: string
 }
 
-export interface GymFriendRequestInput {
-  user2_id: string
-  gym_id: string
-}
+// GymFriendRequestInput removed - using follow system
 
 export interface AddFavoriteGymInput {
   gym_id: string
@@ -284,9 +265,9 @@ export interface DashboardApiResponse {
 // UTILITY TYPES
 // ========================================
 
-export type FriendshipStatus = 'pending' | 'accepted' | 'blocked'
+// FriendshipStatus removed - using follow system
 export type PostVisibility = 'public' | 'friends' | 'private'
-export type NotificationType = 'follow' | 'like' | 'comment' | 'friend_request' | 'achievement'
+export type NotificationType = 'follow' | 'like' | 'comment' | 'achievement'
 
 export interface Notification {
   id: string

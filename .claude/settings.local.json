@@ -125,7 +125,8 @@
       "Bash(awk:*)",
       "Bash(xargs kill:*)",
       "Bash(echo:*)",
-      "Bash(NODE_ENV=development PORT=3001 npm run dev)"
+      "Bash(NODE_ENV=development PORT=3001 npm run dev)",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/followers\" \"/following\")"
     ],
     "deny": [],
     "ask": []

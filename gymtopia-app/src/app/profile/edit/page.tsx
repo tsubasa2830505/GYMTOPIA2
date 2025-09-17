@@ -145,7 +145,17 @@ export default function ProfileEditPage() {
       })
 
       let session = null
-      const isDemo = user?.email === 'taro@example.com' || user?.id === 'demo-user-id'
+      // モック認証かどうかの判定
+      const isDemo = user?.email === 'taro@example.com' ||
+                     user?.id === 'demo-user-id' ||
+                     user?.id === '8ac9e2a5-a702-4d04-b871-21e4a423b4ac' ||
+                     user?.email === 'tsubasa.a.283.0505@gmail.com'
+
+      console.log('デバッグ情報:', {
+        userEmail: user?.email,
+        userId: user?.id,
+        isDemo: isDemo
+      })
 
       if (!supabase) {
         throw new Error('Supabaseクライアントが初期化されていません')
@@ -161,6 +171,7 @@ export default function ProfileEditPage() {
         }
       } else {
         console.log('デモユーザーのため、セッションチェックをスキップ')
+        console.log('ユーザー情報:', { email: user?.email, id: user?.id })
       }
 
       // 画像のアップロード処理

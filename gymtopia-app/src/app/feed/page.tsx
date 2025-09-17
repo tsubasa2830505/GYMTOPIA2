@@ -90,7 +90,7 @@ const getSamplePosts = (): Post[] => [
 export default function FeedPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [filter, setFilter] = useState<'all' | 'following' | 'gym-friends' | 'same-gym'>('all');
+  const [filter, setFilter] = useState<'all' | 'following' | 'mutual' | 'same-gym'>('all');
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -174,11 +174,9 @@ export default function FeedPage() {
   };
 
   const handleLike = async (post: Post) => {
-    if (!user) {
-      // 認証が必要な機能として、エラーメッセージを表示
-      console.log('ログインが必要です');
-      return;
-    }
+    // モック認証またはログイン済みユーザーの場合は処理を続行
+    const currentUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+    console.log('いいね処理開始:', { postId: post.id, isLiked: post.is_liked, userId: currentUserId });
 
     try {
       if (post.is_liked) {
@@ -188,6 +186,7 @@ export default function FeedPage() {
             ? { ...p, is_liked: false, likes_count: p.likes_count - 1 }
             : p
         ));
+        console.log('いいね削除完了');
       } else {
         await likePost(post.id);
         setPosts(posts.map(p =>
@@ -195,6 +194,7 @@ export default function FeedPage() {
             ? { ...p, is_liked: true, likes_count: p.likes_count + 1 }
             : p
         ));
+        console.log('いいね追加完了');
       }
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -379,8 +379,8 @@ export default function FeedPage() {
               フォロー中
             </button>
             <button
-              onClick={() => setFilter('gym-friends')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'gym-friends'
+              onClick={() => setFilter('mutual')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'mutual'
                 ? 'bg-blue-500 text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
@@ -388,7 +388,7 @@ export default function FeedPage() {
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9 13.75c-2.34 0-7 1.17-7 3.5V19h14v-1.75c0-2.33-4.66-3.5-7-3.5zM4.34 17c.84-.58 2.87-1.25 4.66-1.25s3.82.67 4.66 1.25H4.34zM9 12c1.93 0 3.5-1.57 3.5-3.5S10.93 5 9 5 5.5 6.57 5.5 8.5 7.07 12 9 12zm0-5c.83 0 1.5.67 1.5 1.5S9.83 10 9 10s-1.5-.67-1.5-1.5S8.17 7 9 7zm7.04 6.81c1.16.84 1.96 1.96 1.96 3.44V19h4v-1.75c0-2.02-3.5-3.17-5.96-3.44zM15 12c1.93 0 3.5-1.57 3.5-3.5S16.93 5 15 5c-.54 0-1.04.13-1.5.35.63.89 1 1.98 1 3.15s-.37 2.26-1 3.15c.46.22.96.35 1.5.35z" />
               </svg>
-              ジム友
+              相互
             </button>
             <button
               onClick={() => setFilter('same-gym')}

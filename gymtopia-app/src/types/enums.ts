@@ -150,7 +150,7 @@ export enum NotificationType {
   FOLLOW = 'follow',
   LIKE = 'like',
   COMMENT = 'comment',
-  FRIEND_REQUEST = 'friend_request',
+  // FRIEND_REQUEST removed - using follow system
   ACHIEVEMENT = 'achievement',
   PERSONAL_RECORD = 'personal_record',
   WORKOUT_REMINDER = 'workout_reminder',

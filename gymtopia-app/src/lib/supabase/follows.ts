@@ -13,10 +13,9 @@ export interface FollowUser {
   is_active: boolean
   last_seen_at: string | null
   posts_count?: number
-  gym_friends_count?: number
-  is_gym_friend?: boolean
+  is_mutual_follow?: boolean  // 相互フォロー状態
   is_following_back?: boolean
-  mutual_friends_count?: number
+  mutual_follows_count?: number  // 共通の相互フォロー数
 }
 
 export interface FollowRelation {
@@ -67,14 +66,8 @@ export async function getFollowers(userId: string) {
           .eq('following_id', follower.id)
           .single()
 
-        // Check if they are gym friends
-        const { data: gymFriend } = await supabase
-          .from('gym_friends')
-          .select('id')
-          .or(`and(user1_id.eq.${userId},user2_id.eq.${follower.id}),and(user2_id.eq.${userId},user1_id.eq.${follower.id})`)
-          .eq('friendship_status', 'accepted')
-          .limit(1)
-          .single()
+        // Check if it's a mutual follow (相互フォロー)
+        const isMutualFollow = !!followBack
 
         // Get posts count
         const { count: postsCount } = await supabase
@@ -101,9 +94,9 @@ export async function getFollowers(userId: string) {
           ...follower,
           follow_date: follow.created_at,
           is_following_back: !!followBack,
-          is_gym_friend: !!gymFriend,
+          is_mutual_follow: isMutualFollow,
           posts_count: postsCount || 0,
-          mutual_friends_count: mutualCount
+          mutual_follows_count: mutualCount
         }
       })
     )
@@ -154,15 +147,16 @@ export async function getFollowing(userId: string) {
     const followingWithStats = await Promise.all(
       (data || []).map(async (follow) => {
         const following = follow.following as any
-        
-        // Check if they are gym friends
-        const { data: gymFriend } = await supabase
-          .from('gym_friends')
+
+        // Check if they follow back (mutual follow)
+        const { data: followsBack } = await supabase
+          .from('follows')
           .select('id')
-          .or(`and(user1_id.eq.${actualUserId},user2_id.eq.${following.id}),and(user2_id.eq.${actualUserId},user1_id.eq.${following.id})`)
-          .eq('friendship_status', 'accepted')
-          .limit(1)
+          .eq('follower_id', following.id)
+          .eq('following_id', actualUserId)
           .single()
+
+        const isMutualFollow = !!followsBack
 
         // Get posts count
         const { count: postsCount } = await supabase
@@ -188,9 +182,9 @@ export async function getFollowing(userId: string) {
         return {
           ...following,
           follow_date: follow.created_at,
-          is_gym_friend: !!gymFriend,
+          is_mutual_follow: isMutualFollow,
           posts_count: postsCount || 0,
-          mutual_friends_count: mutualCount
+          mutual_follows_count: mutualCount
         }
       })
     )

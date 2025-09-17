@@ -205,7 +205,6 @@ export async function getNotificationPreferences(userId: string) {
       likes: true,
       comments: true,
       follows: true,
-      gym_friends: true,
       workout_reminders: true,
       achievements: true,
       gym_updates: true

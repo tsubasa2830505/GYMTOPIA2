@@ -33,7 +33,11 @@ async function main() {
   const repoRoot = path.resolve(__dirname, '..');
   const appDir = path.join(repoRoot, 'gymtopia-app');
 
-  const dev = spawn('npm', ['run', 'dev'], { cwd: appDir, stdio: 'pipe', env: { ...process.env, NEXT_PUBLIC_DATA_MODE: 'mock' } });
+  const dev = spawn('npm', ['run', 'dev'], {
+    cwd: appDir,
+    stdio: 'pipe',
+    env: { ...process.env, NEXT_PUBLIC_DATA_MODE: 'mock', PORT: '3000' }
+  });
   const logHandler = (buf) => {
     const t = buf.toString();
     if (/ready - started server|compiled successfully|Local:/i.test(t)) process.stdout.write(t);
