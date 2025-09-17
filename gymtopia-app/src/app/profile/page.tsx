@@ -137,7 +137,34 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // Performance optimization: Skip if already loading or already loaded
-    if (isLoadingData.current || hasLoadedData.current || !userId) {
+    if (isLoadingData.current || hasLoadedData.current) {
+      return;
+    }
+
+    // If no user, show default data
+    if (!userId) {
+      console.log('👤 認証なしユーザー: デフォルトデータを表示');
+      setProfileData({
+        user_id: 'default-user',
+        display_name: 'Tsubasa',
+        username: 'tsubasa_gym',
+        email: 'tsubasa.a.283.0505@gmail.com',
+        avatar_url: '/muscle-taro-avatar.svg',
+        bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
+        location: '東京',
+        joined_at: '2024-01-01T00:00:00Z',
+        is_verified: true,
+        workout_count: 142,
+        workout_streak: 7,
+        followers_count: 89,
+        following_count: 126,
+        mutual_follows_count: 24,
+        posts_count: 38,
+        achievements_count: 12,
+        favorite_gyms_count: 5
+      });
+      setIsLoading(false);
+      hasLoadedData.current = true;
       return;
     }
 
@@ -532,6 +559,14 @@ export default function ProfilePage() {
                 <p className="text-xs sm:text-base text-slate-700 font-medium">
                   {isLoading ? '...' : (profileData?.username ? `@${profileData.username}` : '@user')}
                 </p>
+                {profileData?.email && (
+                  <>
+                    <span className="text-slate-400 hidden sm:inline">•</span>
+                    <p className="text-xs sm:text-sm text-slate-600">
+                      {profileData.email}
+                    </p>
+                  </>
+                )}
                 <span className="text-slate-400 hidden sm:inline">•</span>
                 <div className="flex items-center gap-1">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
