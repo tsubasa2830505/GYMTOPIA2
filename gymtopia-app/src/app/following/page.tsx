@@ -132,30 +132,32 @@ export default function FollowingPage() {
   }).length
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen pb-10 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.18),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.2),transparent_60%)]" />
+
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(168,184,228,0.45)] hover:bg-white transition-colors"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <h1 className="text-xl font-bold text-blue-600">フォロー</h1>
-                <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-medium">
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold text-[color:var(--gt-primary-strong)]">フォロー</h1>
+                <span className="px-2 py-1 bg-[rgba(59,99,243,0.14)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-semibold border border-[rgba(59,99,243,0.24)]">
                   {followCounts.following}人
                 </span>
               </div>
               <button 
                 onClick={() => router.push('/followers')}
-                className="flex items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors"
+                className="flex items-center gap-2 text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)] transition-colors"
               >
-                <span className="text-lg font-bold">フォロワー</span>
-                <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-full font-medium">
+                <span className="text-lg font-semibold">フォロワー</span>
+                <span className="px-2 py-1 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full font-medium border border-[rgba(168,184,228,0.35)]">
                   {followCounts.followers}人
                 </span>
               </button>
@@ -164,9 +166,9 @@ export default function FollowingPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="relative max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+        <div className="gt-card p-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -181,30 +183,30 @@ export default function FollowingPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedFilter('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'all'
-                    ? 'bg-[#3b63f3] text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
               >
                 すべて
               </button>
               <button
                 onClick={() => setSelectedFilter('mutual')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'mutual'
-                    ? 'bg-[#3b63f3] text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
               >
                 相互
               </button>
               <button
                 onClick={() => setSelectedFilter('recent')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'recent'
-                    ? 'bg-[#3b63f3] text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
               >
                 最近アクティブ
@@ -214,35 +216,35 @@ export default function FollowingPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(59,99,243,0.12)] to-[rgba(132,210,255,0.22)] border border-[rgba(157,176,226,0.45)]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">総フォロー数</span>
-              <UserPlus className="w-5 h-5 text-blue-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">総フォロー数</span>
+              <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{followCounts.following}人</div>
-            <div className="text-xs text-slate-600 mt-1">アクティブユーザー</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{followCounts.following}人</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">アクティブユーザー</div>
           </div>
-          <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(74,160,217,0.12)] to-[rgba(74,160,217,0.22)] border border-[rgba(157,176,226,0.45)]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">相互</span>
-              <MapPin className="w-5 h-5 text-green-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">相互</span>
+              <MapPin className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{mutualFollowsCount}人</div>
-            <div className="text-xs text-slate-600 mt-1">
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{mutualFollowsCount}人</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">
               {followCounts.following > 0 ? 
                 `フォロー中の${Math.round(mutualFollowsCount / followCounts.following * 100)}%` : 
                 '0%'
               }
             </div>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(123,139,255,0.12)] to-[rgba(123,139,255,0.22)] border border-[rgba(157,176,226,0.45)]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">今日アクティブ</span>
-              <Calendar className="w-5 h-5 text-purple-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">今日アクティブ</span>
+              <Calendar className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{activeToday}人</div>
-            <div className="text-xs text-slate-600 mt-1">過去24時間以内</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{activeToday}人</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">過去24時間以内</div>
           </div>
         </div>
 

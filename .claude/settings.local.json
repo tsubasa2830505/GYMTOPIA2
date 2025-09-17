@@ -152,7 +152,9 @@
       "Bash(for page in \"/user/0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8\" \"/user/5da8ed48-e07f-47f8-9fa5-56b5c4a0b6f0\" \"/user/8bc6a4d3-9e9e-41c4-9b77-6d2e8c5a1f3e\")",
       "Bash(for url in \"https://gymtopia-app.vercel.app\" \"https://gymtopia.vercel.app\" \"https://gymtopia-cbjg4ewdz-gymtopia-b483a455.vercel.app\")",
       "Bash(for page in \"http://localhost:3001/user/0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8\" \"http://localhost:3001/user/5da8ed48-e07f-47f8-9fa5-56b5c4a0b6f0\")",
-      "Bash(for page in \"/user/0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8\" \"/user/5da8ed48-e07f-47f8-9fa5-56b5c4a0b6f0\")"
+      "Bash(for page in \"/user/0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8\" \"/user/5da8ed48-e07f-47f8-9fa5-56b5c4a0b6f0\")",
+      "Bash(for url in \"https://gymtopia-dvnkndwee-tsubasaa2830505-7621s-projects.vercel.app\" \"https://gym-topia.com\" \"https://gymtopia-app.vercel.app\" \"https://gymtopia.vercel.app\")",
+      "WebFetch(domain:gymtopia-app.vercel.app)"
     ],
     "deny": [],
     "ask": []

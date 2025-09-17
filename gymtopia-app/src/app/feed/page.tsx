@@ -99,6 +99,7 @@ export default function FeedPage() {
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const POSTS_PER_PAGE = 20;
 
@@ -112,9 +113,12 @@ export default function FeedPage() {
     setHasMore(true);
     try {
       console.log('FeedPage: Loading initial posts with filter:', filter);
-      // Require authentication for feed access
+      // If user is not authenticated, show sample data
       if (!user?.id) {
-        setError('ログインが必要です');
+        console.log('FeedPage: No user authentication, using sample data');
+        const samplePosts = getSamplePosts();
+        setPosts(samplePosts);
+        setHasMore(false);
         setIsLoading(false);
         return;
       }
@@ -333,7 +337,7 @@ export default function FeedPage() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+      <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[#3b63f3] to-[#4aa0d9] rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(26,44,94,0.5)]">
               <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z" />
               </svg>
@@ -453,7 +457,7 @@ export default function FeedPage() {
                     className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                       isLoadingMore
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                        : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white hover:from-[#2f54d3] hover:to-[#3a8ac3] shadow-[0_18px_34px_-20px_rgba(26,44,94,0.5)] hover:shadow-[0_22px_40px_-20px_rgba(26,44,94,0.55)]'
                     }`}
                   >
                     {isLoadingMore ? (
@@ -504,7 +508,7 @@ export default function FeedPage() {
           className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
           style={{
             zIndex: 9999,
-            background: 'linear-gradient(to right, #3b82f6, #9333ea)',
+            background: 'linear-gradient(135deg, #3b63f3, #4aa0d9)',
             backdropFilter: 'blur(10px)'
           }}
         >
