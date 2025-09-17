@@ -136,14 +136,15 @@ export async function getGyms(filters?: {
   city?: string
   search?: string
   facilities?: FacilityKey[]
-  machines?: string[] // machine IDs
-  freeWeights?: string[]
-  machineTypes?: string[]
+  // Accept flexible shapes from UI: either string[] of names/ids or { name, count }[]
+  machines?: Array<string | { name: string; count?: number }>
+  freeWeights?: Array<string | { name: string; count?: number }>
+  machineTypes?: Array<string | { name: string; count?: number }>
   makers?: string[]
   categories?: string[] // target_category values
 }) {
   try {
-    const baseSelect = '*'
+    const baseSelect = 'id, name, prefecture, city, address, latitude, longitude, images, facilities, rating, review_count, verified, description, equipment_types'
     // Include related counts for UI if needed
     let query = supabase
       .from('gyms')
@@ -171,19 +172,48 @@ export async function getGyms(filters?: {
 
     // Machine-based filters
     if (filters?.machines?.length) {
-      // マシンIDでフィルタリング
-      // gym_machinesテーブルと結合して、指定されたマシンを持つジムのみを取得
-      const { data: gymIds, error: gymError } = await supabase
-        .from('gym_machines')
-        .select('gym_id')
-        .in('machine_id', filters.machines)
-      
-      if (!gymError && gymIds && gymIds.length > 0) {
-        const uniqueGymIds = [...new Set(gymIds.map(g => g.gym_id))]
-        query = query.in('id', uniqueGymIds)
-      } else {
-        // マシンが見つからない場合は空の結果を返す
-        return []
+      // UIから name or {name,count} が来るケースに対応
+      const raw = (filters.machines as any[])
+        .map(m => (typeof m === 'string' ? m : m?.name))
+        .filter((v: any) => typeof v === 'string' && v.trim().length > 0) as string[]
+      if (raw.length > 0) {
+        // 機材ID/名前の両方にマッチさせ、ジムIDをユニオン
+        const gymIdSet = new Set<string>()
+        const addIds = (rows?: any[] | null) => {
+          if (rows) rows.forEach(r => r?.gym_id && gymIdSet.add(r.gym_id))
+        }
+        const [byId, byName] = await Promise.all([
+          supabase.from('gym_machines').select('gym_id').in('machine_id', raw).catch(() => ({ data: null } as any)),
+          supabase.from('gym_machines').select('gym_id').in('name', raw).catch(() => ({ data: null } as any)),
+        ])
+        addIds((byId as any).data)
+        addIds((byName as any).data)
+        const uniqueGymIds = [...gymIdSet]
+        if (uniqueGymIds.length > 0) {
+          query = query.in('id', uniqueGymIds)
+        } else {
+          return []
+        }
+      }
+    }
+
+    // Free weight-based filters (accept either freeWeights or machineTypes for backward-compat)
+    const fwList = (filters?.freeWeights || filters?.machineTypes) as any[] | undefined
+    if (fwList && fwList.length) {
+      const fwNames = fwList
+        .map((w: any) => (typeof w === 'string' ? w : w?.name))
+        .filter((v: any) => typeof v === 'string' && v.trim().length > 0)
+      if (fwNames.length > 0) {
+        const { data: fwGymIds, error: fwErr } = await supabase
+          .from('gym_free_weights')
+          .select('gym_id')
+          .in('name', fwNames)
+        if (!fwErr && fwGymIds && fwGymIds.length > 0) {
+          const uniqueGymIds = [...new Set(fwGymIds.map(g => g.gym_id))]
+          query = query.in('id', uniqueGymIds)
+        } else {
+          return []
+        }
       }
     }
 
@@ -302,16 +332,32 @@ export async function getGyms(filters?: {
 // ジム詳細を取得
 export async function getGymById(id: string) {
   try {
+    // UUID形式のチェック
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) {
+      console.warn('Invalid UUID format for gym id:', id)
+      return null
+    }
+
     const { data, error } = await supabase
       .from('gyms')
       .select('*')
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
-    if (error) throw error
+    if (error) {
+      console.error('Error fetching gym:', error.message || error)
+      return null
+    }
+
+    if (!data) {
+      console.error('Gym not found with id:', id)
+      return null
+    }
+
     return data as Gym
   } catch (error) {
-    console.error('Error fetching gym:', error)
+    console.error('Error fetching gym:', error instanceof Error ? error.message : error)
     return null
   }
 }

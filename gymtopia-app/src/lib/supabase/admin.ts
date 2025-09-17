@@ -119,7 +119,9 @@ export async function addGymMachine(gymId: string, machineId: string, details?: 
       .from('gym_machines')
       .insert({
         gym_id: gymId,
-        name: machineId,
+        machine_id: machineId,
+        // 互換: name列がある環境ではnameも保存（安全）
+        name: (details && details.name) ? details.name : undefined,
         ...details
       } as any)
       .select()
@@ -142,13 +144,21 @@ export async function removeGymMachine(gymId: string, machineId: string) {
     const isOwner = await isGymOwner(gymId)
     if (!isOwner) throw new Error('Permission denied')
 
-    const { error } = await supabase
+    // Try delete by machine_id first (normalized path), then fallback to row id
+    let { error } = await supabase
       .from('gym_machines')
       .delete()
       .eq('gym_id', gymId)
-      .eq('id', machineId)
+      .eq('machine_id', machineId)
 
-    if (error) throw error
+    if (error) {
+      const { error: fallbackErr } = await supabase
+        .from('gym_machines')
+        .delete()
+        .eq('gym_id', gymId)
+        .eq('id', machineId)
+      if (fallbackErr) throw fallbackErr
+    }
     return true
   } catch (error) {
     console.error('Error removing machine:', error)

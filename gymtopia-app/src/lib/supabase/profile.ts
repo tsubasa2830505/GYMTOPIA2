@@ -31,9 +31,9 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       .from('users')
       .select('id, display_name, username, avatar_url, bio, created_at, updated_at, is_verified')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
-    if (error) {
+    if (error || !data) {
       console.error('Error fetching user profile:', error)
       return null
     }
@@ -61,29 +61,13 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 
 export async function getUserProfileStats(userId: string): Promise<UserProfileStats | null> {
   try {
-    console.log('🔍 Testing Supabase connection...');
-    // Simple connection test first
-    const { data: testData, error: testError } = await getSupabaseClient()
-      .from('users')
-      .select('id')
-      .limit(1);
-
-    console.log('🔍 Connection test result:', { testData, testError });
-
-    if (testError) {
-      console.error('❌ Supabase connection failed:', testError);
-      return null;
-    }
-
-    console.log('✅ Supabase connection successful');
-
-    // Get user data without problematic join first
+    // Fetch user
     console.log('🔍 Fetching user data for:', userId);
     const { data: userData, error: userError } = await getSupabaseClient()
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     if (userError || !userData) {
       if (userError?.code === 'PGRST205') {
@@ -102,7 +86,7 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
 
     // Get stats from various tables
     const supabase = getSupabaseClient()
-    const [postsCount, followersCount, followingCount, workoutsCount, favoriteGymsCount, gymFriendsCount, achievementsCount] = await Promise.all([
+    const [postsCount, followersCount, followingCount, workoutsCount, favoriteGymsCount, gymFriendsCount, achievementsCount, userProfileData] = await Promise.all([
       supabase.from('gym_posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
@@ -110,20 +94,12 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       supabase.from('favorite_gyms').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       // Calculate mutual follows instead of gym_friends
       supabase.rpc('get_mutual_follow_count', { user_id: userId }),
-      supabase.from('achievements').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+      supabase.from('achievements').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('user_profiles').select('primary_gym_id, secondary_gym_ids, gym_membership_type, location').eq('user_id', userId).maybeSingle()
     ])
 
-    console.log('=== PROFILE STATS DEBUG ===')
-    console.log('User ID:', userId)
-    console.log('Posts count:', postsCount.count)
-    console.log('Followers count:', followersCount.count)
-    console.log('Following count:', followingCount.count)
-    console.log('Workouts count:', workoutsCount.count)
-    console.log('Favorite gyms count:', favoriteGymsCount.count)
-    console.log('Mutual follows count:', gymFriendsCount || 0)
-    console.log('Achievements count:', achievementsCount.count)
-    console.log('===========================')
-    
+    // Trim verbose logs
+
     // Build stats object (align with types/profile.ts)
     const stats: UserProfileStats = {
       user_id: userData.id,
@@ -131,21 +107,24 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       username: userData.username || undefined,
       avatar_url: userData.avatar_url || undefined,
       bio: userData.bio || '',
-      location: undefined, // Remove user_profiles dependency for now
+      location: userProfileData.data?.location || undefined,
       joined_at: userData.created_at,
       is_verified: !!userData.is_verified,
       workout_count: workoutsCount.count || 0,
       workout_streak: 0,
       followers_count: followersCount.count || 0,
       following_count: followingCount.count || 0,
-      mutual_follows_count: gymFriendsCount || 0,  // Changed from gym_friends_count
+      mutual_follows_count: gymFriendsCount.data || 0,  // Changed from gym_friends_count
       posts_count: postsCount.count || 0,
       achievements_count: achievementsCount.count || 0,
-      favorite_gyms_count: favoriteGymsCount.count || 0
+      favorite_gyms_count: favoriteGymsCount.count || 0,
+      primary_gym_id: userProfileData.data?.primary_gym_id || undefined,
+      secondary_gym_ids: userProfileData.data?.secondary_gym_ids || [],
+      gym_membership_type: userProfileData.data?.gym_membership_type || undefined
     }
 
     // Return stats object
-    console.log('✅ Profile stats generated successfully with favorite_gyms_count:', stats.favorite_gyms_count);
+    console.log('✅ Profile stats generated');
 
     return stats
   } catch (error) {

@@ -1,9 +1,27 @@
 'use client'
 
-import { MapPin, Star, Search } from 'lucide-react'
+import { MapPin, Star, Search, Navigation } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Gym, getGyms } from '@/lib/supabase/gyms'
 import dynamic from 'next/dynamic'
+
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // Radius of Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 // GymDetailModalを動的インポート
 const GymDetailModal = dynamic(() => import('@/components/GymDetailModal'), {
@@ -15,9 +33,11 @@ export default function SearchPage() {
   const [gyms, setGyms] = useState<Gym[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedPrefecture, setSelectedPrefecture] = useState('')
-  const [searchMode, setSearchMode] = useState<'all' | 'search'>('all')
+  const [searchMode, setSearchMode] = useState<'all' | 'search' | 'nearby'>('all')
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
 
   const loadGyms = useCallback(async () => {
     try {
@@ -26,7 +46,27 @@ export default function SearchPage() {
       if (selectedPrefecture) filters.prefecture = selectedPrefecture
       if (searchQuery.trim() && searchMode === 'search') filters.search = searchQuery.trim()
 
-      const data = await getGyms(filters)
+      let data = await getGyms(filters)
+
+      // Sort by distance if nearby mode and location available
+      if (searchMode === 'nearby' && userLocation) {
+        data = data
+          .map(gym => {
+            if (gym.latitude && gym.longitude) {
+              const distance = calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                gym.latitude,
+                gym.longitude
+              )
+              return { ...gym, distance }
+            }
+            return { ...gym, distance: Infinity }
+          })
+          .sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity))
+          .slice(0, 20) // Show top 20 nearest gyms
+      }
+
       setGyms(data)
     } catch (error) {
       console.error('Failed to load gyms:', error)
@@ -34,7 +74,7 @@ export default function SearchPage() {
     } finally {
       setLoading(false)
     }
-  }, [selectedPrefecture, searchQuery, searchMode])
+  }, [selectedPrefecture, searchQuery, searchMode, userLocation])
 
   useEffect(() => {
     loadGyms()
@@ -49,6 +89,28 @@ export default function SearchPage() {
     setSearchQuery('')
     setSearchMode('all')
     loadGyms()
+  }
+
+  const handleFindNearby = () => {
+    if (navigator.geolocation) {
+      setLocationError(null)
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+          setSearchMode('nearby')
+          setSelectedPrefecture('')
+        },
+        (error) => {
+          console.error('Location error:', error)
+          setLocationError('位置情報を取得できませんでした。設定から位置情報の許可を確認してください。')
+        }
+      )
+    } else {
+      setLocationError('お使いのブラウザでは位置情報を利用できません。')
+    }
   }
 
   const prefectures = [
@@ -194,6 +256,11 @@ export default function SearchPage() {
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
                       <MapPin className="w-4 h-4" />
                       <span>{gym.address}</span>
+                      {searchMode === 'nearby' && (gym as any).distance !== undefined && (gym as any).distance !== Infinity && (
+                        <span className="ml-auto text-sm font-medium text-blue-600">
+                          {(gym as any).distance < 1 ? `${Math.round((gym as any).distance * 1000)}m` : `${(gym as any).distance.toFixed(1)}km`}
+                        </span>
+                      )}
                     </div>
                   )}
                   

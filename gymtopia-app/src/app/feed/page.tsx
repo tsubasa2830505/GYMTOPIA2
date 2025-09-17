@@ -346,7 +346,7 @@ export default function FeedPage() {
         {/* Feed Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
+            <h2 className="text-lg font-medium text-gray-700">ジム活フィード (テスト)</h2>
             <span className="text-sm text-gray-500">
               {posts.length}件の投稿
             </span>

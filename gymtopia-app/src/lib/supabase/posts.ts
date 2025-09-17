@@ -62,83 +62,126 @@ export async function getFeedPosts(
   userId?: string
 ) {
   try {
-    console.log('getFeedPosts: Starting to fetch posts')
-
-    // まず基本的な接続をテスト
-    const { data: testData, error: testError } = await getSupabaseClient()
-      .from('gym_posts')
-      .select('id')
-      .limit(1)
-
-    console.log('getFeedPosts: Basic connection test:', { testData, testError })
-
-    if (testError) {
-      console.error('getFeedPosts: Basic connection failed:', testError)
-      // エラーの詳細をコンソールに出力
-      console.error('getFeedPosts: Error details:', {
-        message: testError.message,
-        details: testError.details,
-        hint: testError.hint,
-        code: testError.code
-      })
-      // エラーが発生した場合も実際のクエリを試行する
-    }
+    console.log('getFeedPosts: Fetching posts with filter:', filter, 'userId:', userId);
 
     const { data: { user } } = await getSupabaseClient().auth.getUser()
-    console.log('getFeedPosts: User auth status:', user ? 'authenticated' : 'not authenticated')
-
     // Use provided userId or authenticated user
     const actualUserId = userId || user?.id
 
+    if (!actualUserId && filter !== 'all') {
+      console.log('getFeedPosts: No user ID available for filtered feed, returning all posts');
+      filter = 'all'; // フィルターには認証が必要
+    }
+
     let query = getSupabaseClient()
-      .from('gym_posts')
+      .from('gym_posts_with_counts')
       .select(`
         *,
-        user:users!gym_posts_user_id_fkey (
+        user:users!user_id (
           id,
           display_name,
           username,
           avatar_url
         ),
-        gym:gyms!gym_posts_gym_id_fkey (
+        gym:gyms!gym_id (
           id,
           name
         )
       `)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
 
-    console.log('getFeedPosts: Executing main query')
+    // フィルター処理
+    if (actualUserId) {
+      if (filter === 'following') {
+        // フォロー中のユーザーの投稿のみを取得
+        const { data: followingData } = await getSupabaseClient()
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', actualUserId);
+
+        if (followingData && followingData.length > 0) {
+          const followingIds = followingData.map(f => f.following_id);
+          query = query.in('user_id', followingIds);
+          console.log('getFeedPosts: Filtering by following users:', followingIds.length);
+        } else {
+          console.log('getFeedPosts: User not following anyone, returning empty');
+          return [];
+        }
+      } else if (filter === 'mutual') {
+        // 相互フォローのユーザーの投稿のみを取得
+        const { data: followingData } = await getSupabaseClient()
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', actualUserId);
+
+        const { data: followersData } = await getSupabaseClient()
+          .from('follows')
+          .select('follower_id')
+          .eq('following_id', actualUserId);
+
+        if (followingData && followersData) {
+          const followingIds = new Set(followingData.map(f => f.following_id));
+          const followerIds = new Set(followersData.map(f => f.follower_id));
+          const mutualIds = Array.from(followingIds).filter(id => followerIds.has(id));
+
+          if (mutualIds.length > 0) {
+            query = query.in('user_id', mutualIds);
+            console.log('getFeedPosts: Filtering by mutual follows:', mutualIds.length);
+          } else {
+            console.log('getFeedPosts: No mutual follows found, returning empty');
+            return [];
+          }
+        } else {
+          return [];
+        }
+      } else if (filter === 'same-gym') {
+        // 同じジムの投稿のみを取得
+        // まずユーザーの最近のジムを取得
+        const { data: userGyms } = await getSupabaseClient()
+          .from('gym_posts')
+          .select('gym_id')
+          .eq('user_id', actualUserId)
+          .not('gym_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (userGyms && userGyms.length > 0) {
+          const gymIds = [...new Set(userGyms.map(g => g.gym_id))];
+          query = query.in('gym_id', gymIds);
+          console.log('getFeedPosts: Filtering by same gyms:', gymIds);
+        } else {
+          console.log('getFeedPosts: User has no gym posts, returning all');
+          // ジムの投稿がない場合はすべて表示
+        }
+      }
+    }
+
+    // ソートとページネーション
+    query = query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
     const { data, error } = await query
 
     if (error) {
-      console.error('getFeedPosts: Main query error:', error)
-      console.error('getFeedPosts: Main query error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      })
-      // エラーが発生しても空の配列を返すのではなく、エラーを投げる
+      console.error('getFeedPosts: Query error:', error)
       throw error
     }
 
-    console.log('getFeedPosts: Query successful, data length:', data?.length || 0)
 
     // gym_posts テーブルに合わせたマッピング（実際のユーザー情報を使用）
     const posts = (data || []).map(post => ({
       id: post.id,
       user_id: post.user_id,
       content: post.content,
-      images: post.image_urls || post.images || [],
+      images: post.images || post.image_urls || [],
       gym_id: post.gym_id,
       workout_type: post.workout_type,
       muscle_groups_trained: post.muscle_groups_trained,
       duration_minutes: post.duration_minutes,
       crowd_status: post.crowd_status,
       visibility: post.visibility,
-      likes_count: post.likes_count || post.like_count || 0,
-      comments_count: post.comments_count || post.comment_count || 0,
+      likes_count: post.likes_count_live || post.likes_count || post.like_count || 0,
+      comments_count: post.comments_count_live || post.comments_count || post.comment_count || 0,
       created_at: post.created_at,
       training_details: post.training_details, // トレーニング詳細を追加
       is_liked: false,
@@ -156,7 +199,6 @@ export async function getFeedPosts(
       gym: post.gym ? { name: post.gym.name } : undefined
     })) as Post[]
 
-    console.log('getFeedPosts: Successfully returning', posts.length, 'posts from database')
     return posts
   } catch (error) {
     console.error('Error fetching feed posts:', error)
@@ -342,7 +384,6 @@ export async function updatePost(postId: string, updates: {
 
     // サンプルデータの場合はモック更新を返す
     if (postId.startsWith('sample-')) {
-      console.log('Mock update for sample post:', postId, updates)
       return { id: postId, ...updates }
     }
 
@@ -363,18 +404,16 @@ export async function updatePost(postId: string, updates: {
       updateData.workout_duration_calculated = duration > 0 ? duration : 0
     }
 
-    console.log('Updating post in database:', postId, updateData)
 
     const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .update(updateData)
       .eq('id', postId)
       .select()
-      .single()
+      .maybeSingle()
 
-    if (error) throw error
+    if (error || !data) throw error || new Error('Post not found')
 
-    console.log('Post updated successfully:', data)
     return data
   } catch (error) {
     console.error('Error updating post:', error)

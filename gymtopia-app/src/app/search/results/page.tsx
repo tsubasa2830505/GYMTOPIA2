@@ -8,15 +8,17 @@ import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
+import { UberStyleMapView } from '@/components/UberStyleMapView'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
 import { getSupabaseClient } from '@/lib/supabase/client'
+import type { DatabaseGym } from '@/types/database'
 
 function SearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   // const [sortBy, setSortBy] = useState('popular')
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   const [gyms, setGyms] = useState<any[]>([])
@@ -24,6 +26,8 @@ function SearchResultsContent() {
   const [error, setError] = useState<string | null>(null)
   const [machineNames, setMachineNames] = useState<Record<string, string>>({})
   const [processingLikes, setProcessingLikes] = useState<Set<string>>(new Set())
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [selectedGymForMap, setSelectedGymForMap] = useState<DatabaseGym | null>(null)
 
   const MOCK_USER_ID = 'user-demo-001'
 
@@ -44,6 +48,7 @@ function SearchResultsContent() {
 
       if (isLiked) {
         // イキタイを解除
+        const supabase = getSupabaseClient();
         const { error } = await supabase
           .from('favorite_gyms')
           .delete()
@@ -65,6 +70,7 @@ function SearchResultsContent() {
         }
       } else {
         // イキタイを追加
+        const supabase = getSupabaseClient();
         const { error } = await supabase
           .from('favorite_gyms')
           .insert({
@@ -207,9 +213,18 @@ function SearchResultsContent() {
           price: '¥10,000～', // Placeholder
           isLiked: false,
           address: gym.address || '',
-          images: gym.images || [] // 全画像を保持
+          images: gym.images || [], // 全画像を保持
+          // DatabaseGym format for map (convert string to number)
+          latitude: gym.latitude ? parseFloat(gym.latitude) : null,
+          longitude: gym.longitude ? parseFloat(gym.longitude) : null,
+          description: gym.description,
+          prefecture: gym.prefecture,
+          city: gym.city,
+          facilities: gym.facilities,
+          rating: gym.rating,
+          review_count: gym.review_count
         }))
-        
+
         setGyms(transformedData)
       }
     } catch (err) {
@@ -257,6 +272,28 @@ function SearchResultsContent() {
     }
   }, [searchParams])
 
+  // Get user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Location error:', error);
+          // Default to Tokyo if location unavailable
+          setUserLocation({ lat: 35.6762, lng: 139.6503 });
+        }
+      );
+    } else {
+      // Default to Tokyo
+      setUserLocation({ lat: 35.6762, lng: 139.6503 });
+    }
+  }, []);
+
   useEffect(() => {
     // Parse machines with count (format: "name:count")
     const machinesParam = searchParams.get('machines')?.split(',').filter(Boolean) || []
@@ -276,15 +313,18 @@ function SearchResultsContent() {
     const newConditions = { machines, freeWeights, facilities }
     setSelectedConditions(newConditions)
 
-    // マシンIDから名前を取得
+    // URLのmachinesは名前を想定（ID対応が必要になった場合のみ取得）
     if (machines.length > 0) {
-      getMachines().then(allMachines => {
-        const nameMap: Record<string, string> = {}
-        allMachines.forEach((machine: any) => {
-          nameMap[machine.id] = machine.name
+      const hasNonName = machines.some(m => /:/.test(m.name || m))
+      if (hasNonName) {
+        getMachines().then(allMachines => {
+          const nameMap: Record<string, string> = {}
+          allMachines.forEach((machine: any) => {
+            nameMap[machine.id] = machine.name
+          })
+          setMachineNames(nameMap)
         })
-        setMachineNames(nameMap)
-      })
+      }
     }
 
     fetchGyms(newConditions)
@@ -292,6 +332,14 @@ function SearchResultsContent() {
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
+  }
+
+  const handleMarkerClick = (gym: DatabaseGym) => {
+    setSelectedGymForMap(gym);
+    // Switch to list view to show selected gym
+    if (viewMode === 'map') {
+      setViewMode('list');
+    }
   }
 
   if (loading) {
@@ -358,7 +406,7 @@ function SearchResultsContent() {
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-              {error}
+              {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}
 
@@ -493,113 +541,119 @@ function SearchResultsContent() {
           </div>
         </div>
 
-        {/* Map and Gym Cards */}
-        <div className="relative">
-          {/* Map Container */}
-          {viewMode === 'map' && (
-            <div className="h-[400px] sm:h-[600px] mb-4 sm:mb-6 bg-slate-100 rounded-xl flex items-center justify-center">
-              <div className="text-center text-slate-600">
-                <p className="text-lg font-semibold mb-2">マップ機能は開発中です</p>
-                <p className="text-sm">現在はリスト表示をご利用ください</p>
-              </div>
-            </div>
-          )}
+      </div>
 
-          {/* List View */}
-          {viewMode === 'list' && (
-            <div className="space-y-4">
-              {gyms.length === 0 ? (
-                <div className="bg-white rounded-xl p-8 text-center">
-                  <p className="text-slate-600">検索条件に一致するジムが見つかりませんでした</p>
-                </div>
-              ) : (
-                gyms.map((gym) => (
-                  <div key={gym.id} className="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 border border-slate-100">
-                    <div className="flex gap-3 sm:gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-slate-100">
-                        <img
-                          src={gym.image}
-                          alt={gym.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop'
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-base sm:text-lg font-bold text-slate-900">{gym.name}</h3>
-                            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-slate-600 mt-1">
-                              <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                              <span>{gym.location} • {gym.distance}</span>
-                            </div>
-                            {gym.address && (
-                              <p className="text-xs text-slate-500 mt-1">{gym.address}</p>
-                            )}
-                            <div className="flex items-center gap-2 sm:gap-3 mt-2">
-                              <div className="flex items-center gap-0.5 sm:gap-1">
-                                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
-                                <span className="text-xs sm:text-sm font-medium">{gym.likes}</span>
-                              </div>
-                              <span className="text-base sm:text-lg font-bold text-blue-600">{gym.price}</span>
-                            </div>
+      {/* Map and List Views */}
+      {viewMode === 'map' ? (
+        // Uber-style Map with Bottom Sheet
+        <div className="fixed inset-0 top-[60px] z-30">
+          <UberStyleMapView
+            gyms={gyms.filter(gym => gym.latitude && gym.longitude) as DatabaseGym[]}
+            userLocation={userLocation}
+            onGymSelect={(gym) => {
+              setSelectedGymId(gym.id);
+            }}
+          />
+        </div>
+      ) : (
+        // List View Container
+        <div className="container mx-auto px-4 py-4">
+          <div className="space-y-4">
+            {gyms.length === 0 ? (
+              <div className="bg-white rounded-xl p-8 text-center">
+                <p className="text-slate-600">検索条件に一致するジムが見つかりませんでした</p>
+              </div>
+            ) : (
+              gyms.map((gym) => (
+                <div key={gym.id} className={`bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 border transition-colors ${
+                  selectedGymForMap?.id === gym.id
+                    ? 'border-blue-500 ring-2 ring-blue-200'
+                    : 'border-slate-100'
+                }`}>
+                  <div className="flex gap-3 sm:gap-4">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-slate-100">
+                      <img
+                        src={gym.image}
+                        alt={gym.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop'
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-base sm:text-lg font-bold text-slate-900">{gym.name}</h3>
+                          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-slate-600 mt-1">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>{gym.location} • {gym.distance}</span>
                           </div>
-                          <div className="hidden sm:flex flex-col gap-2">
-                            <button
-                              onClick={() => toggleLike(gym.id)}
-                              disabled={processingLikes.has(gym.id)}
-                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
-                              gym.isLiked
-                                ? 'bg-white border border-slate-200 text-slate-900'
-                                : 'bg-white border border-slate-200 text-slate-900 hover:bg-slate-50'
-                            } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                              <Heart className={`w-3 h-3 sm:w-4 sm:h-4 inline mr-0.5 sm:mr-1 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                              {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
-                            </button>
-                            <button 
-                              onClick={() => setSelectedGymId(gym.id)}
-                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-600 transition-colors">
-                              詳細を見る
-                            </button>
+                          {gym.address && (
+                            <p className="text-xs text-slate-500 mt-1">{gym.address}</p>
+                          )}
+                          <div className="flex items-center gap-2 sm:gap-3 mt-2">
+                            <div className="flex items-center gap-0.5 sm:gap-1">
+                              <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
+                              <span className="text-xs sm:text-sm font-medium">{gym.likes}</span>
+                            </div>
+                            <span className="text-base sm:text-lg font-bold text-blue-600">{gym.price}</span>
                           </div>
                         </div>
-                        {gym.tags.length > 0 && (
-                          <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3">
-                            {gym.tags.map((tag: string, index: number) => (
-                              <span key={index} className="px-2 sm:px-3 py-0.5 sm:py-1 bg-violet-100 text-indigo-900 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex gap-2 mt-3 sm:hidden">
+                        <div className="hidden sm:flex flex-col gap-2">
                           <button
                             onClick={() => toggleLike(gym.id)}
                             disabled={processingLikes.has(gym.id)}
-                            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
                             gym.isLiked
                               ? 'bg-white border border-slate-200 text-slate-900'
-                              : 'bg-white border border-slate-200 text-slate-900'
+                              : 'bg-white border border-slate-200 text-slate-900 hover:bg-slate-50'
                           } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            <Heart className={`w-3 h-3 inline mr-0.5 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                            <Heart className={`w-3 h-3 sm:w-4 sm:h-4 inline mr-0.5 sm:mr-1 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
                             {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
                           </button>
-                          <button 
+                          <button
                             onClick={() => setSelectedGymId(gym.id)}
-                            className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium">
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-600 transition-colors">
                             詳細を見る
                           </button>
                         </div>
                       </div>
+                      {gym.tags.length > 0 && (
+                        <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3">
+                          {gym.tags.map((tag: string, index: number) => (
+                            <span key={index} className="px-2 sm:px-3 py-0.5 sm:py-1 bg-violet-100 text-indigo-900 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex gap-2 mt-3 sm:hidden">
+                        <button
+                          onClick={() => toggleLike(gym.id)}
+                          disabled={processingLikes.has(gym.id)}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          gym.isLiked
+                            ? 'bg-white border border-slate-200 text-slate-900'
+                            : 'bg-white border border-slate-200 text-slate-900'
+                        } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                          <Heart className={`w-3 h-3 inline mr-0.5 ${gym.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                          {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
+                        </button>
+                        <button
+                          onClick={() => setSelectedGymId(gym.id)}
+                          className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium">
+                          詳細を見る
+                        </button>
+                      </div>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Gym Detail Modal */}
       <GymDetailModal 

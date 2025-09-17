@@ -465,10 +465,14 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   <Clock className="w-5 h-5 text-slate-600" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900">
-                      {gymData.businessHours[0].open}–{gymData.businessHours[0].close}
+                      {gymData.businessHours && gymData.businessHours.length > 0
+                        ? `${gymData.businessHours[0].open}–${gymData.businessHours[0].close}`
+                        : '営業時間情報なし'}
                     </p>
                     <p className={`text-xs font-medium ${gymData.isOpenNow ? 'text-green-600' : 'text-red-600'}`}>
-                      {gymData.isOpenNow ? '営業中' : '営業時間外'}
+                      {gymData.businessHours && gymData.businessHours.length > 0
+                        ? (gymData.isOpenNow ? '営業中' : '営業時間外')
+                        : ''}
                     </p>
                   </div>
                 </div>

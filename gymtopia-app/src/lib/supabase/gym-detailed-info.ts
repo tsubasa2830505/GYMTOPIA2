@@ -39,7 +39,7 @@ export async function getGymDetailedInfo(gymId: string): Promise<GymDetailedInfo
       .single()
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error fetching gym detailed info:', error)
+      console.error('Error fetching gym detailed info:', error.message || error)
       return null
     }
 

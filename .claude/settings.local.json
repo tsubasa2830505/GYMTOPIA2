@@ -126,7 +126,19 @@
       "Bash(xargs kill:*)",
       "Bash(echo:*)",
       "Bash(NODE_ENV=development PORT=3001 npm run dev)",
-      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/followers\" \"/following\")"
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/followers\" \"/following\")",
+      "Bash(git log:*)",
+      "Bash(xargs:*)",
+      "Bash(for page in \"/map\" \"/search\" \"/gyms/1\")",
+      "Bash(for page in \"/\" \"/search/results\" \"/map\" \"/feed\" \"/profile\")",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search/results\" \"/map\")",
+      "Bash(do)",
+      "Bash(/usr/bin/git status)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(/usr/bin/git remote -v)",
+      "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel --prod --yes)",
+      "Bash(sudo xcodebuild:*)",
+      "Bash(/usr/bin/git add -A)"
     ],
     "deny": [],
     "ask": []

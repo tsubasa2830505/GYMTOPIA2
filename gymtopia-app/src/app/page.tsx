@@ -162,7 +162,10 @@ export default function Home() {
                           const params = new URLSearchParams()
                           
                           if (selectedMachines.size > 0) {
-                            params.set('machines', Array.from(selectedMachines).join(','))
+                            const machinesParam = Array.from(selectedMachines.entries())
+                              .map(([id, cnt]) => `${id}:${cnt}`)
+                              .join(',')
+                            params.set('machines', machinesParam)
                           }
                           if (selectedFreeWeights.size > 0) {
                             // 伝搬はIDのみ（Mapの値=個数はURLに載せない）
@@ -254,7 +257,10 @@ export default function Home() {
                     const params = new URLSearchParams()
                     
                     if (selectedMachines.size > 0) {
-                      params.set('machines', Array.from(selectedMachines).join(','))
+                      const machinesParam = Array.from(selectedMachines.entries())
+                        .map(([id, cnt]) => `${id}:${cnt}`)
+                        .join(',')
+                      params.set('machines', machinesParam)
                     }
                     if (selectedFreeWeights.size > 0) {
                       // 伝搬はIDのみ（Mapの値=個数はURLに載せない）

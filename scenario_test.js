@@ -99,7 +99,14 @@ async function scenarioTest() {
   try {
     console.log('\n🧩 Scenario 3: Search page keyword → refresh list');
     await page.goto('http://localhost:3000/search', { waitUntil: 'networkidle0', timeout: 15000 });
-    const input = await page.$('input[placeholder*="ジム名"], input[type="text"]');
+    // wait and detect a likely search input robustly
+    await new Promise(r => setTimeout(r, 300));
+    let input = await page.$('input[placeholder*="ジム名" i], input[type="search"], input[type="text"]');
+    if (!input) {
+      await page.waitForSelector('input', { timeout: 3000 }).catch(() => {});
+      const inputs = await page.$$('input');
+      input = inputs[0] || null;
+    }
     if (!input) throw new Error('Search input not found');
     await input.click();
     await input.type('新宿');

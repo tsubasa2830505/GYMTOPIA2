@@ -68,20 +68,21 @@ export async function searchGyms(
       if (filters.city) {
         queryBuilder = queryBuilder.eq('city', filters.city)
       }
-      if (filters.has24h !== undefined) {
-        queryBuilder = queryBuilder.eq('has_24h', filters.has24h)
+      // Facilities JSONB flags: when true, require contains
+      if (filters.has24h === true) {
+        queryBuilder = queryBuilder.contains('facilities', { '24hours': true } as any)
       }
-      if (filters.hasParking !== undefined) {
-        queryBuilder = queryBuilder.eq('has_parking', filters.hasParking)
+      if (filters.hasParking === true) {
+        queryBuilder = queryBuilder.contains('facilities', { 'parking': true } as any)
       }
-      if (filters.hasShower !== undefined) {
-        queryBuilder = queryBuilder.eq('has_shower', filters.hasShower)
+      if (filters.hasShower === true) {
+        queryBuilder = queryBuilder.contains('facilities', { 'shower': true } as any)
       }
-      if (filters.hasLocker !== undefined) {
-        queryBuilder = queryBuilder.eq('has_locker', filters.hasLocker)
+      if (filters.hasLocker === true) {
+        queryBuilder = queryBuilder.contains('facilities', { 'locker': true } as any)
       }
-      if (filters.hasSauna !== undefined) {
-        queryBuilder = queryBuilder.eq('has_sauna', filters.hasSauna)
+      if (filters.hasSauna === true) {
+        queryBuilder = queryBuilder.contains('facilities', { 'sauna': true } as any)
       }
     }
 
@@ -161,13 +162,11 @@ export async function searchPosts(
 ) {
   try {
     let queryBuilder = supabase
-      .from('gym_posts')
+      .from('gym_posts_with_counts')
       .select(`
         *,
         user:user_id(id, username, display_name, avatar_url),
-        gym:gym_id(id, name),
-        likes:post_likes(count),
-        comments:post_comments(count)
+        gym:gym_id(id, name)
       `)
       .eq('is_public', true)
 
@@ -187,7 +186,8 @@ export async function searchPosts(
         queryBuilder = queryBuilder.eq('gym_id', filters.gymId)
       }
       if (filters.hasImage) {
-        queryBuilder = queryBuilder.not('image_url', 'is', null)
+        // Prefer images (text[]) but fallback to legacy image_url
+        queryBuilder = queryBuilder.or('images.not.is.null,image_url.not.is.null')
       }
     }
 

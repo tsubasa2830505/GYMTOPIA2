@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut } from 'lucide-react'
+import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut, MapPin } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
 
@@ -28,6 +28,13 @@ export default function ProfileEditPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   
+  // Home Gym Settings
+  const [primaryGymId, setPrimaryGymId] = useState<string>('')
+  const [primaryGymName, setPrimaryGymName] = useState<string>('')
+  const [gymSearchQuery, setGymSearchQuery] = useState('')
+  const [gymSearchResults, setGymSearchResults] = useState<any[]>([])
+  const [isSearchingGym, setIsSearchingGym] = useState(false)
+
   // Personal Records
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([
     { id: '1', exercise: 'ベンチプレス', weight: '120', reps: '1回' },
@@ -35,7 +42,7 @@ export default function ProfileEditPage() {
     { id: '3', exercise: 'デッドリフト', weight: '150', reps: '1回' },
     { id: '4', exercise: 'ショルダープレス', weight: '60', reps: '8回×3セット' }
   ])
-  
+
   const [showRecordForm, setShowRecordForm] = useState(false)
   const [newRecord, setNewRecord] = useState<PersonalRecord>({
     id: '',
@@ -67,13 +74,14 @@ export default function ProfileEditPage() {
     if (!user?.id) return
 
     try {
+      // ユーザー基本情報を取得
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
-      if (error) throw error
+      if (error || !data) throw error || new Error('User not found')
 
       if (data) {
         setName(data.display_name || '')
@@ -81,9 +89,60 @@ export default function ProfileEditPage() {
         setBio(data.bio || '')
         setAvatarUrl(data.avatar_url || '')
       }
+
+      // ユーザープロフィール（ホームジム情報）を取得
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select(`
+          primary_gym_id,
+          gyms!user_profiles_primary_gym_id_fkey (
+            id,
+            name
+          )
+        `)
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (!profileError && profileData?.primary_gym_id) {
+        setPrimaryGymId(profileData.primary_gym_id)
+        setPrimaryGymName(profileData.gyms?.name || '')
+      }
     } catch (error) {
       console.error('プロフィール取得エラー:', error)
     }
+  }
+
+  // ジム検索機能
+  const searchGyms = async (query: string) => {
+    if (query.length < 2) {
+      setGymSearchResults([])
+      return
+    }
+
+    setIsSearchingGym(true)
+    try {
+      const { data, error } = await supabase
+        .from('gyms')
+        .select('id, name, address')
+        .or(`name.ilike.%${query}%,address.ilike.%${query}%`)
+        .limit(10)
+
+      if (error) throw error
+      setGymSearchResults(data || [])
+    } catch (error) {
+      console.error('ジム検索エラー:', error)
+      setGymSearchResults([])
+    } finally {
+      setIsSearchingGym(false)
+    }
+  }
+
+  // ジム選択
+  const selectGym = (gym: any) => {
+    setPrimaryGymId(gym.id)
+    setPrimaryGymName(gym.name)
+    setGymSearchQuery('')
+    setGymSearchResults([])
   }
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,6 +321,56 @@ export default function ProfileEditPage() {
 
       if (updateError) throw updateError
 
+      // ホームジム情報を更新
+      if (primaryGymId) {
+        // user_profilesにレコードが存在するか確認
+        const { data: existingProfile } = await supabase
+          .from('user_profiles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (existingProfile) {
+          // 既存レコードを更新
+          const { error: gymError } = await supabase
+            .from('user_profiles')
+            .update({
+              primary_gym_id: primaryGymId,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+
+          if (gymError) {
+            console.error('ホームジム更新エラー:', gymError)
+          }
+        } else {
+          // 新規レコードを作成
+          const { error: gymError } = await supabase
+            .from('user_profiles')
+            .insert({
+              user_id: user.id,
+              primary_gym_id: primaryGymId
+            })
+
+          if (gymError) {
+            console.error('ホームジム登録エラー:', gymError)
+          }
+        }
+      } else {
+        // ホームジムが解除された場合
+        const { error: gymError } = await supabase
+          .from('user_profiles')
+          .update({
+            primary_gym_id: null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+
+        if (gymError && gymError.code !== 'PGRST116') {
+          console.error('ホームジム解除エラー:', gymError)
+        }
+      }
+
       alert('プロフィールを更新しました')
       router.push('/profile')
     } catch (error: any) {
@@ -405,8 +514,67 @@ export default function ProfileEditPage() {
               <p className="text-xs text-slate-500 mt-1">半角英数字とアンダースコアのみ使用可能</p>
             </div>
 
-            {/* 位置情報 - データベースに存在しないため非表示 */}
-            {/* locationフィールドは将来的に追加予定 */}
+            {/* ホームジム設定 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-1" />
+                ホームジム
+              </label>
+              {primaryGymName ? (
+                <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div>
+                    <p className="font-medium text-slate-900">{primaryGymName}</p>
+                    <p className="text-sm text-slate-600">メインジム</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setPrimaryGymId('')
+                      setPrimaryGymName('')
+                    }}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    解除
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={gymSearchQuery}
+                      onChange={(e) => {
+                        setGymSearchQuery(e.target.value)
+                        searchGyms(e.target.value)
+                      }}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                      placeholder="ジム名で検索..."
+                    />
+                    {isSearchingGym && (
+                      <div className="absolute right-3 top-3">
+                        <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      </div>
+                    )}
+                  </div>
+                  {gymSearchResults.length > 0 && (
+                    <div className="bg-white border border-slate-200 rounded-lg max-h-48 overflow-y-auto">
+                      {gymSearchResults.map((gym) => (
+                        <button
+                          key={gym.id}
+                          onClick={() => selectGym(gym)}
+                          className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                        >
+                          <p className="font-medium text-slate-900">{gym.name}</p>
+                          {gym.address && (
+                            <p className="text-sm text-slate-600">{gym.address}</p>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <p className="text-xs text-slate-500 mt-1">よく通うジムを設定できます</p>
+            </div>
 
             {/* 自己紹介 */}
             <div>

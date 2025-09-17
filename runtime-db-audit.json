@@ -1,0 +1,1511 @@
+{
+  "url": "https://htytewqvkgwyuvcsvjwm.supabase.co",
+  "auth": "service_or_custom",
+  "checkedAt": "2025-09-17T08:09:05.825Z",
+  "columns": {
+    "achievements": {
+      "achieved_at": {
+        "ok": false,
+        "reason": "column achievements.achieved_at does not exist"
+      },
+      "achievement_type": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "badge_icon": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "description": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "earned_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "exercise_name": {
+        "ok": false,
+        "reason": "column achievements.exercise_name does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "metadata": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "record_type": {
+        "ok": false,
+        "reason": "column achievements.record_type does not exist"
+      },
+      "title": {
+        "ok": false,
+        "reason": "column achievements.title does not exist"
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      }
+    },
+    "equipment": {
+      "brand": {
+        "ok": false,
+        "reason": "column equipment.brand does not exist"
+      },
+      "condition": {
+        "ok": false,
+        "reason": "column equipment.condition does not exist"
+      },
+      "count": {
+        "ok": false,
+        "reason": "aggregate functions are not allowed in WHERE"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "equipment_type": {
+        "ok": false,
+        "reason": "column equipment.equipment_type does not exist"
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column equipment.gym_id does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "is_available": {
+        "ok": false,
+        "reason": "column equipment.is_available does not exist"
+      },
+      "last_maintenance": {
+        "ok": false,
+        "reason": "column equipment.last_maintenance does not exist"
+      },
+      "model": {
+        "ok": false,
+        "reason": "column equipment.model does not exist"
+      },
+      "muscle_groups": {
+        "ok": false,
+        "reason": "column equipment.muscle_groups does not exist"
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "type": {
+        "ok": false,
+        "reason": "column equipment.type does not exist"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "column equipment.updated_at does not exist"
+      }
+    },
+    "exercises": {
+      "created_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "exercise_name": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "machine_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "muscle_groups": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "notes": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "reps": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "rest_seconds": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "sets": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "weight_kg": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      },
+      "workout_session_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.exercises' in the schema cache"
+      }
+    },
+    "facility_categories": {
+      "display_order": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column facility_categories.gym_id does not exist"
+      }
+    },
+    "favorite_gyms": {
+      "checked_in_at": {
+        "ok": false,
+        "reason": "column favorite_gyms.checked_in_at does not exist"
+      },
+      "checked_out_at": {
+        "ok": false,
+        "reason": "column favorite_gyms.checked_out_at does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "follows": {
+      "avatar_url": {
+        "ok": false,
+        "reason": "column follows.avatar_url does not exist"
+      },
+      "bio": {
+        "ok": false,
+        "reason": "column follows.bio does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column follows.display_name does not exist"
+      },
+      "email": {
+        "ok": false,
+        "reason": "column follows.email does not exist"
+      },
+      "follower_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "following_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "is_active": {
+        "ok": false,
+        "reason": "column follows.is_active does not exist"
+      },
+      "is_public": {
+        "ok": false,
+        "reason": "column follows.is_public does not exist"
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column follows.user_id does not exist"
+      },
+      "username": {
+        "ok": false,
+        "reason": "column follows.username does not exist"
+      }
+    },
+    "freeweight_categories": {
+      "description": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_order": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column freeweight_categories.gym_id does not exist"
+      },
+      "icon": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "slug": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "unit": {
+        "ok": false,
+        "reason": "column freeweight_categories.unit does not exist"
+      },
+      "weight_range": {
+        "ok": false,
+        "reason": "column freeweight_categories.weight_range does not exist"
+      }
+    },
+    "gym_checkins": {
+      "checked_in_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "checked_out_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "content": {
+        "ok": false,
+        "reason": "column gym_checkins.content does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "crowd_level": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      }
+    },
+    "gym_detailed_info": {
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "gym_equipment": {
+      "count": {
+        "ok": false,
+        "reason": "aggregate functions are not allowed in WHERE"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "name": {
+        "ok": false,
+        "reason": "column gym_equipment.name does not exist"
+      },
+      "type": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "gym_facilities": {
+      "gym_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_facilities' in the schema cache"
+      }
+    },
+    "gym_free_weights": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gym_free_weights.username does not exist"
+      }
+    },
+    "gym_freeweights": {
+      "gym_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_freeweights' in the schema cache"
+      }
+    },
+    "gym_likes": {
+      "content": {
+        "ok": false,
+        "reason": "column gym_likes.content does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "crowd_level": {
+        "ok": false,
+        "reason": "column gym_likes.crowd_level does not exist"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "gym_machines": {
+      "city": {
+        "ok": false,
+        "reason": "column gym_machines.city does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column gym_machines.display_name does not exist"
+      },
+      "facilities": {
+        "ok": false,
+        "reason": "column gym_machines.facilities does not exist"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "prefecture": {
+        "ok": false,
+        "reason": "column gym_machines.prefecture does not exist"
+      },
+      "rating": {
+        "ok": false,
+        "reason": "column gym_machines.rating does not exist"
+      },
+      "status": {
+        "ok": false,
+        "reason": "column gym_machines.status does not exist"
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gym_machines.username does not exist"
+      }
+    },
+    "gym_notes": {
+      "created_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "is_private": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "name": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      },
+      "username": {
+        "ok": false,
+        "reason": "Could not find the table 'public.gym_notes' in the schema cache"
+      }
+    },
+    "gym_owner_applications": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      }
+    },
+    "gym_owners": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "is_active": {
+        "ok": false,
+        "reason": "column gym_owners.is_active does not exist"
+      },
+      "permissions": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "role": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      }
+    },
+    "gym_posts": {
+      "avatar_url": {
+        "ok": false,
+        "reason": "column gym_posts.avatar_url does not exist"
+      },
+      "bio": {
+        "ok": false,
+        "reason": "column gym_posts.bio does not exist"
+      },
+      "comments_count": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "content": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "crowd_level": {
+        "ok": false,
+        "reason": "column gym_posts.crowd_level does not exist"
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column gym_posts.display_name does not exist"
+      },
+      "email": {
+        "ok": false,
+        "reason": "column gym_posts.email does not exist"
+      },
+      "exercise_name": {
+        "ok": false,
+        "reason": "column gym_posts.exercise_name does not exist"
+      },
+      "follower_id": {
+        "ok": false,
+        "reason": "column gym_posts.follower_id does not exist"
+      },
+      "following_id": {
+        "ok": false,
+        "reason": "column gym_posts.following_id does not exist"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "image_urls": {
+        "ok": false,
+        "reason": "column gym_posts.image_urls does not exist"
+      },
+      "is_active": {
+        "ok": false,
+        "reason": "column gym_posts.is_active does not exist"
+      },
+      "is_public": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "likes_count": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "muscle_group": {
+        "ok": false,
+        "reason": "column gym_posts.muscle_group does not exist"
+      },
+      "shares_count": {
+        "ok": false,
+        "reason": "column gym_posts.shares_count does not exist"
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gym_posts.username does not exist"
+      },
+      "workout_session_id": {
+        "ok": false,
+        "reason": "column gym_posts.workout_session_id does not exist"
+      }
+    },
+    "gym_review_replies": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column gym_review_replies.display_name does not exist"
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column gym_review_replies.gym_id does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column gym_review_replies.user_id does not exist"
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gym_review_replies.username does not exist"
+      }
+    },
+    "gym_reviews": {
+      "city": {
+        "ok": false,
+        "reason": "column gym_reviews.city does not exist"
+      },
+      "cleanliness_rating": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "comment": {
+        "ok": false,
+        "reason": "column gym_reviews.comment does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column gym_reviews.display_name does not exist"
+      },
+      "equipment_rating": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "facilities_rating": {
+        "ok": false,
+        "reason": "column gym_reviews.facilities_rating does not exist"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "name": {
+        "ok": false,
+        "reason": "column gym_reviews.name does not exist"
+      },
+      "prefecture": {
+        "ok": false,
+        "reason": "column gym_reviews.prefecture does not exist"
+      },
+      "rating": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "staff_rating": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "status": {
+        "ok": false,
+        "reason": "column gym_reviews.status does not exist"
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gym_reviews.username does not exist"
+      }
+    },
+    "gyms": {
+      "address": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "area": {
+        "ok": false,
+        "reason": "column gyms.area does not exist"
+      },
+      "city": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "description": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "ended_at": {
+        "ok": false,
+        "reason": "column gyms.ended_at does not exist"
+      },
+      "exercise_name": {
+        "ok": false,
+        "reason": "column gyms.exercise_name does not exist"
+      },
+      "facilities": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column gyms.gym_id does not exist"
+      },
+      "has_24h": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "has_locker": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "has_parking": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "has_sauna": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "has_shower": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "image_urls": {
+        "ok": false,
+        "reason": "column gyms.image_urls does not exist"
+      },
+      "is_active": {
+        "ok": false,
+        "reason": "column gyms.is_active does not exist"
+      },
+      "latitude": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "longitude": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "muscle_group": {
+        "ok": false,
+        "reason": "column gyms.muscle_group does not exist"
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "opening_hours": {
+        "ok": false,
+        "reason": "column gyms.opening_hours does not exist"
+      },
+      "phone": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "prefecture": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "rating": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "started_at": {
+        "ok": false,
+        "reason": "column gyms.started_at does not exist"
+      },
+      "status": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "type": {
+        "ok": false,
+        "reason": "column gyms.type does not exist"
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column gyms.user_id does not exist"
+      },
+      "username": {
+        "ok": false,
+        "reason": "column gyms.username does not exist"
+      },
+      "users_count": {
+        "ok": false,
+        "reason": "column gyms.users_count does not exist"
+      },
+      "website": {
+        "ok": true,
+        "hasNonNull": false
+      }
+    },
+    "machine_categories": {
+      "description": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_order": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "icon": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "maker": {
+        "ok": false,
+        "reason": "column machine_categories.maker does not exist"
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "slug": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "target_category": {
+        "ok": false,
+        "reason": "column machine_categories.target_category does not exist"
+      },
+      "type": {
+        "ok": false,
+        "reason": "column machine_categories.type does not exist"
+      },
+      "unit": {
+        "ok": false,
+        "reason": "column machine_categories.unit does not exist"
+      },
+      "weight_range": {
+        "ok": false,
+        "reason": "column machine_categories.weight_range does not exist"
+      }
+    },
+    "machines": {
+      "brand": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "category": {
+        "ok": false,
+        "reason": "column machines.category does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "description": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column machines.display_name does not exist"
+      },
+      "equipment_type": {
+        "ok": false,
+        "reason": "column machines.equipment_type does not exist"
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column machines.gym_id does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "image_url": {
+        "ok": false,
+        "reason": "column machines.image_url does not exist"
+      },
+      "instruction_url": {
+        "ok": false,
+        "reason": "column machines.instruction_url does not exist"
+      },
+      "is_public": {
+        "ok": false,
+        "reason": "column machines.is_public does not exist"
+      },
+      "maker": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "muscle_groups": {
+        "ok": false,
+        "reason": "column machines.muscle_groups does not exist"
+      },
+      "name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "target_category": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "type": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column machines.user_id does not exist"
+      },
+      "username": {
+        "ok": false,
+        "reason": "column machines.username does not exist"
+      }
+    },
+    "muscle_groups": {
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.muscle_groups' in the schema cache"
+      }
+    },
+    "muscles": {
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.muscles' in the schema cache"
+      }
+    },
+    "notifications": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column notifications.display_name does not exist"
+      },
+      "follower_id": {
+        "ok": false,
+        "reason": "column notifications.follower_id does not exist"
+      },
+      "following_id": {
+        "ok": false,
+        "reason": "column notifications.following_id does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "is_read": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "message": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "related_id": {
+        "ok": false,
+        "reason": "column notifications.related_id does not exist"
+      },
+      "title": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "type": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "username": {
+        "ok": false,
+        "reason": "column notifications.username does not exist"
+      }
+    },
+    "owner_applications": {
+      "business_license_number": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "contact_phone": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "created_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "description": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "documents_urls": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "gym_address": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "gym_name": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "rejection_reason": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "reviewed_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "reviewed_by": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "status": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      },
+      "website": {
+        "ok": false,
+        "reason": "Could not find the table 'public.owner_applications' in the schema cache"
+      }
+    },
+    "personal_records": {
+      "achieved_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "calories_burned": {
+        "ok": false,
+        "reason": "column personal_records.calories_burned does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "distance_meters": {
+        "ok": false,
+        "reason": "column personal_records.distance_meters does not exist"
+      },
+      "duration_seconds": {
+        "ok": false,
+        "reason": "column personal_records.duration_seconds does not exist"
+      },
+      "exercise_name": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "notes": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "record_type": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "reps": {
+        "ok": false,
+        "reason": "column personal_records.reps does not exist"
+      },
+      "started_at": {
+        "ok": false,
+        "reason": "column personal_records.started_at does not exist"
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "volume_kg": {
+        "ok": false,
+        "reason": "column personal_records.volume_kg does not exist"
+      },
+      "weight_kg": {
+        "ok": false,
+        "reason": "column personal_records.weight_kg does not exist"
+      }
+    },
+    "post_comments": {
+      "content": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "parent_comment_id": {
+        "ok": false,
+        "reason": "column post_comments.parent_comment_id does not exist"
+      },
+      "post_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "post_likes": {
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "gym_id": {
+        "ok": false,
+        "reason": "column post_likes.gym_id does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "post_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "user_profiles": {
+      "avatar_url": {
+        "ok": false,
+        "reason": "column user_profiles.avatar_url does not exist"
+      },
+      "body_fat_percentage": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column user_profiles.display_name does not exist"
+      },
+      "gym_experience_years": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "height_cm": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": false,
+        "reason": "column user_profiles.id does not exist"
+      },
+      "is_active": {
+        "ok": false,
+        "reason": "column user_profiles.is_active does not exist"
+      },
+      "preferred_training_time": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "profile_visibility": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "show_stats": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "training_frequency": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "training_goals": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "username": {
+        "ok": false,
+        "reason": "column user_profiles.username does not exist"
+      },
+      "weight_kg": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "user_statistics": {
+      "avg_workout_duration": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "calculated_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "created_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "favorite_exercises": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "last_workout_date": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "total_duration_minutes": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "total_weight_kg": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "workout_count": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      },
+      "workout_streak": {
+        "ok": false,
+        "reason": "Could not find the table 'public.user_statistics' in the schema cache"
+      }
+    },
+    "users": {
+      "avatar_url": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "bio": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "city": {
+        "ok": false,
+        "reason": "column users.city does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "email": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "email_verified": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "has_24h": {
+        "ok": false,
+        "reason": "column users.has_24h does not exist"
+      },
+      "has_locker": {
+        "ok": false,
+        "reason": "column users.has_locker does not exist"
+      },
+      "has_parking": {
+        "ok": false,
+        "reason": "column users.has_parking does not exist"
+      },
+      "has_sauna": {
+        "ok": false,
+        "reason": "column users.has_sauna does not exist"
+      },
+      "has_shower": {
+        "ok": false,
+        "reason": "column users.has_shower does not exist"
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "is_active": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "is_verified": {
+        "ok": false,
+        "reason": "column users.is_verified does not exist"
+      },
+      "last_seen_at": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "prefecture": {
+        "ok": false,
+        "reason": "column users.prefecture does not exist"
+      },
+      "updated_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column users.user_id does not exist"
+      },
+      "username": {
+        "ok": true,
+        "hasNonNull": true
+      }
+    },
+    "workout_exercises": {
+      "ended_at": {
+        "ok": false,
+        "reason": "column workout_exercises.ended_at does not exist"
+      },
+      "exercise_name": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "muscle_group": {
+        "ok": true,
+        "hasNonNull": false
+      },
+      "started_at": {
+        "ok": false,
+        "reason": "column workout_exercises.started_at does not exist"
+      },
+      "user_id": {
+        "ok": false,
+        "reason": "column workout_exercises.user_id does not exist"
+      }
+    },
+    "workout_sessions": {
+      "calories_burned": {
+        "ok": false,
+        "reason": "column workout_sessions.calories_burned does not exist"
+      },
+      "created_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "display_name": {
+        "ok": false,
+        "reason": "column workout_sessions.display_name does not exist"
+      },
+      "duration_minutes": {
+        "ok": false,
+        "reason": "column workout_sessions.duration_minutes does not exist"
+      },
+      "ended_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "exercise_name": {
+        "ok": false,
+        "reason": "column workout_sessions.exercise_name does not exist"
+      },
+      "follower_id": {
+        "ok": false,
+        "reason": "column workout_sessions.follower_id does not exist"
+      },
+      "following_id": {
+        "ok": false,
+        "reason": "column workout_sessions.following_id does not exist"
+      },
+      "gym_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "is_public": {
+        "ok": false,
+        "reason": "column workout_sessions.is_public does not exist"
+      },
+      "muscle_group": {
+        "ok": false,
+        "reason": "column workout_sessions.muscle_group does not exist"
+      },
+      "name": {
+        "ok": false,
+        "reason": "column workout_sessions.name does not exist"
+      },
+      "notes": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "started_at": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "total_reps": {
+        "ok": false,
+        "reason": "column workout_sessions.total_reps does not exist"
+      },
+      "total_sets": {
+        "ok": false,
+        "reason": "column workout_sessions.total_sets does not exist"
+      },
+      "total_weight_kg": {
+        "ok": false,
+        "reason": "column workout_sessions.total_weight_kg does not exist"
+      },
+      "updated_at": {
+        "ok": false,
+        "reason": "column workout_sessions.updated_at does not exist"
+      },
+      "user_id": {
+        "ok": true,
+        "hasNonNull": true
+      },
+      "username": {
+        "ok": false,
+        "reason": "column workout_sessions.username does not exist"
+      }
+    }
+  }
+}

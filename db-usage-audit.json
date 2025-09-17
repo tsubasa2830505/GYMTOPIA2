@@ -1,0 +1,1065 @@
+{
+  "summary": {
+    "tablesReferenced": 32,
+    "tablesDeclared": 19,
+    "tablesOnlyDeclared": [
+      "exercises",
+      "owner_applications",
+      "post_comments",
+      "user_statistics"
+    ],
+    "tablesOnlyReferenced": [
+      "facility_categories",
+      "freeweight_categories",
+      "gym_checkins",
+      "gym_detailed_info",
+      "gym_equipment",
+      "gym_facilities",
+      "gym_free_weights",
+      "gym_freeweights",
+      "gym_likes",
+      "gym_machines",
+      "gym_notes",
+      "gym_owner_applications",
+      "gym_review_replies",
+      "machine_categories",
+      "muscle_groups",
+      "muscles",
+      "workout_exercises"
+    ]
+  },
+  "report": {
+    "achievements": {
+      "used": [
+        "achieved_at",
+        "earned_at",
+        "exercise_name",
+        "id",
+        "record_type",
+        "user_id"
+      ],
+      "declared": [
+        "achievement_type",
+        "badge_icon",
+        "created_at",
+        "description",
+        "earned_at",
+        "id",
+        "metadata",
+        "title",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "achievement_type",
+        "badge_icon",
+        "created_at",
+        "description",
+        "metadata",
+        "title"
+      ],
+      "usedButUndeclaredColumns": [
+        "achieved_at",
+        "exercise_name",
+        "record_type"
+      ]
+    },
+    "equipment": {
+      "used": [
+        "count",
+        "gym_id",
+        "id",
+        "name",
+        "type"
+      ],
+      "declared": [
+        "brand",
+        "condition",
+        "created_at",
+        "equipment_type",
+        "gym_id",
+        "id",
+        "is_available",
+        "last_maintenance",
+        "model",
+        "muscle_groups",
+        "updated_at"
+      ],
+      "unusedDeclaredColumns": [
+        "brand",
+        "condition",
+        "created_at",
+        "equipment_type",
+        "is_available",
+        "last_maintenance",
+        "model",
+        "muscle_groups",
+        "updated_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "count",
+        "name",
+        "type"
+      ]
+    },
+    "exercises": {
+      "used": [],
+      "declared": [
+        "created_at",
+        "exercise_name",
+        "id",
+        "machine_id",
+        "muscle_groups",
+        "notes",
+        "reps",
+        "rest_seconds",
+        "sets",
+        "updated_at",
+        "weight_kg",
+        "workout_session_id"
+      ],
+      "unusedDeclaredColumns": [
+        "created_at",
+        "exercise_name",
+        "id",
+        "machine_id",
+        "muscle_groups",
+        "notes",
+        "reps",
+        "rest_seconds",
+        "sets",
+        "updated_at",
+        "weight_kg",
+        "workout_session_id"
+      ],
+      "usedButUndeclaredColumns": []
+    },
+    "facility_categories": {
+      "used": [
+        "display_order",
+        "gym_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "display_order",
+        "gym_id"
+      ]
+    },
+    "favorite_gyms": {
+      "used": [
+        "checked_in_at",
+        "checked_out_at",
+        "gym_id",
+        "id",
+        "user_id"
+      ],
+      "declared": [
+        "created_at",
+        "gym_id",
+        "id",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "created_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "checked_in_at",
+        "checked_out_at"
+      ]
+    },
+    "follows": {
+      "used": [
+        "avatar_url",
+        "bio",
+        "created_at",
+        "display_name",
+        "email",
+        "follower_id",
+        "following_id",
+        "id",
+        "is_active",
+        "is_public",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "created_at",
+        "follower_id",
+        "following_id",
+        "id"
+      ],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "avatar_url",
+        "bio",
+        "display_name",
+        "email",
+        "is_active",
+        "is_public",
+        "user_id",
+        "username"
+      ]
+    },
+    "freeweight_categories": {
+      "used": [
+        "description",
+        "display_order",
+        "gym_id",
+        "icon",
+        "name",
+        "slug",
+        "unit",
+        "weight_range"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "description",
+        "display_order",
+        "gym_id",
+        "icon",
+        "name",
+        "slug",
+        "unit",
+        "weight_range"
+      ]
+    },
+    "gym_checkins": {
+      "used": [
+        "checked_in_at",
+        "checked_out_at",
+        "content",
+        "created_at",
+        "crowd_level",
+        "gym_id",
+        "id",
+        "user_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "checked_in_at",
+        "checked_out_at",
+        "content",
+        "created_at",
+        "crowd_level",
+        "gym_id",
+        "id",
+        "user_id"
+      ]
+    },
+    "gym_detailed_info": {
+      "used": [
+        "gym_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "gym_id"
+      ]
+    },
+    "gym_equipment": {
+      "used": [
+        "count",
+        "gym_id",
+        "id",
+        "name",
+        "type"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "count",
+        "gym_id",
+        "id",
+        "name",
+        "type"
+      ]
+    },
+    "gym_facilities": {
+      "used": [
+        "gym_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "gym_id"
+      ]
+    },
+    "gym_free_weights": {
+      "used": [
+        "created_at",
+        "gym_id",
+        "username"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "created_at",
+        "gym_id",
+        "username"
+      ]
+    },
+    "gym_freeweights": {
+      "used": [
+        "gym_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "gym_id"
+      ]
+    },
+    "gym_likes": {
+      "used": [
+        "content",
+        "created_at",
+        "crowd_level",
+        "gym_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "content",
+        "created_at",
+        "crowd_level",
+        "gym_id"
+      ]
+    },
+    "gym_machines": {
+      "used": [
+        "city",
+        "created_at",
+        "display_name",
+        "facilities",
+        "gym_id",
+        "id",
+        "name",
+        "prefecture",
+        "rating",
+        "status",
+        "username"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "city",
+        "created_at",
+        "display_name",
+        "facilities",
+        "gym_id",
+        "id",
+        "name",
+        "prefecture",
+        "rating",
+        "status",
+        "username"
+      ]
+    },
+    "gym_notes": {
+      "used": [
+        "created_at",
+        "gym_id",
+        "id",
+        "is_private",
+        "name",
+        "updated_at",
+        "user_id",
+        "username"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "created_at",
+        "gym_id",
+        "id",
+        "is_private",
+        "name",
+        "updated_at",
+        "user_id",
+        "username"
+      ]
+    },
+    "gym_owner_applications": {
+      "used": [
+        "created_at",
+        "user_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "created_at",
+        "user_id"
+      ]
+    },
+    "gym_owners": {
+      "used": [
+        "gym_id",
+        "id",
+        "user_id"
+      ],
+      "declared": [
+        "created_at",
+        "gym_id",
+        "id",
+        "is_active",
+        "permissions",
+        "role",
+        "updated_at",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "created_at",
+        "is_active",
+        "permissions",
+        "role",
+        "updated_at"
+      ],
+      "usedButUndeclaredColumns": []
+    },
+    "gym_posts": {
+      "used": [
+        "avatar_url",
+        "bio",
+        "content",
+        "created_at",
+        "crowd_level",
+        "display_name",
+        "email",
+        "exercise_name",
+        "follower_id",
+        "following_id",
+        "gym_id",
+        "id",
+        "is_active",
+        "is_public",
+        "muscle_group",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "comments_count",
+        "content",
+        "created_at",
+        "id",
+        "image_urls",
+        "is_public",
+        "likes_count",
+        "shares_count",
+        "updated_at",
+        "user_id",
+        "workout_session_id"
+      ],
+      "unusedDeclaredColumns": [
+        "comments_count",
+        "image_urls",
+        "likes_count",
+        "shares_count",
+        "updated_at",
+        "workout_session_id"
+      ],
+      "usedButUndeclaredColumns": [
+        "avatar_url",
+        "bio",
+        "crowd_level",
+        "display_name",
+        "email",
+        "exercise_name",
+        "follower_id",
+        "following_id",
+        "gym_id",
+        "is_active",
+        "muscle_group",
+        "username"
+      ]
+    },
+    "gym_review_replies": {
+      "used": [
+        "created_at",
+        "display_name",
+        "gym_id",
+        "id",
+        "user_id",
+        "username"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "created_at",
+        "display_name",
+        "gym_id",
+        "id",
+        "user_id",
+        "username"
+      ]
+    },
+    "gym_reviews": {
+      "used": [
+        "city",
+        "created_at",
+        "display_name",
+        "gym_id",
+        "name",
+        "prefecture",
+        "rating",
+        "status",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "cleanliness_rating",
+        "comment",
+        "created_at",
+        "equipment_rating",
+        "facilities_rating",
+        "gym_id",
+        "id",
+        "rating",
+        "staff_rating",
+        "updated_at",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "cleanliness_rating",
+        "comment",
+        "equipment_rating",
+        "facilities_rating",
+        "id",
+        "staff_rating",
+        "updated_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "city",
+        "display_name",
+        "name",
+        "prefecture",
+        "status",
+        "username"
+      ]
+    },
+    "gyms": {
+      "used": [
+        "city",
+        "created_at",
+        "ended_at",
+        "exercise_name",
+        "facilities",
+        "gym_id",
+        "has_24h",
+        "has_locker",
+        "has_parking",
+        "has_sauna",
+        "has_shower",
+        "id",
+        "muscle_group",
+        "name",
+        "prefecture",
+        "rating",
+        "started_at",
+        "status",
+        "type",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "address",
+        "area",
+        "created_at",
+        "description",
+        "facilities",
+        "id",
+        "image_urls",
+        "is_active",
+        "latitude",
+        "longitude",
+        "name",
+        "opening_hours",
+        "phone",
+        "rating",
+        "updated_at",
+        "users_count",
+        "website"
+      ],
+      "unusedDeclaredColumns": [
+        "address",
+        "area",
+        "description",
+        "image_urls",
+        "is_active",
+        "latitude",
+        "longitude",
+        "opening_hours",
+        "phone",
+        "updated_at",
+        "users_count",
+        "website"
+      ],
+      "usedButUndeclaredColumns": [
+        "city",
+        "ended_at",
+        "exercise_name",
+        "gym_id",
+        "has_24h",
+        "has_locker",
+        "has_parking",
+        "has_sauna",
+        "has_shower",
+        "muscle_group",
+        "prefecture",
+        "started_at",
+        "status",
+        "type",
+        "user_id",
+        "username"
+      ]
+    },
+    "machine_categories": {
+      "used": [
+        "description",
+        "display_order",
+        "icon",
+        "maker",
+        "name",
+        "slug",
+        "target_category",
+        "type",
+        "unit",
+        "weight_range"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "description",
+        "display_order",
+        "icon",
+        "maker",
+        "name",
+        "slug",
+        "target_category",
+        "type",
+        "unit",
+        "weight_range"
+      ]
+    },
+    "machines": {
+      "used": [
+        "brand",
+        "created_at",
+        "display_name",
+        "equipment_type",
+        "gym_id",
+        "is_public",
+        "maker",
+        "muscle_groups",
+        "name",
+        "target_category",
+        "type",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "category",
+        "created_at",
+        "description",
+        "id",
+        "image_url",
+        "instruction_url",
+        "muscle_groups",
+        "name",
+        "updated_at"
+      ],
+      "unusedDeclaredColumns": [
+        "category",
+        "description",
+        "id",
+        "image_url",
+        "instruction_url",
+        "updated_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "brand",
+        "display_name",
+        "equipment_type",
+        "gym_id",
+        "is_public",
+        "maker",
+        "target_category",
+        "type",
+        "user_id",
+        "username"
+      ]
+    },
+    "muscle_groups": {
+      "used": [
+        "id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "id"
+      ]
+    },
+    "muscles": {
+      "used": [
+        "id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "id"
+      ]
+    },
+    "notifications": {
+      "used": [
+        "created_at",
+        "display_name",
+        "follower_id",
+        "following_id",
+        "id",
+        "is_read",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "created_at",
+        "id",
+        "is_read",
+        "message",
+        "related_id",
+        "title",
+        "type",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "message",
+        "related_id",
+        "title",
+        "type"
+      ],
+      "usedButUndeclaredColumns": [
+        "display_name",
+        "follower_id",
+        "following_id",
+        "username"
+      ]
+    },
+    "owner_applications": {
+      "used": [],
+      "declared": [
+        "business_license_number",
+        "contact_phone",
+        "created_at",
+        "description",
+        "documents_urls",
+        "gym_address",
+        "gym_name",
+        "id",
+        "rejection_reason",
+        "reviewed_at",
+        "reviewed_by",
+        "status",
+        "updated_at",
+        "user_id",
+        "website"
+      ],
+      "unusedDeclaredColumns": [
+        "business_license_number",
+        "contact_phone",
+        "created_at",
+        "description",
+        "documents_urls",
+        "gym_address",
+        "gym_name",
+        "id",
+        "rejection_reason",
+        "reviewed_at",
+        "reviewed_by",
+        "status",
+        "updated_at",
+        "user_id",
+        "website"
+      ],
+      "usedButUndeclaredColumns": []
+    },
+    "personal_records": {
+      "used": [
+        "achieved_at",
+        "exercise_name",
+        "id",
+        "record_type",
+        "started_at",
+        "user_id"
+      ],
+      "declared": [
+        "achieved_at",
+        "calories_burned",
+        "created_at",
+        "distance_meters",
+        "duration_seconds",
+        "exercise_name",
+        "gym_id",
+        "id",
+        "notes",
+        "record_type",
+        "reps",
+        "user_id",
+        "volume_kg",
+        "weight_kg"
+      ],
+      "unusedDeclaredColumns": [
+        "calories_burned",
+        "created_at",
+        "distance_meters",
+        "duration_seconds",
+        "gym_id",
+        "notes",
+        "reps",
+        "volume_kg",
+        "weight_kg"
+      ],
+      "usedButUndeclaredColumns": [
+        "started_at"
+      ]
+    },
+    "post_comments": {
+      "used": [],
+      "declared": [
+        "content",
+        "created_at",
+        "id",
+        "parent_comment_id",
+        "post_id",
+        "updated_at",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "content",
+        "created_at",
+        "id",
+        "parent_comment_id",
+        "post_id",
+        "updated_at",
+        "user_id"
+      ],
+      "usedButUndeclaredColumns": []
+    },
+    "post_likes": {
+      "used": [
+        "created_at",
+        "gym_id",
+        "user_id"
+      ],
+      "declared": [
+        "created_at",
+        "id",
+        "post_id",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "id",
+        "post_id"
+      ],
+      "usedButUndeclaredColumns": [
+        "gym_id"
+      ]
+    },
+    "user_profiles": {
+      "used": [
+        "avatar_url",
+        "display_name",
+        "id",
+        "is_active",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "body_fat_percentage",
+        "created_at",
+        "gym_experience_years",
+        "height_cm",
+        "preferred_training_time",
+        "profile_visibility",
+        "show_stats",
+        "training_frequency",
+        "training_goals",
+        "updated_at",
+        "user_id",
+        "weight_kg"
+      ],
+      "unusedDeclaredColumns": [
+        "body_fat_percentage",
+        "created_at",
+        "gym_experience_years",
+        "height_cm",
+        "preferred_training_time",
+        "profile_visibility",
+        "show_stats",
+        "training_frequency",
+        "training_goals",
+        "updated_at",
+        "weight_kg"
+      ],
+      "usedButUndeclaredColumns": [
+        "avatar_url",
+        "display_name",
+        "id",
+        "is_active",
+        "username"
+      ]
+    },
+    "user_statistics": {
+      "used": [],
+      "declared": [
+        "avg_workout_duration",
+        "calculated_at",
+        "created_at",
+        "favorite_exercises",
+        "id",
+        "last_workout_date",
+        "total_duration_minutes",
+        "total_weight_kg",
+        "updated_at",
+        "user_id",
+        "workout_count",
+        "workout_streak"
+      ],
+      "unusedDeclaredColumns": [
+        "avg_workout_duration",
+        "calculated_at",
+        "created_at",
+        "favorite_exercises",
+        "id",
+        "last_workout_date",
+        "total_duration_minutes",
+        "total_weight_kg",
+        "updated_at",
+        "user_id",
+        "workout_count",
+        "workout_streak"
+      ],
+      "usedButUndeclaredColumns": []
+    },
+    "users": {
+      "used": [
+        "avatar_url",
+        "bio",
+        "city",
+        "created_at",
+        "display_name",
+        "has_24h",
+        "has_locker",
+        "has_parking",
+        "has_sauna",
+        "has_shower",
+        "id",
+        "is_active",
+        "is_verified",
+        "prefecture",
+        "updated_at",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "avatar_url",
+        "bio",
+        "created_at",
+        "display_name",
+        "email",
+        "email_verified",
+        "id",
+        "is_active",
+        "last_seen_at",
+        "updated_at",
+        "username"
+      ],
+      "unusedDeclaredColumns": [
+        "email",
+        "email_verified",
+        "last_seen_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "city",
+        "has_24h",
+        "has_locker",
+        "has_parking",
+        "has_sauna",
+        "has_shower",
+        "is_verified",
+        "prefecture",
+        "user_id"
+      ]
+    },
+    "workout_exercises": {
+      "used": [
+        "ended_at",
+        "exercise_name",
+        "id",
+        "muscle_group",
+        "started_at",
+        "user_id"
+      ],
+      "declared": [],
+      "unusedDeclaredColumns": [],
+      "usedButUndeclaredColumns": [
+        "ended_at",
+        "exercise_name",
+        "id",
+        "muscle_group",
+        "started_at",
+        "user_id"
+      ]
+    },
+    "workout_sessions": {
+      "used": [
+        "created_at",
+        "display_name",
+        "ended_at",
+        "exercise_name",
+        "follower_id",
+        "following_id",
+        "gym_id",
+        "id",
+        "is_public",
+        "muscle_group",
+        "name",
+        "started_at",
+        "user_id",
+        "username"
+      ],
+      "declared": [
+        "calories_burned",
+        "created_at",
+        "duration_minutes",
+        "ended_at",
+        "gym_id",
+        "id",
+        "is_public",
+        "notes",
+        "started_at",
+        "total_reps",
+        "total_sets",
+        "total_weight_kg",
+        "updated_at",
+        "user_id"
+      ],
+      "unusedDeclaredColumns": [
+        "calories_burned",
+        "duration_minutes",
+        "notes",
+        "total_reps",
+        "total_sets",
+        "total_weight_kg",
+        "updated_at"
+      ],
+      "usedButUndeclaredColumns": [
+        "display_name",
+        "exercise_name",
+        "follower_id",
+        "following_id",
+        "muscle_group",
+        "name",
+        "username"
+      ]
+    }
+  }
+}

@@ -42,6 +42,11 @@ export interface UserProfileStats {
   posts_count: number
   achievements_count: number
   favorite_gyms_count: number
+
+  // Home gym
+  primary_gym_id?: string
+  secondary_gym_ids?: string[]
+  gym_membership_type?: string
 }
 
 // ========================================

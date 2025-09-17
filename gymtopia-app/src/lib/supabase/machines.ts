@@ -88,6 +88,7 @@ function getDefaultMachines(): Machine[] {
 // すべてのメーカーデータを取得（machinesテーブルから直接取得）
 export async function getMachineMakers(): Promise<MachineMaker[]> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('machines')
       .select('maker')
@@ -145,9 +146,10 @@ function getDefaultMakers(): MachineMaker[] {
 // 特定のカテゴリーのマシンを取得
 export async function getMachinesByCategory(category: string): Promise<Machine[]> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('machines')
-      .select('*')
+      .select('id,name,target, target_category, target_detail, type, maker')
       .eq('target_category', category)
       .order('name')
 
@@ -166,9 +168,10 @@ export async function getMachinesByCategory(category: string): Promise<Machine[]
 // 特定のタイプのマシンを取得
 export async function getMachinesByType(type: string): Promise<Machine[]> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('machines')
-      .select('*')
+      .select('id,name,target, target_category, target_detail, type, maker')
       .eq('type', type)
       .order('name')
 

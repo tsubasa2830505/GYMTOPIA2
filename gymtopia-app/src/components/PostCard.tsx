@@ -78,32 +78,38 @@ export default function PostCard({
       <div className="p-4 sm:p-6 pb-2 sm:pb-2">
         <div className="flex items-start gap-3">
           {/* Avatar */}
-          <div className="relative flex-shrink-0">
+          <a href={`/user/${post.user_id}`} className="relative flex-shrink-0">
             {post.user?.avatar_url ? (
               <Image
                 src={post.user.avatar_url}
                 alt={post.user.display_name || ''}
                 width={48}
                 height={48}
-                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow hover:ring-2 hover:ring-blue-400 transition-all"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium hover:ring-2 hover:ring-blue-400 transition-all">
                 {post.user?.display_name?.[0] || 'U'}
               </div>
             )}
-          </div>
+          </a>
 
           {/* Author Info */}
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-gray-900">
+              <a
+                href={`/user/${post.user_id}`}
+                className="font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+              >
                 {post.user?.display_name || 'ユーザー'}
-              </h3>
+              </a>
               {post.user?.username && (
-                <span className="text-sm text-gray-500">
+                <a
+                  href={`/user/${post.user_id}`}
+                  className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
+                >
                   @{post.user.username}
-                </span>
+                </a>
               )}
             </div>
             <div className="flex items-center gap-4 mt-1">

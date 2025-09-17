@@ -22,6 +22,8 @@ export interface DatabaseUser {
   avatar_url: string | null;
   bio: string | null;
   is_active: boolean;
+  // Some deployments store verification status on public.users
+  is_verified?: boolean | null;
   email_verified: boolean;
   created_at: string;
   updated_at: string;
@@ -50,7 +52,10 @@ export interface DatabaseUserProfile {
 export interface DatabaseGym {
   id: string;
   name: string;
+  // Location granularity
   area: string;
+  prefecture?: string | null;
+  city?: string | null;
   description: string | null;
   address: string | null;
   latitude: number | null;
@@ -58,13 +63,21 @@ export interface DatabaseGym {
   phone: string | null;
   website: string | null;
   opening_hours: Record<string, any> | null;
-  facilities: string[] | null;
+  // facilities may be JSON flags or string keys depending on migration version
+  facilities: Record<string, any> | string[] | null;
   image_urls: string[] | null;
+  // Alternative images field used by some migrations
+  images?: string[] | null;
+  // Structured pricing info
+  price_info?: Record<string, any> | null;
   rating: number | null;
+  review_count?: number | null;
   users_count: number;
   created_at: string;
   updated_at: string;
   is_active: boolean;
+  // Verified (official) flag
+  verified?: boolean | null;
 }
 
 export interface DatabaseGymReview {
@@ -230,20 +243,7 @@ export interface DatabaseAchievement {
   created_at: string;
 }
 
-export interface DatabaseUserStatistics {
-  id: string;
-  user_id: string;
-  workout_count: number;
-  workout_streak: number;
-  total_weight_kg: number;
-  total_duration_minutes: number;
-  avg_workout_duration: number | null;
-  favorite_exercises: string[] | null;
-  last_workout_date: string | null;
-  calculated_at: string;
-  created_at: string;
-  updated_at: string;
-}
+// Deprecated: user_statistics table is not used and may be dropped
 
 // ========================================
 // Notifications
@@ -275,23 +275,7 @@ export interface DatabaseGymOwner {
   updated_at: string;
 }
 
-export interface DatabaseOwnerApplication {
-  id: string;
-  user_id: string;
-  gym_name: string;
-  gym_address: string;
-  business_license_number: string | null;
-  contact_phone: string;
-  website: string | null;
-  description: string | null;
-  documents_urls: string[] | null;
-  status: string; // 'pending' | 'approved' | 'rejected'
-  reviewed_by: string | null;
-  reviewed_at: string | null;
-  rejection_reason: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Deprecated: owner_applications not used; use gym_owner_applications instead
 
 // ========================================
 // Union Types for Tables
@@ -313,10 +297,8 @@ export type DatabaseTables = {
   follows: DatabaseFollow;
   favorite_gyms: DatabaseFavoriteGym;
   achievements: DatabaseAchievement;
-  user_statistics: DatabaseUserStatistics;
   notifications: DatabaseNotification;
   gym_owners: DatabaseGymOwner;
-  owner_applications: DatabaseOwnerApplication;
 };
 
 // Type helpers for database operations

@@ -2,12 +2,26 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { 
-  MapPin, Clock, Heart, Phone, Globe, ChevronLeft, 
+import {
+  MapPin, Clock, Heart, Phone, Globe, ChevronLeft,
   Share2, Users, Dumbbell, Building, Activity, MessageSquare,
   Star, ChevronRight
 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 // import Image from 'next/image'
+
+// Dynamic import Leaflet to avoid SSR issues
+const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">地図を読み込み中...</p>
+      </div>
+    </div>
+  )
+})
 
 // フォールバックデータ（DBにジムが見つからない場合のエラー表示用）
 const fallbackGym = {
@@ -172,10 +186,14 @@ export default function GymDetailPage() {
             <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600" />
             <div>
               <p className="text-sm sm:text-base font-semibold text-slate-900">
-                {gymData.businessHours[0].open}–{gymData.businessHours[0].close}
+                {gymData.businessHours && gymData.businessHours.length > 0
+                  ? `${gymData.businessHours[0].open}–${gymData.businessHours[0].close}`
+                  : '営業時間情報なし'}
               </p>
               <p className={`text-xs sm:text-sm font-medium ${gymData.isOpenNow ? 'text-green-600' : 'text-red-600'}`}>
-                {gymData.isOpenNow ? '営業中' : '営業時間外'}
+                {gymData.businessHours && gymData.businessHours.length > 0
+                  ? (gymData.isOpenNow ? '営業中' : '営業時間外')
+                  : ''}
               </p>
             </div>
           </div>
@@ -295,9 +313,47 @@ export default function GymDetailPage() {
           </div>
         )}
 
+        {/* Map Section */}
+        {activeTab === 'muscle' && (
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">アクセス</h2>
+            {gym?.latitude && gym?.longitude ? (
+              <div className="rounded-2xl overflow-hidden" style={{ height: '400px' }}>
+                <LeafletMap
+                  gyms={[gym]}
+                  center={{ lat: gym.latitude, lng: gym.longitude }}
+                  zoom={16}
+                  className="w-full h-full"
+                  mapId={`gym-detail-${gym.id}`}
+                />
+              </div>
+            ) : (
+              <div className="p-8 bg-gray-50 rounded-2xl text-center">
+                <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600">位置情報が登録されていません</p>
+              </div>
+            )}
+            {gym?.address && (
+              <div className="mt-4 p-4 bg-white border border-slate-200 rounded-2xl">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-blue-600 mt-1" />
+                  <div>
+                    <p className="font-medium text-slate-900">{gym.address}</p>
+                    {gymData.location.walkingMinutes > 0 && (
+                      <p className="text-sm text-slate-600 mt-1">
+                        最寄り駅から徒歩約 {gymData.location.walkingMinutes}分
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Contact */}
         <div className="bg-slate-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">アクセス・お問い合わせ</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">お問い合わせ</h2>
           <div className="space-y-3">
             {gymData.contact.phone && (
               <a

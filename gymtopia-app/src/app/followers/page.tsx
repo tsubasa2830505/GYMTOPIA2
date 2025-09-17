@@ -46,7 +46,6 @@ export default function FollowersPage() {
 
   const loadFollowers = async () => {
     if (!userId) {
-      console.log('No userId available for loadFollowers')
       setLoading(false)
       return
     }
@@ -60,7 +59,6 @@ export default function FollowersPage() {
 
   const loadFollowCounts = async () => {
     if (!userId) {
-      console.log('No userId available for loadFollowCounts')
       return
     }
     const counts = await getFollowCounts(userId)
@@ -71,7 +69,6 @@ export default function FollowersPage() {
 
   const handleFollowBack = async (targetUserId: string) => {
     if (!userId) {
-      console.log('No userId available for handleFollowBack')
       return
     }
     setProcessingIds(prev => [...prev, targetUserId])
@@ -87,7 +84,6 @@ export default function FollowersPage() {
 
   const handleUnfollow = async (targetUserId: string) => {
     if (!userId) {
-      console.log('No userId available for handleUnfollow')
       return
     }
     setProcessingIds(prev => [...prev, targetUserId])

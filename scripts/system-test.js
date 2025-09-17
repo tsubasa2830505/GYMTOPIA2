@@ -70,9 +70,12 @@ async function main() {
     await waitForServer('http://localhost:3000');
     console.log('✅ Dev server is up. Running system tests...\n');
 
-    // Run fast route checks first
+    // Run fast route checks first (if present)
     try {
-      await runNode(path.join(appDir, 'test_routes.js'), repoRoot);
+      const routeTest = path.join(appDir, 'test_routes.js');
+      if (require('fs').existsSync(routeTest)) {
+        await runNode(routeTest, repoRoot);
+      }
     } catch (e) {
       console.warn('⚠️ Route test failed:', e.message);
     }

@@ -102,6 +102,8 @@ export default function ProfilePage() {
   const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [currentPostPage, setCurrentPostPage] = useState(1);
+  const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
+  const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
 
   const POSTS_PER_PAGE = 20;
 
@@ -133,7 +135,7 @@ export default function ProfilePage() {
         console.log('🔄 データベースから実際のデータを取得中...', userId);
         setIsLoading(true);
 
-        // Supabaseから実際のデータを取得
+        // Supabaseから実際のデータを取得（ホームジム情報も含む）
         const [profileStats, weeklyData, posts, achievements, personalRecords, favoriteGyms] = await Promise.all([
           getUserProfileStats(userId).catch((error) => {
             console.error('プロフィール取得エラー:', error);
@@ -175,11 +177,38 @@ export default function ProfilePage() {
           getFavoriteGyms(userId).catch(() => [])
         ]);
 
+        // Supabaseクライアントを一度だけ取得
+        const supabase = getSupabaseClient();
+
+        // ホームジムデータを取得
+        let homeGymData = null;
+        if (profileStats && profileStats.primary_gym_id) {
+          const { data: gymData } = await supabase
+            .from('gyms')
+            .select('id, name')
+            .eq('id', profileStats.primary_gym_id)
+            .maybeSingle();
+          if (gymData) {
+            homeGymData = gymData;
+          }
+        }
+
+        // ユニークなジム数を計算（トピア開拓）
+        const { data: uniqueGyms } = await supabase
+          .from('gym_posts')
+          .select('gym_id')
+          .eq('user_id', userId)
+          .not('gym_id', 'is', null);
+
+        const uniqueGymIds = new Set(uniqueGyms?.map(g => g.gym_id) || []);
+        const gymsCount = uniqueGymIds.size;
+
         if (!isActive) return;
 
         console.log('📊 データベースから取得したプロフィール:', profileStats);
         console.log('📝 投稿数:', posts?.length || 0);
         console.log('❤️ お気に入りジム数:', favoriteGyms?.length || 0);
+        console.log('🏋️ トピア開拓（訪問ジム数）:', gymsCount);
 
         // データベースから取得したデータを設定
         setProfileData(profileStats);
@@ -188,6 +217,8 @@ export default function ProfilePage() {
         setUserAchievements(achievements || []);
         setUserPersonalRecords(personalRecords || []);
         setUserFavoriteGyms(favoriteGyms || []);
+        setHomeGym(homeGymData);
+        setUniqueGymsCount(gymsCount);
 
         // 投稿のページネーション設定
         setHasMorePosts((posts || []).length === POSTS_PER_PAGE);
@@ -428,11 +459,11 @@ export default function ProfilePage() {
                   プロフィール編集
                 </button>
               </div>
-              <div className="flex flex-row items-center justify-center sm:justify-start gap-3 text-slate-700 mb-1 sm:mb-3">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-slate-700 mb-1 sm:mb-3">
                 <p className="text-xs sm:text-base text-slate-700 font-medium">
                   {isLoading ? '...' : (profileData?.username ? `@${profileData.username}` : '@user')}
                 </p>
-                <span className="text-slate-400">•</span>
+                <span className="text-slate-400 hidden sm:inline">•</span>
                 <div className="flex items-center gap-1">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
@@ -441,15 +472,32 @@ export default function ProfilePage() {
                     {isLoading ? '...' : (profileData?.joined_at ? new Date(profileData.joined_at).toLocaleDateString('ja-JP', {year: 'numeric', month: 'long'}) : '不明')}
                   </span>
                 </div>
-                <span className="text-slate-400">•</span>
-                <div className="flex items-center gap-1">
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
-                  <span className="text-xs sm:text-sm">
-                    {isLoading ? '...' : (profileData?.location || '未設定')}
-                  </span>
-                </div>
+                {profileData?.location && (
+                  <>
+                    <span className="text-slate-400 hidden sm:inline">•</span>
+                    <div className="flex items-center gap-1">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      </svg>
+                      <span className="text-xs sm:text-sm">
+                        {profileData.location}
+                      </span>
+                    </div>
+                  </>
+                )}
+                {homeGym && (
+                  <>
+                    <span className="text-slate-400 hidden sm:inline">•</span>
+                    <div className="flex items-center gap-1">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                      </svg>
+                      <span className="text-xs sm:text-sm">
+                        {homeGym.name}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               <p className="text-xs sm:text-sm text-slate-900 mb-2 sm:mb-4 px-4 sm:px-0">
                 {isLoading ? '読み込み中...' : (profileData?.bio || 'プロフィール情報を設定してください')}
@@ -457,7 +505,7 @@ export default function ProfilePage() {
 
               {/* Stats */}
               <div className="flex gap-4 sm:gap-8 w-full sm:w-auto justify-center sm:justify-start">
-                <button 
+                <button
                   onClick={() => router.push('/gym-stats')}
                   className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
                 >
@@ -466,6 +514,12 @@ export default function ProfilePage() {
                   </span>
                   <span className="text-xs text-slate-600 font-medium">ジム通い</span>
                 </button>
+                <div className="flex flex-col items-center min-w-[60px] px-2 py-2">
+                  <span className="text-xl sm:text-2xl font-bold text-purple-600">
+                    {isLoading ? '...' : uniqueGymsCount}
+                  </span>
+                  <span className="text-xs text-slate-600 font-medium">トピア開拓</span>
+                </div>
                 <button
                   onClick={() => router.push('/following')}
                   className="flex flex-col items-center min-w-[60px] hover:bg-slate-50 rounded-lg px-2 py-2 transition-colors"
