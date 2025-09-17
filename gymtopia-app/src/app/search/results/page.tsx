@@ -544,7 +544,7 @@ function SearchResultsContent() {
                 height={32}
                 className="h-6 sm:h-8 w-auto"
               />
-              <p className="text-xs text-[color:var(--text-muted)]">街の熱量と一緒にジムを探そう</p>
+              <h2 className="text-lg font-medium text-gray-700">ジム検索</h2>
             </div>
           </div>
         </div>

@@ -245,9 +245,9 @@ export default function FollowersPage() {
           <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#e8fdf6] to-[#eef9ff]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">フォロー候補</span>
-              <Clock className="w-5 h-5 text-[#38d7a7]" />
+              <Clock className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#38d7a7]">{notFollowingBackCount}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[color:var(--gt-secondary-strong)]">{notFollowingBackCount}</div>
             <p className="gt-body mt-2">あなたをフォローしていて、まだフォロー返ししていないユーザー</p>
           </div>
         </div>

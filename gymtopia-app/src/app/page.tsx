@@ -79,6 +79,29 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-12 sm:pt-12 sm:pb-16 space-y-10">
 
+        {/* Hero Section */}
+        <div className="relative text-center mb-8 rounded-3xl overflow-hidden h-64 sm:h-80">
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")'
+            }}
+          />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-purple-900/70" />
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-center items-center h-full px-6">
+            <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-white drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
+              理想のジムトピアが<br className="sm:hidden" />ここにある
+            </h2>
+            <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="col-span-1 lg:col-span-2">
             <div className="gt-card rounded-[32px] border border-[rgba(157,176,226,0.5)] backdrop-blur-sm">

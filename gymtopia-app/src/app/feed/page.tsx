@@ -380,7 +380,7 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('following')}
               className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'following'
-                ? 'bg-blue-500 text-white shadow-sm'
+                ? 'bg-[#6056ff] text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
             >
@@ -392,7 +392,7 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('mutual')}
               className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'mutual'
-                ? 'bg-blue-500 text-white shadow-sm'
+                ? 'bg-[#6056ff] text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
             >
@@ -404,7 +404,7 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('same-gym')}
               className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'same-gym'
-                ? 'bg-blue-500 text-white shadow-sm'
+                ? 'bg-[#6056ff] text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
             >
