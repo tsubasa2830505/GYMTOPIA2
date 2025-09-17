@@ -332,12 +332,13 @@ export default function FeedPage() {
 
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen pb-20 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.18),transparent_65%)]" />
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-      <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[#3b63f3] to-[#4aa0d9] rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(26,44,94,0.5)]">
+            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[#3b63f3] to-[#4aa0d9] rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(26,44,94,0.5)]">
               <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z" />
               </svg>
@@ -350,30 +351,30 @@ export default function FeedPage() {
                 height={32}
                 className="h-6 sm:h-8 w-auto"
               />
-              <p className="text-xs text-slate-600">理想のジムを見つけよう</p>
+              <p className="text-xs text-[color:var(--text-muted)]">街の熱量と一緒にジムを探そう</p>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="relative max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Feed Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-700">ジム活フィード</h2>
-            <span className="text-sm text-gray-500">
+            <h2 className="text-lg font-semibold text-[color:var(--foreground)]">ジム活フィード</h2>
+            <span className="text-sm text-[color:var(--text-muted)]">
               {posts.length}件の投稿
             </span>
           </div>
 
           {/* Filter Tabs */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'all'
-                ? 'bg-[#6056ff] text-white shadow-sm'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'all'
+                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -383,9 +384,9 @@ export default function FeedPage() {
             </button>
             <button
               onClick={() => setFilter('following')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'following'
-                ? 'bg-[#6056ff] text-white shadow-sm'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'following'
+                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -395,9 +396,9 @@ export default function FeedPage() {
             </button>
             <button
               onClick={() => setFilter('mutual')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'mutual'
-                ? 'bg-[#6056ff] text-white shadow-sm'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'mutual'
+                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -407,9 +408,9 @@ export default function FeedPage() {
             </button>
             <button
               onClick={() => setFilter('same-gym')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1 ${filter === 'same-gym'
-                ? 'bg-[#6056ff] text-white shadow-sm'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'same-gym'
+                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">

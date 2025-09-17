@@ -263,7 +263,7 @@ export default function FollowingPage() {
         ) : (
           <div className="space-y-4">
             {filteredFollowing.map((user) => (
-              <div key={user.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div key={user.id} className="gt-card p-6 hover:shadow-[0_24px_50px_-30px_rgba(26,44,94,0.48)] transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <Link href={`/user/${user.id}`} className="flex-shrink-0">
@@ -277,7 +277,7 @@ export default function FollowingPage() {
                       />
                     ) : (
                       <div 
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-[0_14px_32px_-20px_rgba(26,44,94,0.45)]"
                         style={{ backgroundColor: getAvatarColor(user.display_name || user.username) }}
                       >
                         {(user.display_name || user.username).charAt(0)}
@@ -290,36 +290,36 @@ export default function FollowingPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Link href={`/user/${user.id}`} className="font-bold text-lg text-slate-900 hover:text-blue-600 transition-colors">
+                          <Link href={`/user/${user.id}`} className="font-bold text-lg text-[color:var(--foreground)] hover:text-[color:var(--gt-primary-strong)] transition-colors">
                             {user.display_name || user.username}
                           </Link>
                           {user.is_mutual_follow && (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                            <span className="px-2 py-1 bg-[rgba(74,160,217,0.16)] text-[color:var(--gt-secondary-strong)] text-xs rounded-full font-medium border border-[rgba(74,160,217,0.32)]">
                               相互
                             </span>
                           )}
                         </div>
-                        <Link href={`/user/${user.id}`} className="text-sm text-slate-600 hover:text-blue-600 transition-colors inline-block">@{user.username}</Link>
+                        <Link href={`/user/${user.id}`} className="text-sm text-[color:var(--text-subtle)] hover:text-[color:var(--gt-primary-strong)] transition-colors inline-block">@{user.username}</Link>
                         {user.bio && (
-                          <p className="text-sm text-slate-700 mt-1">{user.bio}</p>
+                          <p className="text-sm text-[color:var(--text-subtle)] mt-1">{user.bio}</p>
                         )}
                         
                         {/* Stats */}
-                        <div className="flex flex-wrap gap-3 mt-3">
-                          <div className="flex items-center gap-1 text-xs text-slate-600">
-                            <Calendar className="w-3 h-3" />
+                        <div className="flex flex-wrap gap-3 mt-3 text-xs text-[color:var(--text-muted)]">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-[color:var(--gt-primary-strong)]" />
                             <span>{formatJoinDate(user.created_at)}から</span>
                           </div>
-                          <div className="flex items-center gap-1 text-xs text-slate-600">
+                          <div className="flex items-center gap-1">
                             <span>{user.posts_count}投稿</span>
                           </div>
                           {user.mutual_friends_count > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-slate-600">
+                            <div className="flex items-center gap-1">
                               <span>共通の友達 {user.mutual_friends_count}人</span>
                             </div>
                           )}
-                          <div className="flex items-center gap-1 text-xs text-slate-600">
-                            <Clock className="w-3 h-3" />
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-[color:var(--gt-secondary-strong)]" />
                             <span>最終: {formatLastActive(user.last_seen_at)}</span>
                           </div>
                         </div>
@@ -330,7 +330,7 @@ export default function FollowingPage() {
                         <button 
                           onClick={() => handleUnfollow(user.id)}
                           disabled={processingIds.includes(user.id)}
-                          className={`px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1 ${
+                          className={`px-3 py-2 bg-[rgba(255,247,247,0.9)] text-red-600 rounded-lg text-sm font-medium border border-red-200 hover:bg-red-100 transition-colors flex items-center gap-1 ${
                             processingIds.includes(user.id) ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         >
