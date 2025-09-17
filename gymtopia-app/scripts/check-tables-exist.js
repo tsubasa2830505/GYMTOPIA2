@@ -86,10 +86,10 @@ async function getCount(table) {
 async function main() {
   const result = { candidates: {}, appUsed: {}, extras: {}, legacyTargets: {} }
   for (const t of candidates) {
-    // eslint-disable-next-line no-await-in-loop
+     
     const exists = await headExists(t)
     if (exists.exists) {
-      // eslint-disable-next-line no-await-in-loop
+       
       const cnt = await getCount(t)
       result.candidates[t] = { ...exists, rows: cnt.ok ? cnt.count : null }
     } else {
@@ -97,15 +97,15 @@ async function main() {
     }
   }
   for (const t of appUsed) {
-    // eslint-disable-next-line no-await-in-loop
+     
     result.appUsed[t] = await headExists(t)
   }
   for (const t of extras) {
-    // eslint-disable-next-line no-await-in-loop
+     
     result.extras[t] = await headExists(t)
   }
   for (const t of ['posts_legacy','likes_legacy','comments_legacy','muscle_parts_legacy','workout_sets_legacy','gym_posts_partitioned_legacy','profiles_legacy']) {
-    // eslint-disable-next-line no-await-in-loop
+     
     result.legacyTargets[t] = await headExists(t)
   }
   console.log(JSON.stringify(result, null, 2))

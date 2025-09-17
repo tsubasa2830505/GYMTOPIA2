@@ -63,6 +63,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
   const [filter, setFilter] = useState<MachineFilter>({
     targetCategory: null,
     targetParts: [],
+    type: [],
     maker: []
   })
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
@@ -477,12 +478,12 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     <button
                       key={maker.id}
                       onClick={() => toggleFilter('maker', maker.id)}
-                      className={`p-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`p-2 rounded-lg text-sm font-medium transition-all border ${
                         isSelected
-                          ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_16px_36px_-22px_rgba(96,86,255,0.6)]'
+                          ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_16px_36px_-22px_rgba(96,86,255,0.6)] border-transparent'
                           : isRelated && (filter.targetCategory || filter.type.length > 0)
-                          ? 'bg-white/75 text-[#5f53ff] border border-[#7e6cff]/40 hover:bg-white'
-                          : 'bg-white/70 text-[color:var(--text-subtle)] border border-white/60 hover:bg-white'
+                          ? 'bg-white/75 text-[#5f53ff] border-[#7e6cff]/40 hover:bg-white'
+                          : 'bg-white/70 text-[color:var(--text-subtle)] border-white/60 hover:bg-white'
                       }`}
                     >
                       {maker.name}
@@ -550,7 +551,6 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             // 英語カテゴリーを日本語に変換して表示
             const japaneseCategory = categoryMapping[machine.target_category] || machine.target_category
             const target = targetOptions.find(t => t.id === japaneseCategory)
-            const type = typeOptions.find(t => t.id === machine.type)
             const maker = makerOptions.find(m => m.id === machine.maker)
             const machineCount = selectedMachines.get(machine.id) || 0
 

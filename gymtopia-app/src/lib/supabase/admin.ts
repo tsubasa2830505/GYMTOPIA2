@@ -145,7 +145,7 @@ export async function removeGymMachine(gymId: string, machineId: string) {
     if (!isOwner) throw new Error('Permission denied')
 
     // Try delete by machine_id first (normalized path), then fallback to row id
-    let { error } = await supabase
+    const { error } = await supabase
       .from('gym_machines')
       .delete()
       .eq('gym_id', gymId)
