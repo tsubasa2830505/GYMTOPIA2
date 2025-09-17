@@ -172,8 +172,8 @@ export default function AdminReviewsPage() {
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">すべてのジム</option>
-                {gyms.map(gym => (
-                  <option key={gym.id} value={gym.id}>{gym.name}</option>
+                {gyms.map((gym, index) => (
+                  <option key={`${gym.id}-${index}`} value={gym.id}>{gym.name}</option>
                 ))}
               </select>
             </div>

@@ -182,10 +182,12 @@ function AddGymPostContent() {
   ]
 
   const handleAddExercise = () => {
-    if (currentExercise.name && currentExercise.weight && currentExercise.sets && currentExercise.reps) {
+    if (currentExercise.name.trim() && currentExercise.weight.trim() && currentExercise.sets.trim() && currentExercise.reps.trim()) {
       setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
       setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '' })
       setShowExerciseForm(false)
+    } else {
+      alert('すべての項目を入力してください')
     }
   }
 
@@ -475,8 +477,8 @@ function AddGymPostContent() {
               required
             >
               <option value="">ジムを選択してください</option>
-              {gymList.map((gym) => (
-                <option key={gym} value={gym}>{gym}</option>
+              {gymList.map((gym, index) => (
+                <option key={`${gym}-${index}`} value={gym}>{gym}</option>
               ))}
             </select>
           </div>
@@ -509,11 +511,24 @@ function AddGymPostContent() {
               {!showExerciseForm && (
                 <button
                   type="button"
-                  onClick={() => setShowExerciseForm(true)}
+                  onClick={() => {
+                    console.log('種目追加ボタンがクリックされました')
+                    setShowExerciseForm(true)
+                  }}
                   className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   種目を追加
+                </button>
+              )}
+              {showExerciseForm && (
+                <button
+                  type="button"
+                  onClick={() => setShowExerciseForm(false)}
+                  className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  フォームを閉じる
                 </button>
               )}
             </div>
@@ -723,8 +738,8 @@ function AddGymPostContent() {
                 required
               >
                 <option value="">ジムを選択してください</option>
-                {gymList.map((gym) => (
-                  <option key={gym} value={gym}>{gym}</option>
+                {gymList.map((gym, index) => (
+                  <option key={`${gym}-admin-${index}`} value={gym}>{gym}</option>
                 ))}
               </select>
               <p className="text-xs text-slate-500 mt-2">

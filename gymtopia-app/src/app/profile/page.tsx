@@ -135,18 +135,20 @@ export default function ProfilePage() {
         console.log('🔄 データベースから実際のデータを取得中...', userId);
         setIsLoading(true);
 
-        // Supabaseから実際のデータを取得（ホームジム情報も含む）
-        const [profileStats, weeklyData, posts, achievements, personalRecords, favoriteGyms] = await Promise.all([
-          getUserProfileStats(userId).catch((error) => {
-            console.error('プロフィール取得エラー:', error);
-            // エラー時はデフォルトデータを返す
-            return {
-              user_id: userId,
-              display_name: 'Tsubasa',
-              username: 'tsubasa_gym',
-              avatar_url: '/muscle-taro-avatar.svg',
-              bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
-              location: '東京',
+        // 段階的ローディング: 重要なデータを優先的に読み込み
+        console.log('🚀 最重要データを優先読み込み...');
+
+        // Phase 1: ユーザーの基本情報とプロフィール統計（最重要）
+        const profileStats = await getUserProfileStats(userId).catch((error) => {
+          console.error('プロフィール取得エラー:', error);
+          // エラー時はデフォルトデータを返す
+          return {
+            user_id: userId,
+            display_name: 'Tsubasa',
+            username: 'tsubasa_gym',
+            avatar_url: '/muscle-taro-avatar.svg',
+            bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
+            location: '東京',
               joined_at: '2024-01-01T00:00:00Z',
               is_verified: true,
               workout_count: 142,
@@ -158,24 +160,48 @@ export default function ProfilePage() {
               achievements_count: 12,
               favorite_gyms_count: 5
             } as UserProfileStats;
-          }),
-          getWeeklyStats(userId).catch(() => ({
-            workout_count: 4,
-            total_weight_kg: 8500,
-            avg_duration_minutes: 75,
-            streak_days: 7,
-            favorite_exercises: [
-              { name: 'ベンチプレス', frequency: 3 },
-              { name: 'スクワット', frequency: 2 },
-              { name: 'デッドリフト', frequency: 2 }
-            ],
-            workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
-          } as WeeklyStats)),
-          getUserPosts(userId, 1, POSTS_PER_PAGE).catch(() => []),
+          });
+
+        // Phase 1結果を即座にUIに反映（最初の表示を高速化）
+        setProfileData(profileStats);
+        console.log('✅ プロフィール基本情報 読み込み完了');
+
+        // Phase 2: 週間統計データ（中程度の重要度）
+        const weeklyData = await getWeeklyStats(userId).catch(() => ({
+          workout_count: 4,
+          total_weight_kg: 8500,
+          avg_duration_minutes: 75,
+          streak_days: 7,
+          favorite_exercises: [
+            { name: 'ベンチプレス', frequency: 3 },
+            { name: 'スクワット', frequency: 2 },
+            { name: 'デッドリフト', frequency: 2 }
+          ],
+          workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
+        } as WeeklyStats));
+        setWeeklyStats(weeklyData);
+        console.log('✅ 週間統計 読み込み完了');
+
+        // Phase 3: 投稿データ（表示される可能性が高い）
+        const posts = await getUserPosts(userId, 1, POSTS_PER_PAGE).catch(() => []);
+        setUserPosts(posts);
+        console.log('✅ 投稿データ 読み込み完了');
+
+        // メインローディング終了（ここで画面が使える状態に）
+        setIsLoading(false);
+        console.log('🎉 メインローディング完了！');
+
+        // Phase 4: 非重要データを背景で読み込み（遅延ローディング）
+        Promise.all([
           getUserAchievements(userId).catch(() => []),
           getUserPersonalRecords(userId).catch(() => []),
           getFavoriteGyms(userId).catch(() => [])
-        ]);
+        ]).then(([achievements, personalRecords, favoriteGyms]) => {
+          setUserAchievements(achievements);
+          setUserPersonalRecords(personalRecords);
+          setUserFavoriteGyms(favoriteGyms);
+          console.log('✅ 全ての補助データ 読み込み完了');
+        });
 
         // Supabaseクライアントを一度だけ取得
         const supabase = getSupabaseClient();
@@ -619,8 +645,48 @@ export default function ProfilePage() {
             </div>
             
             {isLoading ? (
-              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                <div className="animate-pulse">
+              // 改善されたスケルトンローディング（投稿カード風）
+              <div className="space-y-4">
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                    <div className="animate-pulse">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-slate-200 rounded w-1/4 mb-2"></div>
+                          <div className="h-3 bg-slate-200 rounded w-1/3"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                        <div className="h-32 bg-slate-200 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : userPosts.length === 0 ? (
+              <div className="bg-white rounded-lg p-6 sm:p-8 shadow-sm text-center">
+                <div className="text-slate-400 mb-4">
+                  <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 mb-2">まだ投稿がありません</h3>
+                <p className="text-slate-600 mb-4">最初のジム活を投稿してみましょう！</p>
+                <button
+                  onClick={() => router.push('/add')}
+                  className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                >
+                  投稿する
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {userPosts.map((post) => (
+                  <div key={post.id} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                    <div className="animate-pulse">
                   <div className="flex gap-3 mb-4">
                     <div className="w-12 h-12 bg-slate-200 rounded-full"></div>
                     <div className="flex-1">

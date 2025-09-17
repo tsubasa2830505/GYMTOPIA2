@@ -194,8 +194,8 @@ export async function getUserPosts(
       .from('gym_posts')
       .select(`
         *,
-        user:users!gym_posts_user_id_fkey(id, display_name, username, avatar_url),
-        gym:gyms!gym_posts_gym_id_fkey(id, name)
+        user:users(id, display_name, username, avatar_url),
+        gym:gyms(id, name)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -227,8 +227,8 @@ export async function getUserPosts(
       muscle_groups_trained: post.muscle_groups_trained || [],
       duration_minutes: post.duration_minutes || 0,
       crowd_status: post.crowd_status || undefined,
-      likes_count: post.likes_count || post.like_count || 0,
-      comments_count: post.comments_count || post.comment_count || 0,
+      likes_count: post.like_count || 0, // Use like_count from database
+      comments_count: post.comment_count || 0, // Use comment_count from database
       visibility: post.visibility || 'public',
       is_public: post.is_public !== false,
       created_at: post.created_at,

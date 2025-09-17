@@ -3,13 +3,14 @@
 // Force dynamic rendering - prevent static generation
 export const dynamic = 'force-dynamic'
 
-import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, X } from 'lucide-react'
+import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import GymDetailModal from '@/components/GymDetailModal'
 import { UberStyleMapView } from '@/components/UberStyleMapView'
 import { getGyms, Gym } from '@/lib/supabase/gyms'
+import { searchGymsNearby } from '@/lib/supabase/search'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
 import { getSupabaseClient } from '@/lib/supabase/client'
@@ -201,7 +202,7 @@ function SearchResultsContent() {
       
       if (data) {
         // Transform data to match component format
-        const transformedData = data.map((gym: Gym) => {
+        const transformedData = data.map((gym: Gym, index: number) => {
           // 距離と駅情報を計算
           const stationInfo = enrichGymWithStationInfo({
             address: gym.address,
@@ -210,7 +211,7 @@ function SearchResultsContent() {
           })
 
           return {
-            id: gym.id,
+            id: gym.id || `gym-${index}`, // Ensure unique ID
             name: gym.name || 'ジム名未設定',
             location: stationInfo.walkingMinutes > 0
               ? `${stationInfo.station}から徒歩${stationInfo.walkingMinutes}分`
@@ -240,7 +241,12 @@ function SearchResultsContent() {
           }
         })
 
-        setGyms(transformedData)
+        // Remove duplicates based on ID
+        const uniqueGyms = transformedData.filter((gym, index, self) =>
+          self.findIndex(g => g.id === gym.id) === index
+        )
+
+        setGyms(uniqueGyms)
       }
     } catch (err) {
       console.error('Failed to fetch gyms:', err)
@@ -342,7 +348,56 @@ function SearchResultsContent() {
       }
     }
 
-    fetchGyms(newConditions)
+    const nearby = searchParams.get('nearby') === '1'
+    const lat = parseFloat(searchParams.get('lat') || '')
+    const lon = parseFloat(searchParams.get('lon') || '')
+    const radius = parseFloat(searchParams.get('radius') || '5')
+
+    if (nearby && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+      (async () => {
+        try {
+          setLoading(true)
+          setError(null)
+          const { data, error } = await searchGymsNearby(lon, lat, radius, 100, 0)
+          if (error) throw error
+          const ids = (data || []).map((r: any) => r.id)
+          if (ids.length === 0) {
+            setGyms([])
+            setLoading(false)
+            return
+          }
+          const supabase = getSupabaseClient()
+          const { data: gymRows } = await supabase
+            .from('gyms')
+            .select('*')
+            .in('id', ids)
+          const distMap = new Map<string, number>()
+          ;(data || []).forEach((r: any) => distMap.set(r.id, r.distance_km))
+          const transformed = (gymRows || []).map((g: any) => ({
+            id: g.id,
+            name: g.name,
+            location: g.city || g.prefecture || '',
+            distance: distMap.has(g.id) ? `${distMap.get(g.id)?.toFixed(1)} km` : undefined,
+            likes: g.review_count || 0,
+            tags: g.equipment_types || [],
+            image: g.images && g.images.length > 0 ? g.images[0] : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+            price: '—',
+            isLiked: false,
+            address: g.address || '',
+            images: g.images || []
+          }))
+          setGyms(transformed)
+        } catch (e: any) {
+          console.error('Nearby search failed', e)
+          setError('近くのジム検索に失敗しました')
+          setGyms([])
+        } finally {
+          setLoading(false)
+        }
+      })()
+    } else {
+      fetchGyms(newConditions)
+    }
   }, [searchParams, fetchGyms])
 
   const getTotalConditionsCount = () => {
@@ -406,10 +461,16 @@ function SearchResultsContent() {
             <div className="flex-1">
               <h2 className="text-lg sm:text-xl font-bold text-slate-900">検索結果</h2>
               <p className="text-xs sm:text-sm text-slate-600">
-                {getTotalConditionsCount() > 0 
-                  ? `${getTotalConditionsCount()}件の条件で検索` 
-                  : '理想のジムが見つかりました'
-                }
+                {(() => {
+                  const nearby = searchParams.get('nearby') === '1'
+                  if (nearby) {
+                    const r = searchParams.get('radius') || '5'
+                    return `現在地から半径${r}km`
+                  }
+                  return getTotalConditionsCount() > 0 
+                    ? `${getTotalConditionsCount()}件の条件で検索`
+                    : '理想のジムが見つかりました'
+                })()}
               </p>
             </div>
             <div className="hidden sm:flex bg-cyan-100 px-4 py-2 rounded-full items-center gap-2">

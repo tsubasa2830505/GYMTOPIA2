@@ -1,4 +1,4 @@
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 
 
 
@@ -32,7 +32,7 @@ export async function getFollowers(userId: string) {
     // TSUBASAユーザーIDのフォールバック
     const actualUserId = userId || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .select(`
         *,
@@ -59,7 +59,7 @@ export async function getFollowers(userId: string) {
         const follower = follow.follower as any
         
         // Check if current user is following back
-        const { data: followBack } = await supabase
+        const { data: followBack } = await getSupabaseClient()
           .from('follows')
           .select('id')
           .eq('follower_id', actualUserId)
@@ -70,18 +70,18 @@ export async function getFollowers(userId: string) {
         const isMutualFollow = !!followBack
 
         // Get posts count
-        const { count: postsCount } = await supabase
+        const { count: postsCount } = await getSupabaseClient()
           .from('gym_posts')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', follower.id)
 
         // Get mutual friends count
-        const { data: userFollowing } = await supabase
+        const { data: userFollowing } = await getSupabaseClient()
           .from('follows')
           .select('following_id')
           .eq('follower_id', actualUserId)
 
-        const { data: followerFollowing } = await supabase
+        const { data: followerFollowing } = await getSupabaseClient()
           .from('follows')
           .select('following_id')
           .eq('follower_id', follower.id)
@@ -118,7 +118,7 @@ export async function getFollowing(userId: string) {
       return { data: [], error: null }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .select(`
         *,
@@ -159,13 +159,13 @@ export async function getFollowing(userId: string) {
         const isMutualFollow = !!followsBack
 
         // Get posts count
-        const { count: postsCount } = await supabase
+        const { count: postsCount } = await getSupabaseClient()
           .from('gym_posts')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', following.id)
 
         // Get mutual friends count
-        const { data: userFollowing } = await supabase
+        const { data: userFollowing } = await getSupabaseClient()
           .from('follows')
           .select('following_id')
           .eq('follower_id', actualUserId)
@@ -200,11 +200,11 @@ export async function getFollowing(userId: string) {
 export async function getFollowCounts(userId: string) {
   try {
     const [followersResult, followingResult] = await Promise.all([
-      supabase
+      getSupabaseClient()
         .from('follows')
         .select('*', { count: 'exact', head: true })
         .eq('following_id', userId),
-      supabase
+      getSupabaseClient()
         .from('follows')
         .select('*', { count: 'exact', head: true })
         .eq('follower_id', userId)
@@ -224,7 +224,7 @@ export async function getFollowCounts(userId: string) {
 // Follow a user
 export async function followUser(followerId: string, followingId: string) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .insert({
         follower_id: followerId,
@@ -236,7 +236,7 @@ export async function followUser(followerId: string, followingId: string) {
     if (error) throw error
 
     // Create notification for the followed user
-    await supabase
+    await getSupabaseClient()
       .from('notifications')
       .insert({
         user_id: followingId,
@@ -257,7 +257,7 @@ export async function followUser(followerId: string, followingId: string) {
 // Unfollow a user
 export async function unfollowUser(followerId: string, followingId: string) {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('follows')
       .delete()
       .eq('follower_id', followerId)
@@ -275,7 +275,7 @@ export async function unfollowUser(followerId: string, followingId: string) {
 // Check if user A is following user B
 export async function isFollowing(followerId: string, followingId: string) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('follows')
       .select('id')
       .eq('follower_id', followerId)
@@ -295,11 +295,11 @@ export async function isFollowing(followerId: string, followingId: string) {
 export async function getMutualFollowers(userId1: string, userId2: string) {
   try {
     const [followers1, followers2] = await Promise.all([
-      supabase
+      getSupabaseClient()
         .from('follows')
         .select('follower_id')
         .eq('following_id', userId1),
-      supabase
+      getSupabaseClient()
         .from('follows')
         .select('follower_id')
         .eq('following_id', userId2)
@@ -314,7 +314,7 @@ export async function getMutualFollowers(userId1: string, userId2: string) {
       return { data: [], error: null }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('users')
       .select('*')
       .in('id', mutualIds)

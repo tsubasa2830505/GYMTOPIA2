@@ -140,7 +140,8 @@
       "Bash(sudo xcodebuild:*)",
       "Bash(/usr/bin/git add -A)",
       "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel env add NEXT_PUBLIC_SUPABASE_URL production --value=\"https://htytewqvkgwyuvcsvjwm.supabase.co\")",
-      "WebFetch(domain:gymtopia-cbjg4ewdz-gymtopia-b483a455.vercel.app)"
+      "WebFetch(domain:gymtopia-cbjg4ewdz-gymtopia-b483a455.vercel.app)",
+      "mcp__supabase__search_docs"
     ],
     "deny": [],
     "ask": []

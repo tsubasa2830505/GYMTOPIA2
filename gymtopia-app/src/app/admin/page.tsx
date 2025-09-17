@@ -648,8 +648,8 @@ export default function AdminPage() {
                       }
                     }}
                   >
-                    {gyms.map(gym => (
-                      <option key={gym.id} value={gym.id}>{gym.name}</option>
+                    {gyms.map((gym, index) => (
+                      <option key={`${gym.id}-${index}`} value={gym.id}>{gym.name}</option>
                     ))}
                   </select>
                 )}

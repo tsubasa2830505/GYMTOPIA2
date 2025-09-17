@@ -149,6 +149,32 @@ export async function searchMachines(
   }
 }
 
+// Nearby search using RPC (Haversine), returns gyms with distance
+export async function searchGymsNearby(
+  lon: number,
+  lat: number,
+  radiusKm: number,
+  limit = 50,
+  offset = 0
+) {
+  try {
+    const { data, error } = await supabase
+      .rpc('gyms_nearby', {
+        lon,
+        lat,
+        radius_km: radiusKm,
+        limit_n: limit,
+        offset_n: offset
+      })
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error searching nearby gyms:', error)
+    return { data: null, error }
+  }
+}
+
 // Search posts
 export async function searchPosts(
   query: string,

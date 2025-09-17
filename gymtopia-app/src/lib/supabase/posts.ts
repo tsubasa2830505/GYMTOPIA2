@@ -328,11 +328,7 @@ export async function createPost(post: {
         training_details: post.training_details || null,
         crowd_status: post.achievement_data?.crowd_status || post.training_details?.crowd_status || 'normal',
         visibility: post.visibility || 'public',
-        is_public: (post.visibility ?? 'public') === 'public',
-        like_count: 0,
-        comment_count: 0,
-        likes_count: 0,
-        comments_count: 0
+        is_public: (post.visibility ?? 'public') === 'public'
       })
       .select()
       .single()
