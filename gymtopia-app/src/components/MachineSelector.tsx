@@ -341,8 +341,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                           onClick={() => selectCategory(target.id)}
                           className={`p-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                             filter.targetCategory === target.id
-                              ? 'bg-gradient-to-r from-[#6056ff] via-[#7c6bff] to-[#ff6b9f] text-white shadow-lg border-transparent'
-                              : 'bg-white text-slate-600 border-slate-300 hover:border-[#6056ff] hover:bg-slate-50'
+                              ? 'bg-gradient-to-r from-[#3b63f3] via-[#5f6bdc] to-[#4aa0d9] text-white shadow-[0_18px_36px_-24px_rgba(26,44,94,0.48)] border-transparent'
+                              : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border-[rgba(168,184,228,0.5)] hover:border-[rgba(59,99,243,0.38)] hover:bg-white'
                           }`}
                         >
                           {target.name}
@@ -367,8 +367,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                               onClick={() => togglePart(part)}
                               className={`p-2 rounded-lg text-xs font-semibold transition-all border-2 ${
                                 filter.targetParts.includes(part)
-                                  ? 'bg-gradient-to-r from-[#6056ff] to-[#ff6b9f] text-white shadow-[0_12px_28px_-18px_rgba(96,86,255,0.6)] border-transparent'
-                                  : 'bg-white/70 text-slate-600 border-slate-300 hover:bg-white hover:border-slate-400'
+                                  ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_14px_30px_-20px_rgba(26,44,94,0.48)] border-transparent'
+                                  : 'bg-[rgba(243,247,255,0.85)] text-[color:var(--text-subtle)] border-[rgba(157,176,226,0.45)] hover:bg-white hover:border-[rgba(59,99,243,0.36)]'
                               }`}
                             >
                               {part}
@@ -451,10 +451,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
             className="w-full p-4 flex items-center justify-between hover:bg-white/60 gt-transition"
           >
             <div className="flex items-center gap-3">
-              <Factory className="w-5 h-5 text-[#7e6cff]" />
+              <Factory className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
               <h3 className="font-semibold text-[color:var(--foreground)]">メーカー</h3>
               {filter.maker.length > 0 && (
-                <span className="gt-badge text-[11px]" style={{ background: 'rgba(126,108,255,0.18)', color: '#5f53ff', borderColor: 'rgba(126,108,255,0.4)' }}>
+                <span className="gt-badge text-[11px]" style={{ background: 'rgba(123, 139, 255, 0.18)', color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(123, 139, 255, 0.32)' }}>
                   {filter.maker.length}
                 </span>
               )}
@@ -480,10 +480,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       onClick={() => toggleFilter('maker', maker.id)}
                       className={`p-2 rounded-lg text-sm font-medium transition-all border-2 ${
                         isSelected
-                          ? 'bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white shadow-[0_16px_36px_-22px_rgba(96,86,255,0.6)] border-transparent'
+                          ? 'bg-gradient-to-r from-[#3b63f3] via-[#5f6bdc] to-[#4aa0d9] text-white shadow-[0_16px_36px_-24px_rgba(26,44,94,0.5)] border-transparent'
                           : isRelated && (filter.targetCategory || filter.type.length > 0)
-                          ? 'bg-white/75 text-[#6056ff] border-[#6056ff] hover:bg-white'
-                          : 'bg-white/70 text-slate-600 border-slate-300 hover:bg-white hover:border-slate-400'
+                          ? 'bg-[rgba(243,247,255,0.92)] text-[#2b4cb0] border-[rgba(59,99,243,0.35)] hover:bg-white'
+                          : 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-subtle)] border-[rgba(168,184,228,0.45)] hover:bg-white hover:border-[rgba(59,99,243,0.32)]'
                       }`}
                     >
                       {maker.name}
@@ -525,13 +525,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           <div className="flex gap-2">
             <button
               onClick={selectAllFiltered}
-              className="px-3 py-1 rounded-full bg-gradient-to-r from-[#6056ff] via-[#7e6cff] to-[#ff6b9f] text-white text-xs sm:text-sm font-semibold shadow-[0_12px_30px_-20px_rgba(96,86,255,0.6)] transition-all hover:translate-y-[-1px]"
+              className="px-3 py-1 rounded-full bg-gradient-to-r from-[#3b63f3] via-[#5f6bdc] to-[#4aa0d9] text-white text-xs sm:text-sm font-semibold shadow-[0_14px_34px_-22px_rgba(26,44,94,0.5)] transition-transform hover:-translate-y-[1px]"
             >
               すべて選択
             </button>
             <button
               onClick={deselectAllFiltered}
-              className="px-3 py-1 rounded-full bg-white/70 text-[color:var(--foreground)] text-xs sm:text-sm font-semibold border border-white/60 hover:bg-white transition-colors"
+              className="px-3 py-1 rounded-full bg-[rgba(243,247,255,0.9)] text-[color:var(--text-subtle)] text-xs sm:text-sm font-semibold border border-[rgba(168,184,228,0.45)] hover:bg-white transition-colors"
             >
               選択解除
             </button>
