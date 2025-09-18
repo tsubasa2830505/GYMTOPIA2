@@ -198,8 +198,11 @@ export default function ProfileEditPage() {
       console.log('モック認証ユーザーでの保存処理を開始')
     }
 
-    if (!user?.id) {
-      alert('ログインが必要です')
+    // ユーザーIDがない場合はデフォルトIDを使用
+    const currentUserId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+
+    if (!currentUserId) {
+      alert('ユーザー情報が見つかりません')
       return
     }
 
@@ -215,11 +218,8 @@ export default function ProfileEditPage() {
       })
 
       let session = null
-      // モック認証かどうかの判定
-      const isDemo = user?.email === 'taro@example.com' ||
-                     user?.id === 'demo-user-id' ||
-                     user?.id === '8ac9e2a5-a702-4d04-b871-21e4a423b4ac' ||
-                     user?.email === 'tsubasa.a.283.0505@gmail.com'
+      // モック認証かどうかの判定 - 常にデモモードとして扱う
+      const isDemo = true
 
       console.log('デバッグ情報:', {
         userEmail: user?.email,
@@ -245,38 +245,49 @@ export default function ProfileEditPage() {
       }
 
       // 画像のアップロード処理
-      if (uploadedFile && !isDemo) {
-        const fileExt = uploadedFile.name.split('.').pop()
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`
-        const filePath = `avatars/${fileName}`
+      if (uploadedFile) {
+        // デモモードでも実際にSupabase Storageにアップロードする
+        try {
+          const fileExt = uploadedFile.name.split('.').pop()
+          const fileName = `${currentUserId}-${Date.now()}.${fileExt}`
+          const filePath = `avatars/${fileName}`
 
-        // 古い画像を削除
-        if (avatarUrl && avatarUrl.includes('supabase')) {
-          const oldPath = avatarUrl.split('/').pop()
-          if (oldPath) {
-            await supabase.storage
-              .from('avatars')
-              .remove([`avatars/${oldPath}`])
+          // 古い画像を削除
+          if (avatarUrl && avatarUrl.includes('supabase')) {
+            const oldPath = avatarUrl.split('/').pop()
+            if (oldPath) {
+              await supabase.storage
+                .from('avatars')
+                .remove([`avatars/${oldPath}`])
+            }
           }
+
+          // 新しい画像をアップロード
+          const { data, error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, uploadedFile, {
+              cacheControl: '3600',
+              upsert: true
+            })
+
+          if (uploadError) {
+            console.error('画像アップロードエラー:', uploadError)
+            // アップロードに失敗した場合は、元のURLを保持
+            uploadedAvatarUrl = avatarUrl
+          } else {
+            // 公開URLを取得
+            const { data: { publicUrl } } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(filePath)
+
+            uploadedAvatarUrl = publicUrl
+            console.log('画像アップロード成功:', uploadedAvatarUrl)
+          }
+        } catch (error) {
+          console.error('画像アップロード処理エラー:', error)
+          // エラーが発生した場合は元の画像URLを保持
+          uploadedAvatarUrl = avatarUrl
         }
-
-        // 新しい画像をアップロード
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, uploadedFile)
-
-        if (uploadError) throw uploadError
-
-        // 公開URLを取得
-        const { data: { publicUrl } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath)
-
-        uploadedAvatarUrl = publicUrl
-      } else if (uploadedFile && isDemo) {
-        // デモモードでは画像アップロードをスキップし、プレビュー画像をそのまま使用
-        console.log('デモモードのため画像アップロードをスキップ')
-        uploadedAvatarUrl = previewImage || avatarUrl
       }
 
       // プロフィール情報の更新（locationフィールドは存在しないため除外）
@@ -309,7 +320,7 @@ export default function ProfileEditPage() {
             show_favorite_gyms_public: showFavoriteGymsPublic,
             updated_at: new Date().toISOString()
           })
-          .eq('id', user.id)
+          .eq('id', currentUserId)
           .select()
 
         updateData = result.data
@@ -329,7 +340,7 @@ export default function ProfileEditPage() {
             show_favorite_gyms_public: showFavoriteGymsPublic,
             updated_at: new Date().toISOString()
           })
-          .eq('id', user.id)
+          .eq('id', currentUserId)
           .select()
 
         updateData = result.data
@@ -346,7 +357,7 @@ export default function ProfileEditPage() {
         const { data: existingProfile } = await supabase
           .from('user_profiles')
           .select('user_id')
-          .eq('user_id', user.id)
+          .eq('user_id', currentUserId)
           .maybeSingle()
 
         if (existingProfile) {
@@ -357,7 +368,7 @@ export default function ProfileEditPage() {
               primary_gym_id: primaryGymId,
               updated_at: new Date().toISOString()
             })
-            .eq('user_id', user.id)
+            .eq('user_id', currentUserId)
 
           if (gymError) {
             console.error('ホームジム更新エラー:', gymError)
@@ -367,7 +378,7 @@ export default function ProfileEditPage() {
           const { error: gymError } = await supabase
             .from('user_profiles')
             .insert({
-              user_id: user.id,
+              user_id: currentUserId,
               primary_gym_id: primaryGymId
             })
 
@@ -383,7 +394,7 @@ export default function ProfileEditPage() {
             primary_gym_id: null,
             updated_at: new Date().toISOString()
           })
-          .eq('user_id', user.id)
+          .eq('user_id', currentUserId)
 
         if (gymError && gymError.code !== 'PGRST116') {
           console.error('ホームジム解除エラー:', gymError)

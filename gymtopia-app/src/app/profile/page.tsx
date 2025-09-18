@@ -104,6 +104,7 @@ export default function ProfilePage() {
   const [currentPostPage, setCurrentPostPage] = useState(1);
   const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
   const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Tab specific loading states
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
@@ -459,6 +460,18 @@ export default function ProfilePage() {
     };
   }, []); // 初回のみ実行
 
+  // プロフィール編集後の画像更新のためのフォーカスイベントリスナー
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 Page gained focus, forcing profile refresh...');
+      hasLoadedData.current = false;
+      isLoadingData.current = false;
+      setRefreshKey(prev => prev + 1);
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   // 達成記録タブのデータを遅延ロード
   const loadAchievementsData = async () => {
     if (hasLoadedAchievements || isLoadingAchievements || !userId) return;
@@ -593,11 +606,14 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative flex-shrink-0">
               <Image
-                src={profileData?.avatar_url || "/muscle-taro-avatar.svg"}
-                alt={profileData?.display_name || "ユーザー"} 
+                key={profileData?.avatar_url || "default"}
+                src={profileData?.avatar_url ? `${profileData.avatar_url}?t=${refreshKey}` : "/muscle-taro-avatar.svg"}
+                alt={profileData?.display_name || "ユーザー"}
                 width={96}
                 height={96}
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-[rgba(243,247,255,0.92)] shadow-[0_20px_46px_-26px_rgba(15,36,118,0.48)]"
+                unoptimized={true}
+                priority={true}
               />
               {(profileData?.is_verified || false) && (
                 <div className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1f4fff] to-[#2a5fe8] rounded-full flex items-center justify-center shadow-[0_10px_24px_-18px_rgba(15,36,118,0.46)]">
