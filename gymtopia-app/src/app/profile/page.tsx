@@ -75,7 +75,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
   // Default icon based on achievement type
   const colorClass = achievementType === 'streak' ? 'text-orange-500' : 
                     achievementType === 'personal_record' ? 'text-purple-500' :
-                    achievementType === 'milestone' ? 'text-[color:var(--gt-primary-strong)]' : 'text-gray-500';
+                    achievementType === 'milestone' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]';
   
   return (
     <svg className={`${baseClasses} ${colorClass}`} viewBox="0 0 24 24" fill="currentColor">
@@ -133,9 +133,10 @@ export default function ProfilePage() {
       return;
     }
 
-    // Always show Tsubasa's data immediately
-    console.log('👤 Tsubasaのプロフィールを表示');
-    setProfileData({
+    // Fetch real data from database instead of hardcoded data
+    console.log('📱 Fetching real user data from database...');
+    // Comment out hardcoded data to allow database fetch
+    /*setProfileData({
       user_id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
       display_name: 'Tsubasa',
       username: 'tsubasa_gym',
@@ -153,10 +154,10 @@ export default function ProfilePage() {
       posts_count: 38,
       achievements_count: 12,
       favorite_gyms_count: 5
-    });
+    });*/
 
     // Set weekly stats
-    setWeeklyStats({
+    /*setWeeklyStats({
       workout_count: 4,
       total_weight_kg: 8500,
       avg_duration_minutes: 75,
@@ -167,10 +168,10 @@ export default function ProfilePage() {
         { name: 'デッドリフト', frequency: 2 }
       ],
       workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
-    });
+    });*/
 
     // Set some sample posts
-    setUserPosts([
+    /*setUserPosts([
       {
         id: 'post-1',
         user_id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
@@ -205,13 +206,13 @@ export default function ProfilePage() {
           crowd_status: '普通'
         }
       }
-    ]);
+    ]);*/
 
     // Set unique gyms count
-    setUniqueGymsCount(8);
+    /*setUniqueGymsCount(8);
     setIsLoading(false);
-    hasLoadedData.current = true;
-    return;
+    hasLoadedData.current = true;*/
+    // Now fetch real data from database
 
     let isActive = true;
     let retryCount = 0;
@@ -490,11 +491,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.22),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.2),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.18),transparent_65%)]" />
       <Header />
 
       {/* Profile Header */}
-      <div className="relative border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.95)] pt-8">
+      <div className="relative border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.95)] pt-24 sm:pt-28">
         <div className="max-w-6xl mx-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             {/* Avatar */}
@@ -504,10 +505,10 @@ export default function ProfilePage() {
                 alt={profileData?.display_name || "ユーザー"} 
                 width={96}
                 height={96}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-[rgba(243,247,255,0.9)] shadow-[0_20px_46px_-26px_rgba(26,44,94,0.5)]"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-[rgba(243,247,255,0.92)] shadow-[0_20px_46px_-26px_rgba(15,36,118,0.48)]"
               />
               {(profileData?.is_verified || false) && (
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3b63f3] to-[#4aa0d9] rounded-full flex items-center justify-center">
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1f4fff] to-[#2a5fe8] rounded-full flex items-center justify-center shadow-[0_10px_24px_-18px_rgba(15,36,118,0.46)]">
                   <svg width="14" height="14" className="sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="white">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                   </svg>
@@ -523,7 +524,7 @@ export default function ProfilePage() {
                 </h1>
                 <button 
                   onClick={() => router.push('/profile/edit')}
-                  className="px-2 sm:px-3 py-1 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white text-xs sm:text-sm rounded-full font-medium shadow-[0_12px_28px_-18px_rgba(26,44,94,0.45)] hover:shadow-[0_14px_34px_-18px_rgba(26,44,94,0.55)] transition-all cursor-pointer"
+                  className="px-2 sm:px-3 py-1 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white text-xs sm:text-sm rounded-full font-medium shadow-[0_12px_28px_-18px_rgba(15,36,118,0.44)] hover:shadow-[0_14px_34px_-18px_rgba(15,36,118,0.5)] transition-all cursor-pointer"
                 >
                   プロフィール編集
                 </button>
@@ -632,7 +633,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-[rgba(247,250,255,0.92)] border-b border-[rgba(168,184,228,0.45)]">
+      <div className="bg-[rgba(247,250,255,0.92)] border-b border-[rgba(44,82,190,0.18)]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-4 sm:gap-8">
             <button 
@@ -681,12 +682,12 @@ export default function ProfilePage() {
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
             {/* 新規投稿ボタン */}
-            <div className="gt-card p-4 border-2 border-dashed border-[rgba(168,184,228,0.45)] hover:border-[#3b63f3] transition-colors">
+            <div className="gt-card p-4 border-2 border-dashed border-[rgba(44,82,190,0.18)] hover:border-[#1f4fff] transition-colors">
               <button 
                 onClick={() => router.push('/add')}
                 className="w-full flex items-center justify-center gap-3 py-3 text-[color:var(--text-muted)] hover:text-[color:var(--gt-primary-strong)] transition-colors"
               >
-                <div className="w-10 h-10 bg-[rgba(243,247,255,0.92)] border border-[rgba(168,184,228,0.45)] rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                   </svg>
@@ -702,16 +703,16 @@ export default function ProfilePage() {
                   <div key={index} className="gt-card p-4 sm:p-6">
                     <div className="animate-pulse">
                       <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-10 h-10 bg-[rgba(168,184,228,0.35)] rounded-full"></div>
+                        <div className="w-10 h-10 bg-[rgba(44,82,190,0.16)] rounded-full"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/4 mb-2"></div>
-                          <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/3"></div>
+                          <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-1/4 mb-2"></div>
+                          <div className="h-3 bg-[rgba(44,82,190,0.16)] rounded w-1/3"></div>
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-3/4"></div>
-                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/2"></div>
-                        <div className="h-32 bg-[rgba(168,184,228,0.35)] rounded"></div>
+                        <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-3/4"></div>
+                        <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-1/2"></div>
+                        <div className="h-32 bg-[rgba(44,82,190,0.16)] rounded"></div>
                       </div>
                     </div>
                   </div>
@@ -728,7 +729,7 @@ export default function ProfilePage() {
                 <p className="text-[color:var(--text-muted)] mb-4">最初のジム活を投稿してみましょう！</p>
                 <button
                   onClick={() => router.push('/add')}
-                  className="px-6 py-3 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-lg font-medium hover:bg-[#2c4ecc] transition-colors"
+                  className="px-6 py-3 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium hover:from-[#2645c8] hover:to-[#356fff] transition-colors"
                 >
                   投稿する
                 </button>
@@ -779,13 +780,13 @@ export default function ProfilePage() {
                   disabled={isLoadingMorePosts}
                   className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                     isLoadingMorePosts
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white hover:from-[#2f54d3] hover:to-[#3a8ac3] shadow-[0_18px_34px_-20px_rgba(26,44,94,0.5)] hover:shadow-[0_22px_40px_-20px_rgba(26,44,94,0.55)]'
+                      ? 'bg-[rgba(243,247,255,0.82)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(44,82,190,0.18)]'
+                      : 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white hover:from-[#2645c8] hover:to-[#356fff] shadow-[0_18px_34px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_22px_40px_-20px_rgba(15,36,118,0.52)]'
                   }`}
                 >
                   {isLoadingMorePosts ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin"></div>
                       <span>読み込み中...</span>
                     </div>
                   ) : (
@@ -803,7 +804,7 @@ export default function ProfilePage() {
             {/* End of Posts Indicator */}
             {activeTab === 'posts' && !hasMorePosts && userPosts.length > 0 && (
               <div className="text-center py-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 text-sm">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-full text-[color:var(--text-subtle)] text-sm">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
                   </svg>
@@ -826,38 +827,38 @@ export default function ProfilePage() {
                 <span className="text-[color:var(--foreground)]">今週の活動</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-4">
+                <div className="bg-gradient-to-br from-[#eef2ff] to-[#f7f9ff] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-[color:var(--text-subtle)]">トレーニング回数</span>
                     <svg className="w-5 h-5 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 15.57 15.57 7 12 3.43 13.43 2 14.86 3.43 16.29 2 18.43 4.14 19.86 2.71 21.29 4.14 19.86 5.57 22 7.71 20.57 9.14 22 10.57 20.57 12 22 13.43 20.57 14.86z"/>
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-[color:var(--foreground)]">
+                  <div className="text-2xl font-bold text-[color:var(--gt-primary-strong)]">
                     {isLoading ? '...' : `${weeklyStats?.workout_count || 0}回`}
                   </div>
                   <div className="text-xs text-[color:var(--text-muted)] mt-1">週目標: 5回</div>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-4">
+                <div className="bg-gradient-to-br from-[#ebf1ff] to-[#f4f8ff] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-[color:var(--text-subtle)]">総重量</span>
-                    <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/>
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-[color:var(--foreground)]">
+                  <div className="text-2xl font-bold text-[color:var(--gt-secondary-strong)]">
                     {isLoading ? '...' : `${(weeklyStats?.total_weight_kg || 0).toLocaleString()}kg`}
                   </div>
                   <div className="text-xs text-[color:var(--text-muted)] mt-1">前週比: +850kg</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-lg p-4">
+                <div className="bg-gradient-to-br from-[#edf3ff] to-[#f6f9ff] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-[color:var(--text-subtle)]">平均滞在時間</span>
-                    <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-[color:var(--foreground)]">
+                  <div className="text-2xl font-bold text-[color:var(--gt-tertiary-strong)]">
                     {isLoading ? '...' : `${Math.floor((weeklyStats?.avg_duration_minutes || 0) / 60)}時間${(weeklyStats?.avg_duration_minutes || 0) % 60}分`}
                   </div>
                   <div className="text-xs text-[color:var(--text-muted)] mt-1">理想的な時間</div>
@@ -879,16 +880,16 @@ export default function ProfilePage() {
                     <div key={index} className="bg-[rgba(243,247,255,0.92)] rounded-lg p-4">
                       <div className="animate-pulse">
                         <div className="flex justify-between items-start mb-2">
-                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-2/3"></div>
-                          <div className="h-6 bg-[rgba(168,184,228,0.35)] rounded w-1/4"></div>
+                          <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-2/3"></div>
+                          <div className="h-6 bg-[rgba(44,82,190,0.16)] rounded w-1/4"></div>
                         </div>
-                        <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/2"></div>
+                        <div className="h-3 bg-[rgba(44,82,190,0.16)] rounded w-1/2"></div>
                       </div>
                     </div>
                   ))
                 ) : userPersonalRecords.length === 0 ? (
                   <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-16 h-16 text-[rgba(44,82,190,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
                     </svg>
                     <p className="text-[color:var(--text-muted)] mb-2">パーソナルレコードがまだありません</p>
@@ -931,15 +932,15 @@ export default function ProfilePage() {
                   Array.from({ length: 4 }, (_, index) => (
                     <div key={index} className="text-center p-3 sm:p-4 bg-[rgba(243,247,255,0.92)] rounded-lg">
                       <div className="animate-pulse">
-                        <div className="w-8 h-8 bg-[rgba(168,184,228,0.35)] rounded-full mx-auto mb-2"></div>
-                        <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-3/4 mx-auto mb-1"></div>
-                        <div className="h-3 bg-[rgba(168,184,228,0.35)] rounded w-1/2 mx-auto"></div>
+                        <div className="w-8 h-8 bg-[rgba(44,82,190,0.16)] rounded-full mx-auto mb-2"></div>
+                        <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-3/4 mx-auto mb-1"></div>
+                        <div className="h-3 bg-[rgba(44,82,190,0.16)] rounded w-1/2 mx-auto"></div>
                       </div>
                     </div>
                   ))
                 ) : userAchievements.length === 0 ? (
                   <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-16 h-16 text-[rgba(44,82,190,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
                     </svg>
                     <p className="text-[color:var(--text-muted)] mb-2">達成記録がまだありません</p>
@@ -969,11 +970,11 @@ export default function ProfilePage() {
                   <div key={index} className="gt-card p-4">
                     <div className="animate-pulse">
                       <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(168,184,228,0.35)] rounded-lg flex-shrink-0"></div>
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(44,82,190,0.16)] rounded-lg flex-shrink-0"></div>
                         <div className="flex-1">
-                          <div className="h-5 bg-[rgba(168,184,228,0.35)] rounded w-3/4 mb-2"></div>
-                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/2 mb-2"></div>
-                          <div className="h-4 bg-[rgba(168,184,228,0.35)] rounded w-1/4"></div>
+                          <div className="h-5 bg-[rgba(44,82,190,0.16)] rounded w-3/4 mb-2"></div>
+                          <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-1/2 mb-2"></div>
+                          <div className="h-4 bg-[rgba(44,82,190,0.16)] rounded w-1/4"></div>
                         </div>
                       </div>
                     </div>
@@ -981,7 +982,7 @@ export default function ProfilePage() {
                 ))
               ) : userFavoriteGyms.length === 0 ? (
                 <div className="gt-card p-8 text-center">
-                  <svg className="w-16 h-16 text-[rgba(168,184,228,0.6)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-16 h-16 text-[rgba(44,82,190,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                   </svg>
                   <p className="text-[color:var(--text-muted)] mb-2">お気に入りジムがまだありません</p>
@@ -991,7 +992,7 @@ export default function ProfilePage() {
                 userFavoriteGyms.map((favoriteGym, index) => (
                   <div key={favoriteGym.id || index} className="gt-card p-4 hover:-translate-y-[2px] transition-transform">
                     <div className="flex gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(168,184,228,0.35)] rounded-lg flex-shrink-0"></div>
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(44,82,190,0.16)] rounded-lg flex-shrink-0"></div>
                       <div className="flex-1">
                         <h4 className="font-bold text-base sm:text-lg mb-1 text-[color:var(--foreground)]">
                           {favoriteGym.gym?.name || 'ジム名不明'}

@@ -178,7 +178,7 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
 
             {/* Category Items */}
             {expandedCategories.has(category.id) && (
-              <div className="border-t border-[rgba(168,184,228,0.35)] p-4 space-y-2">
+              <div className="border-t border-[rgba(44,82,190,0.16)] p-4 space-y-2">
                 {/* Individual Items */}
                 {category.items.map((item) => {
                   const quantity = selectedFreeWeights.get(item.id) || 0
@@ -187,8 +187,8 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                       key={item.id}
                       className={`w-full p-3 rounded-2xl flex items-center justify-between gt-transition ${
                         quantity > 0
-                          ? 'gt-primary-plate border border-[rgba(157,176,226,0.45)] ring-1 ring-[rgba(59,99,243,0.3)]'
-                          : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(26,44,94,0.42)]'
+                          ? 'gt-primary-plate border border-[rgba(44,82,190,0.18)] ring-1 ring-[rgba(31,79,255,0.26)]'
+                          : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(15,36,118,0.42)]'
                       }`}
                     >
                       <div className="text-left flex-1">
@@ -203,8 +203,8 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                           onClick={() => decrementQuantity(item.id)}
                           className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors border-2 ${
                             quantity > 0
-                              ? 'bg-[rgba(243,247,255,0.9)] text-[color:var(--gt-primary-strong)] border-[rgba(168,184,228,0.45)] hover:bg-white hover:border-[rgba(59,99,243,0.36)]'
-                              : 'bg-[rgba(243,247,255,0.6)] text-[color:var(--text-muted)] border-[rgba(168,184,228,0.35)] cursor-not-allowed'
+                              ? 'bg-[rgba(243,247,255,0.9)] text-[color:var(--gt-primary-strong)] border-[rgba(44,82,190,0.18)] hover:bg-white hover:border-[rgba(31,79,255,0.28)]'
+                              : 'bg-[rgba(243,247,255,0.6)] text-[color:var(--text-muted)] border-[rgba(44,82,190,0.16)] cursor-not-allowed'
                           }`}
                           disabled={quantity === 0}
                         >
@@ -220,7 +220,7 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                         <button
                           type="button"
                           onClick={() => incrementQuantity(item.id)}
-                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#3b63f3] via-[#5f6bdc] to-[#4aa0d9] text-white hover:shadow-[0_12px_34px_-22px_rgba(26,44,94,0.5)] flex items-center justify-center transition-all border-2 border-transparent"
+                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#1f4fff] via-[#3c60f2] to-[#2a5fe8] text-white hover:shadow-[0_12px_34px_-22px_rgba(15,36,118,0.46)] flex items-center justify-center transition-all border-2 border-transparent"
                         >
                           <Plus className="w-4 h-4" />
                         </button>

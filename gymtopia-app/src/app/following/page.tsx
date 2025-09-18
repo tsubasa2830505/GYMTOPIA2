@@ -133,22 +133,22 @@ export default function FollowingPage() {
 
   return (
     <div className="min-h-screen pb-10 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.18),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.2),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.18),transparent_60%)]" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
+      <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(15,36,118,0.44)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(168,184,228,0.45)] hover:bg-white transition-colors"
+              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.18)] hover:bg-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[color:var(--gt-primary-strong)]">フォロー</h1>
-                <span className="px-2 py-1 bg-[rgba(59,99,243,0.14)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-semibold border border-[rgba(59,99,243,0.24)]">
+                <span className="px-2 py-1 bg-[rgba(31,79,255,0.16)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-semibold border border-[rgba(31,79,255,0.26)]">
                   {followCounts.following}人
                 </span>
               </div>
@@ -157,7 +157,7 @@ export default function FollowingPage() {
                 className="flex items-center gap-2 text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)] transition-colors"
               >
                 <span className="text-lg font-semibold">フォロワー</span>
-                <span className="px-2 py-1 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full font-medium border border-[rgba(168,184,228,0.35)]">
+                <span className="px-2 py-1 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full font-medium border border-[rgba(44,82,190,0.18)]">
                   {followCounts.followers}人
                 </span>
               </button>
@@ -171,13 +171,13 @@ export default function FollowingPage() {
         <div className="gt-card p-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[color:var(--text-muted)]" />
               <input
                 type="text"
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
+                className="w-full pl-10 pr-4 py-2 bg-[rgba(243,247,255,0.92)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1f4fff]"
               />
             </div>
             <div className="flex gap-2">
@@ -185,8 +185,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'all'
-                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
               >
                 すべて
@@ -195,8 +195,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'mutual'
-                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
               >
                 相互
@@ -205,8 +205,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('recent')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'recent'
-                    ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
               >
                 最近アクティブ
@@ -217,7 +217,7 @@ export default function FollowingPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(59,99,243,0.12)] to-[rgba(132,210,255,0.22)] border border-[rgba(157,176,226,0.45)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(31,79,255,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(44,82,190,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">総フォロー数</span>
               <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
@@ -225,7 +225,7 @@ export default function FollowingPage() {
             <div className="text-2xl font-bold text-[color:var(--foreground)]">{followCounts.following}人</div>
             <div className="text-xs text-[color:var(--text-muted)] mt-1">アクティブユーザー</div>
           </div>
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(74,160,217,0.12)] to-[rgba(74,160,217,0.22)] border border-[rgba(157,176,226,0.45)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(42,95,232,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(44,82,190,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">相互</span>
               <MapPin className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
@@ -238,7 +238,7 @@ export default function FollowingPage() {
               }
             </div>
           </div>
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(123,139,255,0.12)] to-[rgba(123,139,255,0.22)] border border-[rgba(157,176,226,0.45)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(76,122,255,0.12)] to-[rgba(188,210,255,0.2)] border border-[rgba(44,82,190,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">今日アクティブ</span>
               <Calendar className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
@@ -251,19 +251,19 @@ export default function FollowingPage() {
         {/* Following List */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p className="mt-2 text-slate-600">読み込み中...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[color:var(--gt-primary-strong)]"></div>
+            <p className="mt-2 text-[color:var(--text-muted)]">読み込み中...</p>
           </div>
         ) : filteredFollowing.length === 0 ? (
-          <div className="bg-white rounded-xl p-8 text-center">
-            <p className="text-slate-600">
+          <div className="gt-card p-8 text-center">
+            <p className="text-[color:var(--text-muted)]">
               {searchQuery ? '検索結果が見つかりませんでした' : 'フォローしているユーザーがいません'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredFollowing.map((user) => (
-              <div key={user.id} className="gt-card p-6 hover:shadow-[0_24px_50px_-30px_rgba(26,44,94,0.48)] transition-shadow">
+              <div key={user.id} className="gt-card p-6 hover:shadow-[0_24px_50px_-30px_rgba(15,36,118,0.46)] transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <Link href={`/user/${user.id}`} className="flex-shrink-0">
@@ -277,7 +277,7 @@ export default function FollowingPage() {
                       />
                     ) : (
                       <div 
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-[0_14px_32px_-20px_rgba(26,44,94,0.45)]"
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-[0_14px_32px_-20px_rgba(15,36,118,0.44)]"
                         style={{ backgroundColor: getAvatarColor(user.display_name || user.username) }}
                       >
                         {(user.display_name || user.username).charAt(0)}
@@ -294,7 +294,7 @@ export default function FollowingPage() {
                             {user.display_name || user.username}
                           </Link>
                           {user.is_mutual_follow && (
-                            <span className="px-2 py-1 bg-[rgba(74,160,217,0.16)] text-[color:var(--gt-secondary-strong)] text-xs rounded-full font-medium border border-[rgba(74,160,217,0.32)]">
+                            <span className="px-2 py-1 bg-[rgba(42,95,232,0.16)] text-[color:var(--gt-secondary-strong)] text-xs rounded-full font-medium border border-[rgba(42,95,232,0.3)]">
                               相互
                             </span>
                           )}

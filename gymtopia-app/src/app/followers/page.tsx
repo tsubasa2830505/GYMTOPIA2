@@ -162,14 +162,14 @@ export default function FollowersPage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.18),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.16),transparent_65%)]" />
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(157,176,226,0.45)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(26,44,94,0.42)]">
+      <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(15,36,118,0.44)]">
         <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(168,184,228,0.45)] hover:bg-white transition-colors"
+              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.18)] hover:bg-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
@@ -181,7 +181,7 @@ export default function FollowersPage() {
                 <span className="font-semibold text-[color:var(--text-subtle)]">フォロー</span>
                 <span className="gt-pill-label text-[color:var(--gt-primary-strong)]">{followCounts.following}</span>
               </button>
-              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(26,44,94,0.5)]">
+              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(15,36,118,0.46)]">
                 <span className="font-semibold text-[color:var(--foreground)]">フォロワー</span>
                 <span className="gt-pill-label">{followCounts.followers}</span>
               </div>
@@ -201,7 +201,7 @@ export default function FollowersPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(168,184,228,0.45)] focus:border-[#3b63f3] bg-[rgba(243,247,255,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[#3b63f3]"
+                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] bg-[rgba(243,247,255,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[#1f4fff]"
               />
             </div>
             <div className="gt-tab-track flex flex-wrap gap-2 py-1">
@@ -223,7 +223,7 @@ export default function FollowersPage() {
 
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#e3f8ff] to-[#eef3ff]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#eef2ff] to-[#f7f9ff]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">総フォロワー</span>
               <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
@@ -231,19 +231,19 @@ export default function FollowersPage() {
             <div className="text-2xl sm:text-3xl font-bold text-[color:var(--foreground)]">{followCounts.followers}</div>
             <p className="gt-body mt-2">コミュニティ全体の人数</p>
           </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#f5ecff] to-[#fef2fa]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#f1f3ff] to-[#fafbff]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">相互フォロー</span>
-              <UserCheck className="w-5 h-5 text-[#7c6bff]" />
+              <UserCheck className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#7c6bff]">{mutualFollowCount}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[color:var(--gt-tertiary-strong)]">{mutualFollowCount}</div>
             <p className="gt-body mt-2">
               {followCounts.followers > 0
                 ? `フォロワーの${Math.round((mutualFollowCount / followCounts.followers) * 100)}%`
                 : 'まだ相互フォローはありません'}
             </p>
           </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#e8fdf6] to-[#eef9ff]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#eef4ff] to-[#f5f8ff]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">フォロー候補</span>
               <Clock className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
@@ -301,7 +301,7 @@ export default function FollowersPage() {
                             <span className="gt-chip gt-chip--primary text-[10px] sm:text-xs">相互</span>
                           )}
                           {user.is_following_back && !user.is_mutual_follow && (
-                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(96,86,255,0.12)', borderColor: 'rgba(96,86,255,0.28)', color: 'var(--gt-primary-strong)' }}>
+                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(76,122,255,0.12)', borderColor: 'rgba(76,122,255,0.28)', color: 'var(--gt-primary-strong)' }}>
                               フォロー中
                             </span>
                           )}
@@ -341,8 +341,8 @@ export default function FollowersPage() {
                           disabled={processingIds.includes(user.id)}
                           className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                             user.is_following_back
-                              ? 'bg-[rgba(243,247,255,0.92)] border border-[rgba(168,184,228,0.45)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
-                              : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_18px_32px_-22px_rgba(26,44,94,0.5)] hover:-translate-y-[2px]'
+                              ? 'bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
+                              : 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_18px_32px_-22px_rgba(15,36,118,0.48)] hover:-translate-y-[2px]'
                           } ${processingIds.includes(user.id) ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                           {processingIds.includes(user.id) ? (

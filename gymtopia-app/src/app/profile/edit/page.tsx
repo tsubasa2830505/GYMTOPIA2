@@ -406,23 +406,23 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[rgba(243,247,255,0.95)]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors border-2 border-slate-300 hover:border-slate-400"
+              className="p-2 hover:bg-[rgba(243,247,255,0.95)] rounded-lg transition-colors border-2 border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]"
             >
               <X className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold text-slate-900">プロフィール編集</h1>
+            <h1 className="text-xl font-bold text-[color:var(--foreground)]">プロフィール編集</h1>
           </div>
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="px-4 py-2 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
+            className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
           >
             <Save className="w-4 h-4" />
             {isLoading ? '保存中...' : '保存'}
@@ -434,7 +434,7 @@ export default function ProfileEditPage() {
         <div className="space-y-6">
           {/* アバター編集 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-4">
+            <label className="block text-sm font-bold text-[color:var(--foreground)] mb-4">
               <Camera className="w-4 h-4 inline mr-2" />
               プロフィール画像
             </label>
@@ -463,11 +463,11 @@ export default function ProfileEditPage() {
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-sm text-slate-600 mb-2">プロフィール画像を変更</p>
+                <p className="text-sm text-[color:var(--text-subtle)] mb-2">プロフィール画像を変更</p>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
+                    className="px-4 py-2 bg-[rgba(243,247,255,0.92)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(234,240,255,0.86)] transition-colors"
                   >
                     画像を選択
                   </button>
@@ -480,7 +480,7 @@ export default function ProfileEditPage() {
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[color:var(--text-muted)] mt-1">
                   JPG、PNG、GIF形式・最大5MB
                 </p>
               </div>
@@ -497,11 +497,11 @@ export default function ProfileEditPage() {
 
           {/* 基本情報 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">基本情報</h3>
+            <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4">基本情報</h3>
             
             {/* 名前 */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 <User className="w-4 h-4 inline mr-1" />
                 名前
               </label>
@@ -509,41 +509,41 @@ export default function ProfileEditPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
+                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
                 placeholder="表示名を入力"
               />
             </div>
 
             {/* ユーザー名 */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 <AtSign className="w-4 h-4 inline mr-1" />
                 ユーザー名
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">@</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)]">@</span>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
+                  className="w-full pl-8 pr-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
                   placeholder="username"
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-1">半角英数字とアンダースコアのみ使用可能</p>
+              <p className="text-xs text-[color:var(--text-muted)] mt-1">半角英数字とアンダースコアのみ使用可能</p>
             </div>
 
             {/* ホームジム設定 */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 <MapPin className="w-4 h-4 inline mr-1" />
                 ホームジム
               </label>
               {primaryGymName ? (
-                <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-lg">
                   <div>
-                    <p className="font-medium text-slate-900">{primaryGymName}</p>
-                    <p className="text-sm text-slate-600">メインジム</p>
+                    <p className="font-medium text-[color:var(--foreground)]">{primaryGymName}</p>
+                    <p className="text-sm text-[color:var(--text-subtle)]">メインジム</p>
                   </div>
                   <button
                     onClick={() => {
@@ -565,26 +565,26 @@ export default function ProfileEditPage() {
                         setGymSearchQuery(e.target.value)
                         searchGyms(e.target.value)
                       }}
-                      className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
+                      className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
                       placeholder="ジム名で検索..."
                     />
                     {isSearchingGym && (
                       <div className="absolute right-3 top-3">
-                        <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                        <div className="animate-spin h-5 w-5 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full"></div>
                       </div>
                     )}
                   </div>
                   {gymSearchResults.length > 0 && (
-                    <div className="bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg max-h-48 overflow-y-auto">
+                    <div className="bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg max-h-48 overflow-y-auto">
                       {gymSearchResults.map((gym) => (
                         <button
                           key={gym.id}
                           onClick={() => selectGym(gym)}
-                          className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                          className="w-full text-left px-4 py-3 hover:bg-[rgba(243,247,255,0.95)] border-b border-[rgba(44,82,190,0.1)] last:border-b-0"
                         >
-                          <p className="font-medium text-slate-900">{gym.name}</p>
+                          <p className="font-medium text-[color:var(--foreground)]">{gym.name}</p>
                           {gym.address && (
-                            <p className="text-sm text-slate-600">{gym.address}</p>
+                            <p className="text-sm text-[color:var(--text-subtle)]">{gym.address}</p>
                           )}
                         </button>
                       ))}
@@ -592,12 +592,12 @@ export default function ProfileEditPage() {
                   )}
                 </div>
               )}
-              <p className="text-xs text-slate-500 mt-1">よく通うジムを設定できます</p>
+              <p className="text-xs text-[color:var(--text-muted)] mt-1">よく通うジムを設定できます</p>
             </div>
 
             {/* 自己紹介 */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 <FileText className="w-4 h-4 inline mr-1" />
                 自己紹介
               </label>
@@ -605,24 +605,24 @@ export default function ProfileEditPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900 resize-none"
+                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)] resize-none"
                 placeholder="自己紹介を入力"
               />
-              <p className="text-xs text-slate-500 mt-1">{bio.length} / 150文字</p>
+              <p className="text-xs text-[color:var(--text-muted)] mt-1">{bio.length} / 150文字</p>
             </div>
           </div>
 
           {/* パーソナルレコード */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[color:var(--foreground)] flex items-center gap-2">
                 <Dumbbell className="w-4 h-4" />
                 パーソナルレコード
               </h3>
               {!showRecordForm && (
                 <button
                   onClick={() => setShowRecordForm(true)}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(31,79,255,0.22)] transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   追加
@@ -633,10 +633,10 @@ export default function ProfileEditPage() {
             {/* 既存のレコード */}
             <div className="space-y-2 mb-4">
               {personalRecords.map((record) => (
-                <div key={record.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div key={record.id} className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
                   <div className="flex-1">
-                    <p className="font-medium text-slate-900">{record.exercise}</p>
-                    <p className="text-sm text-slate-600">
+                    <p className="font-medium text-[color:var(--foreground)]">{record.exercise}</p>
+                    <p className="text-sm text-[color:var(--text-subtle)]">
                       {record.weight}kg × {record.reps}
                     </p>
                   </div>
@@ -652,13 +652,13 @@ export default function ProfileEditPage() {
 
             {/* レコード追加フォーム */}
             {showRecordForm && (
-              <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-[rgba(243,247,255,0.95)] rounded-lg">
                 <input
                   type="text"
                   placeholder="種目名（例：ベンチプレス）"
                   value={newRecord.exercise}
                   onChange={(e) => setNewRecord({ ...newRecord, exercise: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
+                  className="w-full px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -666,20 +666,20 @@ export default function ProfileEditPage() {
                     placeholder="重量(kg)"
                     value={newRecord.weight}
                     onChange={(e) => setNewRecord({ ...newRecord, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
+                    className="px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                   />
                   <input
                     type="text"
                     placeholder="回数（例：5回×3セット）"
                     value={newRecord.reps}
                     onChange={(e) => setNewRecord({ ...newRecord, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-sm"
+                    className="px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleAddRecord}
-                    className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                    className="flex-1 px-3 py-2 bg-[#1f4fff] text-white rounded-lg text-sm font-medium hover:bg-[#1a3bcc] transition-colors"
                   >
                     追加
                   </button>
@@ -688,7 +688,7 @@ export default function ProfileEditPage() {
                       setShowRecordForm(false)
                       setNewRecord({ id: '', exercise: '', weight: '', reps: '' })
                     }}
-                    className="flex-1 px-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
+                    className="flex-1 px-3 py-2 bg-[rgba(234,240,255,0.86)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
                   >
                     キャンセル
                   </button>
@@ -699,16 +699,16 @@ export default function ProfileEditPage() {
 
           {/* トレーニング設定 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">トレーニング設定</h3>
+            <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4">トレーニング設定</h3>
             
             {/* トレーニング頻度 */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 トレーニング頻度
               </label>
               <select 
                 defaultValue="週5-6回"
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
+                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
               >
                 <option>週1-2回</option>
                 <option>週3-4回</option>
@@ -719,12 +719,12 @@ export default function ProfileEditPage() {
 
             {/* 主なトレーニング時間帯 */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 主なトレーニング時間帯
               </label>
               <select 
                 defaultValue="夜（17:00-22:00）"
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-gray-300 focus:border-[#3b63f3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b63f3] text-slate-900"
+                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
               >
                 <option>早朝（5:00-8:00）</option>
                 <option>午前（8:00-12:00）</option>
@@ -736,7 +736,7 @@ export default function ProfileEditPage() {
 
             {/* 目標 */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
                 トレーニング目標
               </label>
               <div className="space-y-2">
@@ -762,7 +762,7 @@ export default function ProfileEditPage() {
 
           {/* プライバシー設定 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4 flex items-center gap-2">
               <Lock className="w-4 h-4" />
               プライバシー設定
             </h3>
@@ -774,8 +774,8 @@ export default function ProfileEditPage() {
                   <div className="flex items-center gap-3">
                     {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-green-500" />}
                     <div>
-                      <span className="text-sm font-medium text-slate-900">ジム活動を非公開にする</span>
-                      <p className="text-xs text-slate-600 mt-1">
+                      <span className="text-sm font-medium text-[color:var(--foreground)]">ジム活動を非公開にする</span>
+                      <p className="text-xs text-[color:var(--text-subtle)] mt-1">
                         オンにすると、投稿・統計・アチーブメントなど全てが他のユーザーから見えなくなります
                       </p>
                     </div>
@@ -801,15 +801,15 @@ export default function ProfileEditPage() {
                     <div className="flex items-center gap-3">
                       {showStatsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                       <div>
-                        <span className="text-sm font-medium text-slate-900">統計情報を公開</span>
-                        <p className="text-xs text-slate-600">トレーニング回数、時間など</p>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">統計情報を公開</span>
+                        <p className="text-xs text-[color:var(--text-subtle)]">トレーニング回数、時間など</p>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowStatsPublic(!showStatsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showStatsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                        showStatsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -822,15 +822,15 @@ export default function ProfileEditPage() {
                     <div className="flex items-center gap-3">
                       {showAchievementsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                       <div>
-                        <span className="text-sm font-medium text-slate-900">アチーブメントを公開</span>
-                        <p className="text-xs text-slate-600">獲得したバッジや実績</p>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">アチーブメントを公開</span>
+                        <p className="text-xs text-[color:var(--text-subtle)]">獲得したバッジや実績</p>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowAchievementsPublic(!showAchievementsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showAchievementsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                        showAchievementsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -843,15 +843,15 @@ export default function ProfileEditPage() {
                     <div className="flex items-center gap-3">
                       {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                       <div>
-                        <span className="text-sm font-medium text-slate-900">お気に入りジムを公開</span>
-                        <p className="text-xs text-slate-600">登録したお気に入りのジム</p>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">お気に入りジムを公開</span>
+                        <p className="text-xs text-[color:var(--text-subtle)]">登録したお気に入りのジム</p>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowFavoriteGymsPublic(!showFavoriteGymsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showFavoriteGymsPublic ? 'bg-blue-500' : 'bg-gray-300'
+                        showFavoriteGymsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -874,7 +874,7 @@ export default function ProfileEditPage() {
 
           {/* ログアウトセクション */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">アカウント</h3>
+            <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4">アカウント</h3>
             
             <button
               onClick={handleLogout}
@@ -888,7 +888,7 @@ export default function ProfileEditPage() {
           {/* 保存ボタン（モバイル用） */}
           <button
             onClick={handleSave}
-            className="w-full py-4 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             <Save className="w-5 h-5" />
             プロフィールを保存

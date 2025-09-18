@@ -355,11 +355,11 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,168,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,160,217,0.18),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.16),transparent_65%)]" />
       <Header />
 
       {/* Main Content */}
-      <div className="relative max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <div className="relative max-w-4xl mx-auto px-4 pt-20 sm:pt-24 py-6 space-y-6">
         {/* Feed Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -374,8 +374,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'all'
-                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -386,8 +386,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('following')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'following'
-                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -398,8 +398,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('mutual')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'mutual'
-                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -410,8 +410,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('same-gym')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'same-gym'
-                ? 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white shadow-[0_12px_30px_-18px_rgba(26,44,94,0.5)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(168,184,228,0.45)] hover:bg-white'
+                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
+                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -479,8 +479,8 @@ export default function FeedPage() {
                     disabled={isLoadingMore}
                     className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                       isLoadingMore
-                        ? 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(168,184,228,0.35)]'
-                        : 'bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white hover:from-[#2f54d3] hover:to-[#3a8ac3] shadow-[0_18px_34px_-20px_rgba(26,44,94,0.5)] hover:shadow-[0_22px_40px_-20px_rgba(26,44,94,0.55)]'
+                        ? 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(44,82,190,0.18)]'
+                        : 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white hover:from-[#2645c8] hover:to-[#3b6fff] shadow-[0_18px_34px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_22px_40px_-20px_rgba(15,36,118,0.52)]'
                     }`}
                   >
                     {isLoadingMore ? (
@@ -503,7 +503,7 @@ export default function FeedPage() {
               {/* End of Posts Indicator */}
               {!hasMore && posts.length > 0 && (
                 <div className="text-center py-8">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(243,247,255,0.92)] border border-[rgba(168,184,228,0.35)] rounded-full text-[color:var(--text-subtle)] text-sm">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-full text-[color:var(--text-subtle)] text-sm">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
                     </svg>
@@ -515,7 +515,7 @@ export default function FeedPage() {
               {/* Empty State */}
               {posts.length === 0 && !isLoading && (
                 <div className="text-center py-12">
-                  <svg className="w-16 h-16 mx-auto text-[rgba(168,184,228,0.6)] mb-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-16 h-16 mx-auto text-[rgba(44,82,190,0.32)] mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                   </svg>
                   <p className="text-sm text-[color:var(--text-subtle)]">まだ投稿がありません</p>
@@ -531,7 +531,7 @@ export default function FeedPage() {
           className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
           style={{
             zIndex: 9999,
-            background: 'linear-gradient(135deg, #3b63f3, #4aa0d9)',
+            background: 'linear-gradient(135deg, #1f4fff, #2a5fe8)',
             backdropFilter: 'blur(10px)'
           }}
         >

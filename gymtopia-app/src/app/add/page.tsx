@@ -299,7 +299,7 @@ function AddGymPostContent() {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[rgba(243,247,255,0.96)]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4">
@@ -307,7 +307,7 @@ function AddGymPostContent() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-[rgba(243,247,255,0.92)] rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -318,8 +318,8 @@ function AddGymPostContent() {
                 height={24}
                 className="h-5 w-auto"
               />
-              <span className="text-slate-400">|</span>
-              <h1 className="text-xl font-bold text-slate-900">
+              <span className="text-[rgba(44,82,190,0.36)]">|</span>
+              <h1 className="text-xl font-bold text-[color:var(--foreground)]">
                 {activeTab === 'post' ? 'ジム活を投稿' : 'ジム機器を登録'}
               </h1>
             </div>
@@ -364,13 +364,13 @@ function AddGymPostContent() {
           </div>
           
           {/* タブ */}
-          <div className="flex border-t border-slate-200">
+          <div className="flex border-t border-[rgba(44,82,190,0.16)]">
             <button
               onClick={() => setActiveTab('post')}
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'post'
                   ? 'border-blue-500 text-blue-600 font-medium'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
               <MessageSquare className="w-4 h-4" />
@@ -381,7 +381,7 @@ function AddGymPostContent() {
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'equipment'
                   ? 'border-green-500 text-green-600 font-medium'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
               <Package className="w-4 h-4" />
@@ -400,8 +400,8 @@ function AddGymPostContent() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Settings className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 mb-2">登録完了！</h2>
-                <p className="text-slate-600">ジム機器の登録が完了しました</p>
+                <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-2">登録完了！</h2>
+                <p className="text-[color:var(--text-subtle)]">ジム機器の登録が完了しました</p>
               </div>
             </div>
           </div>
@@ -411,7 +411,7 @@ function AddGymPostContent() {
           <form id="post-form" onSubmit={handleSubmit} className="space-y-6">
           {/* 日時表示とワークアウト時間 */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
-            <div className="flex items-center gap-4 text-sm text-slate-600 mb-4">
+            <div className="flex items-center gap-4 text-sm text-[color:var(--text-subtle)] mb-4">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>{currentDate}</span>
@@ -425,30 +425,30 @@ function AddGymPostContent() {
             {/* ワークアウト時間入力 */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-medium text-[color:var(--foreground)] mb-1">
                   開始時間
                 </label>
                 <input
                   type="time"
                   value={workoutStartTime}
                   onChange={(e) => setWorkoutStartTime(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-medium text-[color:var(--foreground)] mb-1">
                   終了時間
                 </label>
                 <input
                   type="time"
                   value={workoutEndTime}
                   onChange={(e) => setWorkoutEndTime(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                 />
               </div>
             </div>
             {workoutStartTime && workoutEndTime && (
-              <div className="mt-2 text-xs text-slate-600">
+              <div className="mt-2 text-xs text-[color:var(--text-subtle)]">
                 ワークアウト時間: {(() => {
                   const start = new Date(`2000-01-01T${workoutStartTime}`);
                   const end = new Date(`2000-01-01T${workoutEndTime}`);
@@ -466,14 +466,14 @@ function AddGymPostContent() {
 
           {/* ジム選択 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-3">
+            <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <MapPin className="w-4 h-4 inline mr-2" />
               ジムを選択 <span className="text-red-500">*</span>
             </label>
             <select
               value={gymName}
               onChange={(e) => setGymName(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
               required
             >
               <option value="">ジムを選択してください</option>
@@ -485,7 +485,7 @@ function AddGymPostContent() {
 
           {/* 投稿内容 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-3">
+            <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <MessageSquare className="w-4 h-4 inline mr-2" />
               投稿内容 <span className="text-red-500">*</span>
             </label>
@@ -494,19 +494,19 @@ function AddGymPostContent() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="今日のトレーニングはどうでしたか？&#10;新しい発見、達成した目標、感想などを共有しましょう！"
               rows={4}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 resize-none"
+              className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)] resize-none"
               required
             />
-            <p className="text-xs text-slate-500 mt-2">{content.length} / 500文字</p>
+            <p className="text-xs text-[color:var(--text-muted)] mt-2">{content.length} / 500文字</p>
           </div>
 
           {/* トレーニング詳細 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[color:var(--foreground)] flex items-center gap-2">
                 <Dumbbell className="w-4 h-4" />
                 トレーニング詳細
-                <span className="text-xs text-slate-500 font-normal">（オプション）</span>
+                <span className="text-xs text-[color:var(--text-muted)] font-normal">（オプション）</span>
               </h3>
               {!showExerciseForm && (
                 <button
@@ -515,7 +515,7 @@ function AddGymPostContent() {
                     console.log('種目追加ボタンがクリックされました')
                     setShowExerciseForm(true)
                   }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-blue-100 text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   種目を追加
@@ -537,10 +537,10 @@ function AddGymPostContent() {
             {exercises.length > 0 && (
               <div className="space-y-2 mb-4">
                 {exercises.map((exercise) => (
-                  <div key={exercise.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div key={exercise.id} className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.96)] rounded-lg">
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900">{exercise.name}</p>
-                      <p className="text-sm text-slate-600">
+                      <p className="font-medium text-[color:var(--foreground)]">{exercise.name}</p>
+                      <p className="text-sm text-[color:var(--text-subtle)]">
                         {exercise.weight}kg × {exercise.sets}セット × {exercise.reps}回
                       </p>
                     </div>
@@ -553,7 +553,7 @@ function AddGymPostContent() {
                     </button>
                   </div>
                 ))}
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-[color:var(--text-muted)] mt-2">
                   合計: {exercises.length}種目
                 </p>
               </div>
@@ -561,13 +561,13 @@ function AddGymPostContent() {
 
             {/* 種目追加フォーム */}
             {showExerciseForm && (
-              <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-[rgba(243,247,255,0.96)] rounded-lg">
                 <input
                   type="text"
                   placeholder="種目名（例：ベンチプレス）"
                   value={currentExercise.name}
                   onChange={(e) => setCurrentExercise({ ...currentExercise, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <input
@@ -575,21 +575,21 @@ function AddGymPostContent() {
                     placeholder="重量(kg)"
                     value={currentExercise.weight}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                   />
                   <input
                     type="number"
                     placeholder="セット数"
                     value={currentExercise.sets}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, sets: e.target.value })}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                   />
                   <input
                     type="number"
                     placeholder="回数"
                     value={currentExercise.reps}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -606,7 +606,7 @@ function AddGymPostContent() {
                       setShowExerciseForm(false)
                       setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '' })
                     }}
-                    className="flex-1 px-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
+                    className="flex-1 px-3 py-2 bg-[rgba(234,240,255,0.88)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(223,233,255,0.94)] transition-colors"
                   >
                     キャンセル
                   </button>
@@ -617,7 +617,7 @@ function AddGymPostContent() {
 
           {/* 混雑状況 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-3">
+            <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <Users className="w-4 h-4 inline mr-2" />
               混雑状況 <span className="text-red-500">*</span>
             </label>
@@ -630,12 +630,12 @@ function AddGymPostContent() {
                   className={`p-3 rounded-lg border-2 transition-all ${
                     crowdStatus === option.value
                       ? 'border-blue-500 bg-blue-50'
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-[rgba(44,82,190,0.16)] hover:border-[rgba(44,82,190,0.2)]'
                   }`}
                 >
                   <div className="mb-1">{option.icon}</div>
                   <p className={`text-sm font-medium ${
-                    crowdStatus === option.value ? 'text-blue-700' : 'text-slate-700'
+                    crowdStatus === option.value ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--foreground)]'
                   }`}>
                     {option.label}
                   </p>
@@ -646,10 +646,10 @@ function AddGymPostContent() {
 
           {/* 写真追加 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-3">
+            <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <Camera className="w-4 h-4 inline mr-2" />
               写真を追加
-              <span className="text-xs text-slate-500 font-normal ml-2">（最大5枚）</span>
+              <span className="text-xs text-[color:var(--text-muted)] font-normal ml-2">（最大5枚）</span>
             </label>
 
             {/* 画像プレビュー */}
@@ -676,11 +676,11 @@ function AddGymPostContent() {
 
             {/* アップロードエリア */}
             {selectedImages.length < 5 && (
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+              <div className="border-2 border-dashed border-[rgba(44,82,190,0.2)] rounded-lg p-8 text-center hover:border-[#1f4fff] transition-colors cursor-pointer">
                 <label className="cursor-pointer block">
-                  <ImageIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-sm text-slate-600">クリックして写真を選択</p>
-                  <p className="text-xs text-slate-500 mt-1">JPEG, PNG, WebP対応</p>
+                  <ImageIcon className="w-12 h-12 text-[rgba(44,82,190,0.36)] mx-auto mb-3" />
+                  <p className="text-sm text-[color:var(--text-subtle)]">クリックして写真を選択</p>
+                  <p className="text-xs text-[color:var(--text-muted)] mt-1">JPEG, PNG, WebP対応</p>
                   <input
                     type="file"
                     accept="image/*"
@@ -697,7 +697,7 @@ function AddGymPostContent() {
           <button
             type="submit"
             disabled={!gymName || !content || isSubmitting}
-            className="w-full py-4 bg-gradient-to-r from-[#3b63f3] to-[#4aa0d9] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             {isSubmitting ? (
               <>
@@ -727,14 +727,14 @@ function AddGymPostContent() {
 
             {/* ジム選択（機器登録用） */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <label className="block text-sm font-bold text-slate-900 mb-3">
+              <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
                 <Building className="w-4 h-4 inline mr-2" />
                 登録するジム <span className="text-red-500">*</span>
               </label>
               <select
                 value={equipmentGymName}
                 onChange={(e) => setEquipmentGymName(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-slate-900"
+                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
                 required
               >
                 <option value="">ジムを選択してください</option>
@@ -742,17 +742,17 @@ function AddGymPostContent() {
                   <option key={`${gym}-admin-${index}`} value={gym}>{gym}</option>
                 ))}
               </select>
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-[color:var(--text-muted)] mt-2">
                 ジムオーナーまたは管理者の方のみ登録をお願いします
               </p>
             </div>
             
             {/* フリーウェイト選択 */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4 flex items-center gap-2">
                 <Dumbbell className="w-4 h-4" />
                 フリーウェイト機器
-                <span className="text-xs text-slate-500 font-normal">（該当するものを選択）</span>
+                <span className="text-xs text-[color:var(--text-muted)] font-normal">（該当するものを選択）</span>
               </h3>
               <FreeWeightSelector
                 selectedFreeWeights={selectedFreeWeights}
@@ -762,10 +762,10 @@ function AddGymPostContent() {
             
             {/* マシン選択 */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[color:var(--foreground)] mb-4 flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 トレーニングマシン
-                <span className="text-xs text-slate-500 font-normal">（3軸フィルターで絞り込み）</span>
+                <span className="text-xs text-[color:var(--text-muted)] font-normal">（3軸フィルターで絞り込み）</span>
               </h3>
               <MachineSelector
                 selectedMachines={selectedMachines}
@@ -777,7 +777,7 @@ function AddGymPostContent() {
             <button
               type="submit"
               disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
-              className="w-full py-4 bg-gradient-to-r from-[#4aa0d9] to-[#3b63f3] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+              className="w-full py-4 bg-gradient-to-r from-[#2a5fe8] to-[#1f4fff] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
             >
               {isSubmitting ? (
                 <>
@@ -801,10 +801,10 @@ function AddGymPostContent() {
 export default function AddGymPostPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600">読み込み中...</p>
+          <p className="text-[color:var(--text-subtle)]">読み込み中...</p>
         </div>
       </div>
     }>
