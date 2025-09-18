@@ -546,7 +546,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
+          <p className="text-[color:var(--text-subtle)]">読み込み中...</p>
         </div>
       </div>
     )
@@ -564,8 +564,8 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">管理画面へのアクセス</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-2">管理画面へのアクセス</h2>
+          <p className="text-[color:var(--text-subtle)] mb-6">
             {authUser ? 'ジムオーナーとしての登録が必要です。' : 'ログインが必要です。'}
           </p>
           <div className="flex flex-col gap-3">
@@ -981,7 +981,7 @@ export default function AdminPage() {
                           </span>
                           <button
                             onClick={() => handleDeleteEquipment(equipment.id)}
-                            className="text-red-500 hover:text-red-700 transition p-1"
+                            className="text-red-500 hover:text-[#c85963] transition p-1"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1016,7 +1016,7 @@ export default function AdminPage() {
                   <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[12.3px] text-slate-700">イキタイ数</span>
-                      <Heart className="w-4 h-4 text-green-600" />
+                      <Heart className="w-4 h-4 text-[#1f8f6a]" />
                     </div>
                     <div className="text-xl font-bold text-slate-900">342人</div>
                     <div className="text-[10px] text-slate-600 mt-1">前月比: +12.5%</div>
@@ -1047,10 +1047,10 @@ export default function AdminPage() {
                   <div className="space-y-3">
                     {[
                       { time: '5:00-9:00', posts: 28, percentage: 12.0, color: 'bg-blue-500', crowd: '空いてる' },
-                      { time: '9:00-12:00', posts: 15, percentage: 6.4, color: 'bg-green-500', crowd: '空いてる' },
-                      { time: '12:00-15:00', posts: 42, percentage: 17.9, color: 'bg-yellow-500', crowd: '普通' },
+                      { time: '9:00-12:00', posts: 15, percentage: 6.4, color: 'bg-[rgba(31,143,106,0.12)]0', crowd: '空いてる' },
+                      { time: '12:00-15:00', posts: 42, percentage: 17.9, color: 'bg-[rgba(242,178,74,0.12)]0', crowd: '普通' },
                       { time: '15:00-18:00', posts: 67, percentage: 28.6, color: 'bg-orange-500', crowd: '混雑' },
-                      { time: '18:00-22:00', posts: 72, percentage: 30.8, color: 'bg-red-500', crowd: '混雑' },
+                      { time: '18:00-22:00', posts: 72, percentage: 30.8, color: 'bg-[rgba(224,112,122,0.12)]0', crowd: '混雑' },
                       { time: '22:00-24:00', posts: 10, percentage: 4.3, color: 'bg-purple-500', crowd: '空いてる' },
                     ].map((slot, index) => (
                       <div key={index} className="flex items-center gap-4">
@@ -1105,13 +1105,13 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                             equipment.sentiment === '好評' ? 'bg-green-100 text-green-700' :
-                            equipment.sentiment === '要改善' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 text-gray-700'
+                            equipment.sentiment === '要改善' ? 'bg-red-100 text-[#c85963]' :
+                            'bg-gray-100 text-[color:var(--text-subtle)]'
                           }`}>
                             {equipment.sentiment}
                           </span>
                           <div className={`text-[11px] font-medium ${
-                            equipment.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                            equipment.trend.startsWith('+') ? 'text-[#1f8f6a]' : 'text-[#e0707a]'
                           }`}>
                             {equipment.trend}
                           </div>
@@ -1170,7 +1170,7 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <div className={`text-[11px] font-medium ${
-                            data.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                            data.growth.startsWith('+') ? 'text-[#1f8f6a]' : 'text-[#e0707a]'
                           }`}>
                             {data.growth}
                           </div>

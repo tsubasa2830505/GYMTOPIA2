@@ -544,7 +544,7 @@ function SearchResultsContent() {
                 height={32}
                 className="h-6 sm:h-8 w-auto"
               />
-              <h2 className="text-lg font-medium text-gray-700">ジム検索</h2>
+              <h2 className="text-lg font-medium text-[color:var(--text-subtle)]">ジム検索</h2>
             </div>
           </div>
         </div>
@@ -591,7 +591,7 @@ function SearchResultsContent() {
           </div>
 
           {error && (
-            <div className="gt-layer p-3 border border-blue-200 bg-blue-50 text-blue-700 rounded-2xl text-sm">
+            <div className="gt-layer p-3 border border-[rgba(31,79,255,0.22)] bg-blue-50 text-blue-700 rounded-2xl text-sm">
               {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}

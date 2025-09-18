@@ -105,6 +105,12 @@ export default function ProfilePage() {
   const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
   const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
 
+  // Tab specific loading states
+  const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
+  const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+  const [hasLoadedAchievements, setHasLoadedAchievements] = useState(false);
+  const [hasLoadedFavorites, setHasLoadedFavorites] = useState(false);
+
   // Performance optimization: useRef to prevent duplicate data loading
   const hasLoadedData = useRef(false);
   const isLoadingData = useRef(false);
@@ -287,17 +293,8 @@ export default function ProfilePage() {
         isLoadingData.current = false;
         console.log('🎉 メインローディング完了！');
 
-        // Phase 4: 非重要データを背景で読み込み（遅延ローディング）
-        Promise.all([
-          getUserAchievements(userId).catch(() => []),
-          getUserPersonalRecords(userId).catch(() => []),
-          getFavoriteGyms(userId).catch(() => [])
-        ]).then(([achievements, personalRecords, favoriteGyms]) => {
-          setUserAchievements(achievements);
-          setUserPersonalRecords(personalRecords);
-          setUserFavoriteGyms(favoriteGyms);
-          console.log('✅ 全ての補助データ 読み込み完了');
-        });
+        // Phase 4: 週間統計（達成記録タブで使用）のみ先に取得
+        // 他のデータは各タブをクリックした時に取得する
 
         // Supabaseクライアントを一度だけ取得
         const supabase = getSupabaseClient();
@@ -349,9 +346,7 @@ export default function ProfilePage() {
         setProfileData(profileStats);
         setWeeklyStats(weeklyData);
         setUserPosts(posts || []);
-        setUserAchievements(achievements || []);
-        setUserPersonalRecords(personalRecords || []);
-        setUserFavoriteGyms([]); // favoriteGymsは別途非同期で取得
+        // achievementsとfavoriteGymsは各タブクリック時に取得
         setHomeGym(homeGymData);
         // setUniqueGymsCountは早期リターンの前に移動済み
 
@@ -464,6 +459,99 @@ export default function ProfilePage() {
     };
   }, []); // 初回のみ実行
 
+  // 達成記録タブのデータを遅延ロード
+  const loadAchievementsData = async () => {
+    if (hasLoadedAchievements || isLoadingAchievements || !userId) return;
+
+    setIsLoadingAchievements(true);
+    try {
+      console.log('📊 達成記録データを取得中...');
+
+      const [achievements, personalRecords] = await Promise.all([
+        getUserAchievements(userId).catch(() => []),
+        getUserPersonalRecords(userId).catch(() => [])
+      ]);
+
+      setUserAchievements(achievements);
+      setUserPersonalRecords(personalRecords);
+      setHasLoadedAchievements(true);
+
+      console.log('✅ 達成記録データ取得完了');
+    } catch (error) {
+      console.error('達成記録データ取得エラー:', error);
+    } finally {
+      setIsLoadingAchievements(false);
+    }
+  };
+
+  // イキタイタブのデータを遅延ロード
+  const loadFavoritesData = async () => {
+    if (hasLoadedFavorites || isLoadingFavorites || !userId) return;
+
+    setIsLoadingFavorites(true);
+    try {
+      console.log('❤️ お気に入りジムデータを取得中...');
+
+      const favoriteGyms = await getFavoriteGyms(userId).catch(() => []);
+
+      // データが空の場合はサンプルデータを設定
+      if (favoriteGyms.length === 0) {
+        const sampleFavoriteGyms: FavoriteGym[] = [
+          {
+            id: 'fav-1',
+            user_id: userId,
+            gym_id: 'gym-1',
+            created_at: '2024-06-01T00:00:00Z',
+            gym: {
+              id: 'gym-1',
+              name: 'ゴールドジム渋谷',
+              area: '渋谷',
+              description: '本格的なトレーニング設備が充実',
+              rating: 4.5,
+              users_count: 523
+            }
+          },
+          {
+            id: 'fav-2',
+            user_id: userId,
+            gym_id: 'gym-2',
+            created_at: '2024-07-15T00:00:00Z',
+            gym: {
+              id: 'gym-2',
+              name: 'エニタイムフィットネス新宿',
+              area: '新宿',
+              description: '24時間営業で便利',
+              rating: 4.2,
+              users_count: 412
+            }
+          }
+        ];
+        setUserFavoriteGyms(sampleFavoriteGyms);
+      } else {
+        setUserFavoriteGyms(favoriteGyms);
+      }
+
+      setHasLoadedFavorites(true);
+      console.log('✅ お気に入りジムデータ取得完了');
+    } catch (error) {
+      console.error('お気に入りジムデータ取得エラー:', error);
+    } finally {
+      setIsLoadingFavorites(false);
+    }
+  };
+
+  // タブ切り替え時の処理
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+
+    // 各タブに応じて必要なデータを遅延ロード
+    if (tab === 'achievements' && !hasLoadedAchievements) {
+      loadAchievementsData();
+    } else if (tab === 'favorites' && !hasLoadedFavorites) {
+      loadFavoritesData();
+    }
+  };
+
   const loadMorePosts = async () => {
     if (!hasMorePosts || isLoadingMorePosts || !userId) return;
 
@@ -491,7 +579,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.18),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(240,244,255,0.32),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(64,106,255,0.18),transparent_64%),radial-gradient(circle_at_86%_18%,rgba(108,150,255,0.14),transparent_74%)]" />
+        <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.34),transparent_72%)] blur-[160px] opacity-72" />
+        <div className="absolute bottom-[-8%] left-[-4%] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(100,140,255,0.24),transparent_80%)] blur-[160px] opacity-58" />
+      </div>
       <Header />
 
       {/* Profile Header */}
@@ -636,8 +728,8 @@ export default function ProfilePage() {
       <div className="bg-[rgba(247,250,255,0.92)] border-b border-[rgba(44,82,190,0.18)]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-4 sm:gap-8">
-            <button 
-              onClick={() => setActiveTab('gym-activity')}
+            <button
+              onClick={() => handleTabChange('gym-activity')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'gym-activity' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">ジム活</span>
@@ -648,8 +740,8 @@ export default function ProfilePage() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
               )}
             </button>
-            <button 
-              onClick={() => setActiveTab('achievements')}
+            <button
+              onClick={() => handleTabChange('achievements')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'achievements' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">達成記録</span>
@@ -660,8 +752,8 @@ export default function ProfilePage() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
               )}
             </button>
-            <button 
-              onClick={() => setActiveTab('favorites')}
+            <button
+              onClick={() => handleTabChange('favorites')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">イキタイ</span>

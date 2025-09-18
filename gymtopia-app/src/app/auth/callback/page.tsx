@@ -59,10 +59,10 @@ export default function AuthCallbackPage() {
   }, [router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-[rgba(243,247,255,0.96)]">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">認証中...</p>
+        <p className="text-[color:var(--text-subtle)]">認証中...</p>
       </div>
     </div>
   )

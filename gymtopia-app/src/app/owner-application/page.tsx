@@ -85,39 +85,39 @@ export default function OwnerApplicationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[rgba(243,247,255,0.96)] py-8">
       <div className="max-w-3xl mx-auto px-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="flex items-center gap-2 text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)] mb-6"
         >
           <ArrowLeft className="w-5 h-5" />
           戻る
         </button>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="gt-card p-8">
           <h1 className="text-3xl font-bold mb-8">ジムオーナー申請</h1>
 
           {/* 申請状態に応じた表示 */}
           {applicationStatus === 'approved' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <div className="bg-[rgba(31,143,106,0.12)] border border-[rgba(31,143,106,0.25)] rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-[#1f8f6a]" />
                 <div>
-                  <h2 className="text-xl font-semibold text-green-900">承認済み</h2>
-                  <p className="text-green-700 mt-1">
+                  <h2 className="text-xl font-semibold text-[#1f8f6a]">承認済み</h2>
+                  <p className="text-[#2f9f78] mt-1">
                     あなたはすでにジムオーナーとして承認されています。
                   </p>
                   <button
                     onClick={() => router.push('/admin')}
-                    className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="mt-4 px-6 py-2 bg-[#1f8f6a] text-white rounded-lg hover:bg-[#207e63]"
                   >
                     管理画面へ進む
                   </button>
@@ -127,15 +127,15 @@ export default function OwnerApplicationPage() {
           )}
 
           {applicationStatus === 'pending' && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+            <div className="bg-[rgba(242,178,74,0.12)] border border-[rgba(242,178,74,0.3)] rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3">
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-8 h-8 text-[#e29a4f]" />
                 <div>
-                  <h2 className="text-xl font-semibold text-yellow-900">審査中</h2>
-                  <p className="text-yellow-700 mt-1">
+                  <h2 className="text-xl font-semibold text-[#c47a23]">審査中</h2>
+                  <p className="text-[#d88c36] mt-1">
                     申請を受け付けました。審査完了まで1-3営業日お待ちください。
                   </p>
-                  <p className="text-sm text-yellow-600 mt-2">
+                  <p className="text-sm text-[#e29a4f] mt-2">
                     審査が完了しましたら、登録されたメールアドレスにご連絡いたします。
                   </p>
                 </div>
@@ -144,17 +144,17 @@ export default function OwnerApplicationPage() {
           )}
 
           {applicationStatus === 'rejected' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+            <div className="bg-[rgba(224,112,122,0.12)] border border-[rgba(224,112,122,0.3)] rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3">
-                <XCircle className="w-8 h-8 text-red-600" />
+                <XCircle className="w-8 h-8 text-[#e0707a]" />
                 <div>
-                  <h2 className="text-xl font-semibold text-red-900">申請却下</h2>
-                  <p className="text-red-700 mt-1">
+                  <h2 className="text-xl font-semibold text-[#b2454f]">申請却下</h2>
+                  <p className="text-[#c85963] mt-1">
                     申請が却下されました。詳細はメールをご確認ください。
                   </p>
                   <button
                     onClick={() => setApplicationStatus('none')}
-                    className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    className="mt-4 px-6 py-2 bg-[#e0707a] text-white rounded-lg hover:bg-[#c85963]"
                   >
                     再申請する
                   </button>
@@ -165,9 +165,9 @@ export default function OwnerApplicationPage() {
 
           {applicationStatus === 'none' && (
             <>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h2 className="text-lg font-semibold text-blue-900 mb-3">申請の流れ</h2>
-                <ol className="list-decimal list-inside space-y-2 text-blue-800">
+              <div className="bg-[rgba(31,79,255,0.12)] border border-[rgba(31,79,255,0.22)] rounded-lg p-6 mb-8">
+                <h2 className="text-lg font-semibold text-[color:var(--gt-primary-strong)] mb-3">申請の流れ</h2>
+                <ol className="list-decimal list-inside space-y-2 text-[color:var(--gt-primary-strong)]">
                   <li>下記のボタンからGoogle Formにアクセス</li>
                   <li>必要事項を入力して送信</li>
                   <li>1-3営業日以内に審査結果をメールでお知らせ</li>
@@ -175,9 +175,9 @@ export default function OwnerApplicationPage() {
                 </ol>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-6 mb-8">
+              <div className="bg-[rgba(243,247,255,0.96)] rounded-lg p-6 mb-8">
                 <h3 className="font-semibold mb-3">必要な情報</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                <ul className="list-disc list-inside space-y-1 text-[color:var(--text-subtle)]">
                   <li>ジム名</li>
                   <li>ジムの住所</li>
                   <li>オーナー名（担当者名）</li>
@@ -189,12 +189,12 @@ export default function OwnerApplicationPage() {
               <div className="flex flex-col items-center">
                 <button
                   onClick={handleGoogleFormSubmit}
-                  className="flex items-center gap-3 px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transform transition hover:scale-105"
+                  className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_14px_34px_-22px_rgba(15,36,118,0.46)] text-lg font-semibold rounded-lg hover:from-[#2645c8] hover:to-[#356fff] transform transition hover:scale-105"
                 >
                   <ExternalLink className="w-6 h-6" />
                   Google Formで申請する
                 </button>
-                <p className="text-sm text-gray-500 mt-4">
+                <p className="text-sm text-[color:var(--text-muted)] mt-4">
                   ※ 新しいタブで開きます
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function OwnerApplicationPage() {
 
           {user && (
             <div className="mt-12 pt-8 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[color:var(--text-subtle)]">
                 申請アカウント: <span className="font-semibold">{user.email}</span>
               </p>
             </div>

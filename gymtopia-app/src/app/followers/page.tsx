@@ -162,9 +162,13 @@ export default function FollowersPage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.16),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(240,244,255,0.34),transparent_86%),radial-gradient(circle_at_12%_18%,rgba(58,104,255,0.18),transparent_62%),radial-gradient(circle_at_84%_14%,rgba(108,148,255,0.14),transparent_70%)]" />
+        <div className="absolute -top-28 right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.34),transparent_70%)] blur-[140px] opacity-70" />
+        <div className="absolute top-[52%] -left-32 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(98,138,255,0.26),transparent_74%)] blur-[150px] opacity-60" />
+      </div>
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(15,36,118,0.44)]">
+      <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
         <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 

@@ -30,7 +30,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-[rgba(31,79,255,0.22)] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -67,7 +67,7 @@ export default function DashboardPage() {
                     alt="アバター"
                     width={40}
                     height={40}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-blue-200"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-[rgba(31,79,255,0.22)]"
                   />
                 )}
               </div>
@@ -85,7 +85,7 @@ export default function DashboardPage() {
             {process.env.NODE_ENV === 'development' && isAuthenticated && (
               <button
                 onClick={mockSignOut}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+                className="px-4 py-2 bg-[rgba(224,112,122,0.12)]0 text-white rounded-lg hover:bg-[#e0707a] transition-colors text-sm"
               >
                 ログアウト
               </button>
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         {!isAuthenticated ? (
           // 未認証時の表示
           <div className="text-center py-20">
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-200 max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-[rgba(31,79,255,0.22)] max-w-md mx-auto">
               <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <User className="w-10 h-10 text-white" />
               </div>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                 <ActionButton
                   label="プロフィール編集"
                   onClick={() => router.push('/profile/edit')}
-                  className="bg-green-500 hover:bg-green-600"
+                  className="bg-[rgba(31,143,106,0.12)]0 hover:bg-[#1f8f6a]"
                 />
                 <ActionButton
                   label="フォロー中"
@@ -169,8 +169,8 @@ export default function DashboardPage() {
             {/* 開発者情報（開発環境のみ） */}
             {process.env.NODE_ENV === 'development' && (
               <div className="bg-gray-100 rounded-lg p-6 border-2 border-gray-300">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 開発者情報</h3>
-                <div className="text-sm text-gray-700 space-y-2">
+                <h3 className="text-lg font-semibold text-[color:var(--foreground)] mb-4">🔧 開発者情報</h3>
+                <div className="text-sm text-[color:var(--text-subtle)] space-y-2">
                   <p>このページは開発環境でのテスト用です。</p>
                   <p>本番環境では、認証されたユーザーのみアクセス可能です。</p>
                   <p>現在のユーザー: {user?.email}</p>

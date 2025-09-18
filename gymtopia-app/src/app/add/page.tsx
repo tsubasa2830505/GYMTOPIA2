@@ -173,12 +173,12 @@ function AddGymPostContent() {
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
       </svg>
-    ), color: 'bg-yellow-100 text-yellow-700' },
+    ), color: 'bg-yellow-100 text-[#d88c36]' },
     { value: 'crowded' as const, label: '混雑', icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H5V16h-.97c-.02-.49-.39-.94-.88-1.1zM12 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H15V16h-.97c-.02-.49-.39-.94-.88-1.1zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H23V16h-.97c-.02-.49-.39-.94-.88-1.1z"/>
       </svg>
-    ), color: 'bg-red-100 text-red-700' }
+    ), color: 'bg-red-100 text-[#c85963]' }
   ]
 
   const handleAddExercise = () => {
@@ -525,7 +525,7 @@ function AddGymPostContent() {
                 <button
                   type="button"
                   onClick={() => setShowExerciseForm(false)}
-                  className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-red-100 text-[#c85963] rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
                   フォームを閉じる
@@ -547,7 +547,7 @@ function AddGymPostContent() {
                     <button
                       type="button"
                       onClick={() => handleRemoveExercise(exercise.id)}
-                      className="p-1 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1 text-red-500 hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -665,7 +665,7 @@ function AddGymPostContent() {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                      className="absolute top-1 right-1 bg-[rgba(224,112,122,0.12)]0 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[#e0707a] transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -716,11 +716,11 @@ function AddGymPostContent() {
           <form onSubmit={handleEquipmentSubmit} className="space-y-6">
             {/* エラーメッセージ */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+              <div className="bg-[rgba(224,112,122,0.12)] border border-red-200 rounded-xl p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-red-800">登録エラー</p>
-                  <p className="text-sm text-red-600 mt-1">{error}</p>
+                  <p className="text-sm text-[#e0707a] mt-1">{error}</p>
                 </div>
               </div>
             )}

@@ -73,8 +73,8 @@ export default function AuthTestPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 p-4 rounded-lg">
-            <h2 className="font-semibold mb-2 text-red-700">エラー:</h2>
+          <div className="bg-[rgba(224,112,122,0.12)] p-4 rounded-lg">
+            <h2 className="font-semibold mb-2 text-[#c85963]">エラー:</h2>
             <pre className="bg-red-100 p-2 rounded text-xs overflow-auto">
               {JSON.stringify(error, null, 2)}
             </pre>

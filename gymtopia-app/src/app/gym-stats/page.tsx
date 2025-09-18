@@ -164,18 +164,18 @@ export default function GymStatsPage() {
 
   const getCrowdColor = (crowd: string) => {
     switch(crowd) {
-      case 'empty': return 'text-green-600'
-      case 'crowded': return 'text-red-600'
-      default: return 'text-yellow-600'
+      case 'empty': return 'text-[#1f8f6a]'
+      case 'crowded': return 'text-[#e0707a]'
+      default: return 'text-[#f2b24a]'
     }
   }
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600">統計データを読み込み中...</p>
+          <div className="w-16 h-16 border-4 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[color:var(--text-muted)]">統計データを読み込み中...</p>
         </div>
       </div>
     )
@@ -183,12 +183,12 @@ export default function GymStatsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-600 mb-4">ログインしてください</p>
+          <p className="text-[color:var(--text-muted)] mb-4">ログインしてください</p>
           <button
             onClick={() => router.push('/login')}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)] rounded-lg hover:from-[#2645c8] hover:to-[#356fff] transition-colors"
           >
             ログインへ
           </button>
@@ -198,19 +198,26 @@ export default function GymStatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="min-h-screen pb-24 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(202deg,rgba(240,244,255,0.32),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(64,106,255,0.18),transparent_66%),radial-gradient(circle_at_86%_16%,rgba(108,150,255,0.14),transparent_74%)]" />
+        <div className="absolute -top-24 left-14 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_72%)] blur-[150px] opacity-68" />
+        <div className="absolute bottom-[-10%] right-[-6%] h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(102,142,255,0.22),transparent_80%)] blur-[150px] opacity-56" />
+      </div>
+
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
+          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.back()}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-[rgba(243,247,255,0.98)] rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold text-slate-900">ジム通い統計</h1>
-            <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-medium">
+            <h1 className="text-xl font-bold text-[color:var(--foreground)]">ジム通い統計</h1>
+            <span className="px-2 py-1 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-medium">
               {getPeriodVisits()}回
             </span>
           </div>
@@ -221,8 +228,8 @@ export default function GymStatsPage() {
               onClick={() => setSelectedPeriod('week')}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 selectedPeriod === 'week' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]' 
+                  : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(234,240,255,0.88)]'
               }`}
             >
               週
@@ -231,8 +238,8 @@ export default function GymStatsPage() {
               onClick={() => setSelectedPeriod('month')}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 selectedPeriod === 'month' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]' 
+                  : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(234,240,255,0.88)]'
               }`}
             >
               月
@@ -241,53 +248,53 @@ export default function GymStatsPage() {
               onClick={() => setSelectedPeriod('year')}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 selectedPeriod === 'year' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]' 
+                  : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(234,240,255,0.88)]'
               }`}
             >
               年
             </button>
           </div>
-        </div>
-      </header>
+          </div>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-[#eef2ff] to-[#f7f9ff] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">総訪問回数</span>
-              <Activity className="w-5 h-5 text-blue-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">総訪問回数</span>
+              <Activity className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{stats.totalVisits}回</div>
-            <div className="text-xs text-slate-600 mt-1">月平均: {stats.monthlyVisits}回</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{stats.totalVisits}回</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">月平均: {stats.monthlyVisits}回</div>
           </div>
           
-          <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-[#f4f2ff] to-[#fafbff] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">現在の連続記録</span>
-              <Flame className="w-5 h-5 text-orange-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">現在の連続記録</span>
+              <Flame className="w-5 h-5 text-[#f28f6b]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{stats.currentStreak}日</div>
-            <div className="text-xs text-slate-600 mt-1">最長: {stats.longestStreak}日</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{stats.currentStreak}日</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">最長: {stats.longestStreak}日</div>
           </div>
           
-          <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-[#edf3ff] to-[#f6f9ff] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">総重量</span>
-              <Dumbbell className="w-5 h-5 text-green-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">総重量</span>
+              <Dumbbell className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{(stats.totalWeight/1000).toFixed(1)}t</div>
-            <div className="text-xs text-slate-600 mt-1">平均: {stats.totalVisits > 0 ? Math.round(stats.totalWeight / stats.totalVisits) : 0}kg/回</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{(stats.totalWeight/1000).toFixed(1)}t</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">平均: {stats.totalVisits > 0 ? Math.round(stats.totalWeight / stats.totalVisits) : 0}kg/回</div>
           </div>
           
-          <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-[#edf2ff] to-[#f6f8ff] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-700">総時間</span>
-              <Clock className="w-5 h-5 text-purple-600" />
+              <span className="text-sm text-[color:var(--text-subtle)]">総時間</span>
+              <Clock className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900">{stats.totalDurationHours}時間</div>
-            <div className="text-xs text-slate-600 mt-1">平均: {(stats.avgDurationMinutes / 60).toFixed(1)}時間/回</div>
+            <div className="text-2xl font-bold text-[color:var(--foreground)]">{stats.totalDurationHours}時間</div>
+            <div className="text-xs text-[color:var(--text-muted)] mt-1">平均: {(stats.avgDurationMinutes / 60).toFixed(1)}時間/回</div>
           </div>
         </div>
 
@@ -295,26 +302,26 @@ export default function GymStatsPage() {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Gym Rankings */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="gt-card p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-500" />
+                <MapPin className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
                 よく行くジム TOP5
               </h3>
               <div className="space-y-3">
                 {gymRankings.map((gym, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                  <div key={index} className="flex items-center justify-between p-3 hover:bg-[rgba(243,247,255,0.98)] rounded-lg transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                      <div className="w-8 h-8 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] rounded-full flex items-center justify-center font-bold text-sm">
                         {index + 1}
                       </div>
                       <div>
-                        <div className="font-medium text-slate-900">{gym.name}</div>
-                        <div className="text-xs text-slate-600">最終訪問: {gym.lastVisit}</div>
+                        <div className="font-medium text-[color:var(--foreground)]">{gym.name}</div>
+                        <div className="text-xs text-[color:var(--text-muted)]">最終訪問: {gym.lastVisit}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-slate-900">{gym.visits}回</div>
-                      <div className="text-xs text-slate-600">{gym.percentage}%</div>
+                      <div className="font-bold text-[color:var(--foreground)]">{gym.visits}回</div>
+                      <div className="text-xs text-[color:var(--text-muted)]">{gym.percentage}%</div>
                     </div>
                   </div>
                 ))}
@@ -322,29 +329,29 @@ export default function GymStatsPage() {
             </div>
 
             {/* Weekly Pattern */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="gt-card p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-green-500" />
+                <Calendar className="w-5 h-5 text-[#1f8f6a]" />
                 曜日別パターン
               </h3>
               <div className="space-y-3">
                 {weeklyPattern.map((day) => (
                   <div key={day.day} className="flex items-center gap-3">
-                    <div className="w-8 text-center font-medium text-slate-700">{day.day}</div>
+                    <div className="w-8 text-center font-medium text-[color:var(--text-subtle)]">{day.day}</div>
                     <div className="flex-1">
-                      <div className="relative h-8 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="relative h-8 bg-[rgba(243,247,255,0.92)] rounded-full overflow-hidden">
                         <div 
-                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] rounded-full"
                           style={{ width: `${Math.min(100, (day.visits / Math.max(...weeklyPattern.map((d: any) => d.visits)) * 100))}%` }}
                         />
                         <div className="absolute inset-0 flex items-center px-3">
-                          <span className="text-xs font-medium text-slate-700">
+                          <span className="text-xs font-medium text-[color:var(--text-subtle)]">
                             {day.visits}回
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-slate-600">
+                    <div className="text-xs text-[color:var(--text-muted)]">
                       平均: {day.avg}
                     </div>
                   </div>
@@ -353,26 +360,26 @@ export default function GymStatsPage() {
             </div>
 
             {/* Time Distribution */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="gt-card p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-purple-500" />
+                <Clock className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
                 時間帯分布
               </h3>
               <div className="space-y-3">
                 {timeDistribution.map((time) => (
                   <div key={time.time} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-sm text-slate-700 w-28">{time.time}</div>
+                      <div className="text-sm text-[color:var(--text-subtle)] w-28">{time.time}</div>
                       <div className="flex-1">
-                        <div className="relative h-6 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="relative h-6 bg-[rgba(243,247,255,0.92)] rounded-full overflow-hidden">
                           <div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#2a5fe8] to-[#4c7aff] rounded-full"
                             style={{ width: `${time.percentage}%` }}
                           />
                         </div>
                       </div>
                     </div>
-                    <div className="text-sm font-medium text-slate-900 w-12 text-right">
+                    <div className="text-sm font-medium text-[color:var(--foreground)] w-12 text-right">
                       {time.visits}回
                     </div>
                   </div>
@@ -384,35 +391,35 @@ export default function GymStatsPage() {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Recent Visits */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="gt-card p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-orange-500" />
+                <Activity className="w-5 h-5 text-[#f28f6b]" />
                 最近の訪問
               </h3>
               <div className="space-y-3">
                 {recentVisits.map((visit) => (
-                  <div key={visit.id} className="border-l-4 border-blue-500 pl-3 py-2">
+                  <div key={visit.id} className="border-l-4 border-[color:var(--gt-primary-strong)] pl-3 py-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-medium text-sm text-slate-900">{visit.gymName}</div>
-                        <div className="text-xs text-slate-600 mt-1">{visit.date}</div>
+                        <div className="font-medium text-sm text-[color:var(--foreground)]">{visit.gymName}</div>
+                        <div className="text-xs text-[color:var(--text-muted)] mt-1">{visit.date}</div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-slate-600">{visit.duration}</span>
+                          <span className="text-xs text-[color:var(--text-muted)]">{visit.duration}</span>
                           <span className={`text-xs ${getCrowdColor(visit.crowd)}`}>
                             {getCrowdIcon(visit.crowd)}
                           </span>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {visit.exercises.slice(0, 2).map((exercise, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded-full">
+                        <span key={i} className="px-2 py-0.5 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full">
                           {exercise}
                         </span>
                       ))}
                       {visit.exercises.length > 2 && (
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full">
                           +{visit.exercises.length - 2}
                         </span>
                       )}
@@ -420,29 +427,29 @@ export default function GymStatsPage() {
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
+              <button className="w-full mt-4 py-2 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] rounded-lg text-sm font-medium hover:bg-[rgba(234,240,255,0.88)] transition-colors">
                 すべて見る
               </button>
             </div>
 
             {/* Achievement Progress */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="gt-card p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-yellow-500" />
+                <Award className="w-5 h-5 text-[#f2b24a]" />
                 達成間近
               </h3>
               <div className="space-y-3">
                 {achievements.map((achievement: any, index: number) => (
                   <div key={index}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-slate-700">{achievement.name}</span>
-                      <span className="text-xs text-slate-600">
+                      <span className="text-sm text-[color:var(--text-subtle)]">{achievement.name}</span>
+                      <span className="text-xs text-[color:var(--text-muted)]">
                         {Math.round(achievement.current)}/{achievement.target}
                       </span>
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-[rgba(243,247,255,0.92)] rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full" 
+                        className="h-full bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] rounded-full" 
                         style={{ width: `${achievement.percentage}%` }} 
                       />
                     </div>
@@ -452,12 +459,12 @@ export default function GymStatsPage() {
             </div>
 
             {/* Training Tips */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-xl p-6">
-              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-900">
-                <TrendingUp className="w-5 h-5 text-indigo-600" />
+            <div className="bg-gradient-to-br from-[#eef2ff] to-[#f5f6ff] rounded-xl p-6">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-[color:var(--foreground)]">
+                <TrendingUp className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
                 インサイト
               </h3>
-              <div className="space-y-2 text-sm text-slate-700">
+              <div className="space-y-2 text-sm text-[color:var(--text-subtle)]">
                 {weeklyPattern.length > 0 && (
                   <p>• {weeklyPattern.reduce((max: any, day: any) => day.visits > max.visits ? day : max, weeklyPattern[0]).day}曜日の訪問が最も多いです</p>
                 )}
@@ -473,6 +480,7 @@ export default function GymStatsPage() {
           </div>
         </div>
       </main>
+      </div>
     </div>
   )
 }

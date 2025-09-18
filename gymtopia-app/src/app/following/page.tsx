@@ -133,10 +133,14 @@ export default function FollowingPage() {
 
   return (
     <div className="min-h-screen pb-10 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.18),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(190deg,rgba(240,244,255,0.32),transparent_84%),radial-gradient(circle_at_18%_24%,rgba(60,104,255,0.16),transparent_64%),radial-gradient(circle_at_88%_16%,rgba(110,150,255,0.14),transparent_70%)]" />
+        <div className="absolute -top-24 left-16 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_70%)] blur-[130px] opacity-70" />
+        <div className="absolute bottom-[-10%] right-[-6%] h-[23rem] w-[23rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(96,134,255,0.24),transparent_76%)] blur-[150px] opacity-58" />
+      </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(15,36,118,0.44)]">
+      <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -330,7 +334,7 @@ export default function FollowingPage() {
                         <button 
                           onClick={() => handleUnfollow(user.id)}
                           disabled={processingIds.includes(user.id)}
-                          className={`px-3 py-2 bg-[rgba(255,247,247,0.9)] text-red-600 rounded-lg text-sm font-medium border border-red-200 hover:bg-red-100 transition-colors flex items-center gap-1 ${
+                          className={`px-3 py-2 bg-[rgba(255,247,247,0.9)] text-[#e0707a] rounded-lg text-sm font-medium border border-red-200 hover:bg-red-100 transition-colors flex items-center gap-1 ${
                             processingIds.includes(user.id) ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         >

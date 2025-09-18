@@ -32,11 +32,11 @@ export default function ResetPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-[rgba(243,247,255,0.96)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <svg
-              className="mx-auto h-12 w-12 text-green-600"
+              className="mx-auto h-12 w-12 text-[#1f8f6a]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -50,11 +50,11 @@ export default function ResetPasswordPage() {
               />
             </svg>
             
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-[color:var(--foreground)]">
               メールを送信しました
             </h2>
             
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="mt-2 text-center text-sm text-[color:var(--text-subtle)]">
               パスワードリセットのリンクをメールで送信しました。
             </p>
             
@@ -73,20 +73,20 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[rgba(243,247,255,0.96)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[color:var(--foreground)]">
             パスワードリセット
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-[color:var(--text-subtle)]">
             登録したメールアドレスを入力してください
           </p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
+            <div className="rounded-md bg-[rgba(224,112,122,0.12)] p-4">
               <div className="text-sm text-red-800">{error}</div>
             </div>
           )}
@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
               type="email"
               autoComplete="email"
               required
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-[color:var(--foreground)] focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="メールアドレス"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

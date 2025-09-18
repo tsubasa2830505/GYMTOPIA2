@@ -17,7 +17,7 @@ const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
     <div className="w-full h-full flex items-center justify-center bg-gray-100">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">地図を読み込み中...</p>
+        <p className="text-[color:var(--text-subtle)]">地図を読み込み中...</p>
       </div>
     </div>
   )
@@ -123,10 +123,10 @@ export default function GymDetailPage() {
 
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case '優良': return 'text-green-600 bg-green-50'
+      case '優良': return 'text-[#1f8f6a] bg-[rgba(31,143,106,0.12)]'
       case '良好': return 'text-blue-600 bg-blue-50'
-      case '可': return 'text-yellow-600 bg-yellow-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case '可': return 'text-[#e29a4f] bg-[rgba(242,178,74,0.12)]'
+      default: return 'text-[color:var(--text-subtle)] bg-[rgba(243,247,255,0.96)]'
     }
   }
 
@@ -190,7 +190,7 @@ export default function GymDetailPage() {
                   ? `${gymData.businessHours[0].open}–${gymData.businessHours[0].close}`
                   : '営業時間情報なし'}
               </p>
-              <p className={`text-xs sm:text-sm font-medium ${gymData.isOpenNow ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-xs sm:text-sm font-medium ${gymData.isOpenNow ? 'text-[#1f8f6a]' : 'text-[#e0707a]'}`}>
                 {gymData.businessHours && gymData.businessHours.length > 0
                   ? (gymData.isOpenNow ? '営業中' : '営業時間外')
                   : ''}
@@ -213,7 +213,7 @@ export default function GymDetailPage() {
             onClick={handleToggleLike}
             className={`flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-medium transition-all ${
               liked 
-                ? 'bg-red-500 text-white' 
+                ? 'bg-[rgba(224,112,122,0.12)]0 text-white' 
                 : 'bg-white border-2 border-slate-200 text-slate-900'
             }`}
           >
@@ -328,9 +328,9 @@ export default function GymDetailPage() {
                 />
               </div>
             ) : (
-              <div className="p-8 bg-gray-50 rounded-2xl text-center">
-                <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600">位置情報が登録されていません</p>
+              <div className="p-8 bg-[rgba(243,247,255,0.96)] rounded-2xl text-center">
+                <MapPin className="w-12 h-12 text-[rgba(44,82,190,0.32)] mx-auto mb-3" />
+                <p className="text-[color:var(--text-subtle)]">位置情報が登録されていません</p>
               </div>
             )}
             {gym?.address && (

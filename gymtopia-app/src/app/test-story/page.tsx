@@ -60,7 +60,7 @@ export default function TestStoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[rgba(243,247,255,0.96)] p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">インスタストーリー画像生成テスト</h1>
 
@@ -80,7 +80,7 @@ export default function TestStoryPage() {
         </button>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+          <div className="mt-4 p-4 bg-red-100 text-[#c85963] rounded-lg">
             エラー: {typeof error === 'string' ? error : JSON.stringify(error)}
           </div>
         )}

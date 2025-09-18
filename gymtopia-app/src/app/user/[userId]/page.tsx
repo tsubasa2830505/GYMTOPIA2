@@ -76,7 +76,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
       );
     default:
       return (
-        <svg className={`${baseClasses} text-gray-500`} viewBox="0 0 24 24" fill="currentColor">
+        <svg className={`${baseClasses} text-[color:var(--text-muted)]`} viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
       );
@@ -242,7 +242,7 @@ export default function UserProfilePage() {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">プロフィールを読み込んでいます...</p>
+            <p className="mt-4 text-[color:var(--text-subtle)]">プロフィールを読み込んでいます...</p>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@ export default function UserProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-red-600">{error || 'ユーザーが見つかりません'}</p>
+            <p className="text-[#e0707a]">{error || 'ユーザーが見つかりません'}</p>
             <button
               onClick={() => router.push('/feed')}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -271,7 +271,7 @@ export default function UserProfilePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 pt-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Profile Header */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-blue-200/50 p-6 mb-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
               {userProfile.avatar_url ? (
@@ -290,12 +290,12 @@ export default function UserProfilePage() {
             </div>
 
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{userProfile.display_name}</h1>
-              <p className="text-gray-600">@{userProfile.username}</p>
+              <h1 className="text-2xl font-bold text-[color:var(--foreground)]">{userProfile.display_name}</h1>
+              <p className="text-[color:var(--text-subtle)]">@{userProfile.username}</p>
               {userProfile.bio && (
-                <p className="mt-2 text-gray-700">{userProfile.bio}</p>
+                <p className="mt-2 text-[color:var(--text-subtle)]">{userProfile.bio}</p>
               )}
-              <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+              <div className="flex items-center gap-4 mt-3 text-sm text-[color:var(--text-subtle)]">
                 {userProfile.location && (
                   <div className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
@@ -308,22 +308,22 @@ export default function UserProfilePage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-blue-200/50">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[rgba(31,79,255,0.22)]/50">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{profileStats?.total_posts || 0}</div>
-              <div className="text-sm text-gray-600">投稿</div>
+              <div className="text-sm text-[color:var(--text-subtle)]">投稿</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{achievements.length}</div>
-              <div className="text-sm text-gray-600">実績</div>
+              <div className="text-sm text-[color:var(--text-subtle)]">実績</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{personalRecords.length}</div>
-              <div className="text-sm text-gray-600">記録</div>
+              <div className="text-sm text-[color:var(--text-subtle)]">記録</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{favoriteGyms.length}</div>
-              <div className="text-sm text-gray-600">お気に入りジム</div>
+              <div className="text-sm text-[color:var(--text-subtle)]">お気に入りジム</div>
             </div>
           </div>
         </div>
@@ -332,11 +332,11 @@ export default function UserProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Posts */}
           <div className="lg:col-span-2">
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-blue-200/50 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">最近の投稿</h2>
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+              <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-4">最近の投稿</h2>
 
               {userPosts.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-[color:var(--text-muted)]">
                   まだ投稿がありません
                 </div>
               ) : (
@@ -356,15 +356,15 @@ export default function UserProfilePage() {
           <div className="space-y-6">
             {/* Achievements */}
             {achievements.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-blue-200/50 p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">実績</h3>
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+                <h3 className="text-lg font-bold text-[color:var(--foreground)] mb-4">実績</h3>
                 <div className="space-y-3">
                   {achievements.slice(0, 5).map((achievement) => (
                     <div key={achievement.id} className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-xl">
                       {getAchievementIcon(achievement.badge_icon, achievement.achievement_type)}
                       <div>
-                        <div className="font-medium text-gray-900">{achievement.title}</div>
-                        <div className="text-sm text-gray-600">{achievement.description}</div>
+                        <div className="font-medium text-[color:var(--foreground)]">{achievement.title}</div>
+                        <div className="text-sm text-[color:var(--text-subtle)]">{achievement.description}</div>
                       </div>
                     </div>
                   ))}
@@ -374,8 +374,8 @@ export default function UserProfilePage() {
 
             {/* Favorite Gyms */}
             {favoriteGyms.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-blue-200/50 p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">お気に入りジム</h3>
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+                <h3 className="text-lg font-bold text-[color:var(--foreground)] mb-4">お気に入りジム</h3>
                 <div className="space-y-3">
                   {favoriteGyms.slice(0, 3).map((favoriteGym) => (
                     <div key={favoriteGym.id} className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-xl">
@@ -393,8 +393,8 @@ export default function UserProfilePage() {
                         )}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{favoriteGym.gym?.name}</div>
-                        <div className="text-sm text-gray-600">{favoriteGym.gym?.location}</div>
+                        <div className="font-medium text-[color:var(--foreground)]">{favoriteGym.gym?.name}</div>
+                        <div className="text-sm text-[color:var(--text-subtle)]">{favoriteGym.gym?.location}</div>
                       </div>
                     </div>
                   ))}

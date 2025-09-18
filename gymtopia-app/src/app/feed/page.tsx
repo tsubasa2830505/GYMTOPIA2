@@ -355,7 +355,11 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(70,120,255,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(96,134,255,0.16),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(210deg,rgba(240,244,255,0.3),transparent_82%),radial-gradient(circle_at_16%_20%,rgba(60,102,255,0.16),transparent_64%),radial-gradient(circle_at_84%_14%,rgba(110,150,255,0.12),transparent_72%)]" />
+        <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_72%)] blur-[150px] opacity-68" />
+        <div className="absolute bottom-[-6%] right-[-4%] h-[21rem] w-[21rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(102,142,255,0.24),transparent_78%)] blur-[150px] opacity-58" />
+      </div>
       <Header />
 
       {/* Main Content */}

@@ -440,13 +440,19 @@ export default function ProfileEditPage() {
             </label>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Image 
-                  src={previewImage || avatarUrl} 
-                  alt="筋トレマニア太郎" 
-                  width={96}
-                  height={96}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                />
+                {(previewImage || avatarUrl) ? (
+                  <Image
+                    src={previewImage || avatarUrl}
+                    alt="筋トレマニア太郎"
+                    width={96}
+                    height={96}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
+                    筋
+                  </div>
+                )}
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="absolute bottom-0 right-0 w-8 h-8 bg-[var(--gt-primary)] rounded-full flex items-center justify-center shadow-lg hover:bg-[#2c4ecc] transition-colors border-2 border-[var(--gt-primary)]"
@@ -456,7 +462,7 @@ export default function ProfileEditPage() {
                 {previewImage && (
                   <button
                     onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[rgba(224,112,122,0.12)]0 text-white rounded-full flex items-center justify-center hover:bg-[#e0707a] transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -474,7 +480,7 @@ export default function ProfileEditPage() {
                   {previewImage && (
                     <button 
                       onClick={handleRemoveImage}
-                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                      className="px-3 py-2 bg-red-100 text-[#c85963] rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
                     >
                       削除
                     </button>
@@ -550,7 +556,7 @@ export default function ProfileEditPage() {
                       setPrimaryGymId('')
                       setPrimaryGymName('')
                     }}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    className="text-sm text-[#e0707a] hover:text-[#c85963]"
                   >
                     解除
                   </button>
@@ -642,7 +648,7 @@ export default function ProfileEditPage() {
                   </div>
                   <button
                     onClick={() => handleRemoveRecord(record.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-red-500 hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -769,7 +775,7 @@ export default function ProfileEditPage() {
 
             <div className="space-y-4">
               {/* ジム活動全体の非公開設定 */}
-              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-red-50 border-red-200' : 'bg-[rgba(243,247,255,0.95)] border-[rgba(44,82,190,0.16)]'}`}>
+              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-[rgba(224,112,122,0.12)] border-red-200' : 'bg-[rgba(243,247,255,0.95)] border-[rgba(44,82,190,0.16)]'}`}>
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-3">
                     {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-green-500" />}
@@ -878,7 +884,7 @@ export default function ProfileEditPage() {
             
             <button
               onClick={handleLogout}
-              className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 border-2 border-red-500"
+              className="w-full py-3 bg-[rgba(224,112,122,0.12)]0 hover:bg-[#e0707a] text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 border-2 border-red-500"
             >
               <LogOut className="w-5 h-5" />
               ログアウト

@@ -85,80 +85,94 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="px-4 py-6">
-          <h1 className="text-2xl font-bold">統計</h1>
-        </div>
-      </header>
+    <div className="min-h-screen pb-20 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(198deg,rgba(240,244,255,0.32),transparent_82%),radial-gradient(circle_at_18%_20%,rgba(64,106,255,0.18),transparent_66%),radial-gradient(circle_at_86%_12%,rgba(106,150,255,0.14),transparent_72%)]" />
+        <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_70%)] blur-[140px] opacity-68" />
+        <div className="absolute bottom-[-12%] right-[-6%] h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(102,142,255,0.22),transparent_78%)] blur-[150px] opacity-56" />
+      </div>
 
-      <main className="px-4 py-6 space-y-6">
-        {/* Stats Cards */}
-        <section className="grid grid-cols-2 gap-4">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <Icon className="w-5 h-5 text-gray-400" />
-                  <span className={`text-xs ${
-                    stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stat.change}
-                  </span>
-                </div>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-gray-600 mt-1">{stat.label}</p>
-              </div>
-            )
-          })}
-        </section>
-
-        {/* Weekly Chart */}
-        <section className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">週間アクティビティ</h2>
-          <div className="flex items-end justify-between h-40 gap-2">
-            {weeklyData.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div className="w-full bg-gray-200 rounded-t flex flex-col justify-end" style={{ height: '120px' }}>
-                  <div
-                    className="bg-blue-500 rounded-t transition-all duration-300"
-                    style={{ height: `${data.value}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-600 mt-2">{data.day}</span>
-              </div>
-            ))}
+      <div className="relative z-10">
+        <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
+          <div className="max-w-5xl mx-auto px-4 py-6">
+            <h1 className="text-2xl font-bold text-[color:var(--gt-primary-strong)]">統計</h1>
+            <p className="text-sm text-[color:var(--text-muted)] mt-1">トレーニング習慣の推移をチェックしましょう</p>
           </div>
-        </section>
+        </header>
 
-        {/* Progress Summary */}
-        <section className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">筋肉群別進捗</h2>
-          <div className="space-y-3">
-            {[
-              { muscle: '胸', progress: 75 },
-              { muscle: '背中', progress: 60 },
-              { muscle: '脚', progress: 85 },
-              { muscle: '肩', progress: 45 },
-              { muscle: '腕', progress: 90 },
-            ].map((item, index) => (
-              <div key={index}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-700">{item.muscle}</span>
-                  <span className="text-gray-500">{item.progress}%</span>
+        <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+          {/* Stats Cards */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon
+              const isPositive = stat.change.startsWith('+')
+              return (
+                <div key={index} className="gt-card p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-2xl bg-[rgba(31,79,255,0.12)] text-[color:var(--gt-primary-strong)] flex items-center justify-center">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span
+                      className={`text-xs font-semibold ${
+                        isPositive ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[#e0707a]'
+                      }`}
+                    >
+                      {stat.change}
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-[color:var(--foreground)]">{stat.value}</p>
+                  <p className="text-xs text-[color:var(--text-muted)] mt-2">{stat.label}</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${item.progress}%` }}
-                  />
+              )
+            })}
+          </section>
+
+          {/* Weekly Chart */}
+          <section className="gt-card p-6">
+            <h2 className="text-lg font-semibold text-[color:var(--foreground)] mb-4">週間アクティビティ</h2>
+            <div className="flex items-end justify-between h-40 gap-3">
+              {weeklyData.map((data, index) => (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div className="w-full h-32 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.16)] rounded-2xl flex flex-col justify-end overflow-hidden">
+                    <div
+                      className="bg-gradient-to-b from-[#2a5fe8] via-[#1f4fff] to-[#2645c8] rounded-b-[18px] transition-[height] duration-300 ease-out"
+                      style={{ height: `${data.value}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-[color:var(--text-muted)] mt-2">{data.day}</span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
+              ))}
+            </div>
+          </section>
+
+          {/* Progress Summary */}
+          <section className="gt-card p-6">
+            <h2 className="text-lg font-semibold text-[color:var(--foreground)] mb-4">筋肉群別進捗</h2>
+            <div className="space-y-4">
+              {[
+                { muscle: '胸', progress: 75 },
+                { muscle: '背中', progress: 60 },
+                { muscle: '脚', progress: 85 },
+                { muscle: '肩', progress: 45 },
+                { muscle: '腕', progress: 90 },
+              ].map((item, index) => (
+                <div key={index}>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-medium text-[color:var(--foreground)]">{item.muscle}</span>
+                    <span className="text-[color:var(--text-muted)]">{item.progress}%</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.16)] rounded-full">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#1f4fff] via-[#2a5fe8] to-[#4c7aff] rounded-full transition-[width] duration-300 ease-out"
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
   )
 }

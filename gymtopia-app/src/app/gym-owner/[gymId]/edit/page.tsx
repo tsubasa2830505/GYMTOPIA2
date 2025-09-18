@@ -237,7 +237,7 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
             ))}
 
             {/* Preview Section */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div className="bg-blue-50 border border-[rgba(31,79,255,0.22)] rounded-xl p-6">
               <h3 className="text-lg font-bold text-blue-900 mb-3">プレビュー</h3>
               <p className="text-sm text-blue-700">
                 入力した内容がジム詳細ページでどのように表示されるかのプレビュー機能は開発中です。
