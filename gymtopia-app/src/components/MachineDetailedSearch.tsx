@@ -151,13 +151,13 @@ export default function MachineDetailedSearch({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-600 mb-4">
+      <p className="text-sm text-[color:var(--text-muted)] mb-4">
         部位と動作の詳細を選択してください
       </p>
 
       {Object.entries(groupedOptions).map(([category, options]) => (
         <div key={category} className="space-y-3">
-          <h3 className="font-semibold text-slate-900 px-1">{category}</h3>
+          <h3 className="font-semibold text-[color:var(--foreground)] px-1">{category}</h3>
           
           {options.map((option) => {
             const isExpanded = expandedCategory === option.id
@@ -166,7 +166,7 @@ export default function MachineDetailedSearch({
             const allSelected = selectedCount === totalCount
             
             return (
-              <div key={option.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div key={option.id} className="bg-white rounded-xl border border-[rgba(186,122,103,0.26)] overflow-hidden">
                 {/* Option Header */}
                 <div className="p-4">
                   <div className="flex items-center justify-between">
@@ -175,14 +175,14 @@ export default function MachineDetailedSearch({
                       className="flex-1 flex items-center justify-between"
                     >
                       <div className="text-left">
-                        <h4 className="font-medium text-slate-900">{option.name}</h4>
+                        <h4 className="font-medium text-[color:var(--foreground)]">{option.name}</h4>
                         {selectedCount > 0 && (
-                          <p className="text-xs text-blue-600 mt-0.5">
+                          <p className="text-xs text-[color:var(--gt-secondary-strong)] mt-0.5">
                             {selectedCount}/{totalCount} 選択中
                           </p>
                         )}
                       </div>
-                      <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${
+                      <ChevronRight className={`w-5 h-5 text-[rgba(68,73,73,0.6)] transition-transform ${
                         isExpanded ? 'rotate-90' : ''
                       }`} />
                     </button>
@@ -192,8 +192,8 @@ export default function MachineDetailedSearch({
                       className={`
                         ml-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                         ${allSelected 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          ? 'bg-[color:var(--gt-primary)] text-white' 
+                          : 'bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.9)]'
                         }
                       `}
                     >
@@ -204,7 +204,7 @@ export default function MachineDetailedSearch({
 
                 {/* Variations */}
                 {isExpanded && (
-                  <div className="border-t border-slate-100 p-4 bg-slate-50 space-y-2">
+                  <div className="border-t border-[rgba(186,122,103,0.18)] p-4 bg-[rgba(254,255,250,0.97)] space-y-2">
                     {option.variations.map((variation) => {
                       const isChecked = selectedOptions.has(variation.id)
                       
@@ -215,20 +215,20 @@ export default function MachineDetailedSearch({
                           className={`
                             w-full p-3 rounded-lg text-left transition-all
                             ${isChecked 
-                              ? 'bg-blue-100 border-2 border-blue-500' 
-                              : 'bg-white border-2 border-slate-200 hover:border-slate-300'
+                              ? 'bg-[rgba(240,142,111,0.14)] border-2 border-[color:var(--gt-primary)]' 
+                              : 'bg-white border-2 border-[rgba(186,122,103,0.26)] hover:border-[rgba(186,122,103,0.32)]'
                             }
                           `}
                         >
                           <div className="flex items-center justify-between">
                             <div>
                               <p className={`font-medium text-sm ${
-                                isChecked ? 'text-blue-700' : 'text-slate-900'
+                                isChecked ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--foreground)]'
                               }`}>
                                 {variation.name}
                               </p>
                               {variation.description && (
-                                <p className="text-xs text-slate-600 mt-0.5">
+                                <p className="text-xs text-[color:var(--text-muted)] mt-0.5">
                                   {variation.description}
                                 </p>
                               )}
@@ -236,8 +236,8 @@ export default function MachineDetailedSearch({
                             <div className={`
                               w-5 h-5 rounded border-2 flex items-center justify-center
                               ${isChecked 
-                                ? 'bg-blue-500 border-blue-500' 
-                                : 'border-slate-300'
+                                ? 'bg-[color:var(--gt-primary)] border-[color:var(--gt-primary)]' 
+                                : 'border-[rgba(186,122,103,0.32)]'
                               }
                             `}>
                               {isChecked && <Check className="w-3 h-3 text-white" />}

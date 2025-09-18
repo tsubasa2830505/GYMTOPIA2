@@ -1,10 +1,10 @@
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[rgba(243,247,255,0.96)] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[rgba(254,255,250,0.96)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <svg
-            className="mx-auto h-12 w-12 text-[#1f8f6a]"
+            className="mx-auto h-12 w-12 text-[var(--gt-secondary-strong)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -33,7 +33,7 @@ export default function VerifyEmailPage() {
           <div className="mt-6">
             <a
               href="/auth/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-[color:var(--gt-secondary-strong)] hover:text-[color:var(--gt-secondary)]"
             >
               ログイン画面に戻る
             </a>

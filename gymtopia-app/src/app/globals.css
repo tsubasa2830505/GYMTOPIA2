@@ -9,6 +9,11 @@
   --foreground: var(--gt-text-main);
   --text-subtle: var(--gt-text-sub);
   --text-muted: var(--gt-text-muted);
+  --accent: var(--gt-primary);
+  --accent-strong: var(--gt-primary-strong);
+  --accent-soft: var(--gt-primary-soft);
+  --accent-secondary: var(--gt-secondary);
+  --accent-tertiary: var(--gt-tertiary);
 }
 
 body {
@@ -126,36 +131,36 @@ body {
 
 .gt-shell {
   @apply rounded-3xl border backdrop-blur-sm;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(238, 243, 255, 0.88));
-  border-color: rgba(44, 82, 190, 0.18);
-  box-shadow: 0 22px 48px -28px rgba(15, 36, 118, 0.45);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(253, 240, 231, 0.88));
+  border-color: rgba(186, 122, 103, 0.24);
+  box-shadow: 0 22px 48px -28px rgba(189, 101, 78, 0.3);
 }
 
 .gt-surface {
   @apply rounded-3xl;
-  background: linear-gradient(182deg, rgba(255, 255, 255, 0.97), rgba(235, 242, 255, 0.92));
-  border: 1px solid rgba(44, 82, 190, 0.2);
-  box-shadow: 0 20px 44px -30px rgba(15, 36, 118, 0.42);
+  background: linear-gradient(182deg, rgba(255, 255, 255, 0.97), rgba(251, 241, 233, 0.92));
+  border: 1px solid rgba(186, 122, 103, 0.26);
+  box-shadow: 0 20px 44px -30px rgba(189, 101, 78, 0.28);
 }
 
 .gt-surface-outline {
   @apply rounded-2xl border;
-  border-color: rgba(44, 82, 190, 0.26);
-  background: rgba(244, 248, 255, 0.95);
+  border-color: rgba(186, 122, 103, 0.3);
+  background: rgba(253, 245, 240, 0.95);
 }
 
 .gt-border-soft {
-  border-color: rgba(44, 82, 190, 0.22);
+  border-color: rgba(186, 122, 103, 0.28);
 }
 
 .gt-border-strong {
-  border-color: rgba(26, 60, 160, 0.4);
+  border-color: rgba(150, 84, 63, 0.45);
 }
 
 .gt-tab-track {
   @apply rounded-full p-0.5 sm:p-1;
-  background: linear-gradient(135deg, rgba(31, 79, 255, 0.14), rgba(76, 122, 255, 0.1));
-  border: 1px solid rgba(31, 79, 255, 0.18);
+  background: linear-gradient(135deg, rgba(231, 103, 76, 0.16), rgba(240, 142, 111, 0.1));
+  border: 1px solid rgba(231, 103, 76, 0.22);
 }
 
 .gt-tab {
@@ -166,7 +171,7 @@ body {
 
 .gt-tab-active {
   @apply shadow-lg;
-  background: rgba(240, 245, 255, 0.95);
+  background: rgba(253, 245, 240, 0.95);
   color: var(--gt-primary-strong);
 }
 
@@ -175,27 +180,27 @@ body {
 }
 
 .gt-blur-panel {
-  background: rgba(243, 247, 255, 0.92);
+  background: rgba(253, 245, 240, 0.9);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(44, 82, 190, 0.18);
+  border: 1px solid rgba(186, 122, 103, 0.18);
   border-radius: 24px;
 }
 
 .gt-badge {
   @apply inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full;
-  background: rgba(31, 79, 255, 0.16);
+  background: rgba(231, 103, 76, 0.18);
   color: var(--gt-primary-strong);
 }
 
 .gt-badge-muted {
-  background: rgba(44, 82, 190, 0.12);
+  background: rgba(186, 122, 103, 0.18);
   color: var(--text-muted);
 }
 
 .gt-shadow-soft {
-  box-shadow: 0 22px 46px -30px rgba(15, 36, 118, 0.44);
+  box-shadow: 0 22px 46px -30px rgba(189, 101, 78, 0.3);
 }
 
 .gt-shadow-strong {
-  box-shadow: 0 32px 70px -32px rgba(15, 36, 118, 0.52);
+  box-shadow: 0 32px 70px -32px rgba(189, 101, 78, 0.34);
 }

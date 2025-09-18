@@ -106,7 +106,7 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
         className: 'user-location-marker',
         html: `<div style="position: relative;">
           <div style="
-            background-color: #10b981;
+            background-color: var(--gt-secondary-strong);
             width: 14px;
             height: 14px;
             border-radius: 50%;
@@ -120,7 +120,7 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            border: 2px solid #10b981;
+            border: 2px solid var(--gt-secondary-strong);
             opacity: 0.3;
             animation: pulse 2s infinite;
           "></div>
@@ -171,7 +171,7 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
       const gymIcon = leaflet.divIcon({
         className: 'gym-marker',
         html: `<div style="
-          background-color: ${isSelected ? '#dc2626' : '#3b82f6'};
+          background-color: ${isSelected ? 'var(--gt-primary-strong)' : 'var(--gt-secondary)'};
           width: ${isSelected ? '28px' : '24px'};
           height: ${isSelected ? '28px' : '24px'};
           border-radius: 50%;
@@ -226,10 +226,10 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
 
   if (!isLoaded) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="w-full h-full bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(245,177,143,0.16)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600">マップを読み込み中...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[color:var(--gt-primary)] mx-auto mb-2"></div>
+          <p className="text-sm text-[color:var(--text-muted)]">マップを読み込み中...</p>
         </div>
       </div>
     );

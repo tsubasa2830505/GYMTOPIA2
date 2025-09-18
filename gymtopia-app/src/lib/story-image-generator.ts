@@ -1,5 +1,14 @@
 import { Post } from './supabase/posts';
 
+const ACCENT_PRIMARY = '#e7674c';
+const ACCENT_PRIMARY_STRONG = '#c9563d';
+const ACCENT_SECONDARY = '#f08e6f';
+const ACCENT_TERTIARY = '#f5b18f';
+const BASE_LIGHT = '#fefffa';
+const BASE_SOFT = '#f9f1ea';
+const TEXT_MAIN = '#444949';
+const TEXT_INVERSE = '#fff0ea';
+
 // インスタグラムストーリー用の画像生成クラス
 export class StoryImageGenerator {
     private canvas: HTMLCanvasElement;
@@ -62,9 +71,9 @@ export class StoryImageGenerator {
     // 背景グラデーション
     private drawBackground() {
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(0.5, '#764ba2');
-        gradient.addColorStop(1, '#f093fb');
+        gradient.addColorStop(0, ACCENT_PRIMARY);
+        gradient.addColorStop(0.45, ACCENT_SECONDARY);
+        gradient.addColorStop(1, ACCENT_PRIMARY_STRONG);
 
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
@@ -116,7 +125,7 @@ export class StoryImageGenerator {
                     this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
                     // 半透明のオーバーレイを追加（テキストの可読性向上）
-                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                    this.ctx.fillStyle = 'rgba(68, 73, 73, 0.35)';
                     this.ctx.fillRect(0, 0, this.width, this.height);
 
                     console.log('External image loaded successfully');
@@ -156,7 +165,7 @@ export class StoryImageGenerator {
             this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
             // 半透明のオーバーレイを追加（テキストの可読性向上）
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            this.ctx.fillStyle = 'rgba(68, 73, 73, 0.35)';
             this.ctx.fillRect(0, 0, this.width, this.height);
 
         } catch (error) {
@@ -174,12 +183,12 @@ export class StoryImageGenerator {
             this.width / 2, this.height / 2, this.width / 2
         );
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        gradient.addColorStop(1, 'rgba(68, 73, 73, 0.3)');
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
 
         // パターン
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        this.ctx.strokeStyle = 'rgba(231, 103, 76, 0.12)';
         this.ctx.lineWidth = 1;
         for (let i = 0; i < this.width; i += 50) {
             this.ctx.beginPath();
@@ -199,11 +208,10 @@ export class StoryImageGenerator {
     private drawEnhancedDecorativeBackground() {
         // よりダイナミックなグラデーション背景
         const gradient = this.ctx.createLinearGradient(0, 0, this.width, this.height);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(0.25, '#764ba2');
-        gradient.addColorStop(0.5, '#f093fb');
-        gradient.addColorStop(0.75, '#667eea');
-        gradient.addColorStop(1, '#764ba2');
+        gradient.addColorStop(0, ACCENT_PRIMARY);
+        gradient.addColorStop(0.35, ACCENT_SECONDARY);
+        gradient.addColorStop(0.7, ACCENT_TERTIARY);
+        gradient.addColorStop(1, ACCENT_PRIMARY_STRONG);
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
 
@@ -215,8 +223,8 @@ export class StoryImageGenerator {
             const radius = Math.random() * 300 + 100;
 
             const circleGradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
-            circleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            circleGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            circleGradient.addColorStop(0, 'rgba(255, 240, 234, 0.3)');
+            circleGradient.addColorStop(1, 'rgba(255, 240, 234, 0)');
 
             this.ctx.fillStyle = circleGradient;
             this.ctx.beginPath();
@@ -229,14 +237,14 @@ export class StoryImageGenerator {
         this.drawFitnessIcons();
 
         // 半透明のオーバーレイ
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.fillStyle = 'rgba(68, 73, 73, 0.3)';
         this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
     // フィットネスアイコンを描画（シンプルな図形で表現）
     private drawFitnessIcons() {
         this.ctx.globalAlpha = 0.1;
-        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.strokeStyle = TEXT_INVERSE;
         this.ctx.lineWidth = 3;
 
         // シンプルな幾何学的パターンを描画
@@ -264,7 +272,7 @@ export class StoryImageGenerator {
         const logoX = this.width / 2;
 
         // ロゴの背景（白背景）
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        this.ctx.fillStyle = 'rgba(254, 255, 250, 0.95)';
         this.ctx.fillRect(0, logoY - 60, this.width, 140);
 
         try {
@@ -284,7 +292,7 @@ export class StoryImageGenerator {
 
             // フォールバック: テキストでロゴを描画
             this.ctx.save();
-            this.ctx.fillStyle = '#000000';
+            this.ctx.fillStyle = TEXT_MAIN;
             this.ctx.font = '900 110px "Hiragino Kaku Gothic ProN", "Arial Black", sans-serif';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
@@ -308,20 +316,20 @@ export class StoryImageGenerator {
         const headerX = 80; // 左寄せの開始位置
 
         // ユーザー名（左寄せ）
-        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillStyle = TEXT_INVERSE;
         this.ctx.font = 'bold 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         this.ctx.textAlign = 'left';
         this.ctx.fillText(post.user?.display_name || 'ユーザー', headerX, headerY);
 
         // ユーザー名（@username）
         if (post.user?.username) {
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fillStyle = 'rgba(255, 240, 234, 0.8)';
             this.ctx.font = '36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             this.ctx.fillText(`@${post.user.username}`, headerX, headerY + 55);
         }
 
         // 投稿日時
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.fillStyle = 'rgba(255, 240, 234, 0.7)';
         this.ctx.font = '32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         const dateText = this.formatDate(post.created_at);
         this.ctx.fillText(dateText, headerX, headerY + 100);
@@ -333,15 +341,15 @@ export class StoryImageGenerator {
 
         // グラデーション背景の円
         const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 40);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(1, '#764ba2');
+        gradient.addColorStop(0, ACCENT_PRIMARY);
+        gradient.addColorStop(1, ACCENT_PRIMARY_STRONG);
         this.ctx.fillStyle = gradient;
         this.ctx.beginPath();
         this.ctx.arc(x, y, 40, 0, Math.PI * 2);
         this.ctx.fill();
 
         // ユーザーアイコン（シンプルな人型シルエット）
-        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillStyle = TEXT_INVERSE;
         this.ctx.beginPath();
         // 頭
         this.ctx.arc(x, y - 10, 12, 0, Math.PI * 2);
@@ -360,7 +368,7 @@ export class StoryImageGenerator {
         const contentWidth = this.width - 140; // 左右60px + 右余白80px
 
         if (post.content) {
-            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillStyle = TEXT_INVERSE;
             this.ctx.font = '38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             this.ctx.textAlign = 'left';
 
@@ -393,11 +401,11 @@ export class StoryImageGenerator {
         const backgroundHeight = 20 + 50 + (exerciseCount * 80) + 20;
 
         // トレーニング詳細の背景
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        this.ctx.fillStyle = 'rgba(231, 103, 76, 0.16)';
         this.ctx.fillRect(60, currentY - 20, this.width - 120, backgroundHeight);
 
         // タイトル
-        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillStyle = TEXT_INVERSE;
         this.ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         this.ctx.fillText('トレーニング詳細', 80, currentY + 25);
 
@@ -406,14 +414,14 @@ export class StoryImageGenerator {
         // エクササイズ一覧
         exercisesToShow.forEach((exercise: any, index: number) => {
             // エクササイズ名（文字数制限）
-            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillStyle = TEXT_INVERSE;
             this.ctx.font = '30px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             const exerciseName = exercise.name.length > 12 ? exercise.name.substring(0, 11) + '...' : exercise.name;
             const exerciseText = `${index + 1}. ${exerciseName}`;
             this.ctx.fillText(exerciseText, 80, currentY);
 
             // 重量・セット・回数
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fillStyle = 'rgba(255, 240, 234, 0.8)';
             this.ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             const detailsText = `${exercise.weight}kg × ${exercise.sets}セット × ${exercise.reps}回`;
             this.ctx.fillText(detailsText, 100, currentY + 38);
@@ -428,14 +436,14 @@ export class StoryImageGenerator {
 
         // ジム名
         if (post.gym?.name) {
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.fillStyle = 'rgba(255, 240, 234, 0.9)';
             this.ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             this.ctx.textAlign = 'center';
             this.ctx.fillText(post.gym.name, this.width / 2, footerY);
         }
 
         // いいね・コメント数（シンプルなデザイン）
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.fillStyle = 'rgba(255, 240, 234, 0.8)';
         this.ctx.font = '32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         this.ctx.textAlign = 'center';
 
@@ -449,6 +457,7 @@ export class StoryImageGenerator {
         // 上部の装飾ラインは削除（投稿内容と被るため）
 
         // 下部の装飾ライン（安全領域内）
+        this.ctx.strokeStyle = 'rgba(231, 103, 76, 0.22)';
         this.ctx.beginPath();
         this.ctx.moveTo(60, this.height - 300);
         this.ctx.lineTo(this.width - 60, this.height - 300);
@@ -463,7 +472,7 @@ export class StoryImageGenerator {
         const cornerSize = 60;
 
         // 左上
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        this.ctx.strokeStyle = 'rgba(231, 103, 76, 0.3)';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
         this.ctx.moveTo(30, 30);

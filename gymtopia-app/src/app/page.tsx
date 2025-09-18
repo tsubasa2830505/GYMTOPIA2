@@ -55,14 +55,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(70,120,255,0.28),transparent_68%)] blur-3xl opacity-70" />
-      <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(96,134,255,0.22),transparent_70%)] blur-3xl opacity-65" />
+      <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.26),transparent_68%)] blur-3xl opacity-70" />
+      <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(240,142,111,0.2),transparent_70%)] blur-3xl opacity-65" />
 
-      <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(15,36,118,0.45)]">
+      <header className="sticky top-0 z-50 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(189,101,78,0.45)]">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(31,79,255,0.42),rgba(96,134,255,0.28))] flex items-center justify-center shadow-[0_16px_30px_-20px_rgba(15,36,118,0.44)]">
-              <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--gt-on-primary)]" />
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.42),rgba(240,142,111,0.18))] flex items-center justify-center shadow-[0_16px_30px_-20px_rgba(189,101,78,0.44)]">
+              <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--gt-on-primary)]" />
             </div>
             <div>
               <Image
@@ -89,14 +89,14 @@ export default function Home() {
             }}
           />
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b1f55]/80 via-[#123172]/72 to-[#1f45c4]/78" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(231,103,76,0.82)] via-[rgba(201,86,61,0.76)] to-[rgba(240,142,111,0.7)]" />
 
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center items-center h-full px-6">
-            <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-white drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
+            <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
               理想のジムトピアが<br className="sm:hidden" />ここにある
             </h2>
-            <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <p className="text-[color:var(--gt-on-primary)]/80 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
             </p>
           </div>
@@ -104,16 +104,16 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="col-span-1 lg:col-span-2">
-            <div className="gt-card rounded-[32px] border border-[rgba(44,82,190,0.2)] backdrop-blur-sm">
+            <div className="gt-card rounded-[32px] border border-[rgba(231,103,76,0.2)] backdrop-blur-sm">
               <div
-                className="relative p-4 sm:p-6 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(243,247,255,0.9)]"
+                className="relative p-4 sm:p-6 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)]"
                 ref={conditionSectionRef}
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(31,79,255,0.24),rgba(96,134,255,0.16))] flex items-center justify-center shadow-[0_14px_34px_-22px_rgba(15,36,118,0.42)]">
-                        <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--gt-primary-strong)]" />
+                      <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.24),rgba(240,142,111,0.14))] flex items-center justify-center shadow-[0_14px_34px_-22px_rgba(189,101,78,0.42)]">
+                        <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--gt-primary-strong)]" />
                       </div>
                       <div>
                         <h2 className="text-base sm:text-lg font-bold text-[color:var(--foreground)]">設備条件を選ぶ</h2>
@@ -135,7 +135,7 @@ export default function Home() {
                   </div>
 
                   {totalSelections > 0 && (
-                    <div className="rounded-3xl border border-[rgba(44,82,190,0.2)] bg-[rgba(236,242,255,0.96)] px-4 py-4 sm:px-5 sm:py-5 shadow-[0_24px_50px_-32px_rgba(15,36,118,0.48)] animate-pulse-once">
+                    <div className="rounded-3xl border border-[rgba(231,103,76,0.2)] bg-[rgba(254,255,250,0.96)] px-4 py-4 sm:px-5 sm:py-5 shadow-[0_24px_50px_-32px_rgba(189,101,78,0.48)] animate-pulse-once">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-sm font-semibold text-[color:var(--text-subtle)]">選択中の条件</span>
                         <span className="gt-badge">{totalSelections}</span>
@@ -150,7 +150,7 @@ export default function Home() {
                                 newMachines.delete(machineId)
                                 setSelectedMachines(newMachines)
                               }}
-                              className="text-[color:var(--gt-secondary-strong)] hover:text-[#1b46c4] leading-none"
+                              className="text-[color:var(--gt-secondary-strong)] hover:text-[color:var(--gt-secondary-strong)] leading-none"
                             >
                               ×
                             </button>
@@ -165,7 +165,7 @@ export default function Home() {
                                 newWeights.delete(weightId)
                                 setSelectedFreeWeights(newWeights)
                               }}
-                              className="text-[color:var(--gt-primary-strong)] hover:text-[#1a3bcc] leading-none"
+                              className="text-[color:var(--gt-primary-strong)] hover:text-[color:var(--gt-primary-strong)] leading-none"
                             >
                               ×
                             </button>
@@ -175,7 +175,7 @@ export default function Home() {
                           <div
                             key={`facility-${facility}`}
                             className="gt-chip text-[11px] sm:text-xs"
-                            style={{ borderColor: 'rgba(76, 122, 255, 0.28)', color: 'var(--gt-tertiary-strong)' }}
+                            style={{ borderColor: 'rgba(245, 177, 143, 0.28)', color: 'var(--gt-tertiary-strong)' }}
                           >
                             <span>{facility}</span>
                             <button
@@ -184,7 +184,7 @@ export default function Home() {
                                 newFacilities.delete(facility)
                                 setSelectedFacilities(newFacilities)
                               }}
-                              className="text-[color:var(--gt-tertiary-strong)] hover:text-[#2f5de0] leading-none"
+                              className="text-[color:var(--gt-tertiary-strong)] hover:text-[color:var(--gt-tertiary-strong)] leading-none"
                             >
                               ×
                             </button>
@@ -207,7 +207,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.88)]">
+              <div className="p-4 sm:p-6 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.88)]">
                 <div className="gt-tab-track flex gap-1">
                   <button
                     onClick={() => setActiveTab('machine')}
@@ -237,7 +237,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6 max-h-[600px] overflow-y-auto bg-[rgba(243,247,255,0.92)]">
+              <div className="p-4 sm:p-6 max-h-[600px] overflow-y-auto bg-[rgba(254,255,250,0.92)]">
                 {activeTab === 'machine' && (
                   <MachineSelector
                     selectedMachines={selectedMachines}
@@ -260,7 +260,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="p-4 sm:p-6 border-t border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)]">
+              <div className="p-4 sm:p-6 border-t border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)]">
                 <button
                   onClick={goToSearchResults}
                   className="w-full gt-pill-button justify-center text-sm sm:text-base"
@@ -275,11 +275,11 @@ export default function Home() {
           </div>
 
           <div className="col-span-1 hidden lg:block">
-            <div className="gt-card p-6 sticky top-24 backdrop-blur-[8px] border border-[rgba(44,82,190,0.2)]">
-              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-[rgba(44,82,190,0.18)] bg-[radial-gradient(circle_at_20%_16%,rgba(96,134,255,0.18),transparent_60%),linear-gradient(180deg,rgba(247,250,255,0.96),rgba(234,242,255,0.9))] p-6">
+            <div className="gt-card p-6 sticky top-24 backdrop-blur-[8px] border border-[rgba(231,103,76,0.2)]">
+              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-[rgba(231,103,76,0.18)] bg-[radial-gradient(circle_at_20%_16%,rgba(96,134,255,0.18),transparent_60%),linear-gradient(180deg,rgba(247,250,255,0.96),rgba(234,242,255,0.9))] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(31,79,255,0.28),rgba(96,134,255,0.24))] flex items-center justify-center shadow-[0_20px_42px_-30px_rgba(15,36,118,0.46)]">
-                    <MapPin className="w-5 h-5 text-[var(--gt-on-primary)]" />
+                  <div className="w-11 h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.28),rgba(96,134,255,0.24))] flex items-center justify-center shadow-[0_20px_42px_-30px_rgba(189,101,78,0.46)]">
+                    <MapPin className="w-5 h-5 text-[color:var(--gt-on-primary)]" />
                   </div>
                   <div>
                     <h3 className="gt-heading-md text-[color:var(--foreground)]">選択した条件</h3>
@@ -290,7 +290,7 @@ export default function Home() {
 
               {!hasAnySelection() ? (
                 <div className="text-center py-12">
-                  <div className="w-14 h-14 bg-[rgba(243,247,255,0.94)] border border-[rgba(44,82,190,0.18)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(15,36,118,0.45)]">
+                  <div className="w-14 h-14 bg-[rgba(254,255,250,0.94)] border border-[rgba(231,103,76,0.18)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(189,101,78,0.45)]">
                     <Calendar className="w-7 h-7 text-[color:var(--text-muted)]" />
                   </div>
                   <p className="gt-title-sm text-[color:var(--foreground)] mb-2">条件を選択してください</p>
@@ -304,7 +304,7 @@ export default function Home() {
                   {Array.from(selectedMachines.entries()).map(([machineId, count]) => (
                     <div
                       key={`machine-summary-${machineId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
                     >
                       <span className="gt-label-lg text-[color:var(--gt-secondary-strong)]">{count > 1 ? `${machineId} (${count}台)` : machineId}</span>
                       <button
@@ -313,7 +313,7 @@ export default function Home() {
                           newMachines.delete(machineId)
                           setSelectedMachines(newMachines)
                         }}
-                        className="text-[color:var(--gt-secondary-strong)] hover:text-[#1b46c4] text-sm leading-none"
+                        className="text-[color:var(--gt-secondary-strong)] hover:text-[color:var(--gt-secondary-strong)] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -323,7 +323,7 @@ export default function Home() {
                   {Array.from(selectedFreeWeights).map(([weightId, count]) => (
                     <div
                       key={`weight-summary-${weightId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
                     >
                       <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId} ({count}個)</span>
                       <button
@@ -332,7 +332,7 @@ export default function Home() {
                           newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}
-                        className="text-[color:var(--gt-primary-strong)] hover:text-[#1a3bcc] text-sm leading-none"
+                        className="text-[color:var(--gt-primary-strong)] hover:text-[color:var(--gt-primary-strong)] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -342,7 +342,7 @@ export default function Home() {
                   {Array.from(selectedFacilities).map((facility) => (
                     <div
                       key={`facility-summary-${facility}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
                     >
                       <span className="gt-label-lg" style={{ color: 'var(--gt-tertiary-strong)' }}>{facility}</span>
                       <button
@@ -351,7 +351,7 @@ export default function Home() {
                           newFacilities.delete(facility)
                           setSelectedFacilities(newFacilities)
                         }}
-                        className="text-[color:var(--gt-tertiary-strong)] hover:text-[#2f5de0] text-sm leading-none"
+                        className="text-[color:var(--gt-tertiary-strong)] hover:text-[color:var(--gt-tertiary-strong)] text-sm leading-none"
                       >
                         ×
                       </button>

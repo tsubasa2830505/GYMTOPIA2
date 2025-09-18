@@ -207,19 +207,19 @@ export default function MachineSuperDetailedSearch({
           placeholder="モデル名、シリーズ名、筋肉部位で検索..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-3 pr-10 bg-white border border-[rgba(186,122,103,0.26)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
         />
         {searchTerm && (
           <button
             onClick={() => setSearchTerm('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(68,73,73,0.6)] hover:text-[color:var(--text-muted)]"
           >
             ✕
           </button>
         )}
       </div>
 
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-[color:var(--text-muted)]">
         特定のメーカー・モデルを選択してください
       </p>
 
@@ -230,9 +230,9 @@ export default function MachineSuperDetailedSearch({
         const allSelected = selectedCount === models.length
         
         return (
-          <div key={brand} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div key={brand} className="bg-white rounded-xl border border-[rgba(186,122,103,0.26)] overflow-hidden">
             {/* Brand Header */}
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50">
+            <div className="p-4 bg-gradient-to-r from-[rgba(240,142,111,0.1)] to-[rgba(245,177,143,0.12)]">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setExpandedBrand(isExpanded ? null : brand)}
@@ -240,16 +240,16 @@ export default function MachineSuperDetailedSearch({
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <Award className="w-5 h-5 text-purple-600" />
+                      <Award className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
                     </div>
                     <div className="text-left">
-                      <h4 className="font-semibold text-slate-900">{brand}</h4>
-                      <p className="text-xs text-slate-600">
+                      <h4 className="font-semibold text-[color:var(--foreground)]">{brand}</h4>
+                      <p className="text-xs text-[color:var(--text-muted)]">
                         {models.length}モデル {selectedCount > 0 && `(${selectedCount}選択中)`}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${
+                  <ChevronRight className={`w-5 h-5 text-[rgba(68,73,73,0.6)] transition-transform ${
                     isExpanded ? 'rotate-90' : ''
                   }`} />
                 </button>
@@ -259,8 +259,8 @@ export default function MachineSuperDetailedSearch({
                   className={`
                     ml-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                     ${allSelected 
-                      ? 'bg-purple-500 text-white' 
-                      : 'bg-white text-slate-700 hover:bg-slate-100'
+                      ? 'bg-[rgba(240,142,111,0.1)] text-white' 
+                      : 'bg-white text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.95)]'
                     }
                   `}
                 >
@@ -271,7 +271,7 @@ export default function MachineSuperDetailedSearch({
 
             {/* Models */}
             {isExpanded && (
-              <div className="p-4 space-y-3 bg-slate-50">
+              <div className="p-4 space-y-3 bg-[rgba(254,255,250,0.97)]">
                 {models.map((model) => {
                   const isChecked = selectedModels.has(model.id)
                   
@@ -282,8 +282,8 @@ export default function MachineSuperDetailedSearch({
                       className={`
                         w-full p-4 rounded-xl text-left transition-all
                         ${isChecked 
-                          ? 'bg-purple-100 border-2 border-purple-500' 
-                          : 'bg-white border-2 border-slate-200 hover:border-slate-300'
+                          ? 'bg-[rgba(240,142,111,0.16)] border-2 border-[color:var(--gt-secondary)]' 
+                          : 'bg-white border-2 border-[rgba(186,122,103,0.26)] hover:border-[rgba(186,122,103,0.32)]'
                         }
                       `}
                     >
@@ -291,19 +291,19 @@ export default function MachineSuperDetailedSearch({
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <p className={`font-semibold text-sm ${
-                              isChecked ? 'text-purple-700' : 'text-slate-900'
+                              isChecked ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--foreground)]'
                             }`}>
                               {model.model}
                             </p>
                             {model.year && (
-                              <span className="px-2 py-0.5 bg-slate-100 text-xs text-slate-600 rounded">
+                              <span className="px-2 py-0.5 bg-[rgba(254,255,250,0.95)] text-xs text-[color:var(--text-muted)] rounded">
                                 {model.year}
                               </span>
                             )}
                           </div>
                           
                           {model.series && (
-                            <p className="text-xs text-slate-600 mb-2">
+                            <p className="text-xs text-[color:var(--text-muted)] mb-2">
                               <Shield className="w-3 h-3 inline mr-1" />
                               {model.series}
                             </p>
@@ -313,7 +313,7 @@ export default function MachineSuperDetailedSearch({
                             {model.features.map((feature, idx) => (
                               <span 
                                 key={idx}
-                                className="px-2 py-0.5 bg-purple-50 text-xs text-purple-700 rounded"
+                                className="px-2 py-0.5 bg-[rgba(240,142,111,0.1)] text-xs text-[color:var(--gt-secondary-strong)] rounded"
                               >
                                 {feature}
                               </span>
@@ -324,7 +324,7 @@ export default function MachineSuperDetailedSearch({
                             {model.targetMuscles.map((muscle, idx) => (
                               <span 
                                 key={idx}
-                                className="px-2 py-0.5 bg-blue-50 text-xs text-blue-700 rounded"
+                                className="px-2 py-0.5 bg-[rgba(231,103,76,0.08)] text-xs text-[color:var(--gt-secondary-strong)] rounded"
                               >
                                 {muscle}
                               </span>
@@ -335,8 +335,8 @@ export default function MachineSuperDetailedSearch({
                         <div className={`
                           ml-3 w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0
                           ${isChecked 
-                            ? 'bg-purple-500 border-purple-500' 
-                            : 'border-slate-300'
+                            ? 'bg-[rgba(240,142,111,0.1)] border-[color:var(--gt-secondary)]' 
+                            : 'border-[rgba(186,122,103,0.32)]'
                           }
                         `}>
                           {isChecked && <Check className="w-4 h-4 text-white" />}
@@ -352,7 +352,7 @@ export default function MachineSuperDetailedSearch({
       })}
 
       {Object.keys(filteredGroups).length === 0 && (
-        <div className="text-center py-8 text-slate-500">
+        <div className="text-center py-8 text-[color:var(--text-muted)]">
           <p>検索条件に一致するモデルが見つかりません</p>
         </div>
       )}

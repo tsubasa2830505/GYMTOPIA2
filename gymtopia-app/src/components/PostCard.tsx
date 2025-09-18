@@ -86,10 +86,10 @@ export default function PostCard({
                 alt={post.user.display_name || ''}
                 width={48}
                 height={48}
-                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow hover:ring-2 hover:ring-[#1f4fff] transition-all"
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow hover:ring-2 hover:ring-[var(--gt-primary)] transition-all"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1f4fff] to-[#2a5fe8] flex items-center justify-center text-white font-medium hover:ring-2 hover:ring-[#1f4fff] transition-all">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--gt-primary)] to-[var(--gt-secondary)] flex items-center justify-center text-white font-medium hover:ring-2 hover:ring-[var(--gt-primary)] transition-all">
                 {post.user?.display_name?.[0] || 'U'}
               </div>
             )}
@@ -100,14 +100,14 @@ export default function PostCard({
             <div className="flex items-center gap-2">
               <Link
                 href={`/user/${post.user_id}`}
-                className="font-semibold text-[color:var(--foreground)] hover:text-[#1f4fff] transition-colors"
+                className="font-semibold text-[color:var(--foreground)] hover:text-[color:var(--gt-primary)] transition-colors"
               >
                 {post.user?.display_name || 'ユーザー'}
               </Link>
               {post.user?.username && (
                 <Link
                   href={`/user/${post.user_id}`}
-                  className="text-sm text-[color:var(--text-muted)] hover:text-[#1f4fff] transition-colors"
+                  className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--gt-primary)] transition-colors"
                 >
                   @{post.user.username}
                 </Link>
@@ -115,7 +115,7 @@ export default function PostCard({
             </div>
             <div className="flex items-center gap-4 mt-1">
               {post.gym?.name && (
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-[rgba(31,79,255,0.12)] rounded-full">
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-[rgba(231,103,76,0.12)] rounded-full">
                   <svg className="w-3 h-3 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                   </svg>
@@ -133,19 +133,19 @@ export default function PostCard({
             <div className="relative">
               <button
                 onClick={() => toggleDropdown(post.id)}
-                className="p-2 rounded-full hover:bg-[rgba(243,247,255,0.92)] transition-colors"
+                className="p-2 rounded-full hover:bg-[rgba(254,255,250,0.92)] transition-colors"
               >
                 <MoreVertical className="w-5 h-5 text-[color:var(--text-muted)]" />
               </button>
 
               {activeDropdown === post.id && (
-                <div className="absolute right-0 mt-2 w-48 gt-card p-0 border border-[rgba(44,82,190,0.18)] z-10">
+                <div className="absolute right-0 mt-2 w-48 gt-card p-0 border border-[rgba(186,122,103,0.26)] z-10">
                   <button
                     onClick={() => {
                       onEdit(post);
                       setActiveDropdown(null);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-[color:var(--text-subtle)] hover:bg-[rgba(243,247,255,0.96)] flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.96)] flex items-center gap-2"
                   >
                     <Edit className="w-4 h-4" />
                     編集
@@ -155,7 +155,7 @@ export default function PostCard({
                       onDelete(post.id);
                       setActiveDropdown(null);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-[#e0707a] hover:bg-[rgba(224,112,122,0.12)] flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-[color:var(--gt-primary-strong)] hover:bg-[rgba(224,112,122,0.12)] flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
                     削除
@@ -191,7 +191,7 @@ export default function PostCard({
             {post.images.slice(0, 4).map((image, index) => (
               <div
                 key={index}
-                className={`relative bg-[rgba(243,247,255,0.92)] ${
+                className={`relative bg-[rgba(254,255,250,0.92)] ${
                   post.images!.length === 1
                     ? 'aspect-[4/3]'
                     : post.images!.length === 3 && index === 0
@@ -233,7 +233,7 @@ export default function PostCard({
 
       {/* Post Actions */}
       {showActions && (
-        <div className="px-4 sm:px-6 py-3 border-t border-[rgba(44,82,190,0.1)]">
+        <div className="px-4 sm:px-6 py-3 border-t border-[rgba(186,122,103,0.24)]">
           <div className="flex items-center justify-between">
             <div className="flex gap-1">
               {/* Like Button */}
@@ -241,8 +241,8 @@ export default function PostCard({
                 onClick={() => onLike?.(post)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border-2 ${
                   post.is_liked
-                    ? 'text-[color:var(--gt-primary-strong)] bg-[rgba(31,79,255,0.16)] hover:bg-[rgba(31,79,255,0.24)] border-[rgba(31,79,255,0.26)]'
-                    : 'text-[color:var(--text-subtle)] hover:bg-[rgba(243,247,255,0.92)] border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]'
+                    ? 'text-[color:var(--gt-primary-strong)] bg-[rgba(231,103,76,0.16)] hover:bg-[rgba(231,103,76,0.24)] border-[rgba(231,103,76,0.26)]'
+                    : 'text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.92)] border-[rgba(186,122,103,0.26)] hover:border-[rgba(231,103,76,0.32)]'
                 }`}
               >
                 <Heart
@@ -254,7 +254,7 @@ export default function PostCard({
               </button>
 
               {/* Comment Button */}
-              <button className="flex items-center gap-2 px-4 py-2 text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(243,247,255,0.92)] transition-colors border-2 border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]">
+              <button className="flex items-center gap-2 px-4 py-2 text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(254,255,250,0.92)] transition-colors border-2 border-[rgba(186,122,103,0.26)] hover:border-[rgba(231,103,76,0.32)]">
                 <MessageCircle className="w-5 h-5" />
                 {post.comments_count > 0 && (
                   <span className="text-sm font-medium">{post.comments_count}</span>
@@ -267,13 +267,13 @@ export default function PostCard({
                 disabled={generatingStory}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border-2 ${
                   generatingStory
-                    ? 'text-[rgba(44,82,190,0.32)] bg-[rgba(243,247,255,0.92)] cursor-not-allowed border-[rgba(44,82,190,0.18)]'
-                    : 'text-[color:var(--text-subtle)] hover:bg-[rgba(243,247,255,0.92)] border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]'
+                    ? 'text-[rgba(186,122,103,0.32)] bg-[rgba(254,255,250,0.92)] cursor-not-allowed border-[rgba(186,122,103,0.26)]'
+                    : 'text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.92)] border-[rgba(186,122,103,0.26)] hover:border-[rgba(231,103,76,0.32)]'
                 }`}
               >
                 {generatingStory ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-[rgba(44,82,190,0.26)] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-[rgba(186,122,103,0.3)] border-t-transparent rounded-full animate-spin" />
                     <span className="text-sm">生成中...</span>
                   </>
                 ) : (
@@ -285,7 +285,7 @@ export default function PostCard({
             </div>
 
             {/* Share Button */}
-            <button className="p-2 text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(243,247,255,0.92)] transition-colors border-2 border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]">
+            <button className="p-2 text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(254,255,250,0.92)] transition-colors border-2 border-[rgba(186,122,103,0.26)] hover:border-[rgba(231,103,76,0.32)]">
               <Share2 className="w-5 h-5" />
             </button>
           </div>

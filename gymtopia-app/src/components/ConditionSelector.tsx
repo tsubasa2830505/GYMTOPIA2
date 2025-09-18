@@ -135,7 +135,7 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
 
               {/* Category Items */}
               {expandedCategories.has(category.id) && (
-                <div className="border-t border-[rgba(44,82,190,0.18)] p-4">
+                <div className="border-t border-[rgba(231,103,76,0.18)] p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {category.items.map((item) => (
                       <button
@@ -143,8 +143,8 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
                         onClick={() => handleFacilityToggle(item.id)}
                         className={`p-3 rounded-2xl flex items-center justify-between gt-transition gt-pressable ${
                           selectedFacilities.has(item.id)
-                            ? 'gt-primary-plate border border-[rgba(44,82,190,0.18)] ring-1 ring-[rgba(31,79,255,0.26)]'
-                            : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(15,36,118,0.42)]'
+                            ? 'gt-primary-plate border border-[rgba(231,103,76,0.18)] ring-1 ring-[rgba(231,103,76,0.26)]'
+                            : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(189,101,78,0.42)]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -162,8 +162,8 @@ export default function ConditionSelector({ selectedFacilities, onSelectionChang
                         </div>
                         <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${
                           selectedFacilities.has(item.id)
-                            ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] border-transparent text-white shadow-[0_10px_26px_-18px_rgba(15,36,118,0.44)]'
-                            : 'border-[rgba(44,82,190,0.18)] text-[color:var(--text-muted)] bg-[rgba(243,247,255,0.85)]'
+                            ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] border-transparent text-white shadow-[0_10px_26px_-18px_rgba(189,101,78,0.44)]'
+                            : 'border-[rgba(231,103,76,0.18)] text-[color:var(--text-muted)] bg-[rgba(254,255,250,0.85)]'
                         }`}>
                           {selectedFacilities.has(item.id) && (
                             <Check className="w-3 h-3 text-white" />

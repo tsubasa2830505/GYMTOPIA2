@@ -389,13 +389,15 @@ function SearchResultsContent() {
         },
         (error) => {
           console.error('Location error:', error);
-          // Default to Tokyo if location unavailable
-          setUserLocation({ lat: 35.6762, lng: 139.6503 });
+          // Don't set default location - let user see actual position
+          // Users can still use the map without location permission
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
         }
       );
-    } else {
-      // Default to Tokyo
-      setUserLocation({ lat: 35.6762, lng: 139.6503 });
     }
   }, []);
 
@@ -528,12 +530,12 @@ function SearchResultsContent() {
   }
 
   return (
-    <div className="min-h-screen pb-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100">
+    <div className="min-h-screen pb-16 bg-gradient-to-br from-[rgba(231,103,76,0.08)] via-[rgba(245,177,143,0.12)] to-[rgba(240,142,111,0.16)]">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(20,31,68,0.45)]">
+  <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(189,101,78,0.38)]">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[var(--gt-primary)] via-[var(--gt-primary)] to-[var(--gt-primary-strong)] rounded-full flex items-center justify-center shadow-lg">
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
@@ -565,7 +567,7 @@ function SearchResultsContent() {
                 }
               }}
               aria-label="戻る"
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl gt-pressable bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_22px_40px_-26px_rgba(59,130,246,0.65)] transition-all hover:-translate-y-[2px]"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl gt-pressable bg-gradient-to-br from-[var(--gt-primary)] via-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white flex items-center justify-center shadow-[0_22px_40px_-26px_rgba(189,101,78,0.52)] transition-all hover:-translate-y-[2px]"
             >
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -591,7 +593,7 @@ function SearchResultsContent() {
           </div>
 
           {error && (
-            <div className="gt-layer p-3 border border-[rgba(31,79,255,0.22)] bg-blue-50 text-blue-700 rounded-2xl text-sm">
+            <div className="gt-layer p-3 border border-[rgba(231,103,76,0.22)] bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-secondary-strong)] rounded-2xl text-sm">
               {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}
@@ -606,7 +608,7 @@ function SearchResultsContent() {
                     clearAllConditions()
                     router.push('/search/results')
                   }}
-                  className="gt-pill-label text-blue-600 hover:text-blue-800"
+                  className="gt-pill-label text-[color:var(--gt-secondary-strong)] hover:text-[color:var(--gt-secondary-strong)]"
                 >
                   すべてクリア
                 </button>
@@ -625,7 +627,7 @@ function SearchResultsContent() {
                       </span>
                     )}
                     {searchParams.get('name') && (
-                      <span className="gt-chip text-[11px] sm:text-xs" style={{ background: 'rgba(255, 166, 77, 0.15)', borderColor: 'rgba(255, 166, 77, 0.35)', color: '#c35a11' }}>
+                      <span className="gt-chip text-[11px] sm:text-xs" style={{ background: 'rgba(255, 166, 77, 0.15)', borderColor: 'rgba(255, 166, 77, 0.35)', color: 'var(--gt-primary-strong)' }}>
                         🎯 マシン: {searchParams.get('name')}
                       </span>
                     )}
@@ -691,7 +693,7 @@ function SearchResultsContent() {
                   onClick={() => setViewMode('map')}
                   className={`gt-tab gt-pill-label flex items-center gap-1 ${viewMode === 'map' ? 'gt-tab-active' : 'gt-tab-inactive'}`}
                 >
-                  <MapIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'map' ? 'text-blue-600' : 'text-slate-500'}`} />
+                  <MapIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'map' ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--text-muted)]'}`} />
                   地図
                 </button>
                 <button
@@ -699,17 +701,10 @@ function SearchResultsContent() {
                   onClick={() => setViewMode('list')}
                   className={`gt-tab gt-pill-label flex items-center gap-1 ${viewMode === 'list' ? 'gt-tab-active' : 'gt-tab-inactive'}`}
                 >
-                  <List className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'list' ? 'text-blue-600' : 'text-slate-500'}`} />
+                  <List className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${viewMode === 'list' ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--text-muted)]'}`} />
                   リスト
                 </button>
               </div>
-              <button
-                type="button"
-                aria-label="フィルター"
-                className="p-1.5 sm:p-2 gt-pressable border-2 border-slate-300 hover:border-slate-400 rounded-2xl bg-white/70 text-slate-700 shadow-[0_12px_28px_-24px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
-              >
-                <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </button>
             </div>
 
             <div className="relative" ref={sortControlRef}>
@@ -719,14 +714,14 @@ function SearchResultsContent() {
                   event.stopPropagation()
                   setSortDropdownOpen(!sortDropdownOpen)
                 }}
-                className="flex items-center gap-1 sm:gap-2 gt-pressable border-2 border-slate-300 hover:border-slate-400 rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(20,31,68,0.45)] hover:-translate-y-[1px] transition-all"
+              className="flex items-center gap-1 sm:gap-2 gt-pressable border-2 border-[rgba(186,122,103,0.32)] hover:border-[rgba(231,103,76,0.38)] rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(189,101,78,0.38)] hover:-translate-y-[1px] transition-all"
               >
                 {sortBy === 'distance' ? (
-                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
+                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
                 ) : sortBy === 'rating' ? (
-                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
+                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
                 ) : (
-                  <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600" />
+                  <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
                 )}
                 <span className="gt-pill-label text-[10px] sm:text-xs text-[color:var(--foreground)]">
                   {sortBy === 'distance' ? '近い順' :
@@ -748,7 +743,7 @@ function SearchResultsContent() {
                       setSortBy('popular')
                       setSortDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'popular' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' : 'text-slate-600 hover:bg-blue-50'}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'popular' ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white' : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'}`}
                   >
                     <Heart className="w-3 h-3" />
                     イキタイの多い順
@@ -762,7 +757,7 @@ function SearchResultsContent() {
                       setSortDropdownOpen(false)
                     }}
                     disabled={!userLocation}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'distance' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white' : 'text-slate-600 hover:bg-blue-50'} ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'distance' ? 'bg-gradient-to-r from-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white' : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'} ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Navigation className="w-3 h-3" />
                     近い順
@@ -775,7 +770,7 @@ function SearchResultsContent() {
                       setSortBy('rating')
                       setSortDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'rating' ? 'bg-gradient-to-r from-blue-500 to-blue-400 text-white' : 'text-slate-600 hover:bg-blue-50'}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'rating' ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white' : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'}`}
                   >
                     <Star className="w-3 h-3" />
                     評価の高い順
@@ -813,7 +808,7 @@ function SearchResultsContent() {
                 return (
                   <div
                     key={gym.id}
-                    className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-blue-300' : 'hover:-translate-y-[3px]'}`}
+                    className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-[rgba(231,103,76,0.32)]' : 'hover:-translate-y-[3px]'}`}
                   >
                     <div className="flex gap-3 sm:gap-4">
                       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 overflow-hidden border border-white/60 bg-white/70">
@@ -844,7 +839,7 @@ function SearchResultsContent() {
                             )}
                             <div className="flex items-center gap-3 mt-2">
                               <div className="flex items-center gap-1 text-[color:var(--text-muted)]">
-                                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-blue-500 text-blue-500' : ''}`} />
+                                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-[color:var(--gt-primary)] text-[color:var(--gt-primary)]' : ''}`} />
                                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--foreground)]">{gym.likes}</span>
                               </div>
                               <span className="text-base sm:text-lg font-bold text-[color:var(--gt-primary-strong)]">{gym.price}</span>
@@ -857,7 +852,7 @@ function SearchResultsContent() {
                               disabled={processingLikes.has(gym.id)}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold gt-pressable transition-all ${
                                 gym.isLiked
-                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                                  ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white'
                                   : 'bg-white/80 text-[color:var(--foreground)] border border-white/60 hover:-translate-y-[2px]'
                               } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
@@ -867,7 +862,7 @@ function SearchResultsContent() {
                             <button
                               type="button"
                               onClick={() => setSelectedGymId(gym.id)}
-                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-[0_18px_36px_-26px_rgba(59,130,246,0.6)] hover:-translate-y-[2px] transition-all"
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white rounded-xl text-xs sm:text-sm font-semibold shadow-[0_18px_36px_-26px_rgba(189,101,78,0.46)] hover:-translate-y-[2px] transition-all"
                             >
                               詳細を見る
                             </button>
@@ -893,7 +888,7 @@ function SearchResultsContent() {
                             disabled={processingLikes.has(gym.id)}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-semibold gt-pressable transition-all ${
                               gym.isLiked
-                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                                ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white'
                                 : 'bg-white/80 text-[color:var(--foreground)] border border-white/60'
                             } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
@@ -903,7 +898,7 @@ function SearchResultsContent() {
                           <button
                             type="button"
                             onClick={() => setSelectedGymId(gym.id)}
-                            className="flex-1 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs font-semibold shadow-[0_14px_30px_-24px_rgba(59,130,246,0.6)]"
+                            className="flex-1 py-1.5 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white rounded-xl text-xs font-semibold shadow-[0_14px_30px_-24px_rgba(189,101,78,0.44)]"
                           >
                             詳細を見る
                           </button>

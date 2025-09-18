@@ -557,25 +557,32 @@ export async function getUserFollowing(
 
 export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
   try {
-    const { data, error } = await getSupabaseClient()
+    // First try with full join
+    let { data, error } = await getSupabaseClient()
       .from('favorite_gyms')
       .select(`
         *,
-        gym:gyms!favorite_gyms_gym_id_fkey(
+        gym:gyms(
           id,
           name,
           prefecture,
           city,
           address,
-          description
+          description,
+          rating,
+          users_count,
+          image_url,
+          images,
+          area,
+          review_count
         )
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     if (error) {
-      // テーブルが存在しない場合（PGRST205エラー）は警告レベルでログ出力
-      if (error.code === 'PGRST205') {
+      // テーブルが存在しない場合（42P01エラー）は警告レベルでログ出力
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
         console.warn('Favorite gyms table not found - returning empty array')
       } else {
         console.error('Error fetching favorite gyms:', {
@@ -583,7 +590,8 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
           message: error?.message,
           code: error?.code,
           details: error?.details,
-          hint: error?.hint
+          hint: error?.hint,
+          fullError: JSON.stringify(error)
         })
       }
       return []

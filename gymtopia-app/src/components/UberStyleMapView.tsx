@@ -142,7 +142,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
             onClick={onBackToList}
             title="リスト表示に戻る"
           >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-[color:var(--text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
           </button>
@@ -157,7 +157,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
           }}
           title="現在地に移動"
         >
-          <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-6 h-6 text-[color:var(--gt-secondary-strong)]" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
           </svg>
         </button>
@@ -165,8 +165,8 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
 
       {/* Instructions overlay for first-time users */}
       <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-xs">
-        <h3 className="text-sm font-semibold text-gray-800 mb-1">地図の使い方</h3>
-        <ul className="text-xs text-gray-600 space-y-1">
+        <h3 className="text-sm font-semibold text-[color:var(--text-subtle)] mb-1">地図の使い方</h3>
+        <ul className="text-xs text-[color:var(--text-muted)] space-y-1">
           <li>• 📍 地図上のマーカーをタップしてジム詳細を表示</li>
           <li>• 👆 下部のシートをスワイプまたはタップで操作</li>
           <li>• 📋 リストボタンで一覧表示に戻る</li>
@@ -196,7 +196,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="w-12 h-1 bg-gray-300 rounded-full" />
+          <div className="w-12 h-1 bg-[rgba(254,255,250,0.82)] rounded-full" />
         </div>
 
         {/* Sheet header */}
@@ -212,7 +212,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
               <h2 className="text-lg font-semibold">
                 {sheetPosition === 'mini' ? '近くのジム' : `${gyms.length}件のジム`}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[color:var(--text-muted)]">
                 {sheetPosition === 'mini' ? 'タップして展開' : 'スワイプまたはタップで操作'}
               </p>
             </button>
@@ -220,7 +220,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
               {sheetPosition !== 'full' && (
                 <button
                   onClick={() => setSheetPosition('full')}
-                  className="text-gray-500 hover:text-gray-700 p-1"
+                  className="text-[color:var(--text-muted)] hover:text-[color:var(--text-subtle)] p-1"
                   title="全画面表示"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
               {sheetPosition !== 'mini' && (
                 <button
                   onClick={() => setSheetPosition('mini')}
-                  className="text-gray-500 hover:text-gray-700 p-1"
+                  className="text-[color:var(--text-muted)] hover:text-[color:var(--text-subtle)] p-1"
                   title="最小化"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,7 +269,7 @@ export function UberStyleMapView({ gyms, userLocation, onGymSelect, onBackToList
                   onClick={() => handleGymClick(gym)}
                   className={`cursor-pointer transition-all ${
                     selectedGym?.id === gym.id
-                      ? 'ring-2 ring-blue-500 rounded-lg'
+                      ? 'ring-2 ring-[var(--gt-primary)] rounded-lg'
                       : ''
                   }`}
                 >

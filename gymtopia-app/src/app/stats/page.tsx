@@ -87,13 +87,13 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(198deg,rgba(240,244,255,0.32),transparent_82%),radial-gradient(circle_at_18%_20%,rgba(64,106,255,0.18),transparent_66%),radial-gradient(circle_at_86%_12%,rgba(106,150,255,0.14),transparent_72%)]" />
-        <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_70%)] blur-[140px] opacity-68" />
-        <div className="absolute bottom-[-12%] right-[-6%] h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(102,142,255,0.22),transparent_78%)] blur-[150px] opacity-56" />
+        <div className="absolute inset-0 bg-[linear-gradient(198deg,rgba(231,103,76,0.08),transparent_82%),radial-gradient(circle_at_18%_20%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_12%,rgba(245,177,143,0.12),transparent_74%)]" />
+        <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.22),transparent_70%)] blur-[140px] opacity-70" />
+        <div className="absolute bottom-[-12%] right-[-6%] h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(245,177,143,0.2),transparent_78%)] blur-[150px] opacity-60" />
       </div>
 
       <div className="relative z-10">
-        <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
+        <header className="sticky top-0 z-40 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(189,101,78,0.38)]">
           <div className="max-w-5xl mx-auto px-4 py-6">
             <h1 className="text-2xl font-bold text-[color:var(--gt-primary-strong)]">統計</h1>
             <p className="text-sm text-[color:var(--text-muted)] mt-1">トレーニング習慣の推移をチェックしましょう</p>
@@ -109,12 +109,12 @@ export default function StatsPage() {
               return (
                 <div key={index} className="gt-card p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-2xl bg-[rgba(31,79,255,0.12)] text-[color:var(--gt-primary-strong)] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-2xl bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] flex items-center justify-center">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span
                       className={`text-xs font-semibold ${
-                        isPositive ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[#e0707a]'
+                        isPositive ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'
                       }`}
                     >
                       {stat.change}
@@ -133,9 +133,9 @@ export default function StatsPage() {
             <div className="flex items-end justify-between h-40 gap-3">
               {weeklyData.map((data, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center">
-                  <div className="w-full h-32 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.16)] rounded-2xl flex flex-col justify-end overflow-hidden">
+                  <div className="w-full h-32 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.16)] rounded-2xl flex flex-col justify-end overflow-hidden">
                     <div
-                      className="bg-gradient-to-b from-[#2a5fe8] via-[#1f4fff] to-[#2645c8] rounded-b-[18px] transition-[height] duration-300 ease-out"
+                      className="bg-gradient-to-b from-accent-secondary via-accent to-accent-strong rounded-b-[18px] transition-[height] duration-300 ease-out"
                       style={{ height: `${data.value}%` }}
                     />
                   </div>
@@ -161,9 +161,9 @@ export default function StatsPage() {
                     <span className="font-medium text-[color:var(--foreground)]">{item.muscle}</span>
                     <span className="text-[color:var(--text-muted)]">{item.progress}%</span>
                   </div>
-                  <div className="w-full h-2.5 bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.16)] rounded-full">
+                  <div className="w-full h-2.5 bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.16)] rounded-full">
                     <div
-                      className="h-full bg-gradient-to-r from-[#1f4fff] via-[#2a5fe8] to-[#4c7aff] rounded-full transition-[width] duration-300 ease-out"
+                      className="h-full bg-gradient-to-r from-accent via-accent-secondary to-accent-tertiary rounded-full transition-[width] duration-300 ease-out"
                       style={{ width: `${item.progress}%` }}
                     />
                   </div>

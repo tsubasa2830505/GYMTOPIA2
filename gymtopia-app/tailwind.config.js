@@ -8,8 +8,30 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "var(--gt-background)",
+        'background-strong': "var(--gt-background-strong)",
+        foreground: "var(--gt-text-main)",
+        surface: "var(--gt-surface)",
+        'surface-muted': "var(--gt-surface-muted)",
+        'surface-strong': "var(--gt-surface-strong)",
+        accent: "var(--gt-primary)",
+        'accent-strong': "var(--gt-primary-strong)",
+        'accent-soft': "var(--gt-primary-soft)",
+        'accent-secondary': "var(--gt-secondary)",
+        'accent-tertiary': "var(--gt-tertiary)",
+        text: "var(--gt-text-main)",
+        'text-subtle': "var(--gt-text-sub)",
+        'text-muted': "var(--gt-text-muted)",
+        'text-inverse': "var(--gt-text-inverse)",
+      },
+      gradientColorStops: {
+        accent: "var(--gt-primary)",
+        'accent-strong': "var(--gt-primary-strong)",
+        'accent-soft': "rgba(231, 103, 76, 0.32)",
+        'accent-secondary': "var(--gt-secondary)",
+        'accent-tertiary': "var(--gt-tertiary)",
+        base: "var(--gt-background)",
+        'base-strong': "var(--gt-background-strong)",
       },
       fontFamily: {
         jp: ['var(--font-jp)'],

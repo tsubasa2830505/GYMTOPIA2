@@ -110,7 +110,7 @@ export default function MachineFuzzySearch({
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600 mb-4">
+      <p className="text-sm text-[color:var(--text-muted)] mb-4">
         トレーニングしたい筋肉部位を選択してください
       </p>
 
@@ -120,7 +120,7 @@ export default function MachineFuzzySearch({
         const isPartial = isPartPartiallySelected(part.id)
         
         return (
-          <div key={part.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div key={part.id} className="bg-white rounded-xl border border-[rgba(186,122,103,0.26)] overflow-hidden">
             {/* Part Header */}
             <div className="p-4">
               <div className="flex items-center justify-between">
@@ -128,8 +128,8 @@ export default function MachineFuzzySearch({
                   onClick={() => setExpandedPart(isExpanded ? null : part.id)}
                   className="flex-1 text-left"
                 >
-                  <h3 className="font-semibold text-slate-900">{part.name}</h3>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <h3 className="font-semibold text-[color:var(--foreground)]">{part.name}</h3>
+                  <p className="text-xs text-[color:var(--text-muted)] mt-0.5">
                     {part.muscles.length}個の筋肉群
                   </p>
                 </button>
@@ -139,15 +139,15 @@ export default function MachineFuzzySearch({
                   className={`
                     w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all
                     ${isSelected 
-                      ? 'bg-green-500 border-green-500' 
+                      ? 'bg-[rgba(240,142,111,0.1)] border-[color:var(--gt-secondary)]' 
                       : isPartial
-                      ? 'bg-green-100 border-green-500'
-                      : 'border-slate-300 hover:border-slate-400'
+                      ? 'bg-[rgba(240,142,111,0.16)] border-[color:var(--gt-secondary)]'
+                      : 'border-[rgba(186,122,103,0.32)] hover:border-[rgba(231,103,76,0.38)]'
                     }
                   `}
                 >
                   {(isSelected || isPartial) && (
-                    <Check className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-green-600'}`} />
+                    <Check className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-[color:var(--gt-secondary-strong)]'}`} />
                   )}
                 </button>
               </div>
@@ -155,7 +155,7 @@ export default function MachineFuzzySearch({
 
             {/* Muscle List */}
             {isExpanded && (
-              <div className="border-t border-slate-100 px-4 py-3 bg-slate-50">
+              <div className="border-t border-[rgba(186,122,103,0.18)] px-4 py-3 bg-[rgba(254,255,250,0.97)]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {part.muscles.map((muscle) => {
                     const key = `${part.id}:${muscle}`
@@ -168,8 +168,8 @@ export default function MachineFuzzySearch({
                         className={`
                           px-3 py-2 rounded-lg text-sm text-left transition-all
                           ${isChecked 
-                            ? 'bg-green-100 text-green-700 font-medium' 
-                            : 'bg-white text-slate-700 hover:bg-slate-100'
+                            ? 'bg-[rgba(240,142,111,0.16)] text-[color:var(--gt-secondary-strong)] font-medium' 
+                            : 'bg-white text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.95)]'
                           }
                         `}
                       >
@@ -177,8 +177,8 @@ export default function MachineFuzzySearch({
                           <div className={`
                             w-4 h-4 rounded border flex items-center justify-center
                             ${isChecked 
-                              ? 'bg-green-500 border-green-500' 
-                              : 'border-slate-300'
+                              ? 'bg-[rgba(240,142,111,0.1)] border-[color:var(--gt-secondary)]' 
+                              : 'border-[rgba(186,122,103,0.32)]'
                             }
                           `}>
                             {isChecked && <Check className="w-3 h-3 text-white" />}

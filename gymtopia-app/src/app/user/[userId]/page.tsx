@@ -38,7 +38,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
   // Badge icon emojis to SVG mapping
   if (badgeIcon === '🏆') {
     return (
-      <svg className={`${baseClasses} text-yellow-500`} viewBox="0 0 24 24" fill="currentColor">
+      <svg className={`${baseClasses} text-[color:var(--gt-tertiary)]`} viewBox="0 0 24 24" fill="currentColor">
         <path d="M5 7c0-1.11.89-2 2-2h10c1.11 0 2 .89 2 2v1c0 1.55-.7 2.94-1.79 3.87L14 15.08V20l-4 2v-6.92l-3.21-3.21A4.008 4.008 0 0 1 5 8V7z"/>
       </svg>
     );
@@ -46,7 +46,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
 
   if (badgeIcon === '🔥') {
     return (
-      <svg className={`${baseClasses} text-orange-500`} viewBox="0 0 24 24" fill="currentColor">
+      <svg className={`${baseClasses} text-[color:var(--gt-tertiary)]`} viewBox="0 0 24 24" fill="currentColor">
         <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
       </svg>
     );
@@ -54,7 +54,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
 
   if (badgeIcon === '💪') {
     return (
-      <svg className={`${baseClasses} text-blue-500`} viewBox="0 0 24 24" fill="currentColor">
+      <svg className={`${baseClasses} text-[color:var(--gt-primary)]`} viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
       </svg>
     );
@@ -64,13 +64,13 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
   switch (achievementType) {
     case 'first_workout':
       return (
-        <svg className={`${baseClasses} text-green-500`} viewBox="0 0 24 24" fill="currentColor">
+        <svg className={`${baseClasses} text-[color:var(--gt-secondary)]`} viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       );
     case 'streak':
       return (
-        <svg className={`${baseClasses} text-orange-500`} viewBox="0 0 24 24" fill="currentColor">
+        <svg className={`${baseClasses} text-[color:var(--gt-tertiary)]`} viewBox="0 0 24 24" fill="currentColor">
           <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67z"/>
         </svg>
       );
@@ -238,10 +238,10 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 pt-20">
+      <div className="min-h-screen bg-gradient-to-br from-[rgba(231,103,76,0.08)] via-[rgba(245,177,143,0.12)] to-[rgba(240,142,111,0.16)] pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[color:var(--gt-primary)] mx-auto"></div>
             <p className="mt-4 text-[color:var(--text-subtle)]">プロフィールを読み込んでいます...</p>
           </div>
         </div>
@@ -251,13 +251,13 @@ export default function UserProfilePage() {
 
   if (error || !userProfile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 pt-20">
+      <div className="min-h-screen bg-gradient-to-br from-[rgba(231,103,76,0.08)] via-[rgba(245,177,143,0.12)] to-[rgba(240,142,111,0.16)] pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-[#e0707a]">{error || 'ユーザーが見つかりません'}</p>
+            <p className="text-[color:var(--gt-primary-strong)]">{error || 'ユーザーが見つかりません'}</p>
             <button
               onClick={() => router.push('/feed')}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)]"
             >
               フィードに戻る
             </button>
@@ -268,12 +268,12 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-[rgba(231,103,76,0.08)] via-[rgba(245,177,143,0.12)] to-[rgba(240,142,111,0.16)] pt-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Profile Header */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6 mb-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(231,103,76,0.22)]/50 p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-[rgba(254,255,250,0.9)]">
               {userProfile.avatar_url ? (
                 <Image
                   src={userProfile.avatar_url}
@@ -283,7 +283,7 @@ export default function UserProfilePage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-full h-full bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)] flex items-center justify-center text-white text-2xl font-bold">
                   {userProfile.display_name.charAt(0)}
                 </div>
               )}
@@ -308,21 +308,21 @@ export default function UserProfilePage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[rgba(31,79,255,0.22)]/50">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[rgba(231,103,76,0.22)]/50">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{profileStats?.total_posts || 0}</div>
+              <div className="text-2xl font-bold text-[color:var(--gt-secondary-strong)]">{profileStats?.total_posts || 0}</div>
               <div className="text-sm text-[color:var(--text-subtle)]">投稿</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{achievements.length}</div>
+              <div className="text-2xl font-bold text-[color:var(--gt-secondary-strong)]">{achievements.length}</div>
               <div className="text-sm text-[color:var(--text-subtle)]">実績</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{personalRecords.length}</div>
+              <div className="text-2xl font-bold text-[color:var(--gt-secondary-strong)]">{personalRecords.length}</div>
               <div className="text-sm text-[color:var(--text-subtle)]">記録</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{favoriteGyms.length}</div>
+              <div className="text-2xl font-bold text-[color:var(--gt-secondary-strong)]">{favoriteGyms.length}</div>
               <div className="text-sm text-[color:var(--text-subtle)]">お気に入りジム</div>
             </div>
           </div>
@@ -332,7 +332,7 @@ export default function UserProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Posts */}
           <div className="lg:col-span-2">
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(231,103,76,0.22)]/50 p-6">
               <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-4">最近の投稿</h2>
 
               {userPosts.length === 0 ? (
@@ -356,11 +356,11 @@ export default function UserProfilePage() {
           <div className="space-y-6">
             {/* Achievements */}
             {achievements.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(231,103,76,0.22)]/50 p-6">
                 <h3 className="text-lg font-bold text-[color:var(--foreground)] mb-4">実績</h3>
                 <div className="space-y-3">
                   {achievements.slice(0, 5).map((achievement) => (
-                    <div key={achievement.id} className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-xl">
+                    <div key={achievement.id} className="flex items-center gap-3 p-3 bg-[rgba(231,103,76,0.08)]/50 rounded-xl">
                       {getAchievementIcon(achievement.badge_icon, achievement.achievement_type)}
                       <div>
                         <div className="font-medium text-[color:var(--foreground)]">{achievement.title}</div>
@@ -374,12 +374,12 @@ export default function UserProfilePage() {
 
             {/* Favorite Gyms */}
             {favoriteGyms.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(31,79,255,0.22)]/50 p-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[rgba(231,103,76,0.22)]/50 p-6">
                 <h3 className="text-lg font-bold text-[color:var(--foreground)] mb-4">お気に入りジム</h3>
                 <div className="space-y-3">
                   {favoriteGyms.slice(0, 3).map((favoriteGym) => (
-                    <div key={favoriteGym.id} className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-xl">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200">
+                    <div key={favoriteGym.id} className="flex items-center gap-3 p-3 bg-[rgba(231,103,76,0.08)]/50 rounded-xl">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-[rgba(254,255,250,0.9)]">
                         {favoriteGym.gym?.image_url ? (
                           <Image
                             src={favoriteGym.gym.image_url}
@@ -389,7 +389,7 @@ export default function UserProfilePage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
+                          <div className="w-full h-full bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)]"></div>
                         )}
                       </div>
                       <div>

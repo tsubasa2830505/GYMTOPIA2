@@ -24,27 +24,27 @@ const searchLevels: SearchLevelConfig[] = [
     name: '曖昧検索',
     description: '部位のみで検索（大胸筋、広背筋など）',
     icon: Zap,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-500'
+    color: 'text-[color:var(--gt-secondary-strong)]',
+    bgColor: 'bg-[rgba(240,142,111,0.1)]',
+    borderColor: 'border-[color:var(--gt-secondary)]'
   },
   {
     id: 'detailed',
     name: '詳細検索',
     description: '部位 + 追加条件（角度、グリップなど）',
     icon: Target,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-500'
+    color: 'text-[color:var(--gt-secondary-strong)]',
+    bgColor: 'bg-[rgba(231,103,76,0.08)]',
+    borderColor: 'border-[color:var(--gt-primary)]'
   },
   {
     id: 'super_detailed',
     name: '超詳細検索',
     description: '特定メーカー・機器モデルで検索',
     icon: Microscope,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-500'
+    color: 'text-[color:var(--gt-secondary-strong)]',
+    bgColor: 'bg-[rgba(240,142,111,0.1)]',
+    borderColor: 'border-[color:var(--gt-secondary)]'
   }
 ]
 
@@ -64,7 +64,7 @@ export default function MachineSearchLevels({
       {/* Info Toggle */}
       <button
         onClick={() => setShowInfo(!showInfo)}
-        className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
+        className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--foreground)]"
       >
         <Info className="w-4 h-4" />
         <span>検索レベルについて</span>
@@ -73,19 +73,19 @@ export default function MachineSearchLevels({
 
       {/* Info Content */}
       {showInfo && (
-        <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600 space-y-2">
-          <p className="font-medium text-slate-900">検索レベルの違い：</p>
+        <div className="bg-[rgba(254,255,250,0.97)] rounded-xl p-4 text-sm text-[color:var(--text-muted)] space-y-2">
+          <p className="font-medium text-[color:var(--foreground)]">検索レベルの違い：</p>
           <ul className="space-y-1.5 ml-4">
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-[color:var(--gt-secondary-strong)]">•</span>
               <span><strong>曖昧検索：</strong>大まかな部位だけで検索。初心者向け</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600">•</span>
+              <span className="text-[color:var(--gt-secondary-strong)]">•</span>
               <span><strong>詳細検索：</strong>部位に加えて、角度や動作を指定</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-purple-600">•</span>
+              <span className="text-[color:var(--gt-secondary-strong)]">•</span>
               <span><strong>超詳細：</strong>特定のブランドや機器モデルまで指定</span>
             </li>
           </ul>
@@ -106,7 +106,7 @@ export default function MachineSearchLevels({
                 relative p-4 rounded-xl border-2 transition-all
                 ${isSelected 
                   ? `${level.bgColor} ${level.borderColor}` 
-                  : 'bg-white border-slate-200 hover:border-slate-300'
+                  : 'bg-white border-[rgba(186,122,103,0.26)] hover:border-[rgba(186,122,103,0.32)]'
                 }
               `}
             >
@@ -124,10 +124,10 @@ export default function MachineSearchLevels({
                   <Icon className={`w-6 h-6 ${level.color}`} />
                 </div>
                 <div>
-                  <h3 className={`font-semibold ${isSelected ? level.color : 'text-slate-900'}`}>
+                  <h3 className={`font-semibold ${isSelected ? level.color : 'text-[color:var(--foreground)]'}`}>
                     {level.name}
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-xs text-[color:var(--text-muted)] mt-1">
                     {level.description}
                   </p>
                 </div>

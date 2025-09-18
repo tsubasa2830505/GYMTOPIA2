@@ -246,47 +246,37 @@ export default function ProfileEditPage() {
 
       // 画像のアップロード処理
       if (uploadedFile) {
-        // デモモードでも実際にSupabase Storageにアップロードする
+        // API route を使用してアップロード
         try {
-          const fileExt = uploadedFile.name.split('.').pop()
-          const fileName = `${currentUserId}-${Date.now()}.${fileExt}`
-          const filePath = `avatars/${fileName}`
+          console.log('画像アップロード開始:', uploadedFile.name)
 
-          // 古い画像を削除
-          if (avatarUrl && avatarUrl.includes('supabase')) {
-            const oldPath = avatarUrl.split('/').pop()
-            if (oldPath) {
-              await supabase.storage
-                .from('avatars')
-                .remove([`avatars/${oldPath}`])
-            }
+          const formData = new FormData()
+          formData.append('file', uploadedFile)
+          formData.append('userId', currentUserId)
+
+          const response = await fetch('/api/upload-avatar', {
+            method: 'POST',
+            body: formData
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || 'アップロードに失敗しました')
           }
 
-          // 新しい画像をアップロード
-          const { data, error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, uploadedFile, {
-              cacheControl: '3600',
-              upsert: true
-            })
+          const result = await response.json()
 
-          if (uploadError) {
-            console.error('画像アップロードエラー:', uploadError)
-            // アップロードに失敗した場合は、元のURLを保持
-            uploadedAvatarUrl = avatarUrl
-          } else {
-            // 公開URLを取得
-            const { data: { publicUrl } } = supabase.storage
-              .from('avatars')
-              .getPublicUrl(filePath)
-
-            uploadedAvatarUrl = publicUrl
+          if (result.success) {
+            uploadedAvatarUrl = result.url
             console.log('画像アップロード成功:', uploadedAvatarUrl)
+          } else {
+            throw new Error(result.error || 'アップロードに失敗しました')
           }
         } catch (error) {
           console.error('画像アップロード処理エラー:', error)
           // エラーが発生した場合は元の画像URLを保持
           uploadedAvatarUrl = avatarUrl
+          alert('画像のアップロードに失敗しました。後で再試行してください。')
         }
       }
 
@@ -417,14 +407,14 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.95)]">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.95)]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-[rgba(243,247,255,0.95)] rounded-lg transition-colors border-2 border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.26)]"
+              className="p-2 hover:bg-[rgba(254,255,250,0.95)] rounded-lg transition-colors border-2 border-[rgba(231,103,76,0.18)] hover:border-[rgba(231,103,76,0.26)]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -433,7 +423,7 @@ export default function ProfileEditPage() {
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
+            className="px-4 py-2 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent"
           >
             <Save className="w-4 h-4" />
             {isLoading ? '保存中...' : '保存'}
@@ -460,20 +450,20 @@ export default function ProfileEditPage() {
                     className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--gt-primary)] to-[var(--gt-secondary)] flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
                     筋
                   </div>
                 )}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 w-8 h-8 bg-[var(--gt-primary)] rounded-full flex items-center justify-center shadow-lg hover:bg-[#2c4ecc] transition-colors border-2 border-[var(--gt-primary)]"
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-[color:var(--gt-primary)] rounded-full flex items-center justify-center shadow-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors border-2 border-[color:var(--gt-primary)]"
                 >
                   <Camera className="w-4 h-4 text-white" />
                 </button>
                 {previewImage && (
                   <button
                     onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-[rgba(224,112,122,0.12)]0 text-white rounded-full flex items-center justify-center hover:bg-[#e0707a] transition-colors"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[rgba(224,112,122,0.12)] text-white rounded-full flex items-center justify-center hover:bg-[color:var(--gt-primary-strong)] transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -484,14 +474,14 @@ export default function ProfileEditPage() {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-[rgba(243,247,255,0.92)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(234,240,255,0.86)] transition-colors"
+                    className="px-4 py-2 bg-[rgba(254,255,250,0.92)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.16)] transition-colors"
                   >
                     画像を選択
                   </button>
                   {previewImage && (
                     <button 
                       onClick={handleRemoveImage}
-                      className="px-3 py-2 bg-red-100 text-[#c85963] rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                      className="px-3 py-2 bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.18)] transition-colors"
                     >
                       削除
                     </button>
@@ -526,7 +516,7 @@ export default function ProfileEditPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                 placeholder="表示名を入力"
               />
             </div>
@@ -543,7 +533,7 @@ export default function ProfileEditPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                  className="w-full pl-8 pr-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                   placeholder="username"
                 />
               </div>
@@ -557,7 +547,7 @@ export default function ProfileEditPage() {
                 ホームジム
               </label>
               {primaryGymName ? (
-                <div className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-lg">
                   <div>
                     <p className="font-medium text-[color:var(--foreground)]">{primaryGymName}</p>
                     <p className="text-sm text-[color:var(--text-subtle)]">メインジム</p>
@@ -567,7 +557,7 @@ export default function ProfileEditPage() {
                       setPrimaryGymId('')
                       setPrimaryGymName('')
                     }}
-                    className="text-sm text-[#e0707a] hover:text-[#c85963]"
+                    className="text-sm text-[color:var(--gt-primary-strong)] hover:text-[color:var(--gt-primary-strong)]"
                   >
                     解除
                   </button>
@@ -582,7 +572,7 @@ export default function ProfileEditPage() {
                         setGymSearchQuery(e.target.value)
                         searchGyms(e.target.value)
                       }}
-                      className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                      className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                       placeholder="ジム名で検索..."
                     />
                     {isSearchingGym && (
@@ -592,12 +582,12 @@ export default function ProfileEditPage() {
                     )}
                   </div>
                   {gymSearchResults.length > 0 && (
-                    <div className="bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg max-h-48 overflow-y-auto">
+                    <div className="bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg max-h-48 overflow-y-auto">
                       {gymSearchResults.map((gym) => (
                         <button
                           key={gym.id}
                           onClick={() => selectGym(gym)}
-                          className="w-full text-left px-4 py-3 hover:bg-[rgba(243,247,255,0.95)] border-b border-[rgba(44,82,190,0.1)] last:border-b-0"
+                          className="w-full text-left px-4 py-3 hover:bg-[rgba(254,255,250,0.95)] border-b border-[rgba(231,103,76,0.1)] last:border-b-0"
                         >
                           <p className="font-medium text-[color:var(--foreground)]">{gym.name}</p>
                           {gym.address && (
@@ -622,7 +612,7 @@ export default function ProfileEditPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)] resize-none"
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)] resize-none"
                 placeholder="自己紹介を入力"
               />
               <p className="text-xs text-[color:var(--text-muted)] mt-1">{bio.length} / 150文字</p>
@@ -639,7 +629,7 @@ export default function ProfileEditPage() {
               {!showRecordForm && (
                 <button
                   onClick={() => setShowRecordForm(true)}
-                  className="px-3 py-1 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(31,79,255,0.22)] transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-[rgba(231,103,76,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.22)] transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   追加
@@ -650,7 +640,7 @@ export default function ProfileEditPage() {
             {/* 既存のレコード */}
             <div className="space-y-2 mb-4">
               {personalRecords.map((record) => (
-                <div key={record.id} className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
+                <div key={record.id} className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.95)] rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium text-[color:var(--foreground)]">{record.exercise}</p>
                     <p className="text-sm text-[color:var(--text-subtle)]">
@@ -659,7 +649,7 @@ export default function ProfileEditPage() {
                   </div>
                   <button
                     onClick={() => handleRemoveRecord(record.id)}
-                    className="p-2 text-red-500 hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
+                    className="p-2 text-[color:var(--gt-primary)] hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -669,13 +659,13 @@ export default function ProfileEditPage() {
 
             {/* レコード追加フォーム */}
             {showRecordForm && (
-              <div className="space-y-3 p-4 bg-[rgba(243,247,255,0.95)] rounded-lg">
+              <div className="space-y-3 p-4 bg-[rgba(254,255,250,0.95)] rounded-lg">
                 <input
                   type="text"
                   placeholder="種目名（例：ベンチプレス）"
                   value={newRecord.exercise}
                   onChange={(e) => setNewRecord({ ...newRecord, exercise: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                  className="w-full px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -683,20 +673,20 @@ export default function ProfileEditPage() {
                     placeholder="重量(kg)"
                     value={newRecord.weight}
                     onChange={(e) => setNewRecord({ ...newRecord, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                    className="px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                   />
                   <input
                     type="text"
                     placeholder="回数（例：5回×3セット）"
                     value={newRecord.reps}
                     onChange={(e) => setNewRecord({ ...newRecord, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                    className="px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleAddRecord}
-                    className="flex-1 px-3 py-2 bg-[#1f4fff] text-white rounded-lg text-sm font-medium hover:bg-[#1a3bcc] transition-colors"
+                    className="flex-1 px-3 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg text-sm font-medium hover:bg-[color:var(--gt-primary-strong)] transition-colors"
                   >
                     追加
                   </button>
@@ -705,7 +695,7 @@ export default function ProfileEditPage() {
                       setShowRecordForm(false)
                       setNewRecord({ id: '', exercise: '', weight: '', reps: '' })
                     }}
-                    className="flex-1 px-3 py-2 bg-[rgba(234,240,255,0.86)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
+                    className="flex-1 px-3 py-2 bg-[rgba(231,103,76,0.12)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(254,255,250,0.82)] transition-colors"
                   >
                     キャンセル
                   </button>
@@ -725,7 +715,7 @@ export default function ProfileEditPage() {
               </label>
               <select 
                 defaultValue="週5-6回"
-                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
               >
                 <option>週1-2回</option>
                 <option>週3-4回</option>
@@ -741,7 +731,7 @@ export default function ProfileEditPage() {
               </label>
               <select 
                 defaultValue="夜（17:00-22:00）"
-                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.95)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
               >
                 <option>早朝（5:00-8:00）</option>
                 <option>午前（8:00-12:00）</option>
@@ -786,10 +776,10 @@ export default function ProfileEditPage() {
 
             <div className="space-y-4">
               {/* ジム活動全体の非公開設定 */}
-              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-[rgba(224,112,122,0.12)] border-red-200' : 'bg-[rgba(243,247,255,0.95)] border-[rgba(44,82,190,0.16)]'}`}>
+              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-[rgba(224,112,122,0.12)] border-[rgba(231,103,76,0.26)]' : 'bg-[rgba(254,255,250,0.95)] border-[rgba(231,103,76,0.16)]'}`}>
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-3">
-                    {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-green-500" />}
+                    {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-[color:var(--gt-primary)]" /> : <Eye className="w-5 h-5 text-[color:var(--gt-secondary)]" />}
                     <div>
                       <span className="text-sm font-medium text-[color:var(--foreground)]">ジム活動を非公開にする</span>
                       <p className="text-xs text-[color:var(--text-subtle)] mt-1">
@@ -801,7 +791,7 @@ export default function ProfileEditPage() {
                     type="button"
                     onClick={() => setGymActivityPrivate(!gymActivityPrivate)}
                     className={`relative w-12 h-6 rounded-full transition-colors ${
-                      gymActivityPrivate ? 'bg-[#e04f5f]' : 'bg-[rgba(223,233,255,0.9)]'
+                      gymActivityPrivate ? 'bg-[color:var(--gt-primary-strong)]' : 'bg-[rgba(223,233,255,0.9)]'
                     }`}
                   >
                     <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -814,9 +804,9 @@ export default function ProfileEditPage() {
               {/* 個別の公開設定（ジム活動が公開の場合のみ） */}
               {!gymActivityPrivate && (
                 <>
-                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showStatsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
+                      {showStatsPublic ? <Eye className="w-4 h-4 text-[color:var(--gt-secondary)]" /> : <EyeOff className="w-4 h-4 text-[rgba(231,103,76,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">統計情報を公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">トレーニング回数、時間など</p>
@@ -826,7 +816,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowStatsPublic(!showStatsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showStatsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
+                        showStatsPublic ? 'bg-[color:var(--gt-primary)]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -835,9 +825,9 @@ export default function ProfileEditPage() {
                     </button>
                   </label>
 
-                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showAchievementsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
+                      {showAchievementsPublic ? <Eye className="w-4 h-4 text-[color:var(--gt-secondary)]" /> : <EyeOff className="w-4 h-4 text-[rgba(231,103,76,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">アチーブメントを公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">獲得したバッジや実績</p>
@@ -847,7 +837,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowAchievementsPublic(!showAchievementsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showAchievementsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
+                        showAchievementsPublic ? 'bg-[color:var(--gt-primary)]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -856,9 +846,9 @@ export default function ProfileEditPage() {
                     </button>
                   </label>
 
-                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
+                      {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-[color:var(--gt-secondary)]" /> : <EyeOff className="w-4 h-4 text-[rgba(231,103,76,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">お気に入りジムを公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">登録したお気に入りのジム</p>
@@ -868,7 +858,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowFavoriteGymsPublic(!showFavoriteGymsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showFavoriteGymsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
+                        showFavoriteGymsPublic ? 'bg-[color:var(--gt-primary)]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -880,8 +870,8 @@ export default function ProfileEditPage() {
               )}
 
               {gymActivityPrivate && (
-                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <p className="text-xs text-amber-800">
+                <div className="p-3 bg-[rgba(245,177,143,0.12)] rounded-lg border border-[rgba(231,103,76,0.24)]">
+                  <p className="text-xs text-[color:var(--gt-tertiary-strong)]">
                     ⚠️ ジム活動が非公開に設定されています。他のユーザーからあなたの投稿や統計は見えません。
                   </p>
                 </div>
@@ -895,7 +885,7 @@ export default function ProfileEditPage() {
             
             <button
               onClick={handleLogout}
-              className="w-full py-3 bg-[rgba(224,112,122,0.12)]0 hover:bg-[#e0707a] text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 border-2 border-red-500"
+              className="w-full py-3 bg-[rgba(224,112,122,0.12)] hover:bg-[color:var(--gt-primary-strong)] text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 border-2 border-[color:var(--gt-primary)]"
             >
               <LogOut className="w-5 h-5" />
               ログアウト
@@ -905,7 +895,7 @@ export default function ProfileEditPage() {
           {/* 保存ボタン（モバイル用） */}
           <button
             onClick={handleSave}
-            className="w-full py-4 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             <Save className="w-5 h-5" />
             プロフィールを保存

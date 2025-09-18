@@ -33,36 +33,36 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary: [
-        'bg-[var(--gt-primary)] text-[var(--gt-on-primary)] border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(18,44,150,0.48)]',
-        'hover:shadow-[0_20px_38px_-20px_rgba(18,44,150,0.5)]',
-        'active:shadow-[0_12px_24px_-18px_rgba(18,44,150,0.46)]'
+        'bg-[color:var(--gt-primary)] text-[color:var(--gt-on-primary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(189,101,78,0.44)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(189,101,78,0.48)]',
+        'active:shadow-[0_12px_24px_-18px_rgba(189,101,78,0.42)]'
       ],
       secondary: [
-        'bg-[var(--gt-secondary)] text-[var(--gt-on-secondary)] border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(17,40,142,0.42)]',
-        'hover:shadow-[0_20px_36px_-20px_rgba(17,40,142,0.45)]',
-        'active:shadow-[0_12px_22px_-18px_rgba(17,40,142,0.42)]'
+        'bg-[color:var(--gt-secondary)] text-[color:var(--gt-on-secondary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(231,103,76,0.28)]',
+        'hover:shadow-[0_20px_36px_-20px_rgba(231,103,76,0.3)]',
+        'active:shadow-[0_12px_22px_-18px_rgba(231,103,76,0.26)]'
       ],
       outline: [
-        'border border-[rgba(44,82,190,0.35)] text-[var(--gt-text-main)]',
-        'bg-[rgba(244,248,255,0.92)] hover:bg-[rgba(244,248,255,0.98)]',
-        'hover:border-[rgba(44,82,190,0.55)]',
-        'shadow-[0_12px_30px_-22px_rgba(18,44,150,0.32)]'
+        'border border-[rgba(231,103,76,0.35)] text-[color:var(--gt-text-main)]',
+        'bg-[rgba(254,255,250,0.92)] hover:bg-[rgba(254,255,250,0.98)]',
+        'hover:border-[rgba(231,103,76,0.55)]',
+        'shadow-[0_12px_30px_-22px_rgba(189,101,78,0.28)]'
       ],
       ghost: [
-        'bg-transparent text-[var(--gt-text-sub)] border border-transparent',
-        'hover:bg-[rgba(31,79,255,0.08)] hover:text-[var(--gt-text-main)]'
+        'bg-transparent text-[color:var(--gt-text-sub)] border border-transparent',
+        'hover:bg-[rgba(231,103,76,0.08)] hover:text-[color:var(--gt-text-main)]'
       ],
       danger: [
-        'bg-[#b7413e] text-white border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(183,65,62,0.45)]',
-        'hover:shadow-[0_20px_38px_-20px_rgba(183,65,62,0.45)]'
+        'bg-[color:var(--gt-primary-strong)] text-[color:var(--gt-on-primary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(189,101,78,0.45)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(189,101,78,0.48)]'
       ],
       success: [
-        'bg-[#2f7b63] text-white border border-transparent',
-        'shadow-[0_16px_32px_-22px_rgba(47,123,99,0.48)]',
-        'hover:shadow-[0_20px_38px_-20px_rgba(47,123,99,0.48)]'
+        'bg-[color:var(--gt-secondary-strong)] text-[color:var(--gt-on-secondary)] border border-transparent',
+        'shadow-[0_16px_32px_-22px_rgba(231,103,76,0.38)]',
+        'hover:shadow-[0_20px_38px_-20px_rgba(231,103,76,0.4)]'
       ]
     } as const;
 

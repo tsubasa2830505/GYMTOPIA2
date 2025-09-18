@@ -111,7 +111,7 @@ export default function StoryTestPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[rgba(243,247,255,0.96)] py-8">
+        <div className="min-h-screen bg-[rgba(254,255,250,0.96)] py-8">
             <div className="max-w-4xl mx-auto px-4">
                 <div className="bg-white rounded-lg shadow-lg p-8">
                     <h1 className="text-3xl font-bold text-[color:var(--foreground)] mb-8 text-center">
@@ -121,7 +121,7 @@ export default function StoryTestPage() {
                     <div className="grid md:grid-cols-2 gap-8">
                         {/* 左側: コントロール */}
                         <div className="space-y-6">
-                            <div className="bg-[rgba(243,247,255,0.96)] rounded-lg p-6">
+                            <div className="bg-[rgba(254,255,250,0.96)] rounded-lg p-6">
                                 <h2 className="text-xl font-semibold mb-4">テスト投稿データ</h2>
 
                                 {/* 投稿選択 */}
@@ -131,8 +131,8 @@ export default function StoryTestPage() {
                                         <button
                                             onClick={() => setSelectedPost('with-image')}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedPost === 'with-image'
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-white text-[color:var(--text-subtle)] border border-gray-300 hover:bg-[rgba(243,247,255,0.96)]'
+                                                    ? 'bg-[color:var(--gt-primary)] text-white'
+                                                    : 'bg-white text-[color:var(--text-subtle)] border border-[rgba(186,122,103,0.28)] hover:bg-[rgba(254,255,250,0.96)]'
                                                 }`}
                                         >
                                             画像付き投稿
@@ -140,8 +140,8 @@ export default function StoryTestPage() {
                                         <button
                                             onClick={() => setSelectedPost('no-image')}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedPost === 'no-image'
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-white text-[color:var(--text-subtle)] border border-gray-300 hover:bg-[rgba(243,247,255,0.96)]'
+                                                    ? 'bg-[color:var(--gt-primary)] text-white'
+                                                    : 'bg-white text-[color:var(--text-subtle)] border border-[rgba(186,122,103,0.28)] hover:bg-[rgba(254,255,250,0.96)]'
                                                 }`}
                                         >
                                             画像なし投稿
@@ -175,7 +175,7 @@ export default function StoryTestPage() {
                                 <button
                                     onClick={handleGenerateImage}
                                     disabled={isGenerating}
-                                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white py-3 px-6 rounded-lg font-medium hover:from-[var(--gt-primary-strong)] hover:to-[var(--gt-primary-strong)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isGenerating ? (
                                         <div className="flex items-center justify-center gap-2">
@@ -190,16 +190,16 @@ export default function StoryTestPage() {
                                 {generatedImage && (
                                     <button
                                         onClick={handleDownloadImage}
-                                        className="w-full bg-[rgba(31,143,106,0.12)]0 text-white py-3 px-6 rounded-lg font-medium hover:bg-[#1f8f6a] transition-colors"
+                                        className="w-full bg-[rgba(31,143,106,0.12)] text-white py-3 px-6 rounded-lg font-medium hover:bg-[var(--gt-secondary-strong)] transition-colors"
                                     >
                                         画像をダウンロード
                                     </button>
                                 )}
                             </div>
 
-                            <div className="bg-blue-50 rounded-lg p-4">
-                                <h3 className="font-medium text-blue-900 mb-2">機能説明</h3>
-                                <ul className="text-sm text-blue-800 space-y-1">
+                            <div className="bg-[rgba(231,103,76,0.08)] rounded-lg p-4">
+                                <h3 className="font-medium text-[color:var(--gt-primary-strong)] mb-2">機能説明</h3>
+                                <ul className="text-sm text-[color:var(--gt-secondary-strong)] space-y-1">
                                     <li>• 投稿データからインスタストーリー用の縦型画像を生成</li>
                                     <li>• ユーザー情報、投稿内容、トレーニング詳細を表示</li>
                                     <li>• 投稿画像がある場合は背景として活用</li>
@@ -216,7 +216,7 @@ export default function StoryTestPage() {
 
                             {generatedImage ? (
                                 <div className="space-y-4">
-                                    <div className="bg-gray-100 rounded-lg p-4 flex justify-center">
+                                    <div className="bg-[rgba(254,255,250,0.95)] rounded-lg p-4 flex justify-center">
                                         <img
                                             src={generatedImage}
                                             alt="Generated story image"
@@ -226,15 +226,15 @@ export default function StoryTestPage() {
                                     </div>
 
                                     <div className="bg-[rgba(31,143,106,0.12)] rounded-lg p-4">
-                                        <h3 className="font-medium text-green-900 mb-2">生成完了！</h3>
-                                        <p className="text-sm text-green-800">
+                                        <h3 className="font-medium text-[color:var(--gt-primary-strong)] mb-2">生成完了！</h3>
+                                        <p className="text-sm text-[color:var(--gt-secondary-strong)]">
                                             画像が正常に生成されました。ダウンロードボタンから画像を保存できます。
                                         </p>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="bg-gray-100 rounded-lg p-8 text-center">
-                                    <div className="text-[rgba(44,82,190,0.32)] mb-4">
+                                <div className="bg-[rgba(254,255,250,0.95)] rounded-lg p-8 text-center">
+                                    <div className="text-[rgba(231,103,76,0.32)] mb-4">
                                         <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                                         </svg>

@@ -39,12 +39,12 @@ export default function QuickLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.96)] flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h1 className="text-2xl font-bold mb-6">認証状態</h1>
         
         <div className="space-y-4">
-          <div className="p-4 bg-blue-50 rounded-lg">
+          <div className="p-4 bg-[rgba(231,103,76,0.08)] rounded-lg">
             <p className="text-sm text-[color:var(--text-subtle)]">ステータス:</p>
             <p className="font-semibold">{status}</p>
           </div>
@@ -60,7 +60,7 @@ export default function QuickLoginPage() {
           <div className="flex gap-3">
             <button
               onClick={() => router.push('/admin')}
-              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="flex-1 px-4 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)]"
             >
               管理画面へ
             </button>
@@ -68,7 +68,7 @@ export default function QuickLoginPage() {
             {user && (
               <button
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2 bg-[rgba(224,112,122,0.12)]0 text-white rounded-lg hover:bg-[#e0707a]"
+                className="flex-1 px-4 py-2 bg-[rgba(224,112,122,0.12)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)]"
               >
                 ログアウト
               </button>
@@ -76,7 +76,7 @@ export default function QuickLoginPage() {
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+        <div className="mt-6 p-4 bg-[rgba(254,255,250,0.95)] rounded-lg">
           <p className="text-xs text-[color:var(--text-subtle)]">
             ログインが必要な場合：<br/>
             メール: tsubasa.a.283.0505@gmail.com

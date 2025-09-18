@@ -70,7 +70,7 @@ export default function LeafletMap({
               ` : ''}
               <div style="margin-top: 10px;">
                 <a href="/gyms/${gym.id}"
-                   style="color: #3B82F6; text-decoration: underline;">
+                   style="color: var(--gt-secondary); text-decoration: underline;">
                   詳細を見る →
                 </a>
               </div>

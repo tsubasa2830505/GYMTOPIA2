@@ -15,7 +15,7 @@ export default function TestDownloadPage() {
     const ctx = canvas.getContext('2d')!;
 
     // 簡単な図形を描画
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#e7674c';
     ctx.fillRect(0, 0, 500, 500);
     ctx.fillStyle = 'white';
     ctx.font = '30px Arial';
@@ -49,13 +49,13 @@ export default function TestDownloadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.96)] p-8">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.96)] p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Canvas Download Test</h1>
 
         <button
           onClick={testCanvasDownload}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className="px-6 py-3 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)]"
         >
           Test Download
         </button>

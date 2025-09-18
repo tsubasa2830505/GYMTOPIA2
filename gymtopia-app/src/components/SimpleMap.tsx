@@ -80,7 +80,7 @@ export default function SimpleMap({
         <div className="mb-4">
           <h2 className="font-bold text-lg mb-2">ジム一覧</h2>
           {userLocation && (
-            <div className="flex items-center gap-2 text-sm text-green-600 mb-3">
+            <div className="flex items-center gap-2 text-sm text-[color:var(--gt-secondary-strong)] mb-3">
               <Navigation size={16} />
               <span>現在地を取得しました</span>
             </div>
@@ -92,12 +92,12 @@ export default function SimpleMap({
             <div
               key={gym.id}
               className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
-                selectedGym?.id === gym.id ? 'border-blue-500 bg-blue-50' : ''
+                selectedGym?.id === gym.id ? 'border-[color:var(--gt-primary)] bg-[rgba(231,103,76,0.08)]' : ''
               }`}
               onClick={() => handleGymSelect(gym)}
             >
               <h3 className="font-semibold">{gym.name}</h3>
-              <p className="text-sm text-gray-600 mt-1 flex items-start gap-1">
+              <p className="text-sm text-[color:var(--text-muted)] mt-1 flex items-start gap-1">
                 <MapPin size={16} className="mt-0.5 flex-shrink-0" />
                 {gym.address}
               </p>
@@ -106,20 +106,20 @@ export default function SimpleMap({
                   {gym.equipment.slice(0, 3).map((eq, idx) => (
                     <span
                       key={idx}
-                      className="text-xs bg-gray-100 px-2 py-1 rounded"
+                      className="text-xs bg-[rgba(254,255,250,0.95)] px-2 py-1 rounded"
                     >
                       {eq}
                     </span>
                   ))}
                   {gym.equipment.length > 3 && (
-                    <span className="text-xs text-gray-500 px-2 py-1">
+                    <span className="text-xs text-[color:var(--text-muted)] px-2 py-1">
                       +{gym.equipment.length - 3}
                     </span>
                   )}
                 </div>
               )}
               <button 
-                className="mt-2 text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                className="mt-2 text-sm text-[color:var(--gt-primary)] hover:text-[color:var(--gt-secondary-strong)] flex items-center gap-1"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(

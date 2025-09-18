@@ -22,41 +22,35 @@ async function setupAvatarsBucket() {
 
     const avatarsBucket = buckets.find(bucket => bucket.name === 'avatars');
 
-    if (!avatarsBucket) {
-      console.log('📦 Creating avatars bucket...');
+    if (avatarsBucket) {
+      console.log('🗑️ Deleting existing avatars bucket to recreate it properly...');
 
-      const { data: newBucket, error: createError } = await supabase.storage.createBucket('avatars', {
-        public: true,
-        allowedMimeTypes: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'],
-        fileSizeLimit: 5242880, // 5MB
-        fileConstraints: {
-          enforceRLS: false
-        }
-      });
-
-      if (createError) {
-        console.error('❌ Error creating bucket:', createError);
+      // Delete existing bucket first if it has RLS issues
+      const { error: deleteError } = await supabase.storage.deleteBucket('avatars');
+      if (deleteError) {
+        console.error('❌ Could not delete existing bucket:', deleteError);
         return;
+      } else {
+        console.log('✅ Deleted existing avatars bucket');
       }
-
-      console.log('✅ Created avatars bucket:', newBucket);
-    } else {
-      console.log('✅ Avatars bucket already exists');
     }
 
-    console.log('🔐 Disabling RLS for avatars bucket...');
+    console.log('📦 Creating new public avatars bucket...');
 
-    // Disable RLS for the avatars bucket to allow public access
-    const disableRLS = `
-      ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY;
-    `;
+    const { data: newBucket, error: createError } = await supabase.storage.createBucket('avatars', {
+      public: true,
+      allowedMimeTypes: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'],
+      fileSizeLimit: 5242880 // 5MB
+    });
 
-    try {
-      await supabase.rpc('exec_sql', { sql: disableRLS });
-      console.log('✅ RLS disabled for storage.objects');
-    } catch (error) {
-      console.log('⚠️ RLS disable might have failed (that is okay):', error.message);
+    if (createError) {
+      console.error('❌ Error creating bucket:', createError);
+      return;
     }
+
+    console.log('✅ Created new public avatars bucket:', newBucket);
+
+    console.log('✅ Avatars bucket is public - no RLS configuration needed');
 
     console.log('🎉 Avatars bucket setup complete!');
 

@@ -60,13 +60,13 @@ export default function TestStoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.96)] p-8">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.96)] p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">インスタストーリー画像生成テスト</h1>
 
         <div className="bg-white rounded-lg shadow p-6 mb-4">
           <h2 className="text-lg font-semibold mb-2">テスト投稿データ</h2>
-          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
+          <pre className="bg-[rgba(254,255,250,0.95)] p-4 rounded text-sm overflow-auto">
             {JSON.stringify(testPost, null, 2)}
           </pre>
         </div>
@@ -74,13 +74,13 @@ export default function TestStoryPage() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {generating ? '生成中...' : '画像を生成してダウンロード'}
         </button>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-100 text-[#c85963] rounded-lg">
+          <div className="mt-4 p-4 bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] rounded-lg">
             エラー: {typeof error === 'string' ? error : JSON.stringify(error)}
           </div>
         )}

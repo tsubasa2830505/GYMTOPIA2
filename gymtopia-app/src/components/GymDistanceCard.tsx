@@ -55,17 +55,17 @@ export function GymDistanceCard({
   };
 
   const getDistanceColor = (dist: number): string => {
-    if (dist < 1) return 'text-green-600';
-    if (dist < 3) return 'text-blue-600';
-    if (dist < 5) return 'text-yellow-600';
-    return 'text-gray-600';
+    if (dist < 1) return 'text-[color:var(--gt-secondary-strong)]';
+    if (dist < 3) return 'text-[color:var(--gt-secondary-strong)]';
+    if (dist < 5) return 'text-[color:var(--gt-tertiary-strong)]';
+    return 'text-[color:var(--text-muted)]';
   };
 
   return (
     <div className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-semibold text-lg">
-          <Link href={`/gyms/${gym.id}`} className="hover:text-blue-600">
+          <Link href={`/gyms/${gym.id}`} className="hover:text-[color:var(--gt-secondary-strong)]">
             {gym.name}
           </Link>
         </h3>
@@ -79,22 +79,22 @@ export function GymDistanceCard({
       {showDetails && (
         <>
           {gym.address && (
-            <p className="text-sm text-gray-600 mb-2">{gym.address}</p>
+            <p className="text-sm text-[color:var(--text-muted)] mb-2">{gym.address}</p>
           )}
 
           <div className="flex items-center gap-4 text-sm">
             {gym.rating && (
               <div className="flex items-center gap-1">
-                <span className="text-yellow-500">⭐</span>
+                <span className="text-[color:var(--gt-tertiary)]">⭐</span>
                 <span>{gym.rating.toFixed(1)}</span>
                 {gym.review_count && (
-                  <span className="text-gray-500">({gym.review_count})</span>
+                  <span className="text-[color:var(--text-muted)]">({gym.review_count})</span>
                 )}
               </div>
             )}
 
             {gym.users_count > 0 && (
-              <div className="flex items-center gap-1 text-gray-600">
+              <div className="flex items-center gap-1 text-[color:var(--text-muted)]">
                 <span>👥</span>
                 <span>{gym.users_count}人</span>
               </div>
@@ -106,13 +106,13 @@ export function GymDistanceCard({
               {gym.facilities.slice(0, 3).map((facility: string, index: number) => (
                 <span
                   key={index}
-                  className="px-2 py-1 text-xs bg-gray-100 rounded-full"
+                  className="px-2 py-1 text-xs bg-[rgba(254,255,250,0.95)] rounded-full"
                 >
                   {facility}
                 </span>
               ))}
               {gym.facilities.length > 3 && (
-                <span className="px-2 py-1 text-xs text-gray-500">
+                <span className="px-2 py-1 text-xs text-[color:var(--text-muted)]">
                   +{gym.facilities.length - 3}
                 </span>
               )}
@@ -122,7 +122,7 @@ export function GymDistanceCard({
       )}
 
       {distance !== null && distance < 1 && (
-        <div className="mt-2 p-2 bg-green-50 rounded text-xs text-green-700">
+        <div className="mt-2 p-2 bg-[rgba(240,142,111,0.1)] rounded text-xs text-[color:var(--gt-secondary-strong)]">
           🚶 徒歩圏内
         </div>
       )}

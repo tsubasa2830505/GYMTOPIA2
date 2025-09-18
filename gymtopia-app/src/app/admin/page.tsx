@@ -543,9 +543,9 @@ export default function AdminPage() {
   // ローディング中の表示
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(254,255,250,0.97)] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-[color:var(--gt-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[color:var(--text-subtle)]">読み込み中...</p>
         </div>
       </div>
@@ -557,10 +557,10 @@ export default function AdminPage() {
   /*
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(254,255,250,0.97)] flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-[rgba(231,103,76,0.12)] rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[color:var(--gt-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
@@ -572,21 +572,21 @@ export default function AdminPage() {
             {!authUser ? (
               <button
                 onClick={() => router.push('/auth/login')}
-                className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-medium"
+                className="w-full px-6 py-3 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-all font-medium"
               >
                 ログインする
               </button>
             ) : (
               <button
                 onClick={() => router.push('/owner-application')}
-                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
+                className="w-full px-6 py-3 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-lg hover:from-[var(--gt-primary-strong)] hover:to-[var(--gt-primary-strong)] transition-all font-medium"
               >
                 ジムオーナー申請はこちら
               </button>
             )}
             <button
               onClick={() => router.push('/')}
-              className="w-full px-6 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+              className="w-full px-6 py-2 bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(254,255,250,0.9)] transition-colors"
             >
               ホームに戻る
             </button>
@@ -598,17 +598,17 @@ export default function AdminPage() {
   */
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.97)]">
       {/* ヘッダー */}
       <header className="bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-[73.5px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-[42px] h-[42px] bg-indigo-500 rounded-full flex items-center justify-center shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
+            <div className="w-[42px] h-[42px] bg-[rgba(245,177,143,0.1)] rounded-full flex items-center justify-center shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
               <Dumbbell className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-[21px] font-bold text-slate-900">ジムトピア</h1>
-              <p className="text-[12.108px] text-slate-600">理想のジムを見つけよう</p>
+              <h1 className="text-[21px] font-bold text-[color:var(--foreground)]">ジムトピア</h1>
+              <p className="text-[12.108px] text-[color:var(--text-muted)]">理想のジムを見つけよう</p>
             </div>
           </div>
         </div>
@@ -618,16 +618,16 @@ export default function AdminPage() {
       <div className="max-w-[1008px] mx-auto px-0 py-4 sm:py-6">
         <div className="bg-white">
           {/* ページヘッダー */}
-          <div className="px-3.5 py-4 border-b border-slate-200">
+          <div className="px-3.5 py-4 border-b border-[rgba(186,122,103,0.26)]">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[17.5px] text-slate-600 mb-1">施設管理ページ</h2>
-                <p className="text-[12.3px] text-slate-600">{selectedGym?.name || 'ハンマーストレングス渋谷'}</p>
+                <h2 className="text-[17.5px] text-[color:var(--text-muted)] mb-1">施設管理ページ</h2>
+                <p className="text-[12.3px] text-[color:var(--text-muted)]">{selectedGym?.name || 'ハンマーストレングス渋谷'}</p>
               </div>
               <div className="flex items-center gap-4">
                 {gyms.length > 1 && (
                   <select 
-                    className="text-[12.3px] px-2 py-1 border border-slate-200 rounded-md"
+                    className="text-[12.3px] px-2 py-1 border border-[rgba(186,122,103,0.26)] rounded-md"
                     value={selectedGym?.id || ''}
                     onChange={(e) => {
                       const gym = gyms.find(g => g.id === e.target.value)
@@ -654,8 +654,8 @@ export default function AdminPage() {
                   </select>
                 )}
                 <div className="flex items-center gap-1">
-                  <Heart className="w-3.5 h-3.5 text-red-400" />
-                  <span className="text-[12.3px] text-slate-600">{stats?.likesCount || 342} イキタイ</span>
+                  <Heart className="w-3.5 h-3.5 text-[color:var(--gt-primary)]" />
+                  <span className="text-[12.3px] text-[color:var(--text-muted)]">{stats?.likesCount || 342} イキタイ</span>
                 </div>
               </div>
             </div>
@@ -663,13 +663,13 @@ export default function AdminPage() {
 
           {/* タブ */}
           <div className="px-[21px] pt-[28px]">
-            <div className="bg-slate-50 rounded-[14.5px] p-[3px] flex gap-0">
+            <div className="bg-[rgba(254,255,250,0.97)] rounded-[14.5px] p-[3px] flex gap-0">
               <button 
                 onClick={() => setActiveTab('basic')}
                 className={`flex-1 px-4 py-2 rounded-[14.5px] text-[12.3px] font-medium transition-all ${
                   activeTab === 'basic' 
-                    ? 'bg-white text-slate-900 shadow-sm' 
-                    : 'text-slate-900 hover:text-slate-700'
+                    ? 'bg-white text-[color:var(--foreground)] shadow-sm' 
+                    : 'text-[color:var(--foreground)] hover:text-[color:var(--text-subtle)]'
                 }`}
               >
                 基本情報
@@ -678,8 +678,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab('facility')}
                 className={`flex-1 px-4 py-2 rounded-[14.5px] text-[12.3px] font-medium transition-all ${
                   activeTab === 'facility' 
-                    ? 'bg-white text-slate-900 shadow-sm' 
-                    : 'text-slate-900 hover:text-slate-700'
+                    ? 'bg-white text-[color:var(--foreground)] shadow-sm' 
+                    : 'text-[color:var(--foreground)] hover:text-[color:var(--text-subtle)]'
                 }`}
               >
                 設備管理
@@ -688,8 +688,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab('review')}
                 className={`flex-1 px-4 py-2 rounded-[14.5px] text-[12.108px] font-medium transition-all ${
                   activeTab === 'review' 
-                    ? 'bg-white text-slate-900 shadow-sm' 
-                    : 'text-slate-900 hover:text-slate-700'
+                    ? 'bg-white text-[color:var(--foreground)] shadow-sm' 
+                    : 'text-[color:var(--foreground)] hover:text-[color:var(--text-subtle)]'
                 }`}
               >
                 レビュー管理
@@ -698,8 +698,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab('stats')}
                 className={`flex-1 px-4 py-2 rounded-[14.5px] text-[12.3px] font-medium transition-all ${
                   activeTab === 'stats' 
-                    ? 'bg-white text-slate-900 shadow-sm' 
-                    : 'text-slate-900 hover:text-slate-700'
+                    ? 'bg-white text-[color:var(--foreground)] shadow-sm' 
+                    : 'text-[color:var(--foreground)] hover:text-[color:var(--text-subtle)]'
                 }`}
               >
                 統計情報
@@ -710,31 +710,31 @@ export default function AdminPage() {
           {/* フォームパネル */}
           <div className="px-[21px] pt-[28px] pb-[21px]">
             {activeTab === 'basic' && (
-              <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
+              <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
                 {/* 基本情報 */}
                 <div className="mb-6">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">基本情報</h3>
+                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">基本情報</h3>
             
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[12.3px] text-slate-900 mb-2">
+                      <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                         施設名
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                         value={formData.basicInfo.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                       />
                     </div>
                     <div>
-                      <label className="block text-[12.3px] text-slate-900 mb-2">
+                      <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                         エリア
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                         value={formData.basicInfo.area}
                         onChange={(e) => handleInputChange('area', e.target.value)}
                       />
@@ -742,12 +742,12 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[12.3px] text-slate-900 mb-2">
+                    <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                       住所
                     </label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                       value={formData.basicInfo.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
                     />
@@ -755,23 +755,23 @@ export default function AdminPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[12.3px] text-slate-900 mb-2">
+                      <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                         営業時間
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                         value={formData.basicInfo.openingHours}
                         onChange={(e) => handleInputChange('openingHours', e.target.value)}
                       />
                     </div>
                     <div>
-                      <label className="block text-[12.108px] text-slate-900 mb-2">
+                      <label className="block text-[12.108px] text-[color:var(--foreground)] mb-2">
                         月額料金 (円)
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                         value={formData.basicInfo.monthlyFee}
                         onChange={(e) => handleInputChange('monthlyFee', e.target.value)}
                       />
@@ -780,12 +780,12 @@ export default function AdminPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[12.108px] text-slate-900 mb-2">
+                      <label className="block text-[12.108px] text-[color:var(--foreground)] mb-2">
                         ビジター料金 (円)
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                         value={formData.basicInfo.visitorFee}
                         onChange={(e) => handleInputChange('visitorFee', e.target.value)}
                       />
@@ -797,7 +797,7 @@ export default function AdminPage() {
 
               {/* 施設・サービス */}
               <div className="mb-6">
-                <h3 className="text-[14px] font-bold text-slate-900 mb-4">施設・サービス</h3>
+                <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">施設・サービス</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   {[
@@ -822,13 +822,13 @@ export default function AdminPage() {
                     { key: 'english_support', label: '英語対応' },
                     { key: 'drop_in', label: 'ドロップイン' }
                   ].map((service) => (
-                    <div key={service.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <span className="text-sm font-medium text-slate-900">{service.label}</span>
+                    <div key={service.key} className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.97)] rounded-lg border border-[rgba(186,122,103,0.26)]">
+                      <span className="text-sm font-medium text-[color:var(--foreground)]">{service.label}</span>
                       <button
                         type="button"
                         onClick={() => handleServiceToggle(service.key)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          formData.services[service.key as keyof typeof formData.services] ? 'bg-blue-500' : 'bg-slate-300'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] focus:ring-offset-2 ${
+                          formData.services[service.key as keyof typeof formData.services] ? 'bg-[color:var(--gt-primary)]' : 'bg-[rgba(254,255,250,0.82)]'
                         }`}
                       >
                         <span className="sr-only">
@@ -848,7 +848,7 @@ export default function AdminPage() {
                 {/* 保存ボタン */}
                 <button
                   onClick={handleSubmit}
-                  className="w-full px-6 py-3 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-[color:var(--gt-primary)] text-white text-sm font-medium rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition flex items-center justify-center gap-2"
                 >
                   <Upload className="w-4 h-4" />
                   基本情報を保存
@@ -860,20 +860,20 @@ export default function AdminPage() {
             {activeTab === 'facility' && (
               <div className="space-y-6">
                 {/* 新規設備追加フォーム */}
-                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">設備情報管理</h3>
+                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">設備情報管理</h3>
                   
                   <div className="mb-6">
-                    <h4 className="text-[12.3px] font-medium text-slate-700 mb-3">新しい設備を追加</h4>
+                    <h4 className="text-[12.3px] font-medium text-[color:var(--text-subtle)] mb-3">新しい設備を追加</h4>
                     
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[12.3px] text-slate-900 mb-2">
+                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                             カテゴリ
                           </label>
                           <select
-                            className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                             value={newEquipment.category}
                             onChange={(e) => setNewEquipment({...newEquipment, category: e.target.value})}
                           >
@@ -885,12 +885,12 @@ export default function AdminPage() {
                         </div>
                         
                         <div>
-                          <label className="block text-[12.3px] text-slate-900 mb-2">
+                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                             設備名
                           </label>
                           <input
                             type="text"
-                            className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                             value={newEquipment.name}
                             onChange={(e) => setNewEquipment({...newEquipment, name: e.target.value})}
                             placeholder="例: エリートパワーラック"
@@ -900,11 +900,11 @@ export default function AdminPage() {
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[12.3px] text-slate-900 mb-2">
+                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                             メーカー
                           </label>
                           <select
-                            className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                             value={newEquipment.maker}
                             onChange={(e) => setNewEquipment({...newEquipment, maker: e.target.value})}
                           >
@@ -916,7 +916,7 @@ export default function AdminPage() {
                         </div>
                         
                         <div>
-                          <label className="block text-[12.3px] text-slate-900 mb-2">
+                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
                             {newEquipment.category && isWeightType(newEquipment.category) 
                               ? '最大重量 (kg)' 
                               : '台数'}
@@ -924,7 +924,7 @@ export default function AdminPage() {
                           {newEquipment.category && isWeightType(newEquipment.category) ? (
                             <input
                               type="number"
-                              className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                               value={newEquipment.maxWeight}
                               onChange={(e) => setNewEquipment({...newEquipment, maxWeight: parseInt(e.target.value) || 0})}
                               min="1"
@@ -933,7 +933,7 @@ export default function AdminPage() {
                           ) : (
                             <input
                               type="number"
-                              className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-[8.5px] text-[12.3px] text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
                               value={newEquipment.count}
                               onChange={(e) => setNewEquipment({...newEquipment, count: parseInt(e.target.value) || 0})}
                               min="1"
@@ -947,7 +947,7 @@ export default function AdminPage() {
                   
                   <button
                     onClick={handleAddEquipment}
-                    className="w-full px-6 py-2.5 bg-indigo-500 text-white text-[12.3px] font-medium rounded-[8.5px] hover:bg-indigo-600 transition flex items-center justify-center gap-2"
+                    className="w-full px-6 py-2.5 bg-[rgba(245,177,143,0.1)] text-white text-[12.3px] font-medium rounded-[8.5px] hover:bg-[color:var(--gt-primary)] transition flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     設備を追加
@@ -955,33 +955,33 @@ export default function AdminPage() {
                 </div>
                 
                 {/* 設備一覧 */}
-                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">現在の設備一覧</h3>
+                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">現在の設備一覧</h3>
                   
                   <div className="space-y-3">
                     {equipmentList.map((equipment) => (
-                      <div key={equipment.id} className="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition">
+                      <div key={equipment.id} className="bg-white border border-[rgba(186,122,103,0.26)] rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition">
                         <div className="flex items-center gap-3">
-                          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-medium rounded-md">
+                          <span className="px-2.5 py-1 bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] text-[11px] font-medium rounded-md">
                             {equipment.category}
                           </span>
-                          <span className="text-[13px] font-bold text-slate-900">
+                          <span className="text-[13px] font-bold text-[color:var(--foreground)]">
                             {equipment.name}
                           </span>
-                          <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-[11px] font-medium rounded-md">
+                          <span className="px-2.5 py-1 bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-secondary-strong)] text-[11px] font-medium rounded-md">
                             {equipment.maker}
                           </span>
                         </div>
                         
                         <div className="flex items-center gap-4">
-                          <span className="text-[13px] font-medium text-slate-700">
+                          <span className="text-[13px] font-medium text-[color:var(--text-subtle)]">
                             {equipment.count !== undefined 
                               ? `${equipment.count}台` 
                               : `最大${equipment.maxWeight}kg`}
                           </span>
                           <button
                             onClick={() => handleDeleteEquipment(equipment.id)}
-                            className="text-red-500 hover:text-[#c85963] transition p-1"
+                            className="text-[color:var(--gt-primary)] hover:text-[color:var(--gt-primary-strong)] transition p-1"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -990,7 +990,7 @@ export default function AdminPage() {
                     ))}
                     
                     {equipmentList.length === 0 && (
-                      <div className="text-center py-8 text-slate-500 text-[12.3px]">
+                      <div className="text-center py-8 text-[color:var(--text-muted)] text-[12.3px]">
                         設備が登録されていません
                       </div>
                     )}
@@ -1004,74 +1004,74 @@ export default function AdminPage() {
               <div className="space-y-6">
                 {/* 統計概要 */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(245,177,143,0.16)] rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12.3px] text-slate-700">今月の投稿数</span>
-                      <Users className="w-4 h-4 text-blue-600" />
+                      <span className="text-[12.3px] text-[color:var(--text-subtle)]">今月の投稿数</span>
+                      <Users className="w-4 h-4 text-[color:var(--gt-secondary-strong)]" />
                     </div>
-                    <div className="text-xl font-bold text-slate-900">234件</div>
-                    <div className="text-[10px] text-slate-600 mt-1">前月比: +18.2%</div>
+                    <div className="text-xl font-bold text-[color:var(--foreground)]">234件</div>
+                    <div className="text-[10px] text-[color:var(--text-muted)] mt-1">前月比: +18.2%</div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[rgba(240,142,111,0.1)] to-[rgba(231,103,76,0.18)] rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12.3px] text-slate-700">イキタイ数</span>
-                      <Heart className="w-4 h-4 text-[#1f8f6a]" />
+                      <span className="text-[12.3px] text-[color:var(--text-subtle)]">イキタイ数</span>
+                      <Heart className="w-4 h-4 text-[var(--gt-secondary-strong)]" />
                     </div>
-                    <div className="text-xl font-bold text-slate-900">342人</div>
-                    <div className="text-[10px] text-slate-600 mt-1">前月比: +12.5%</div>
+                    <div className="text-xl font-bold text-[color:var(--foreground)]">342人</div>
+                    <div className="text-[10px] text-[color:var(--text-muted)] mt-1">前月比: +12.5%</div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[rgba(240,142,111,0.1)] to-[rgba(245,177,143,0.16)] rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12.3px] text-slate-700">混雑報告</span>
-                      <Activity className="w-4 h-4 text-orange-600" />
+                      <span className="text-[12.3px] text-[color:var(--text-subtle)]">混雑報告</span>
+                      <Activity className="w-4 h-4 text-[color:var(--gt-tertiary-strong)]" />
                     </div>
-                    <div className="text-xl font-bold text-slate-900">72件</div>
-                    <div className="text-[10px] text-slate-600 mt-1">空き: 23件, 混雑: 49件</div>
+                    <div className="text-xl font-bold text-[color:var(--foreground)]">72件</div>
+                    <div className="text-[10px] text-[color:var(--text-muted)] mt-1">空き: 23件, 混雑: 49件</div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(245,177,143,0.16)] rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12.3px] text-slate-700">設備言及</span>
-                      <Users className="w-4 h-4 text-purple-600" />
+                      <span className="text-[12.3px] text-[color:var(--text-subtle)]">設備言及</span>
+                      <Users className="w-4 h-4 text-[color:var(--gt-secondary-strong)]" />
                     </div>
-                    <div className="text-xl font-bold text-slate-900">288回</div>
-                    <div className="text-[10px] text-slate-600 mt-1">5種類の設備</div>
+                    <div className="text-xl font-bold text-[color:var(--foreground)]">288回</div>
+                    <div className="text-[10px] text-[color:var(--text-muted)] mt-1">5種類の設備</div>
                   </div>
                 </div>
 
                 {/* 時間帯別投稿分析 */}
-                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">時間帯別ジム活投稿</h3>
+                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">時間帯別ジム活投稿</h3>
                   <div className="space-y-3">
                     {[
-                      { time: '5:00-9:00', posts: 28, percentage: 12.0, color: 'bg-blue-500', crowd: '空いてる' },
-                      { time: '9:00-12:00', posts: 15, percentage: 6.4, color: 'bg-[rgba(31,143,106,0.12)]0', crowd: '空いてる' },
-                      { time: '12:00-15:00', posts: 42, percentage: 17.9, color: 'bg-[rgba(242,178,74,0.12)]0', crowd: '普通' },
-                      { time: '15:00-18:00', posts: 67, percentage: 28.6, color: 'bg-orange-500', crowd: '混雑' },
-                      { time: '18:00-22:00', posts: 72, percentage: 30.8, color: 'bg-[rgba(224,112,122,0.12)]0', crowd: '混雑' },
-                      { time: '22:00-24:00', posts: 10, percentage: 4.3, color: 'bg-purple-500', crowd: '空いてる' },
+                      { time: '5:00-9:00', posts: 28, percentage: 12.0, color: 'bg-[color:var(--gt-primary)]', crowd: '空いてる' },
+                      { time: '9:00-12:00', posts: 15, percentage: 6.4, color: 'bg-[rgba(31,143,106,0.12)]', crowd: '空いてる' },
+                      { time: '12:00-15:00', posts: 42, percentage: 17.9, color: 'bg-[rgba(242,178,74,0.12)]', crowd: '普通' },
+                      { time: '15:00-18:00', posts: 67, percentage: 28.6, color: 'bg-[color:var(--gt-primary)]', crowd: '混雑' },
+                      { time: '18:00-22:00', posts: 72, percentage: 30.8, color: 'bg-[rgba(224,112,122,0.12)]', crowd: '混雑' },
+                      { time: '22:00-24:00', posts: 10, percentage: 4.3, color: 'bg-[rgba(240,142,111,0.1)]', crowd: '空いてる' },
                     ].map((slot, index) => (
                       <div key={index} className="flex items-center gap-4">
-                        <div className="w-20 text-[12.3px] font-medium text-slate-700">{slot.time}</div>
+                        <div className="w-20 text-[12.3px] font-medium text-[color:var(--text-subtle)]">{slot.time}</div>
                         <div className="flex-1">
-                          <div className="relative h-6 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="relative h-6 bg-[rgba(254,255,250,0.95)] rounded-full overflow-hidden">
                             <div 
                               className={`absolute top-0 left-0 h-full ${slot.color} rounded-full transition-all duration-500`}
                               style={{ width: `${slot.percentage}%` }}
                             />
                             <div className="absolute inset-0 flex items-center px-3">
-                              <span className="text-[11px] font-medium text-slate-700">
+                              <span className="text-[11px] font-medium text-[color:var(--text-subtle)]">
                                 {slot.posts}件
                               </span>
                             </div>
                           </div>
                         </div>
-                        <div className="text-[10px] text-slate-600">
+                        <div className="text-[10px] text-[color:var(--text-muted)]">
                           {slot.crowd}
                         </div>
-                        <div className="text-[12.3px] text-slate-600 w-12 text-right">
+                        <div className="text-[12.3px] text-[color:var(--text-muted)] w-12 text-right">
                           {slot.percentage}%
                         </div>
                       </div>
@@ -1080,8 +1080,8 @@ export default function AdminPage() {
                 </div>
 
                 {/* 投稿で言及された設備 */}
-                <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-slate-900 mb-4">投稿で言及された設備</h3>
+                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">投稿で言及された設備</h3>
                   <div className="space-y-3">
                     {[
                       { name: 'パワーラック', mentions: 87, sentiment: '好評', trend: '+12件' },
@@ -1090,28 +1090,28 @@ export default function AdminPage() {
                       { name: 'ケーブルマシン', mentions: 34, sentiment: '要改善', trend: '-3件' },
                       { name: 'スミスマシン', mentions: 28, sentiment: '普通', trend: '+2件' },
                     ].map((equipment, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                      <div key={index} className="flex items-center justify-between p-3 hover:bg-[rgba(254,255,250,0.98)] rounded-lg transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-[11px]">
+                          <div className="w-6 h-6 bg-[rgba(245,177,143,0.16)] text-[color:var(--gt-secondary-strong)] rounded-full flex items-center justify-center font-bold text-[11px]">
                             {index + 1}
                           </div>
                           <div>
-                            <div className="text-[12.3px] font-medium text-slate-900">{equipment.name}</div>
-                            <div className="text-[10px] text-slate-600">
+                            <div className="text-[12.3px] font-medium text-[color:var(--foreground)]">{equipment.name}</div>
+                            <div className="text-[10px] text-[color:var(--text-muted)]">
                               言及数: {equipment.mentions}回
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                            equipment.sentiment === '好評' ? 'bg-green-100 text-green-700' :
-                            equipment.sentiment === '要改善' ? 'bg-red-100 text-[#c85963]' :
-                            'bg-gray-100 text-[color:var(--text-subtle)]'
+                            equipment.sentiment === '好評' ? 'bg-[rgba(240,142,111,0.16)] text-[color:var(--gt-secondary-strong)]' :
+                            equipment.sentiment === '要改善' ? 'bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)]' :
+                            'bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)]'
                           }`}>
                             {equipment.sentiment}
                           </span>
                           <div className={`text-[11px] font-medium ${
-                            equipment.trend.startsWith('+') ? 'text-[#1f8f6a]' : 'text-[#e0707a]'
+                            equipment.trend.startsWith('+') ? 'text-[var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'
                           }`}>
                             {equipment.trend}
                           </div>
@@ -1123,8 +1123,8 @@ export default function AdminPage() {
 
                 {/* 投稿者分析 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                    <h3 className="text-[14px] font-bold text-slate-900 mb-4">頻繁な投稿者</h3>
+                  <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                    <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">頻繁な投稿者</h3>
                     <div className="space-y-3">
                       {[
                         { name: '筋トレ愛好家', posts: 23, likes: 156, lastPost: '2日前' },
@@ -1133,17 +1133,17 @@ export default function AdminPage() {
                         { name: 'パワーリフター', posts: 12, likes: 87, lastPost: '今日' },
                         { name: 'カーディオ派', posts: 9, likes: 45, lastPost: '5日前' },
                       ].map((user, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg">
+                        <div key={index} className="flex items-center justify-between p-2 hover:bg-[rgba(254,255,250,0.98)] rounded-lg">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                            <div className="w-8 h-8 bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
                               {user.name.charAt(0)}
                             </div>
                             <div>
-                              <div className="text-[12.3px] font-medium text-slate-900">{user.name}</div>
-                              <div className="text-[10px] text-slate-600">投稿: {user.posts}件 • ♥ {user.likes}</div>
+                              <div className="text-[12.3px] font-medium text-[color:var(--foreground)]">{user.name}</div>
+                              <div className="text-[10px] text-[color:var(--text-muted)]">投稿: {user.posts}件 • ♥ {user.likes}</div>
                             </div>
                           </div>
-                          <div className="text-[10px] text-slate-600">
+                          <div className="text-[10px] text-[color:var(--text-muted)]">
                             {user.lastPost}
                           </div>
                         </div>
@@ -1151,8 +1151,8 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200 rounded-[14.5px] p-[22px]">
-                    <h3 className="text-[14px] font-bold text-slate-900 mb-4">月別投稿推移</h3>
+                  <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                    <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">月別投稿推移</h3>
                     <div className="space-y-3">
                       {[
                         { month: '8月', posts: 167, growth: '+8.4%' },
@@ -1163,14 +1163,14 @@ export default function AdminPage() {
                         { month: '1月', posts: 234, growth: '+18.2%' },
                       ].map((data, index) => (
                         <div key={index} className="flex items-center justify-between">
-                          <div className="text-[12.3px] text-slate-700 w-10">{data.month}</div>
+                          <div className="text-[12.3px] text-[color:var(--text-subtle)] w-10">{data.month}</div>
                           <div className="flex-1 px-3">
-                            <div className="text-[12.3px] font-medium text-slate-900">
+                            <div className="text-[12.3px] font-medium text-[color:var(--foreground)]">
                               {data.posts}件
                             </div>
                           </div>
                           <div className={`text-[11px] font-medium ${
-                            data.growth.startsWith('+') ? 'text-[#1f8f6a]' : 'text-[#e0707a]'
+                            data.growth.startsWith('+') ? 'text-[var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'
                           }`}>
                             {data.growth}
                           </div>
@@ -1186,16 +1186,16 @@ export default function AdminPage() {
             {/* レビュー管理タブ */}
             {activeTab === 'review' && (
               <div>
-                <h3 className="text-[14px] font-bold text-slate-900 mb-6">レビュー管理</h3>
+                <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-6">レビュー管理</h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-slate-50 rounded-[8.5px] p-4 text-center">
-                    <div className="text-2xl font-bold text-slate-900 mb-1">{reviews.length}</div>
-                    <div className="text-[12.3px] text-slate-600">レビュー件数</div>
+                  <div className="bg-[rgba(254,255,250,0.97)] rounded-[8.5px] p-4 text-center">
+                    <div className="text-2xl font-bold text-[color:var(--foreground)] mb-1">{reviews.length}</div>
+                    <div className="text-[12.3px] text-[color:var(--text-muted)]">レビュー件数</div>
                   </div>
-                  <div className="bg-slate-50 rounded-[8.5px] p-4 text-center">
-                    <div className="text-2xl font-bold text-slate-900 mb-1">342</div>
-                    <div className="text-[12.3px] text-slate-600">イキタイ数</div>
+                  <div className="bg-[rgba(254,255,250,0.97)] rounded-[8.5px] p-4 text-center">
+                    <div className="text-2xl font-bold text-[color:var(--foreground)] mb-1">342</div>
+                    <div className="text-[12.3px] text-[color:var(--text-muted)]">イキタイ数</div>
                   </div>
                 </div>
 
@@ -1204,12 +1204,12 @@ export default function AdminPage() {
                   {reviews.map((review) => (
                     <div
                       key={review.id}
-                      className="bg-white rounded-[8.5px] p-4 border border-slate-200 hover:shadow-sm transition"
+                      className="bg-white rounded-[8.5px] p-4 border border-[rgba(186,122,103,0.26)] hover:shadow-sm transition"
                     >
                       {/* Review Header */}
                       <div className="flex items-start gap-3 mb-3">
                         {/* Avatar */}
-                        <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-[rgba(245,177,143,0.16)] rounded-full flex items-center justify-center flex-shrink-0">
                           {review.author.avatar ? (
                             <Image
                               src={review.author.avatar}
@@ -1219,7 +1219,7 @@ export default function AdminPage() {
                               className="rounded-full object-cover"
                             />
                           ) : (
-                            <span className="text-[12.3px] font-medium text-indigo-600">
+                            <span className="text-[12.3px] font-medium text-[color:var(--gt-secondary-strong)]">
                               {review.author.initial}
                             </span>
                           )}
@@ -1228,17 +1228,17 @@ export default function AdminPage() {
                         {/* Meta Info */}
                         <div className="flex-1">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-semibold text-[12.3px] text-slate-900">
+                            <span className="font-semibold text-[12.3px] text-[color:var(--foreground)]">
                               {review.author.name}
                             </span>
-                            <span className="text-[11px] text-slate-500">{review.date}</span>
+                            <span className="text-[11px] text-[color:var(--text-muted)]">{review.date}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Review Content */}
                       <div className="ml-13 mb-4">
-                        <p className="text-[12.3px] text-slate-700 whitespace-pre-wrap">{review.content}</p>
+                        <p className="text-[12.3px] text-[color:var(--text-subtle)] whitespace-pre-wrap">{review.content}</p>
                       </div>
 
                       {/* Reply Section */}
@@ -1247,15 +1247,15 @@ export default function AdminPage() {
                           /* Replied State */
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
-                              <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] rounded-full font-medium">
+                              <span className="px-2 py-1 bg-[rgba(245,177,143,0.16)] text-[color:var(--gt-secondary-strong)] text-[10px] rounded-full font-medium">
                                 {review.reply.storeName}
                               </span>
-                              <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] rounded-full">
+                              <span className="px-2 py-1 bg-[rgba(254,255,250,0.95)] text-[color:var(--text-muted)] text-[10px] rounded-full">
                                 {review.reply.role}
                               </span>
                             </div>
-                            <div className="p-3 bg-blue-50 rounded-[8.5px]">
-                              <p className="text-[12.3px] text-slate-700 whitespace-pre-wrap">
+                            <div className="p-3 bg-[rgba(231,103,76,0.08)] rounded-[8.5px]">
+                              <p className="text-[12.3px] text-[color:var(--text-subtle)] whitespace-pre-wrap">
                                 {review.reply.content}
                               </p>
                             </div>
@@ -1268,7 +1268,7 @@ export default function AdminPage() {
                               onChange={(e) => handleReplyChange(review.id, e.target.value)}
                               onKeyDown={(e) => handleKeyDown(e, review.id)}
                               placeholder="このレビューに返信..."
-                              className="w-full px-3 py-2 border border-slate-200 rounded-[8.5px] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-[12.3px]"
+                              className="w-full px-3 py-2 border border-[rgba(186,122,103,0.26)] rounded-[8.5px] focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent resize-none text-[12.3px]"
                               rows={3}
                             />
                             <button
@@ -1276,8 +1276,8 @@ export default function AdminPage() {
                               disabled={!replyTexts[review.id] || replyTexts[review.id].trim() === ''}
                               className={`flex items-center gap-2 px-3 py-2 rounded-[8.5px] font-medium transition text-[12.3px] ${
                                 replyTexts[review.id] && replyTexts[review.id].trim()
-                                  ? 'bg-indigo-500 text-white hover:bg-indigo-600'
-                                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                  ? 'bg-[rgba(245,177,143,0.1)] text-white hover:bg-[color:var(--gt-primary)]'
+                                  : 'bg-[rgba(254,255,250,0.95)] text-[rgba(68,73,73,0.6)] cursor-not-allowed'
                               }`}
                             >
                               <Send className="w-3 h-3" />

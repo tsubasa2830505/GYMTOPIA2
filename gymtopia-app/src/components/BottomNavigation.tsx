@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, FileSearch, SlidersHorizontal, User } from 'lucide-react'
+import { MapPin, FileSearch, CheckCircle, SlidersHorizontal, User } from 'lucide-react'
 
 export default function BottomNavigation() {
   const pathname = usePathname()
 
   const navItems = [
-    { 
-      href: '/', 
-      icon: MapPin, 
+    {
+      href: '/',
+      icon: MapPin,
       label: 'ジムを探す',
       isActive: pathname === '/'
     },
@@ -18,18 +18,23 @@ export default function BottomNavigation() {
       href: '/search/results',
       icon: FileSearch,
       label: '検索結果',
-      isActive: pathname === '/search/results' || pathname === '/search',
-      badge: 3
+      isActive: pathname === '/search/results' || pathname === '/search'
     },
-    { 
-      href: '/feed', 
-      icon: SlidersHorizontal, 
-      label: 'ジム活フィード',
+    {
+      href: '/checkin',
+      icon: CheckCircle,
+      label: 'チェックイン',
+      isActive: pathname === '/checkin'
+    },
+    {
+      href: '/feed',
+      icon: SlidersHorizontal,
+      label: 'フィード',
       isActive: pathname === '/feed'
     },
-    { 
-      href: '/profile', 
-      icon: User, 
+    {
+      href: '/profile',
+      icon: User,
       label: 'プロフィール',
       isActive: pathname === '/profile'
     },
@@ -38,7 +43,7 @@ export default function BottomNavigation() {
   return (
     <nav className="fixed bottom-4 left-0 right-0 z-[60] sm:hidden px-4">
       <div className="max-w-md mx-auto">
-        <div className="gt-shell bg-[rgba(243,247,255,0.92)] backdrop-blur-xl border border-[rgba(44,82,190,0.18)] shadow-[0_20px_44px_-30px_rgba(15,36,118,0.46)]">
+        <div className="gt-shell bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border border-[rgba(231,103,76,0.18)] shadow-[0_20px_44px_-30px_rgba(189,101,78,0.46)]">
           <div className="flex">
             {navItems.map((item) => (
               <Link
@@ -58,7 +63,7 @@ export default function BottomNavigation() {
                       }`}
                     />
                     {item.badge && (
-                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5 shadow-[0_8px_18px_-12px_rgba(15,36,118,0.5)]">
+                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5 shadow-[0_8px_18px_-12px_rgba(189,101,78,0.5)]">
                         {item.badge}
                       </span>
                     )}
@@ -71,7 +76,7 @@ export default function BottomNavigation() {
                     {item.label}
                   </span>
                   {item.isActive && (
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] rounded-full" />
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] rounded-full" />
                   )}
                 </div>
               </Link>

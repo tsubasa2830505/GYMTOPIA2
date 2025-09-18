@@ -26,20 +26,20 @@
   <rect x="85" y="120" width="30" height="25" fill="#FDBCB4"/>
   
   <!-- Muscular shoulders -->
-  <ellipse cx="100" cy="160" rx="65" ry="40" fill="#FF6B6B"/>
+  <ellipse cx="100" cy="160" rx="65" ry="40" fill="#E7674C"/>
   
   <!-- Tank top straps -->
-  <rect x="70" y="140" width="15" height="30" fill="#FF6B6B"/>
-  <rect x="115" y="140" width="15" height="30" fill="#FF6B6B"/>
+  <rect x="70" y="140" width="15" height="30" fill="#E7674C"/>
+  <rect x="115" y="140" width="15" height="30" fill="#E7674C"/>
   
   <!-- Chest muscle definition -->
-  <path d="M70 160 Q100 150, 130 160" stroke="#E85D5D" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M70 160 Q100 150, 130 160" stroke="#C9563D" stroke-width="2" fill="none" opacity="0.5"/>
   
   <!-- Gradient definition -->
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#E7674C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F08E6F;stop-opacity:1" />
     </linearGradient>
   </defs>
 </svg>

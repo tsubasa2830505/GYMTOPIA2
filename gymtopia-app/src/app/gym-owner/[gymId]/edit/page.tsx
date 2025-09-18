@@ -111,17 +111,17 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(254,255,250,0.97)] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-slate-600">読み込み中...</p>
+          <Loader2 className="w-8 h-8 animate-spin text-[color:var(--gt-secondary-strong)] mx-auto mb-4" />
+          <p className="text-[color:var(--text-muted)]">読み込み中...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.97)]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4">
@@ -129,16 +129,16 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-[rgba(254,255,250,0.95)] rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <h1 className="text-xl font-bold text-slate-900">ジム詳細情報編集</h1>
+              <h1 className="text-xl font-bold text-[color:var(--foreground)]">ジム詳細情報編集</h1>
             </div>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg font-medium hover:bg-[color:var(--gt-primary-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (
                 <>
@@ -161,7 +161,7 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm p-4 sticky top-24">
-              <h2 className="text-sm font-bold text-slate-900 mb-3">セクション</h2>
+              <h2 className="text-sm font-bold text-[color:var(--foreground)] mb-3">セクション</h2>
               <nav className="space-y-1">
                 {sections.map((section) => (
                   <button
@@ -169,8 +169,8 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       activeSection === section.id
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-secondary-strong)]'
+                        : 'text-[color:var(--text-muted)] hover:bg-[rgba(254,255,250,0.98)]'
                     }`}
                   >
                     <section.icon className="w-4 h-4" />
@@ -184,9 +184,9 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Info Banner */}
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-800">
+            <div className="bg-[rgba(245,177,143,0.12)] border border-[rgba(231,103,76,0.24)] rounded-xl p-4 flex gap-3">
+              <AlertCircle className="w-5 h-5 text-[color:var(--gt-tertiary-strong)] flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-[color:var(--gt-tertiary-strong)]">
                 <p className="font-semibold mb-1">オーナー様へ</p>
                 <p>
                   ここで入力した情報は、ジム詳細ページで表示されます。
@@ -205,16 +205,16 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
                 }`}
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <section.icon className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <section.icon className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
                   </div>
-                  <h2 className="text-lg font-bold text-slate-900">{section.title}</h2>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">{section.title}</h2>
                 </div>
 
                 <div className="space-y-6">
                   {section.fields.map((field) => (
                     <div key={field.key}>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      <label className="block text-sm font-semibold text-[color:var(--text-subtle)] mb-2">
                         {field.label}
                       </label>
                       <textarea
@@ -225,9 +225,9 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
                         })}
                         placeholder={field.placeholder}
                         rows={8}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-700 resize-none"
+                        className="w-full px-4 py-3 bg-[rgba(254,255,250,0.97)] border border-[rgba(186,122,103,0.26)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm text-[color:var(--text-subtle)] resize-none"
                       />
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-[color:var(--text-muted)] mt-2">
                         {((formData[field.key as keyof GymDetailedInfo] as string) || '').length} 文字
                       </p>
                     </div>
@@ -237,9 +237,9 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
             ))}
 
             {/* Preview Section */}
-            <div className="bg-blue-50 border border-[rgba(31,79,255,0.22)] rounded-xl p-6">
-              <h3 className="text-lg font-bold text-blue-900 mb-3">プレビュー</h3>
-              <p className="text-sm text-blue-700">
+            <div className="bg-[rgba(231,103,76,0.08)] border border-[rgba(231,103,76,0.22)] rounded-xl p-6">
+              <h3 className="text-lg font-bold text-[color:var(--gt-primary-strong)] mb-3">プレビュー</h3>
+              <p className="text-sm text-[color:var(--gt-secondary-strong)]">
                 入力した内容がジム詳細ページでどのように表示されるかのプレビュー機能は開発中です。
               </p>
             </div>

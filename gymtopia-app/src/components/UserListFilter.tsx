@@ -24,13 +24,13 @@ export default function UserListFilter({
     <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(68,73,73,0.6)]" />
           <input
             type="text"
             placeholder="名前、ユーザー名で検索..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-[rgba(254,255,250,0.97)] border border-[rgba(186,122,103,0.26)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
           />
         </div>
         <div className="flex gap-2">
@@ -40,8 +40,8 @@ export default function UserListFilter({
               onClick={() => onFilterChange(filter.value)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedFilter === filter.value
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-[color:var(--gt-primary)] text-white'
+                  : 'bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.9)]'
               }`}
             >
               {filter.label}

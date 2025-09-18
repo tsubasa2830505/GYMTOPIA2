@@ -105,12 +105,12 @@ export default function UserInfoDashboard({
 
   if (isLoading) {
     return (
-      <div className={`bg-white rounded-lg p-6 shadow-sm border-2 border-slate-200 ${className}`}>
+      <div className={`bg-white rounded-lg p-6 shadow-sm border-2 border-[rgba(186,122,103,0.26)] ${className}`}>
         <div className="animate-pulse">
-          <div className="h-4 bg-slate-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-[rgba(254,255,250,0.9)] rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
-            <div className="h-3 bg-slate-200 rounded"></div>
-            <div className="h-3 bg-slate-200 rounded w-5/6"></div>
+            <div className="h-3 bg-[rgba(254,255,250,0.9)] rounded"></div>
+            <div className="h-3 bg-[rgba(254,255,250,0.9)] rounded w-5/6"></div>
           </div>
         </div>
       </div>
@@ -119,11 +119,11 @@ export default function UserInfoDashboard({
 
   if (!isAuthenticated) {
     return (
-      <div className={`bg-blue-50 rounded-lg p-6 border-2 border-blue-200 ${className}`}>
+      <div className={`bg-[rgba(231,103,76,0.08)] rounded-lg p-6 border-2 border-[rgba(231,103,76,0.22)] ${className}`}>
         <div className="text-center">
-          <User className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">ログインが必要です</h3>
-          <p className="text-blue-700">詳細な情報を表示するにはログインしてください。</p>
+          <User className="w-12 h-12 text-[color:var(--gt-primary)] mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[color:var(--gt-primary-strong)] mb-2">ログインが必要です</h3>
+          <p className="text-[color:var(--gt-secondary-strong)]">詳細な情報を表示するにはログインしてください。</p>
         </div>
       </div>
     )
@@ -131,15 +131,15 @@ export default function UserInfoDashboard({
 
   if (error) {
     return (
-      <div className={`bg-red-50 rounded-lg p-6 border-2 border-red-200 ${className}`}>
+      <div className={`bg-[rgba(231,103,76,0.08)] rounded-lg p-6 border-2 border-[rgba(231,103,76,0.26)] ${className}`}>
         <div className="flex items-center gap-3">
-          <AlertCircle className="w-6 h-6 text-red-500" />
+          <AlertCircle className="w-6 h-6 text-[color:var(--gt-primary)]" />
           <div>
-            <h3 className="text-lg font-semibold text-red-900 mb-1">エラーが発生しました</h3>
-            <p className="text-red-700">{error}</p>
+            <h3 className="text-lg font-semibold text-[color:var(--gt-primary-strong)] mb-1">エラーが発生しました</h3>
+            <p className="text-[color:var(--gt-primary-strong)]">{error}</p>
             <button
               onClick={handleRefresh}
-              className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              className="mt-2 px-4 py-2 bg-[rgba(231,103,76,0.08)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors"
             >
               再試行
             </button>
@@ -151,10 +151,10 @@ export default function UserInfoDashboard({
 
   if (!userInfo || !config) {
     return (
-      <div className={`bg-white rounded-lg p-6 shadow-sm border-2 border-slate-200 ${className}`}>
+      <div className={`bg-white rounded-lg p-6 shadow-sm border-2 border-[rgba(186,122,103,0.26)] ${className}`}>
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 text-slate-400 mx-auto mb-4 animate-spin" />
-          <p className="text-slate-600">データを読み込んでいます...</p>
+          <RefreshCw className="w-8 h-8 text-[rgba(68,73,73,0.6)] mx-auto mb-4 animate-spin" />
+          <p className="text-[color:var(--text-muted)]">データを読み込んでいます...</p>
         </div>
       </div>
     )
@@ -163,17 +163,17 @@ export default function UserInfoDashboard({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* ヘッダー */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-2 border-blue-200">
+      <div className="bg-gradient-to-r from-[rgba(231,103,76,0.08)] to-[rgba(245,177,143,0.12)] rounded-lg p-6 border-2 border-[rgba(231,103,76,0.22)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] rounded-full flex items-center justify-center">
               <User className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-xl font-bold text-[color:var(--foreground)]">
                 {userInfo.user.displayName || userInfo.user.username || 'ユーザー'}
               </h2>
-              <p className="text-slate-600">
+              <p className="text-[color:var(--text-muted)]">
                 {config.displayLevel === 'admin' && '👑 管理者 • '}
                 {config.displayLevel === 'developer' && '💻 開発者 • '}
                 権限レベル: {config.privilegeLevel}
@@ -181,14 +181,14 @@ export default function UserInfoDashboard({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {dataLoading && <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />}
+            {dataLoading && <RefreshCw className="w-4 h-4 text-[color:var(--gt-primary)] animate-spin" />}
             <button
               onClick={handleRefresh}
               disabled={dataLoading}
-              className="p-2 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
+              className="p-2 rounded-lg hover:bg-[rgba(240,142,111,0.14)] transition-colors disabled:opacity-50"
               title="データを更新"
             >
-              <RefreshCw className="w-4 h-4 text-blue-600" />
+              <RefreshCw className="w-4 h-4 text-[color:var(--gt-secondary-strong)]" />
             </button>
           </div>
         </div>
@@ -209,9 +209,9 @@ export default function UserInfoDashboard({
 
       {/* メタデータ（開発者向け） */}
       {config.features.showDebugInfo && (
-        <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">デバッグ情報</h3>
-          <div className="text-xs text-gray-600 space-y-1">
+        <div className="bg-[rgba(254,255,250,0.97)] rounded-lg p-4 border-2 border-[rgba(186,122,103,0.26)]">
+          <h3 className="text-sm font-semibold text-[color:var(--text-subtle)] mb-2">デバッグ情報</h3>
+          <div className="text-xs text-[color:var(--text-muted)] space-y-1">
             <p>データソース: {userInfo.metadata.source}</p>
             <p>取得時刻: {new Date(userInfo.metadata.fetchedAt).toLocaleString('ja-JP')}</p>
             <p>キャッシュ期限: {new Date(userInfo.metadata.cacheExpiry).toLocaleString('ja-JP')}</p>
@@ -266,15 +266,15 @@ function UserInfoSection({
       case 'developer-tools':
         return <DeveloperToolsSection userInfo={userInfo} config={config} minimal={minimal} />
       default:
-        return <div className="text-slate-500">このセクションはまだ実装されていません。</div>
+        return <div className="text-[color:var(--text-muted)]">このセクションはまだ実装されていません。</div>
     }
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm border-2 border-slate-200">
+    <div className="bg-white rounded-lg p-6 shadow-sm border-2 border-[rgba(186,122,103,0.26)]">
       <div className="flex items-center gap-3 mb-4">
-        <div className="text-blue-600">{getSectionIcon(section.type)}</div>
-        <h3 className="text-lg font-semibold text-slate-900">{section.title}</h3>
+        <div className="text-[color:var(--gt-secondary-strong)]">{getSectionIcon(section.type)}</div>
+        <h3 className="text-lg font-semibold text-[color:var(--foreground)]">{section.title}</h3>
       </div>
       {renderSectionContent()}
     </div>
@@ -287,20 +287,20 @@ function ProfileSection({ userInfo, minimal }: { userInfo: UserInfoData, minimal
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium text-slate-600">メールアドレス</label>
-          <p className="text-slate-900">{userInfo.user.email}</p>
+          <label className="text-sm font-medium text-[color:var(--text-muted)]">メールアドレス</label>
+          <p className="text-[color:var(--foreground)]">{userInfo.user.email}</p>
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-600">ユーザー名</label>
-          <p className="text-slate-900">{userInfo.user.username || '未設定'}</p>
+          <label className="text-sm font-medium text-[color:var(--text-muted)]">ユーザー名</label>
+          <p className="text-[color:var(--foreground)]">{userInfo.user.username || '未設定'}</p>
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-600">登録日</label>
-          <p className="text-slate-900">{new Date(userInfo.user.joinDate).toLocaleDateString('ja-JP')}</p>
+          <label className="text-sm font-medium text-[color:var(--text-muted)]">登録日</label>
+          <p className="text-[color:var(--foreground)]">{new Date(userInfo.user.joinDate).toLocaleDateString('ja-JP')}</p>
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-600">最終アクティブ</label>
-          <p className="text-slate-900">{new Date(userInfo.user.lastActive).toLocaleDateString('ja-JP')}</p>
+          <label className="text-sm font-medium text-[color:var(--text-muted)]">最終アクティブ</label>
+          <p className="text-[color:var(--foreground)]">{new Date(userInfo.user.lastActive).toLocaleDateString('ja-JP')}</p>
         </div>
       </div>
     </div>
@@ -328,7 +328,7 @@ function DetailedStatsSection({ userInfo, minimal }: { userInfo: UserInfoData, m
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-md font-semibold text-slate-900 mb-3">週間統計</h4>
+        <h4 className="text-md font-semibold text-[color:var(--foreground)] mb-3">週間統計</h4>
         <div className="grid grid-cols-3 gap-4">
           <StatCard label="今週の投稿" value={detailed.weeklyStats.postsThisWeek} />
           <StatCard label="今週のワークアウト" value={detailed.weeklyStats.workoutsThisWeek} />
@@ -337,12 +337,12 @@ function DetailedStatsSection({ userInfo, minimal }: { userInfo: UserInfoData, m
       </div>
 
       <div>
-        <h4 className="text-md font-semibold text-slate-900 mb-3">個人記録 (PR)</h4>
+        <h4 className="text-md font-semibold text-[color:var(--foreground)] mb-3">個人記録 (PR)</h4>
         <div className="space-y-2">
           {detailed.personalRecords.map((record, index) => (
-            <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+            <div key={index} className="flex justify-between items-center p-3 bg-[rgba(254,255,250,0.97)] rounded-lg">
               <span className="font-medium">{record.exercise}</span>
-              <span className="text-slate-600">{record.weight}kg</span>
+              <span className="text-[color:var(--text-muted)]">{record.weight}kg</span>
             </div>
           ))}
         </div>
@@ -355,11 +355,11 @@ function RecentActivitySection({ userInfo, minimal }: { userInfo: UserInfoData, 
   return (
     <div className="space-y-3">
       {userInfo.activity.recentActivity.map((activity) => (
-        <div key={activity.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+        <div key={activity.id} className="flex items-center gap-3 p-3 bg-[rgba(254,255,250,0.97)] rounded-lg">
           <ActivityIcon type={activity.type} />
           <div className="flex-1">
-            <p className="text-slate-900">{activity.title}</p>
-            <p className="text-sm text-slate-600">{new Date(activity.timestamp).toLocaleString('ja-JP')}</p>
+            <p className="text-[color:var(--foreground)]">{activity.title}</p>
+            <p className="text-sm text-[color:var(--text-muted)]">{new Date(activity.timestamp).toLocaleString('ja-JP')}</p>
           </div>
         </div>
       ))}
@@ -374,16 +374,16 @@ function LiveActivitySection({ userInfo, minimal }: { userInfo: UserInfoData, mi
   return (
     <div className="space-y-3">
       {liveActivity.map((activity) => (
-        <div key={activity.id} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <div key={activity.id} className="flex items-center gap-3 p-3 bg-[rgba(231,103,76,0.08)] rounded-lg border border-[rgba(231,103,76,0.22)]">
+          <div className="w-2 h-2 bg-[color:var(--gt-primary)] rounded-full animate-pulse"></div>
           <div className="flex-1">
-            <p className="text-slate-900">{activity.content}</p>
-            <p className="text-sm text-slate-600">{new Date(activity.timestamp).toLocaleString('ja-JP')}</p>
+            <p className="text-[color:var(--foreground)]">{activity.content}</p>
+            <p className="text-sm text-[color:var(--text-muted)]">{new Date(activity.timestamp).toLocaleString('ja-JP')}</p>
           </div>
           <span className={`px-2 py-1 text-xs rounded-full ${
-            activity.priority === 'high' ? 'bg-red-100 text-red-700' :
-            activity.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-            'bg-gray-100 text-gray-700'
+            activity.priority === 'high' ? 'bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)]' :
+            activity.priority === 'medium' ? 'bg-[rgba(245,177,143,0.14)] text-[color:var(--gt-tertiary-strong)]' :
+            'bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)]'
           }`}>
             {activity.priority}
           </span>
@@ -399,45 +399,45 @@ function SystemInfoSection({ userInfo, config, minimal }: { userInfo: UserInfoDa
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-md font-semibold text-slate-900 mb-3">公開情報</h4>
+        <h4 className="text-md font-semibold text-[color:var(--foreground)] mb-3">公開情報</h4>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="text-sm font-medium text-slate-600">バージョン</label>
-            <p className="text-slate-900">{system.public.version}</p>
+            <label className="text-sm font-medium text-[color:var(--text-muted)]">バージョン</label>
+            <p className="text-[color:var(--foreground)]">{system.public.version}</p>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-600">ステータス</label>
+            <label className="text-sm font-medium text-[color:var(--text-muted)]">ステータス</label>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span className="text-slate-900">{system.public.status}</span>
+              <CheckCircle className="w-4 h-4 text-[color:var(--gt-secondary)]" />
+              <span className="text-[color:var(--foreground)]">{system.public.status}</span>
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-600">最終更新</label>
-            <p className="text-slate-900">{new Date(system.public.lastUpdate).toLocaleDateString('ja-JP')}</p>
+            <label className="text-sm font-medium text-[color:var(--text-muted)]">最終更新</label>
+            <p className="text-[color:var(--foreground)]">{new Date(system.public.lastUpdate).toLocaleDateString('ja-JP')}</p>
           </div>
         </div>
       </div>
 
       {system.developer && (
         <div>
-          <h4 className="text-md font-semibold text-slate-900 mb-3">開発者情報</h4>
+          <h4 className="text-md font-semibold text-[color:var(--foreground)] mb-3">開発者情報</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <label className="font-medium text-slate-600">ビルド時刻</label>
-              <p className="text-slate-900">{new Date(system.developer.buildTime).toLocaleString('ja-JP')}</p>
+              <label className="font-medium text-[color:var(--text-muted)]">ビルド時刻</label>
+              <p className="text-[color:var(--foreground)]">{new Date(system.developer.buildTime).toLocaleString('ja-JP')}</p>
             </div>
             <div>
-              <label className="font-medium text-slate-600">コミットハッシュ</label>
-              <p className="text-slate-900 font-mono">{system.developer.commitHash.substring(0, 8)}</p>
+              <label className="font-medium text-[color:var(--text-muted)]">コミットハッシュ</label>
+              <p className="text-[color:var(--foreground)] font-mono">{system.developer.commitHash.substring(0, 8)}</p>
             </div>
             <div>
-              <label className="font-medium text-slate-600">Node.js バージョン</label>
-              <p className="text-slate-900">{system.developer.nodeVersion}</p>
+              <label className="font-medium text-[color:var(--text-muted)]">Node.js バージョン</label>
+              <p className="text-[color:var(--foreground)]">{system.developer.nodeVersion}</p>
             </div>
             <div>
-              <label className="font-medium text-slate-600">環境</label>
-              <p className="text-slate-900">{system.developer.environment}</p>
+              <label className="font-medium text-[color:var(--text-muted)]">環境</label>
+              <p className="text-[color:var(--foreground)]">{system.developer.environment}</p>
             </div>
           </div>
         </div>
@@ -459,7 +459,7 @@ function AdminPanelSection({ userInfo, minimal }: { userInfo: UserInfoData, mini
           icon={<CheckCircle />}
           label="システム健全性"
           value={admin.systemHealth}
-          valueColor={admin.systemHealth === 'good' ? 'text-green-600' : 'text-red-600'}
+          valueColor={admin.systemHealth === 'good' ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'}
         />
         <StatCard icon={<BarChart3 />} label="DB クエリ数" value={admin.dbQueries} />
       </div>
@@ -470,9 +470,9 @@ function AdminPanelSection({ userInfo, minimal }: { userInfo: UserInfoData, mini
 function DeveloperToolsSection({ userInfo, config, minimal }: { userInfo: UserInfoData, config: UserInfoConfig, minimal: boolean }) {
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 rounded-lg p-4">
-        <h4 className="text-md font-semibold text-slate-900 mb-3">設定情報</h4>
-        <pre className="text-xs text-slate-700 overflow-x-auto">
+      <div className="bg-[rgba(254,255,250,0.95)] rounded-lg p-4">
+        <h4 className="text-md font-semibold text-[color:var(--foreground)] mb-3">設定情報</h4>
+        <pre className="text-xs text-[color:var(--text-subtle)] overflow-x-auto">
           {JSON.stringify(config, null, 2)}
         </pre>
       </div>
@@ -485,7 +485,7 @@ function StatCard({
   icon,
   label,
   value,
-  valueColor = 'text-slate-900'
+  valueColor = 'text-[color:var(--foreground)]'
 }: {
   icon?: React.ReactNode
   label: string
@@ -493,9 +493,9 @@ function StatCard({
   valueColor?: string
 }) {
   return (
-    <div className="text-center p-3 bg-slate-50 rounded-lg">
-      {icon && <div className="text-blue-600 mb-2 flex justify-center">{icon}</div>}
-      <p className="text-sm font-medium text-slate-600">{label}</p>
+    <div className="text-center p-3 bg-[rgba(254,255,250,0.97)] rounded-lg">
+      {icon && <div className="text-[color:var(--gt-secondary-strong)] mb-2 flex justify-center">{icon}</div>}
+      <p className="text-sm font-medium text-[color:var(--text-muted)]">{label}</p>
       <p className={`text-lg font-bold ${valueColor}`}>{value}</p>
     </div>
   )
@@ -503,10 +503,10 @@ function StatCard({
 
 function ActivityIcon({ type }: { type: string }) {
   switch (type) {
-    case 'post': return <TrendingUp className="w-4 h-4 text-blue-500" />
-    case 'workout': return <Zap className="w-4 h-4 text-green-500" />
-    case 'follow': return <Users className="w-4 h-4 text-purple-500" />
-    case 'achievement': return <CheckCircle className="w-4 h-4 text-yellow-500" />
-    default: return <Activity className="w-4 h-4 text-slate-500" />
+    case 'post': return <TrendingUp className="w-4 h-4 text-[color:var(--gt-primary)]" />
+    case 'workout': return <Zap className="w-4 h-4 text-[color:var(--gt-secondary)]" />
+    case 'follow': return <Users className="w-4 h-4 text-[color:var(--gt-secondary)]" />
+    case 'achievement': return <CheckCircle className="w-4 h-4 text-[color:var(--gt-tertiary)]" />
+    default: return <Activity className="w-4 h-4 text-[color:var(--text-muted)]" />
   }
 }

@@ -74,8 +74,8 @@ export default function Map({
 
   if (!isClient) {
     return (
-      <div style={{ height }} className="flex items-center justify-center bg-gray-100 rounded-lg">
-        <p className="text-gray-500">マップを読み込み中...</p>
+      <div style={{ height }} className="flex items-center justify-center bg-[rgba(254,255,250,0.95)] rounded-lg">
+        <p className="text-[color:var(--text-muted)]">マップを読み込み中...</p>
       </div>
     );
   }
@@ -107,7 +107,7 @@ export default function Map({
             <Popup>
               <div className="p-2">
                 <h3 className="font-bold text-lg">{gym.name}</h3>
-                <p className="text-sm text-gray-600">{gym.address}</p>
+                <p className="text-sm text-[color:var(--text-muted)]">{gym.address}</p>
                 {gym.equipment && gym.equipment.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm font-semibold">設備:</p>
@@ -116,7 +116,7 @@ export default function Map({
                         <li key={idx}>• {eq}</li>
                       ))}
                       {gym.equipment.length > 3 && (
-                        <li className="text-gray-500">他 {gym.equipment.length - 3} 種類</li>
+                        <li className="text-[color:var(--text-muted)]">他 {gym.equipment.length - 3} 種類</li>
                       )}
                     </ul>
                   </div>

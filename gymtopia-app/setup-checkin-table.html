@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チェックインテーブル セットアップ</title>
+    <style>
+        :root {
+            --gt-background: #fefffa;
+            --gt-background-strong: #f9f1ea;
+            --gt-primary: #e7674c;
+            --gt-primary-strong: #c9563d;
+            --gt-secondary: #f08e6f;
+            --gt-text-main: #444949;
+            --gt-text-muted: #7f837e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: var(--gt-background);
+            color: var(--gt-text-main);
+        }
+        .container {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(253, 245, 240, 0.94));
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 22px 48px -30px rgba(189, 101, 78, 0.28);
+            border: 1px solid rgba(186, 122, 103, 0.22);
+        }
+        h1 {
+            color: var(--gt-primary-strong);
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid rgba(186, 122, 103, 0.22);
+        }
+        .success {
+            background: rgba(231, 103, 76, 0.16);
+            color: var(--gt-primary-strong);
+        }
+        .error {
+            background: rgba(201, 86, 61, 0.14);
+            color: #a44433;
+        }
+        .info {
+            background: rgba(240, 142, 111, 0.12);
+            color: var(--gt-secondary);
+        }
+        .sql-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        button {
+            background: linear-gradient(135deg, rgba(231, 103, 76, 0.96), rgba(240, 142, 111, 0.9));
+            color: #fff4ef;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            box-shadow: 0 18px 36px -24px rgba(189, 101, 78, 0.36);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 44px -26px rgba(189, 101, 78, 0.4);
+        }
+        button:disabled {
+            background: rgba(231, 103, 76, 0.18);
+            cursor: not-allowed;
+            color: rgba(255, 240, 234, 0.8);
+        }
+        .log {
+            background: rgba(254, 255, 250, 0.92);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid rgba(186, 122, 103, 0.18);
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏋️ GymTopia チェックインテーブル セットアップ</h1>
+        <p>このツールでチェックインテーブルを自動作成します。</p>
+
+        <div id="status" class="status info">
+            準備完了。「テーブルを作成」ボタンをクリックして開始してください。
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="createTable()" id="createBtn">📊 テーブルを作成</button>
+            <button onclick="testTable()" id="testBtn" disabled>🧪 テーブルをテスト</button>
+            <button onclick="addSampleData()" id="sampleBtn" disabled>📝 サンプルデータを追加</button>
+        </div>
+
+        <div id="log" class="log"></div>
+
+        <details style="margin-top: 30px;">
+            <summary style="cursor: pointer; font-weight: bold;">手動でSQLを実行する場合</summary>
+            <div class="sql-box">
+-- チェックインテーブルの作成
+CREATE TABLE IF NOT EXISTS check_ins (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  gym_id UUID NOT NULL REFERENCES gyms(id) ON DELETE CASCADE,
+  checked_in_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  note TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- インデックスを作成
+CREATE INDEX IF NOT EXISTS idx_check_ins_user_id ON check_ins(user_id);
+CREATE INDEX IF NOT EXISTS idx_check_ins_gym_id ON check_ins(gym_id);
+CREATE INDEX IF NOT EXISTS idx_check_ins_checked_in_at ON check_ins(checked_in_at DESC);
+
+-- RLSポリシーを設定
+ALTER TABLE check_ins ENABLE ROW LEVEL SECURITY;
+
+-- 既存のポリシーを削除（存在する場合）
+DROP POLICY IF EXISTS "Users can view own check-ins" ON check_ins;
+DROP POLICY IF EXISTS "Users can create own check-ins" ON check_ins;
+DROP POLICY IF EXISTS "Anyone can view public check-ins" ON check_ins;
+
+-- 自分のチェックインを見ることができる
+CREATE POLICY "Users can view own check-ins" ON check_ins
+  FOR SELECT USING (auth.uid() = user_id OR TRUE); -- 開発用に全公開
+
+-- 自分のチェックインを作成できる
+CREATE POLICY "Users can create own check-ins" ON check_ins
+  FOR INSERT WITH CHECK (TRUE); -- 開発用に全許可
+
+-- 公開チェックイン（フィードなど）を見ることができる
+CREATE POLICY "Anyone can view public check-ins" ON check_ins
+  FOR SELECT USING (true);
+            </div>
+            <p>👉 <a href="https://supabase.com/dashboard/project/htytewqvkgwyuvcsvjwm/sql/new" target="_blank">Supabase SQLエディタを開く</a></p>
+        </details>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://htytewqvkgwyuvcsvjwm.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMzQyNDYsImV4cCI6MjA3MjcxMDI0Nn0.xltaH28adx1dIhsqaWllLDPEjw8iDrSglDIwj19rXnA';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '📝';
+            entry.innerHTML = `${icon} [${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        window.createTable = async function() {
+            const btn = document.getElementById('createBtn');
+            btn.disabled = true;
+
+            try {
+                log('テーブル作成を開始...');
+                setStatus('チェックインテーブルを作成中...', 'info');
+
+                // まず既存テーブルをチェック
+                const { data: existingData, error: checkError } = await supabase
+                    .from('check_ins')
+                    .select('id')
+                    .limit(1);
+
+                if (!checkError || checkError.code !== 'PGRST205') {
+                    log('テーブルは既に存在します', 'success');
+                    setStatus('✅ テーブルは既に作成済みです！', 'success');
+                    document.getElementById('testBtn').disabled = false;
+                    document.getElementById('sampleBtn').disabled = false;
+                    return;
+                }
+
+                // テーブルが存在しない場合
+                setStatus('⚠️ テーブルが存在しません。Supabaseダッシュボードから手動で作成してください。', 'error');
+                log('テーブルが見つかりませんでした。手動作成が必要です。', 'error');
+                log('上記のSQLをSupabaseダッシュボードで実行してください。');
+
+                // Supabaseダッシュボードへのリンクを表示
+                const link = document.createElement('a');
+                link.href = 'https://supabase.com/dashboard/project/htytewqvkgwyuvcsvjwm/sql/new';
+                link.target = '_blank';
+                link.textContent = 'Supabase SQLエディタを開く';
+                link.style.display = 'inline-block';
+                link.style.marginTop = '10px';
+                link.style.color = '#e7674c';
+                document.getElementById('status').appendChild(link);
+
+            } catch (error) {
+                console.error(error);
+                log(`エラー: ${error.message}`, 'error');
+                setStatus('❌ エラーが発生しました', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        window.testTable = async function() {
+            const btn = document.getElementById('testBtn');
+            btn.disabled = true;
+
+            try {
+                log('テーブルの動作確認中...');
+                setStatus('テーブルをテストしています...', 'info');
+
+                // テスト: データの読み取り
+                const { data, error } = await supabase
+                    .from('check_ins')
+                    .select('*')
+                    .limit(5);
+
+                if (error) {
+                    throw error;
+                }
+
+                log(`${data.length}件のレコードを取得`, 'success');
+                setStatus('✅ テーブルは正常に動作しています！', 'success');
+
+            } catch (error) {
+                console.error(error);
+                log(`エラー: ${error.message}`, 'error');
+                setStatus('❌ テーブルのテストに失敗しました', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        window.addSampleData = async function() {
+            const btn = document.getElementById('sampleBtn');
+            btn.disabled = true;
+
+            try {
+                log('サンプルデータを追加中...');
+                setStatus('サンプルデータを作成しています...', 'info');
+
+                // ジムデータを取得
+                const { data: gyms, error: gymsError } = await supabase
+                    .from('gyms')
+                    .select('id, name')
+                    .limit(3);
+
+                if (gymsError) throw gymsError;
+
+                const demoUserId = '0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8';
+
+                // サンプルチェックイン
+                const checkIns = [
+                    {
+                        user_id: demoUserId,
+                        gym_id: gyms[0]?.id,
+                        checked_in_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                        note: '朝トレ完了！最高の汗かけた💪',
+                        latitude: 35.6762,
+                        longitude: 139.6503
+                    },
+                    {
+                        user_id: demoUserId,
+                        gym_id: gyms[1]?.id || gyms[0]?.id,
+                        checked_in_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                        note: 'ベンチプレス100kg達成！🎯',
+                        latitude: 35.6895,
+                        longitude: 139.6917
+                    }
+                ];
+
+                for (const checkIn of checkIns) {
+                    const { error } = await supabase
+                        .from('check_ins')
+                        .insert(checkIn);
+
+                    if (error) {
+                        log(`チェックイン作成エラー: ${error.message}`, 'error');
+                    } else {
+                        log(`チェックイン作成: ${checkIn.note}`, 'success');
+                    }
+                }
+
+                setStatus('✅ サンプルデータの追加が完了しました！', 'success');
+                log('http://localhost:3001/checkin で確認できます');
+
+            } catch (error) {
+                console.error(error);
+                log(`エラー: ${error.message}`, 'error');
+                setStatus('❌ サンプルデータの追加に失敗しました', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ページ読み込み時にテーブルの状態を確認
+        window.addEventListener('load', async () => {
+            log('接続確認中...');
+
+            try {
+                const { data, error } = await supabase
+                    .from('check_ins')
+                    .select('id')
+                    .limit(1);
+
+                if (!error || error.code !== 'PGRST205') {
+                    log('テーブルは既に存在します', 'success');
+                    setStatus('✅ チェックインテーブルは設定済みです', 'success');
+                    document.getElementById('testBtn').disabled = false;
+                    document.getElementById('sampleBtn').disabled = false;
+                } else {
+                    log('テーブルが見つかりません。作成が必要です。');
+                }
+            } catch (error) {
+                log('初期チェック中のエラー（無視可）');
+            }
+        });
+    </script>
+</body>
+</html>

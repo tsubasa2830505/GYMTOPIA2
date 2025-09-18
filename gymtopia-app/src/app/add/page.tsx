@@ -38,6 +38,8 @@ function AddGymPostContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [gymName, setGymName] = useState('')
   const [content, setContent] = useState('')
+  const [checkInId, setCheckInId] = useState<string | null>(null)
+  const [checkInGymName, setCheckInGymName] = useState<string | null>(null)
   const [crowdStatus, setCrowdStatus] = useState<'empty' | 'normal' | 'crowded'>('normal')
   const [workoutStartTime, setWorkoutStartTime] = useState('')
   const [workoutEndTime, setWorkoutEndTime] = useState('')
@@ -132,13 +134,22 @@ function AddGymPostContent() {
   const [gymList, setGymList] = useState<string[]>([])
   const [gymData, setGymData] = useState<any[]>([])
 
-  // URLパラメータからジム情報を取得とジムリスト読み込み
+  // URLパラメータからジム情報とチェックイン情報を取得
   useEffect(() => {
+    const checkInIdParam = searchParams.get('checkInId')
+    const gymIdParam = searchParams.get('gymId')
     const gymNameParam = searchParams.get('gymName')
-    if (gymNameParam) {
-      setGymName(decodeURIComponent(gymNameParam))
+
+    if (checkInIdParam) {
+      setCheckInId(checkInIdParam)
     }
-    
+
+    if (gymNameParam) {
+      const decodedGymName = decodeURIComponent(gymNameParam)
+      setGymName(decodedGymName)
+      setCheckInGymName(decodedGymName)
+    }
+
     // ジムリストを読み込み
     loadGyms()
   }, [searchParams])
@@ -168,17 +179,17 @@ function AddGymPostContent() {
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
       </svg>
-    ), color: 'bg-[rgba(31,79,255,0.12)] text-[color:var(--gt-primary-strong)]' },
+    ), color: 'bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)]' },
     { value: 'normal' as const, label: '普通', icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
       </svg>
-    ), color: 'bg-yellow-100 text-[#d88c36]' },
+    ), color: 'bg-[rgba(245,177,143,0.14)] text-[color:var(--gt-tertiary-strong)]' },
     { value: 'crowded' as const, label: '混雑', icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H5V16h-.97c-.02-.49-.39-.94-.88-1.1zM12 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H15V16h-.97c-.02-.49-.39-.94-.88-1.1zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-2 .13-2.87.4-.59.18-1.13.9-1.13 1.6v3H23V16h-.97c-.02-.49-.39-.94-.88-1.1z"/>
       </svg>
-    ), color: 'bg-red-100 text-[#c85963]' }
+    ), color: 'bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)]' }
   ]
 
   const handleAddExercise = () => {
@@ -225,6 +236,7 @@ function AddGymPostContent() {
         content: content.trim(),
         post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
         gym_id: selectedGym?.id, // ジムIDを追加
+        check_in_id: checkInId || undefined, // チェックインIDを追加
         images: imageUrls, // 画像URLを追加
         workout_started_at: workoutStartTime || undefined,
         workout_ended_at: workoutEndTime || undefined,
@@ -299,7 +311,7 @@ function AddGymPostContent() {
   })
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.96)]">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.96)]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4">
@@ -307,7 +319,7 @@ function AddGymPostContent() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-[rgba(243,247,255,0.92)] rounded-lg transition-colors"
+                className="p-2 hover:bg-[rgba(254,255,250,0.92)] rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -318,7 +330,7 @@ function AddGymPostContent() {
                 height={24}
                 className="h-5 w-auto"
               />
-              <span className="text-[rgba(44,82,190,0.36)]">|</span>
+              <span className="text-[rgba(231,103,76,0.36)]">|</span>
               <h1 className="text-xl font-bold text-[color:var(--foreground)]">
                 {activeTab === 'post' ? 'ジム活を投稿' : 'ジム機器を登録'}
               </h1>
@@ -328,7 +340,7 @@ function AddGymPostContent() {
                 type="submit"
                 form="post-form"
                 disabled={!gymName || !content || isSubmitting}
-                className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(15,36,118,0.5)] transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(189,101,78,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(189,101,78,0.5)] transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -346,7 +358,7 @@ function AddGymPostContent() {
               <button
                 onClick={handleEquipmentSubmit}
                 disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
-                className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(15,36,118,0.5)] transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(189,101,78,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(189,101,78,0.5)] transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -364,12 +376,12 @@ function AddGymPostContent() {
           </div>
           
           {/* タブ */}
-          <div className="flex border-t border-[rgba(44,82,190,0.16)]">
+          <div className="flex border-t border-[rgba(231,103,76,0.16)]">
             <button
               onClick={() => setActiveTab('post')}
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'post'
-                  ? 'border-[rgba(31,79,255,0.3)] text-[color:var(--gt-primary-strong)] font-medium'
+                  ? 'border-[rgba(231,103,76,0.3)] text-[color:var(--gt-primary-strong)] font-medium'
                   : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
@@ -380,7 +392,7 @@ function AddGymPostContent() {
               onClick={() => setActiveTab('equipment')}
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'equipment'
-                  ? 'border-[rgba(31,79,255,0.3)] text-[color:var(--gt-secondary-strong)] font-medium'
+                  ? 'border-[rgba(231,103,76,0.3)] text-[color:var(--gt-secondary-strong)] font-medium'
                   : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
@@ -397,7 +409,7 @@ function AddGymPostContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-8 max-w-sm mx-4 shadow-2xl">
               <div className="text-center">
-                <div className="w-16 h-16 bg-[rgba(31,79,255,0.12)] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-[rgba(231,103,76,0.12)] rounded-full flex items-center justify-center mx-auto mb-4">
                   <Settings className="w-8 h-8 text-[color:var(--gt-secondary-strong)]" />
                 </div>
                 <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-2">登録完了！</h2>
@@ -409,6 +421,24 @@ function AddGymPostContent() {
         
         {activeTab === 'post' ? (
           <form id="post-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* チェックインからの投稿バナー */}
+          {checkInGymName && (
+            <div className="bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-xl p-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium opacity-90">チェックイン済み</p>
+                  <p className="text-lg font-bold">{checkInGymName}</p>
+                </div>
+              </div>
+              <p className="text-xs mt-2 opacity-80">
+                このジムでのトレーニングを記録しましょう！
+              </p>
+            </div>
+          )}
+
           {/* 日時表示とワークアウト時間 */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-4 text-sm text-[color:var(--text-subtle)] mb-4">
@@ -432,7 +462,7 @@ function AddGymPostContent() {
                   type="time"
                   value={workoutStartTime}
                   onChange={(e) => setWorkoutStartTime(e.target.value)}
-                  className="w-full px-3 py-2 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                  className="w-full px-3 py-2 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                 />
               </div>
               <div>
@@ -443,7 +473,7 @@ function AddGymPostContent() {
                   type="time"
                   value={workoutEndTime}
                   onChange={(e) => setWorkoutEndTime(e.target.value)}
-                  className="w-full px-3 py-2 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                  className="w-full px-3 py-2 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                 />
               </div>
             </div>
@@ -468,12 +498,12 @@ function AddGymPostContent() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <MapPin className="w-4 h-4 inline mr-2" />
-              ジムを選択 <span className="text-red-500">*</span>
+              ジムを選択 <span className="text-[color:var(--gt-primary)]">*</span>
             </label>
             <select
               value={gymName}
               onChange={(e) => setGymName(e.target.value)}
-              className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+              className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
               required
             >
               <option value="">ジムを選択してください</option>
@@ -487,14 +517,14 @@ function AddGymPostContent() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <MessageSquare className="w-4 h-4 inline mr-2" />
-              投稿内容 <span className="text-red-500">*</span>
+              投稿内容 <span className="text-[color:var(--gt-primary)]">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="今日のトレーニングはどうでしたか？&#10;新しい発見、達成した目標、感想などを共有しましょう！"
               rows={4}
-              className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)] resize-none"
+              className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)] resize-none"
               required
             />
             <p className="text-xs text-[color:var(--text-muted)] mt-2">{content.length} / 500文字</p>
@@ -515,7 +545,7 @@ function AddGymPostContent() {
                     console.log('種目追加ボタンがクリックされました')
                     setShowExerciseForm(true)
                   }}
-                  className="px-3 py-1 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(31,79,255,0.22)] transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-[rgba(231,103,76,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.22)] transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   種目を追加
@@ -525,7 +555,7 @@ function AddGymPostContent() {
                 <button
                   type="button"
                   onClick={() => setShowExerciseForm(false)}
-                  className="px-3 py-1 bg-red-100 text-[#c85963] rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.18)] transition-colors flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
                   フォームを閉じる
@@ -537,7 +567,7 @@ function AddGymPostContent() {
             {exercises.length > 0 && (
               <div className="space-y-2 mb-4">
                 {exercises.map((exercise) => (
-                  <div key={exercise.id} className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.96)] rounded-lg">
+                  <div key={exercise.id} className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.96)] rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-[color:var(--foreground)]">{exercise.name}</p>
                       <p className="text-sm text-[color:var(--text-subtle)]">
@@ -547,7 +577,7 @@ function AddGymPostContent() {
                     <button
                       type="button"
                       onClick={() => handleRemoveExercise(exercise.id)}
-                      className="p-1 text-red-500 hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
+                      className="p-1 text-[color:var(--gt-primary)] hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -561,13 +591,13 @@ function AddGymPostContent() {
 
             {/* 種目追加フォーム */}
             {showExerciseForm && (
-              <div className="space-y-3 p-4 bg-[rgba(243,247,255,0.96)] rounded-lg">
+              <div className="space-y-3 p-4 bg-[rgba(254,255,250,0.96)] rounded-lg">
                 <input
                   type="text"
                   placeholder="種目名（例：ベンチプレス）"
                   value={currentExercise.name}
                   onChange={(e) => setCurrentExercise({ ...currentExercise, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                  className="w-full px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <input
@@ -575,28 +605,28 @@ function AddGymPostContent() {
                     placeholder="重量(kg)"
                     value={currentExercise.weight}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                   />
                   <input
                     type="number"
                     placeholder="セット数"
                     value={currentExercise.sets}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, sets: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                   />
                   <input
                     type="number"
                     placeholder="回数"
                     value={currentExercise.reps}
                     onChange={(e) => setCurrentExercise({ ...currentExercise, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-sm"
+                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={handleAddExercise}
-                    className="flex-1 px-3 py-2 bg-[#1f4fff] text-white rounded-lg text-sm font-medium hover:bg-[#1a3bcc] transition-colors"
+                    className="flex-1 px-3 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg text-sm font-medium hover:bg-[color:var(--gt-primary-strong)] transition-colors"
                   >
                     追加
                   </button>
@@ -606,7 +636,7 @@ function AddGymPostContent() {
                       setShowExerciseForm(false)
                       setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '' })
                     }}
-                    className="flex-1 px-3 py-2 bg-[rgba(234,240,255,0.88)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(223,233,255,0.94)] transition-colors"
+                    className="flex-1 px-3 py-2 bg-[rgba(231,103,76,0.12)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.16)] transition-colors"
                   >
                     キャンセル
                   </button>
@@ -619,7 +649,7 @@ function AddGymPostContent() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
               <Users className="w-4 h-4 inline mr-2" />
-              混雑状況 <span className="text-red-500">*</span>
+              混雑状況 <span className="text-[color:var(--gt-primary)]">*</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {crowdOptions.map((option) => (
@@ -629,8 +659,8 @@ function AddGymPostContent() {
                   onClick={() => setCrowdStatus(option.value)}
                   className={`p-3 rounded-lg border-2 transition-all ${
                     crowdStatus === option.value
-                      ? 'border-[rgba(31,79,255,0.3)] bg-[rgba(31,79,255,0.12)]'
-                      : 'border-[rgba(44,82,190,0.16)] hover:border-[rgba(44,82,190,0.2)]'
+                      ? 'border-[rgba(231,103,76,0.3)] bg-[rgba(231,103,76,0.12)]'
+                      : 'border-[rgba(231,103,76,0.16)] hover:border-[rgba(231,103,76,0.2)]'
                   }`}
                 >
                   <div className="mb-1">{option.icon}</div>
@@ -665,7 +695,7 @@ function AddGymPostContent() {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-[rgba(224,112,122,0.12)]0 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[#e0707a] transition-colors"
+                      className="absolute top-1 right-1 bg-[rgba(224,112,122,0.12)] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[color:var(--gt-primary-strong)] transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -676,9 +706,9 @@ function AddGymPostContent() {
 
             {/* アップロードエリア */}
             {selectedImages.length < 5 && (
-              <div className="border-2 border-dashed border-[rgba(44,82,190,0.2)] rounded-lg p-8 text-center hover:border-[#1f4fff] transition-colors cursor-pointer">
+              <div className="border-2 border-dashed border-[rgba(231,103,76,0.2)] rounded-lg p-8 text-center hover:border-[color:var(--gt-primary)] transition-colors cursor-pointer">
                 <label className="cursor-pointer block">
-                  <ImageIcon className="w-12 h-12 text-[rgba(44,82,190,0.36)] mx-auto mb-3" />
+                  <ImageIcon className="w-12 h-12 text-[rgba(231,103,76,0.36)] mx-auto mb-3" />
                   <p className="text-sm text-[color:var(--text-subtle)]">クリックして写真を選択</p>
                   <p className="text-xs text-[color:var(--text-muted)] mt-1">JPEG, PNG, WebP対応</p>
                   <input
@@ -697,7 +727,7 @@ function AddGymPostContent() {
           <button
             type="submit"
             disabled={!gymName || !content || isSubmitting}
-            className="w-full py-4 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+            className="w-full py-4 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
           >
             {isSubmitting ? (
               <>
@@ -716,11 +746,11 @@ function AddGymPostContent() {
           <form onSubmit={handleEquipmentSubmit} className="space-y-6">
             {/* エラーメッセージ */}
             {error && (
-              <div className="bg-[rgba(224,112,122,0.12)] border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="bg-[rgba(224,112,122,0.12)] border border-[rgba(231,103,76,0.26)] rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-[color:var(--gt-primary)] flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-red-800">登録エラー</p>
-                  <p className="text-sm text-[#e0707a] mt-1">{error}</p>
+                  <p className="text-sm font-medium text-[color:var(--gt-primary-strong)]">登録エラー</p>
+                  <p className="text-sm text-[color:var(--gt-primary-strong)] mt-1">{error}</p>
                 </div>
               </div>
             )}
@@ -729,12 +759,12 @@ function AddGymPostContent() {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <label className="block text-sm font-bold text-[color:var(--foreground)] mb-3">
                 <Building className="w-4 h-4 inline mr-2" />
-                登録するジム <span className="text-red-500">*</span>
+                登録するジム <span className="text-[color:var(--gt-primary)]">*</span>
               </label>
               <select
                 value={equipmentGymName}
                 onChange={(e) => setEquipmentGymName(e.target.value)}
-                className="w-full px-4 py-3 bg-[rgba(243,247,255,0.96)] border border-[rgba(44,82,190,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4fff] text-[color:var(--foreground)]"
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                 required
               >
                 <option value="">ジムを選択してください</option>
@@ -777,7 +807,7 @@ function AddGymPostContent() {
             <button
               type="submit"
               disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
-              className="w-full py-4 bg-gradient-to-r from-[#2a5fe8] to-[#1f4fff] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
+              className="w-full py-4 bg-gradient-to-r from-[var(--gt-secondary)] to-[var(--gt-primary)] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:hidden border-2 border-transparent"
             >
               {isSubmitting ? (
                 <>
@@ -801,7 +831,7 @@ function AddGymPostContent() {
 export default function AddGymPostPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
+      <div className="min-h-screen bg-[rgba(254,255,250,0.96)] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[color:var(--text-subtle)]">読み込み中...</p>

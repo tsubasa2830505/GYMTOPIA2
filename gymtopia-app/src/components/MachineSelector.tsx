@@ -341,8 +341,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                           onClick={() => selectCategory(target.id)}
                           className={`p-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                             filter.targetCategory === target.id
-                              ? 'bg-gradient-to-r from-[#1f4fff] via-[#3c60f2] to-[#2a5fe8] text-white shadow-[0_18px_36px_-24px_rgba(15,36,118,0.46)] border-transparent'
-                              : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border-[rgba(44,82,190,0.2)] hover:border-[rgba(31,79,255,0.32)] hover:bg-white'
+                              ? 'bg-gradient-to-r from-[var(--gt-primary)] via-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white shadow-[0_18px_36px_-24px_rgba(189,101,78,0.46)] border-transparent'
+                              : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border-[rgba(231,103,76,0.2)] hover:border-[rgba(231,103,76,0.32)] hover:bg-white'
                           }`}
                         >
                           {target.name}
@@ -367,8 +367,8 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                               onClick={() => togglePart(part)}
                               className={`p-2 rounded-lg text-xs font-semibold transition-all border-2 ${
                                 filter.targetParts.includes(part)
-                                  ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_14px_30px_-20px_rgba(15,36,118,0.46)] border-transparent'
-                                  : 'bg-[rgba(243,247,255,0.85)] text-[color:var(--text-subtle)] border-[rgba(44,82,190,0.18)] hover:bg-white hover:border-[rgba(31,79,255,0.32)]'
+                                  ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_14px_30px_-20px_rgba(189,101,78,0.46)] border-transparent'
+                                  : 'bg-[rgba(254,255,250,0.85)] text-[color:var(--text-subtle)] border-[rgba(231,103,76,0.18)] hover:bg-white hover:border-[rgba(231,103,76,0.32)]'
                               }`}
                             >
                               {part}
@@ -396,7 +396,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               <Factory className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
               <h3 className="font-semibold text-[color:var(--foreground)]">メーカー</h3>
               {filter.maker.length > 0 && (
-                <span className="gt-badge text-[11px]" style={{ background: 'rgba(76, 122, 255, 0.18)', color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(76, 122, 255, 0.28)' }}>
+                <span className="gt-badge text-[11px]" style={{ background: 'rgba(245, 177, 143, 0.18)', color: 'var(--gt-tertiary-strong)', borderColor: 'rgba(245, 177, 143, 0.28)' }}>
                   {filter.maker.length}
                 </span>
               )}
@@ -422,10 +422,10 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       onClick={() => toggleFilter('maker', maker.id)}
                       className={`p-2 rounded-lg text-sm font-medium transition-all border-2 ${
                         isSelected
-                          ? 'bg-gradient-to-r from-[#1f4fff] via-[#3c60f2] to-[#2a5fe8] text-white shadow-[0_16px_36px_-24px_rgba(15,36,118,0.44)] border-transparent'
+                          ? 'bg-gradient-to-r from-[var(--gt-primary)] via-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white shadow-[0_16px_36px_-24px_rgba(189,101,78,0.44)] border-transparent'
                           : isRelated && (filter.targetCategory || filter.type.length > 0)
-                          ? 'bg-[rgba(243,247,255,0.92)] text-[#2143a8] border-[rgba(31,79,255,0.26)] hover:bg-white'
-                          : 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-subtle)] border-[rgba(44,82,190,0.18)] hover:bg-white hover:border-[rgba(31,79,255,0.24)]'
+                          ? 'bg-[rgba(254,255,250,0.92)] text-[color:var(--gt-primary-strong)] border-[rgba(231,103,76,0.26)] hover:bg-white'
+                          : 'bg-[rgba(254,255,250,0.8)] text-[color:var(--text-subtle)] border-[rgba(231,103,76,0.18)] hover:bg-white hover:border-[rgba(231,103,76,0.24)]'
                       }`}
                     >
                       {maker.name}
@@ -467,13 +467,13 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
           <div className="flex gap-2">
             <button
               onClick={selectAllFiltered}
-              className="px-3 py-1 rounded-full bg-gradient-to-r from-[#1f4fff] via-[#3c60f2] to-[#2a5fe8] text-white text-xs sm:text-sm font-semibold shadow-[0_14px_34px_-22px_rgba(15,36,118,0.46)] transition-transform hover:-translate-y-[1px]"
+              className="px-3 py-1 rounded-full bg-gradient-to-r from-[var(--gt-primary)] via-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white text-xs sm:text-sm font-semibold shadow-[0_14px_34px_-22px_rgba(189,101,78,0.46)] transition-transform hover:-translate-y-[1px]"
             >
               すべて選択
             </button>
             <button
               onClick={deselectAllFiltered}
-              className="px-3 py-1 rounded-full bg-[rgba(243,247,255,0.9)] text-[color:var(--text-subtle)] text-xs sm:text-sm font-semibold border border-[rgba(44,82,190,0.18)] hover:bg-white transition-colors"
+              className="px-3 py-1 rounded-full bg-[rgba(254,255,250,0.9)] text-[color:var(--text-subtle)] text-xs sm:text-sm font-semibold border border-[rgba(231,103,76,0.18)] hover:bg-white transition-colors"
             >
               選択解除
             </button>
@@ -501,15 +501,15 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
               key={machine.id}
               className={`p-4 rounded-xl transition-all ${
                 machineCount > 0
-                  ? 'gt-primary-plate border-2 border-[rgba(31,79,255,0.32)]'
-                  : 'gt-layer border-2 border-[rgba(44,82,190,0.18)]'
+                  ? 'gt-primary-plate border-2 border-[rgba(231,103,76,0.32)]'
+                  : 'gt-layer border-2 border-[rgba(231,103,76,0.18)]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="text-left flex-1">
-                  <p className="font-medium text-slate-900">{machine.name}</p>
+                  <p className="font-medium text-[color:var(--foreground)]">{machine.name}</p>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    <span className="px-2 py-0.5 rounded text-xs bg-[rgba(31,79,255,0.16)] text-[color:var(--gt-primary-strong)]">
+                    <span className="px-2 py-0.5 rounded text-xs bg-[rgba(231,103,76,0.16)] text-[color:var(--gt-primary-strong)]">
                       {target?.name}{machine.target_detail ? ` - ${machine.target_detail}` : ''}
                     </span>
                     <span className="px-2 py-0.5 rounded text-xs bg-[rgba(123,139,255,0.16)] text-[color:var(--gt-tertiary-strong)]">
@@ -524,7 +524,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                     <>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount - 1)}
-                        className="w-8 h-8 rounded-lg bg-[rgba(243,247,255,0.88)] border border-[rgba(44,82,190,0.18)] hover:bg-white flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-[rgba(254,255,250,0.88)] border border-[rgba(231,103,76,0.18)] hover:bg-white flex items-center justify-center transition-colors"
                       >
                         <Minus className="w-4 h-4 text-[color:var(--foreground)]" />
                       </button>
@@ -534,7 +534,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                       </div>
                       <button
                         onClick={() => updateMachineCount(machine.id, machineCount + 1)}
-                        className="w-8 h-8 rounded-lg bg-[var(--gt-primary)] hover:bg-[#2c4ecc] flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-[color:var(--gt-primary)] hover:bg-[color:var(--gt-primary-strong)] flex items-center justify-center transition-colors"
                       >
                         <Plus className="w-4 h-4 text-white" />
                       </button>
@@ -542,7 +542,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
                   ) : (
                     <button
                       onClick={() => toggleMachine(machine.id)}
-                      className="px-4 py-2 rounded-lg bg-[rgba(243,247,255,0.9)] hover:bg-white text-[color:var(--text-subtle)] font-medium text-sm transition-colors border-2 border-[rgba(44,82,190,0.18)] hover:border-[rgba(31,79,255,0.32)]"
+                      className="px-4 py-2 rounded-lg bg-[rgba(254,255,250,0.9)] hover:bg-white text-[color:var(--text-subtle)] font-medium text-sm transition-colors border-2 border-[rgba(231,103,76,0.18)] hover:border-[rgba(231,103,76,0.32)]"
                     >
                       追加
                     </button>
@@ -557,7 +557,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
 
       {!isLoadingMachines && filteredMachines.length === 0 && (
         <div className="text-center py-8 text-[color:var(--text-muted)]">
-          <Settings className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+          <Settings className="w-12 h-12 mx-auto mb-3 text-[rgba(68,73,73,0.4)]" />
           <p>条件に一致するマシンが見つかりません</p>
           <p className="text-sm mt-1">フィルターを調整してください</p>
         </div>

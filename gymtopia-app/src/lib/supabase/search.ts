@@ -159,18 +159,22 @@ export async function searchGymsNearby(
 ) {
   try {
     const { data, error } = await supabase
-      .rpc('gyms_nearby', {
-        lon,
-        lat,
-        radius_km: radiusKm,
-        limit_n: limit,
-        offset_n: offset
+      .rpc('get_nearby_gyms', {
+        user_longitude: lon,
+        user_latitude: lat,
+        radius_km: radiusKm
       })
 
     if (error) throw error
     return { data, error: null }
   } catch (error) {
-    console.error('Error searching nearby gyms:', error)
+    console.error('Error searching nearby gyms:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      lat,
+      lon,
+      radiusKm
+    })
     return { data: null, error }
   }
 }
@@ -353,7 +357,14 @@ export async function getNearbyGyms(
 
     return { data, error: null }
   } catch (error) {
-    console.error('Error fetching nearby gyms:', error)
+    console.error('Error fetching nearby gyms:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      latitude,
+      longitude,
+      radiusKm,
+      limit
+    })
     return { data: null, error }
   }
 }

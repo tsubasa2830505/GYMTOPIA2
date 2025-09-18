@@ -53,29 +53,29 @@ export default function AuthTestPage() {
       <div className="space-y-6">
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold mb-2">セッション:</h2>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
+          <pre className="bg-[rgba(254,255,250,0.95)] p-2 rounded text-xs overflow-auto">
             {JSON.stringify(session, null, 2)}
           </pre>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold mb-2">認証ユーザー:</h2>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
+          <pre className="bg-[rgba(254,255,250,0.95)] p-2 rounded text-xs overflow-auto">
             {JSON.stringify(authUser, null, 2)}
           </pre>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold mb-2">ジムオーナー情報:</h2>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
+          <pre className="bg-[rgba(254,255,250,0.95)] p-2 rounded text-xs overflow-auto">
             {JSON.stringify(owners, null, 2)}
           </pre>
         </div>
 
         {error && (
           <div className="bg-[rgba(224,112,122,0.12)] p-4 rounded-lg">
-            <h2 className="font-semibold mb-2 text-[#c85963]">エラー:</h2>
-            <pre className="bg-red-100 p-2 rounded text-xs overflow-auto">
+            <h2 className="font-semibold mb-2 text-[color:var(--gt-primary-strong)]">エラー:</h2>
+            <pre className="bg-[rgba(231,103,76,0.12)] p-2 rounded text-xs overflow-auto">
               {JSON.stringify(error, null, 2)}
             </pre>
           </div>

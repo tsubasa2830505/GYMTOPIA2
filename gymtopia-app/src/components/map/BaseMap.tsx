@@ -104,10 +104,10 @@ export default function BaseMap({
   if (!isClient) {
     return (
       <div
-        className={`bg-gray-200 rounded-lg flex items-center justify-center ${className}`}
+        className={`bg-[rgba(254,255,250,0.9)] rounded-lg flex items-center justify-center ${className}`}
         style={{ height }}
       >
-        <div className="text-gray-500">マップを読み込み中...</div>
+        <div className="text-[color:var(--text-muted)]">マップを読み込み中...</div>
       </div>
     );
   }
@@ -186,7 +186,7 @@ export default function BaseMap({
                       <h3 className="font-semibold text-lg">{marker.title}</h3>
                     )}
                     {marker.description && (
-                      <p className="text-sm text-gray-600">{marker.description}</p>
+                      <p className="text-sm text-[color:var(--text-muted)]">{marker.description}</p>
                     )}
                   </div>
                 )}
@@ -200,8 +200,8 @@ export default function BaseMap({
 
       {/* Loading overlay */}
       {!mapReady && (
-        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center rounded-lg">
-          <div className="text-gray-500">マップを初期化中...</div>
+        <div className="absolute inset-0 bg-[rgba(254,255,250,0.9)] flex items-center justify-center rounded-lg">
+          <div className="text-[color:var(--text-muted)]">マップを初期化中...</div>
         </div>
       )}
     </div>

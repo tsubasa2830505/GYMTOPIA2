@@ -105,7 +105,7 @@ export function GoogleMap({
               ` : ''}
               <div style="margin-top: 10px;">
                 <a href="/gyms/${gym.id}"
-                   style="color: #4F46E5; text-decoration: underline; font-size: 14px;">
+                   style="color: var(--gt-secondary); text-decoration: underline; font-size: 14px;">
                   詳細を見る →
                 </a>
               </div>

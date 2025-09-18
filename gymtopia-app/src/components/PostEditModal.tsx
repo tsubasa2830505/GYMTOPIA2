@@ -113,26 +113,26 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">投稿を編集</h2>
+        <div className="sticky top-0 bg-white border-b border-[rgba(186,122,103,0.26)] p-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-[color:var(--foreground)]">投稿を編集</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-full hover:bg-[rgba(254,255,250,0.95)] transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-[color:var(--text-muted)]" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {/* Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--text-subtle)] mb-2">
               投稿内容
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-[rgba(186,122,103,0.28)] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
               rows={4}
               placeholder="今日のトレーニングについて..."
             />
@@ -140,7 +140,7 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
 
           {/* Images */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--text-subtle)] mb-2">
               画像
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -159,13 +159,13 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
                       e.stopPropagation();
                       removeImage(index);
                     }}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                    className="absolute top-2 right-2 p-1 bg-[rgba(231,103,76,0.08)] text-white rounded-full hover:bg-[color:var(--gt-primary-strong)] transition-colors z-10"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))}
-              <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
+              <label className="aspect-square border-2 border-dashed border-[rgba(186,122,103,0.28)] rounded-lg flex items-center justify-center cursor-pointer hover:border-[color:var(--gt-primary)] transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -176,13 +176,13 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
                 />
                 {uploading ? (
                   <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                    <span className="text-xs text-gray-500">アップロード中...</span>
+                    <div className="w-8 h-8 border-2 border-[color:var(--gt-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <span className="text-xs text-[color:var(--text-muted)]">アップロード中...</span>
                   </div>
                 ) : (
                   <div className="text-center">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <span className="text-xs text-gray-500">画像を追加</span>
+                    <Upload className="w-8 h-8 text-[rgba(68,73,73,0.6)] mx-auto mb-2" />
+                    <span className="text-xs text-[color:var(--text-muted)]">画像を追加</span>
                   </div>
                 )}
               </label>
@@ -192,12 +192,12 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
           {/* Training Details */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-[color:var(--text-subtle)]">
                 トレーニング内容
               </label>
               <button
                 onClick={addExercise}
-                className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                className="flex items-center gap-1 px-3 py-1 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors text-sm"
               >
                 <Plus className="w-4 h-4" />
                 種目を追加
@@ -206,40 +206,40 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
 
             <div className="space-y-3">
               {exercises.map((exercise, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-start gap-3 p-3 bg-[rgba(254,255,250,0.97)] rounded-lg">
                   <div className="flex-1 grid grid-cols-4 gap-2">
                     <input
                       type="text"
                       value={exercise.name}
                       onChange={(e) => updateExercise(index, 'name', e.target.value)}
                       placeholder="種目名"
-                      className="col-span-4 sm:col-span-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="col-span-4 sm:col-span-1 px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                     />
                     <input
                       type="number"
                       value={exercise.weight}
                       onChange={(e) => updateExercise(index, 'weight', Number(e.target.value))}
                       placeholder="重量(kg)"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                     />
                     <input
                       type="number"
                       value={exercise.sets}
                       onChange={(e) => updateExercise(index, 'sets', Number(e.target.value))}
                       placeholder="セット数"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                     />
                     <input
                       type="number"
                       value={exercise.reps}
                       onChange={(e) => updateExercise(index, 'reps', Number(e.target.value))}
                       placeholder="回数"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                     />
                   </div>
                   <button
                     onClick={() => removeExercise(index)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-[color:var(--gt-primary)] hover:bg-[rgba(231,103,76,0.08)] rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -250,27 +250,27 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
 
           {/* Workout Time */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--text-subtle)] mb-2">
               <Clock className="inline w-4 h-4 mr-1" />
               トレーニング時間
             </label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">開始時間</label>
+                <label className="block text-xs text-[color:var(--text-muted)] mb-1">開始時間</label>
                 <input
                   type="time"
                   value={workoutStartedAt}
                   onChange={(e) => setWorkoutStartedAt(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">終了時間</label>
+                <label className="block text-xs text-[color:var(--text-muted)] mb-1">終了時間</label>
                 <input
                   type="time"
                   value={workoutEndedAt}
                   onChange={(e) => setWorkoutEndedAt(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(186,122,103,0.28)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
                 />
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
 
           {/* Crowd Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--text-subtle)] mb-2">
               混雑状況
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -293,11 +293,11 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
                   className={`px-4 py-2 rounded-lg border-2 transition-colors ${
                     crowdStatus === option.value
                       ? option.color === 'green'
-                        ? 'border-green-500 bg-green-50 text-green-700'
+                        ? 'border-[color:var(--gt-secondary)] bg-[rgba(240,142,111,0.1)] text-[color:var(--gt-secondary-strong)]'
                         : option.color === 'yellow'
-                        ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
-                        : 'border-red-500 bg-red-50 text-red-700'
-                      : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-[color:var(--gt-tertiary-strong)] bg-[rgba(245,177,143,0.1)] text-[color:var(--gt-tertiary-strong)]'
+                        : 'border-[color:var(--gt-primary)] bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-primary-strong)]'
+                      : 'border-[rgba(186,122,103,0.28)] hover:border-[rgba(231,103,76,0.32)]'
                   }`}
                 >
                   {option.label}
@@ -307,16 +307,16 @@ export default function PostEditModal({ post, isOpen, onClose, onSave }: PostEdi
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex gap-3 pt-4 border-t border-[rgba(186,122,103,0.26)]">
             <button
               onClick={handleSave}
-              className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+              className="flex-1 px-4 py-3 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors font-medium"
             >
               変更を保存
             </button>
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              className="flex-1 px-4 py-3 bg-[rgba(254,255,250,0.9)] text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(254,255,250,0.82)] transition-colors font-medium"
             >
               キャンセル
             </button>

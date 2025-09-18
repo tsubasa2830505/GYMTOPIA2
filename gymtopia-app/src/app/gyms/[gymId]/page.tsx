@@ -14,9 +14,9 @@ import dynamic from 'next/dynamic'
 const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+    <div className="w-full h-full flex items-center justify-center bg-[rgba(254,255,250,0.95)]">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[color:var(--gt-primary)] mx-auto mb-4"></div>
         <p className="text-[color:var(--text-subtle)]">地図を読み込み中...</p>
       </div>
     </div>
@@ -123,16 +123,16 @@ export default function GymDetailPage() {
 
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case '優良': return 'text-[#1f8f6a] bg-[rgba(31,143,106,0.12)]'
-      case '良好': return 'text-blue-600 bg-blue-50'
-      case '可': return 'text-[#e29a4f] bg-[rgba(242,178,74,0.12)]'
-      default: return 'text-[color:var(--text-subtle)] bg-[rgba(243,247,255,0.96)]'
+      case '優良': return 'text-[var(--gt-secondary-strong)] bg-[rgba(31,143,106,0.12)]'
+      case '良好': return 'text-[color:var(--gt-secondary-strong)] bg-[rgba(231,103,76,0.08)]'
+      case '可': return 'text-[color:var(--gt-tertiary-strong)] bg-[rgba(242,178,74,0.12)]'
+      default: return 'text-[color:var(--text-subtle)] bg-[rgba(254,255,250,0.96)]'
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-500">
+      <div className="min-h-screen flex items-center justify-center text-[color:var(--text-muted)]">
         読み込み中...
       </div>
     )
@@ -141,15 +141,15 @@ export default function GymDetailPage() {
   return (
     <div className="min-h-screen bg-white pb-20 sm:pb-0">
       {/* Header with Hero Image */}
-      <div className="relative h-48 sm:h-64 bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="relative h-48 sm:h-64 bg-gradient-to-br from-[var(--gt-primary)] to-[var(--gt-secondary)]">
         <button 
           onClick={() => router.back()}
           className="absolute top-4 left-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10"
         >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-slate-900" />
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--foreground)]" />
         </button>
         <button className="absolute top-4 right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10">
-          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-900" />
+          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--foreground)]" />
         </button>
       </div>
 
@@ -160,7 +160,7 @@ export default function GymDetailPage() {
           {gymData.tags.map((tag: string) => (
             <span 
               key={tag}
-              className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white rounded-full text-xs sm:text-sm font-medium text-slate-700 shadow-md"
+              className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white rounded-full text-xs sm:text-sm font-medium text-[color:var(--text-subtle)] shadow-md"
             >
               {tag}
             </span>
@@ -168,29 +168,29 @@ export default function GymDetailPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[color:var(--foreground)] mb-4 sm:mb-6">
           {gymData.name}
         </h1>
 
         {/* Info Pills */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-2xl">
-            <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600" />
+          <div className="flex items-center gap-3 p-3 sm:p-4 bg-[rgba(254,255,250,0.97)] rounded-2xl">
+            <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--text-muted)]" />
             <div>
-              <p className="text-sm sm:text-base font-semibold text-slate-900">{gymData.location.area}</p>
-              <p className="text-xs sm:text-sm text-slate-600">徒歩{gymData.location.walkingMinutes}分</p>
+              <p className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">{gymData.location.area}</p>
+              <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">徒歩{gymData.location.walkingMinutes}分</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-2xl">
-            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600" />
+          <div className="flex items-center gap-3 p-3 sm:p-4 bg-[rgba(254,255,250,0.97)] rounded-2xl">
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--text-muted)]" />
             <div>
-              <p className="text-sm sm:text-base font-semibold text-slate-900">
+              <p className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">
                 {gymData.businessHours && gymData.businessHours.length > 0
                   ? `${gymData.businessHours[0].open}–${gymData.businessHours[0].close}`
                   : '営業時間情報なし'}
               </p>
-              <p className={`text-xs sm:text-sm font-medium ${gymData.isOpenNow ? 'text-[#1f8f6a]' : 'text-[#e0707a]'}`}>
+              <p className={`text-xs sm:text-sm font-medium ${gymData.isOpenNow ? 'text-[var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'}`}>
                 {gymData.businessHours && gymData.businessHours.length > 0
                   ? (gymData.isOpenNow ? '営業中' : '営業時間外')
                   : ''}
@@ -198,11 +198,11 @@ export default function GymDetailPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-2xl">
-            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600" />
+          <div className="flex items-center gap-3 p-3 sm:p-4 bg-[rgba(254,255,250,0.97)] rounded-2xl">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--text-muted)]" />
             <div>
-              <p className="text-sm sm:text-base font-semibold text-slate-900">{likesCount}人</p>
-              <p className="text-xs sm:text-sm text-slate-600">イキタイ</p>
+              <p className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">{likesCount}人</p>
+              <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">イキタイ</p>
             </div>
           </div>
         </div>
@@ -213,8 +213,8 @@ export default function GymDetailPage() {
             onClick={handleToggleLike}
             className={`flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-medium transition-all ${
               liked 
-                ? 'bg-[rgba(224,112,122,0.12)]0 text-white' 
-                : 'bg-white border-2 border-slate-200 text-slate-900'
+                ? 'bg-[rgba(224,112,122,0.12)] text-white' 
+                : 'bg-white border-2 border-[rgba(186,122,103,0.26)] text-[color:var(--foreground)]'
             }`}
           >
             <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} />
@@ -222,7 +222,7 @@ export default function GymDetailPage() {
           </button>
           <button 
             onClick={() => router.push(`/posts/new?gymId=${gymData.id}`)}
-            className="flex items-center justify-center gap-2 py-3 sm:py-4 bg-blue-500 text-white rounded-2xl font-medium"
+            className="flex items-center justify-center gap-2 py-3 sm:py-4 bg-[color:var(--gt-primary)] text-white rounded-2xl font-medium"
           >
             <MessageSquare className="w-5 h-5" />
             <span className="text-sm sm:text-base">ジム活を投稿</span>
@@ -235,10 +235,10 @@ export default function GymDetailPage() {
             {gymData.pricingPlans.map((plan: { id: string; title: string; priceJPY: number; link?: string }) => (
               <div
                 key={plan.id}
-                className="block p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl"
+                className="block p-4 sm:p-5 bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(240,142,111,0.1)] rounded-2xl"
               >
-                <p className="text-sm sm:text-base font-medium text-slate-700 mb-2">{plan.title}</p>
-                <p className="text-2xl sm:text-3xl font-bold text-slate-900">
+                <p className="text-sm sm:text-base font-medium text-[color:var(--text-subtle)] mb-2">{plan.title}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-[color:var(--foreground)]">
                   {formatPrice(plan.priceJPY)}
                 </p>
                 {plan.link && (
@@ -248,8 +248,8 @@ export default function GymDetailPage() {
                     rel="noopener noreferrer"
                     className="flex items-center justify-end mt-3"
                   >
-                    <span className="text-xs sm:text-sm text-blue-600 font-medium">詳細を見る</span>
-                    <ChevronRight className="w-4 h-4 text-blue-600 ml-1" />
+                    <span className="text-xs sm:text-sm text-[color:var(--gt-secondary-strong)] font-medium">詳細を見る</span>
+                    <ChevronRight className="w-4 h-4 text-[color:var(--gt-secondary-strong)] ml-1" />
                   </a>
                 )}
               </div>
@@ -258,7 +258,7 @@ export default function GymDetailPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-4 sm:mb-6 overflow-x-auto">
+        <div className="flex gap-1 p-1 bg-[rgba(254,255,250,0.95)] rounded-2xl mb-4 sm:mb-6 overflow-x-auto">
           {[
             { id: 'equipment', label: '設備', icon: Dumbbell },
             { id: 'muscle', label: 'アクセス', icon: Activity },
@@ -271,8 +271,8 @@ export default function GymDetailPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 min-w-[80px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-600'
+                  ? 'bg-white text-[color:var(--gt-secondary-strong)] shadow-sm'
+                  : 'text-[color:var(--text-muted)]'
               }`}
             >
               <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -286,21 +286,21 @@ export default function GymDetailPage() {
           <div className="space-y-3 mb-6 sm:mb-8">
             {machines.length > 0 ? (
               machines.map((gm: any) => (
-                <div key={gm.id} className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-2xl">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                <div key={gm.id} className="flex items-start gap-3 p-4 bg-white border border-[rgba(186,122,103,0.26)] rounded-2xl">
+                  <div className="w-2 h-2 bg-[color:var(--gt-primary)] rounded-full mt-2" />
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-sm sm:text-base font-semibold text-slate-900">
+                      <h3 className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">
                         {gm.machine?.name || 'マシン'}
                       </h3>
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                      <span className="px-2 py-0.5 bg-[rgba(240,142,111,0.14)] text-[color:var(--gt-secondary-strong)] rounded-lg text-xs font-medium">
                         {gm.machine?.maker}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600">
+                    <div className="flex items-center gap-3 text-xs sm:text-sm text-[color:var(--text-muted)]">
                       <span>{gm.quantity || 1}台設置</span>
                       <span>•</span>
-                      <span className="px-2 py-0.5 rounded-lg font-medium text-blue-700 bg-blue-50">
+                      <span className="px-2 py-0.5 rounded-lg font-medium text-[color:var(--gt-secondary-strong)] bg-[rgba(231,103,76,0.08)]">
                         {gm.machine?.target_category}
                       </span>
                     </div>
@@ -308,7 +308,7 @@ export default function GymDetailPage() {
                 </div>
               ))
             ) : (
-              <div className="text-slate-500">設備情報がありません</div>
+              <div className="text-[color:var(--text-muted)]">設備情報がありません</div>
             )}
           </div>
         )}
@@ -316,7 +316,7 @@ export default function GymDetailPage() {
         {/* Map Section */}
         {activeTab === 'muscle' && (
           <div className="mb-6 sm:mb-8">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">アクセス</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-[color:var(--foreground)] mb-4">アクセス</h2>
             {gym?.latitude && gym?.longitude ? (
               <div className="rounded-2xl overflow-hidden" style={{ height: '400px' }}>
                 <LeafletMap
@@ -328,19 +328,19 @@ export default function GymDetailPage() {
                 />
               </div>
             ) : (
-              <div className="p-8 bg-[rgba(243,247,255,0.96)] rounded-2xl text-center">
-                <MapPin className="w-12 h-12 text-[rgba(44,82,190,0.32)] mx-auto mb-3" />
+              <div className="p-8 bg-[rgba(254,255,250,0.96)] rounded-2xl text-center">
+                <MapPin className="w-12 h-12 text-[rgba(231,103,76,0.32)] mx-auto mb-3" />
                 <p className="text-[color:var(--text-subtle)]">位置情報が登録されていません</p>
               </div>
             )}
             {gym?.address && (
-              <div className="mt-4 p-4 bg-white border border-slate-200 rounded-2xl">
+              <div className="mt-4 p-4 bg-white border border-[rgba(186,122,103,0.26)] rounded-2xl">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-blue-600 mt-1" />
+                  <MapPin className="w-5 h-5 text-[color:var(--gt-secondary-strong)] mt-1" />
                   <div>
-                    <p className="font-medium text-slate-900">{gym.address}</p>
+                    <p className="font-medium text-[color:var(--foreground)]">{gym.address}</p>
                     {gymData.location.walkingMinutes > 0 && (
-                      <p className="text-sm text-slate-600 mt-1">
+                      <p className="text-sm text-[color:var(--text-muted)] mt-1">
                         最寄り駅から徒歩約 {gymData.location.walkingMinutes}分
                       </p>
                     )}
@@ -352,20 +352,20 @@ export default function GymDetailPage() {
         )}
 
         {/* Contact */}
-        <div className="bg-slate-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">お問い合わせ</h2>
+        <div className="bg-[rgba(254,255,250,0.97)] rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-[color:var(--foreground)] mb-4">お問い合わせ</h2>
           <div className="space-y-3">
             {gymData.contact.phone && (
               <a
                 href={`tel:${gymData.contact.phone}`}
                 className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
               >
-                <Phone className="w-5 h-5 text-blue-600" />
+                <Phone className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
                 <div className="flex-1">
-                  <p className="text-sm sm:text-base font-medium text-slate-900">{gymData.contact.phone}</p>
-                  <p className="text-xs sm:text-sm text-slate-600">電話で問い合わせ</p>
+                  <p className="text-sm sm:text-base font-medium text-[color:var(--foreground)]">{gymData.contact.phone}</p>
+                  <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">電話で問い合わせ</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400" />
+                <ChevronRight className="w-5 h-5 text-[rgba(68,73,73,0.6)]" />
               </a>
             )}
             {gymData.contact.website && (
@@ -375,16 +375,16 @@ export default function GymDetailPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow"
               >
-                <Globe className="w-5 h-5 text-blue-600" />
+                <Globe className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
                 <div className="flex-1">
-                  <p className="text-sm sm:text-base font-medium text-slate-900">公式サイト</p>
-                  <p className="text-xs sm:text-sm text-slate-600">詳細情報を見る</p>
+                  <p className="text-sm sm:text-base font-medium text-[color:var(--foreground)]">公式サイト</p>
+                  <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">詳細情報を見る</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400" />
+                <ChevronRight className="w-5 h-5 text-[rgba(68,73,73,0.6)]" />
               </a>
             )}
             {!gymData.contact.phone && !gymData.contact.website && (
-              <div className="p-4 text-center text-slate-500">
+              <div className="p-4 text-center text-[color:var(--text-muted)]">
                 連絡先情報が登録されていません
               </div>
             )}
@@ -393,12 +393,12 @@ export default function GymDetailPage() {
 
         {/* Reviews */}
         <div className="mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-[color:var(--foreground)] mb-4">
             口コミ・レビュー {reviewCount > 0 && `(${reviewCount}件)`}
           </h2>
           <div className="space-y-3">
             {reviews.length > 0 ? reviews.map((review: any) => (
-              <div key={review.id} className="p-4 bg-white border border-slate-200 rounded-2xl">
+              <div key={review.id} className="p-4 bg-white border border-[rgba(186,122,103,0.26)] rounded-2xl">
                 <div className="flex items-center gap-3 mb-3">
                   {review.user?.avatar_url ? (
                     <img
@@ -407,13 +407,13 @@ export default function GymDetailPage() {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)] rounded-full" />
                   )}
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-[color:var(--foreground)]">
                       {review.user?.display_name || review.user?.username || 'ユーザー'}
                     </p>
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-[color:var(--text-muted)]">
                       {new Date(review.created_at).toLocaleDateString('ja-JP', {
                         year: 'numeric',
                         month: 'long',
@@ -427,27 +427,27 @@ export default function GymDetailPage() {
                         key={i}
                         className={`w-4 h-4 ${
                           i < (review.rating || 5)
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'fill-gray-200 text-gray-200'
+                            ? 'fill-[color:var(--gt-tertiary)] text-[color:var(--gt-tertiary)]'
+                            : 'fill-[rgba(186,122,103,0.18)] text-[rgba(68,73,73,0.28)]'
                         }`}
                       />
                     ))}
                   </div>
                 </div>
                 {review.title && (
-                  <h4 className="text-sm font-semibold text-slate-900 mb-2">{review.title}</h4>
+                  <h4 className="text-sm font-semibold text-[color:var(--foreground)] mb-2">{review.title}</h4>
                 )}
-                <p className="text-sm text-slate-700 leading-relaxed">{review.content || review.body || ''}</p>
+                <p className="text-sm text-[color:var(--text-subtle)] leading-relaxed">{review.content || review.body || ''}</p>
                 {review.owner_reply && (
-                  <div className="mt-3 p-3 bg-slate-50 rounded-xl">
-                    <p className="text-xs font-semibold text-slate-700 mb-1">オーナーからの返信</p>
-                    <p className="text-xs text-slate-600">{review.owner_reply}</p>
+                  <div className="mt-3 p-3 bg-[rgba(254,255,250,0.97)] rounded-xl">
+                    <p className="text-xs font-semibold text-[color:var(--text-subtle)] mb-1">オーナーからの返信</p>
+                    <p className="text-xs text-[color:var(--text-muted)]">{review.owner_reply}</p>
                   </div>
                 )}
               </div>
             )) : (
-              <div className="p-8 text-center text-slate-500">
-                <MessageSquare className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+              <div className="p-8 text-center text-[color:var(--text-muted)]">
+                <MessageSquare className="w-12 h-12 mx-auto mb-3 text-[rgba(68,73,73,0.4)]" />
                 <p>まだレビューがありません</p>
                 <p className="text-sm mt-2">最初のレビューを投稿してみましょう！</p>
               </div>

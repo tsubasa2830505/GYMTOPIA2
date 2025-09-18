@@ -131,7 +131,7 @@ export default function FollowersPage() {
   }
 
   const getAvatarColor = (name: string) => {
-    const colors = ['#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899']
+    const colors = ['var(--gt-secondary-strong)', 'var(--gt-tertiary-strong)', 'var(--gt-tertiary)', 'var(--gt-primary-strong)', 'var(--gt-secondary)', 'var(--gt-secondary)']
     const index = name.charCodeAt(0) % colors.length
     return colors[index]
   }
@@ -164,16 +164,16 @@ export default function FollowersPage() {
     <div className="min-h-screen pb-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(240,244,255,0.34),transparent_86%),radial-gradient(circle_at_12%_18%,rgba(58,104,255,0.18),transparent_62%),radial-gradient(circle_at_84%_14%,rgba(108,148,255,0.14),transparent_70%)]" />
-        <div className="absolute -top-28 right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.34),transparent_70%)] blur-[140px] opacity-70" />
+        <div className="absolute -top-28 right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_70%)] blur-[140px] opacity-70" />
         <div className="absolute top-[52%] -left-32 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(98,138,255,0.26),transparent_74%)] blur-[150px] opacity-60" />
       </div>
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
+      <header className="sticky top-0 z-40 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(189,101,78,0.4)]">
         <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.18)] hover:bg-white transition-colors"
+              className="p-2 rounded-xl bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.18)] hover:bg-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
@@ -185,7 +185,7 @@ export default function FollowersPage() {
                 <span className="font-semibold text-[color:var(--text-subtle)]">フォロー</span>
                 <span className="gt-pill-label text-[color:var(--gt-primary-strong)]">{followCounts.following}</span>
               </button>
-              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(15,36,118,0.46)]">
+              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(189,101,78,0.46)]">
                 <span className="font-semibold text-[color:var(--foreground)]">フォロワー</span>
                 <span className="gt-pill-label">{followCounts.followers}</span>
               </div>
@@ -205,7 +205,7 @@ export default function FollowersPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] bg-[rgba(243,247,255,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[#1f4fff]"
+                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] bg-[rgba(254,255,250,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
               />
             </div>
             <div className="gt-tab-track flex flex-wrap gap-2 py-1">
@@ -227,7 +227,7 @@ export default function FollowersPage() {
 
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#eef2ff] to-[#f7f9ff]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">総フォロワー</span>
               <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
@@ -235,7 +235,7 @@ export default function FollowersPage() {
             <div className="text-2xl sm:text-3xl font-bold text-[color:var(--foreground)]">{followCounts.followers}</div>
             <p className="gt-body mt-2">コミュニティ全体の人数</p>
           </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#f1f3ff] to-[#fafbff]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">相互フォロー</span>
               <UserCheck className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
@@ -247,7 +247,7 @@ export default function FollowersPage() {
                 : 'まだ相互フォローはありません'}
             </p>
           </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[#eef4ff] to-[#f5f8ff]">
+          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
             <div className="flex items-center justify-between mb-3">
               <span className="gt-label-lg text-[color:var(--text-subtle)]">フォロー候補</span>
               <Clock className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
@@ -305,12 +305,12 @@ export default function FollowersPage() {
                             <span className="gt-chip gt-chip--primary text-[10px] sm:text-xs">相互</span>
                           )}
                           {user.is_following_back && !user.is_mutual_follow && (
-                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(76,122,255,0.12)', borderColor: 'rgba(76,122,255,0.28)', color: 'var(--gt-primary-strong)' }}>
+                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(245,177,143,0.12)', borderColor: 'rgba(245,177,143,0.28)', color: 'var(--gt-primary-strong)' }}>
                               フォロー中
                             </span>
                           )}
                           {!user.is_following_back && (
-                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(255,203,112,0.18)', borderColor: 'rgba(255,203,112,0.35)', color: '#C27803' }}>
+                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(255,203,112,0.18)', borderColor: 'rgba(255,203,112,0.35)', color: 'var(--gt-tertiary-strong)' }}>
                               フォローバック候補
                             </span>
                           )}
@@ -345,8 +345,8 @@ export default function FollowersPage() {
                           disabled={processingIds.includes(user.id)}
                           className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                             user.is_following_back
-                              ? 'bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
-                              : 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_18px_32px_-22px_rgba(15,36,118,0.48)] hover:-translate-y-[2px]'
+                              ? 'bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
+                              : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_18px_32px_-22px_rgba(189,101,78,0.48)] hover:-translate-y-[2px]'
                           } ${processingIds.includes(user.id) ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                           {processingIds.includes(user.id) ? (

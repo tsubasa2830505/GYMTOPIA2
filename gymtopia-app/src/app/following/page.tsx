@@ -105,7 +105,7 @@ export default function FollowingPage() {
   }
 
   const getAvatarColor = (name: string) => {
-    const colors = ['#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899']
+    const colors = ['var(--gt-secondary-strong)', 'var(--gt-tertiary-strong)', 'var(--gt-tertiary)', 'var(--gt-primary-strong)', 'var(--gt-secondary)', 'var(--gt-secondary)']
     const index = name.charCodeAt(0) % colors.length
     return colors[index]
   }
@@ -135,24 +135,24 @@ export default function FollowingPage() {
     <div className="min-h-screen pb-10 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(190deg,rgba(240,244,255,0.32),transparent_84%),radial-gradient(circle_at_18%_24%,rgba(60,104,255,0.16),transparent_64%),radial-gradient(circle_at_88%_16%,rgba(110,150,255,0.14),transparent_70%)]" />
-        <div className="absolute -top-24 left-16 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_70%)] blur-[130px] opacity-70" />
+        <div className="absolute -top-24 left-16 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.32),transparent_70%)] blur-[130px] opacity-70" />
         <div className="absolute bottom-[-10%] right-[-6%] h-[23rem] w-[23rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(96,134,255,0.24),transparent_76%)] blur-[150px] opacity-58" />
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(15,36,118,0.4)]">
+      <header className="sticky top-0 z-50 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(189,101,78,0.4)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl bg-[rgba(243,247,255,0.9)] border border-[rgba(44,82,190,0.18)] hover:bg-white transition-colors"
+              className="p-2 rounded-xl bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.18)] hover:bg-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
             </button>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[color:var(--gt-primary-strong)]">フォロー</h1>
-                <span className="px-2 py-1 bg-[rgba(31,79,255,0.16)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-semibold border border-[rgba(31,79,255,0.26)]">
+                <span className="px-2 py-1 bg-[rgba(231,103,76,0.16)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-semibold border border-[rgba(231,103,76,0.26)]">
                   {followCounts.following}人
                 </span>
               </div>
@@ -161,7 +161,7 @@ export default function FollowingPage() {
                 className="flex items-center gap-2 text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)] transition-colors"
               >
                 <span className="text-lg font-semibold">フォロワー</span>
-                <span className="px-2 py-1 bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full font-medium border border-[rgba(44,82,190,0.18)]">
+                <span className="px-2 py-1 bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] text-xs rounded-full font-medium border border-[rgba(231,103,76,0.18)]">
                   {followCounts.followers}人
                 </span>
               </button>
@@ -181,7 +181,7 @@ export default function FollowingPage() {
                 placeholder="名前、ユーザー名で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-[rgba(243,247,255,0.92)] border-2 border-[rgba(44,82,190,0.18)] focus:border-[#1f4fff] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1f4fff]"
+                className="w-full pl-10 pr-4 py-2 bg-[rgba(254,255,250,0.92)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
               />
             </div>
             <div className="flex gap-2">
@@ -189,8 +189,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'all'
-                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
+                    : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-white'
                 }`}
               >
                 すべて
@@ -199,8 +199,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('mutual')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'mutual'
-                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
+                    : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-white'
                 }`}
               >
                 相互
@@ -209,8 +209,8 @@ export default function FollowingPage() {
                 onClick={() => setSelectedFilter('recent')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   selectedFilter === 'recent'
-                    ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                    : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                    ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
+                    : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-white'
                 }`}
               >
                 最近アクティブ
@@ -221,7 +221,7 @@ export default function FollowingPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(31,79,255,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(44,82,190,0.2)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(231,103,76,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(231,103,76,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">総フォロー数</span>
               <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
@@ -229,7 +229,7 @@ export default function FollowingPage() {
             <div className="text-2xl font-bold text-[color:var(--foreground)]">{followCounts.following}人</div>
             <div className="text-xs text-[color:var(--text-muted)] mt-1">アクティブユーザー</div>
           </div>
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(42,95,232,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(44,82,190,0.2)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(240,142,111,0.12)] to-[rgba(96,134,255,0.18)] border border-[rgba(231,103,76,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">相互</span>
               <MapPin className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
@@ -242,7 +242,7 @@ export default function FollowingPage() {
               }
             </div>
           </div>
-          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(76,122,255,0.12)] to-[rgba(188,210,255,0.2)] border border-[rgba(44,82,190,0.2)]">
+          <div className="rounded-xl p-4 bg-gradient-to-br from-[rgba(245,177,143,0.12)] to-[rgba(188,210,255,0.2)] border border-[rgba(231,103,76,0.2)]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[color:var(--text-subtle)]">今日アクティブ</span>
               <Calendar className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
@@ -267,7 +267,7 @@ export default function FollowingPage() {
         ) : (
           <div className="space-y-4">
             {filteredFollowing.map((user) => (
-              <div key={user.id} className="gt-card p-6 hover:shadow-[0_24px_50px_-30px_rgba(15,36,118,0.46)] transition-shadow">
+              <div key={user.id} className="gt-card p-6 hover:shadow-[0_24px_50px_-30px_rgba(189,101,78,0.46)] transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <Link href={`/user/${user.id}`} className="flex-shrink-0">
@@ -281,7 +281,7 @@ export default function FollowingPage() {
                       />
                     ) : (
                       <div 
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-[0_14px_32px_-20px_rgba(15,36,118,0.44)]"
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-[0_14px_32px_-20px_rgba(189,101,78,0.44)]"
                         style={{ backgroundColor: getAvatarColor(user.display_name || user.username) }}
                       >
                         {(user.display_name || user.username).charAt(0)}
@@ -298,7 +298,7 @@ export default function FollowingPage() {
                             {user.display_name || user.username}
                           </Link>
                           {user.is_mutual_follow && (
-                            <span className="px-2 py-1 bg-[rgba(42,95,232,0.16)] text-[color:var(--gt-secondary-strong)] text-xs rounded-full font-medium border border-[rgba(42,95,232,0.3)]">
+                            <span className="px-2 py-1 bg-[rgba(240,142,111,0.16)] text-[color:var(--gt-secondary-strong)] text-xs rounded-full font-medium border border-[rgba(240,142,111,0.3)]">
                               相互
                             </span>
                           )}
@@ -334,7 +334,7 @@ export default function FollowingPage() {
                         <button 
                           onClick={() => handleUnfollow(user.id)}
                           disabled={processingIds.includes(user.id)}
-                          className={`px-3 py-2 bg-[rgba(255,247,247,0.9)] text-[#e0707a] rounded-lg text-sm font-medium border border-red-200 hover:bg-red-100 transition-colors flex items-center gap-1 ${
+                          className={`px-3 py-2 bg-[rgba(255,247,247,0.9)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium border border-[rgba(231,103,76,0.26)] hover:bg-[rgba(231,103,76,0.12)] transition-colors flex items-center gap-1 ${
                             processingIds.includes(user.id) ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         >

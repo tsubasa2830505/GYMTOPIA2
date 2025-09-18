@@ -2,12 +2,12 @@
 
 export function getAvatarColor(name: string): string {
   const colors = [
-    '#10b981', // green
-    '#f59e0b', // yellow
-    '#8b5cf6', // purple
-    '#ef4444', // red
-    '#06b6d4', // cyan
-    '#ec4899', // pink
+    'var(--gt-primary)',
+    'var(--gt-primary-strong)',
+    'var(--gt-secondary)',
+    'var(--gt-secondary-strong)',
+    'var(--gt-tertiary)',
+    'var(--gt-tertiary-strong)',
   ]
   const index = name.charCodeAt(0) % colors.length
   return colors[index]
@@ -19,12 +19,12 @@ export function getInitial(name: string): string {
 
 export function getAvatarGradient(name: string): string {
   const gradients = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+    'linear-gradient(135deg, var(--gt-primary) 0%, var(--gt-primary-strong) 100%)',
+    'linear-gradient(135deg, var(--gt-secondary) 0%, var(--gt-primary) 100%)',
+    'linear-gradient(135deg, var(--gt-secondary) 0%, var(--gt-tertiary) 100%)',
+    'linear-gradient(135deg, var(--gt-tertiary) 0%, rgba(231, 103, 76, 0.45) 100%)',
+    'linear-gradient(135deg, rgba(231, 103, 76, 0.8) 0%, rgba(249, 214, 200, 0.65) 100%)',
+    'linear-gradient(135deg, rgba(240, 142, 111, 0.85) 0%, rgba(231, 103, 76, 0.6) 100%)',
   ]
   const index = name.charCodeAt(0) % gradients.length
   return gradients[index]

@@ -396,7 +396,11 @@ export async function getGymMachines(gymId: string): Promise<GymMachine[]> {
     }))
     return rows
   } catch (error) {
-    console.error('Error fetching gym machines:', error)
+    console.error('Error fetching gym machines:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      gymId
+    })
     return []
   }
 }

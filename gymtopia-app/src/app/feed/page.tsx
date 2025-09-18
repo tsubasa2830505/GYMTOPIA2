@@ -356,9 +356,9 @@ export default function FeedPage() {
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(210deg,rgba(240,244,255,0.3),transparent_82%),radial-gradient(circle_at_16%_20%,rgba(60,102,255,0.16),transparent_64%),radial-gradient(circle_at_84%_14%,rgba(110,150,255,0.12),transparent_72%)]" />
-        <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,79,255,0.32),transparent_72%)] blur-[150px] opacity-68" />
-        <div className="absolute bottom-[-6%] right-[-4%] h-[21rem] w-[21rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(102,142,255,0.24),transparent_78%)] blur-[150px] opacity-58" />
+        <div className="absolute inset-0 bg-[linear-gradient(210deg,rgba(231,103,76,0.08),transparent_82%),radial-gradient(circle_at_16%_20%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_84%_14%,rgba(245,177,143,0.12),transparent_74%)]" />
+        <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.32),transparent_72%)] blur-[150px] opacity-68" />
+        <div className="absolute bottom-[-6%] right-[-4%] h-[21rem] w-[21rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(245, 177, 143,0.24),transparent_78%)] blur-[150px] opacity-58" />
       </div>
       <Header />
 
@@ -378,8 +378,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'all'
-                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -390,8 +390,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('following')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'following'
-                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -402,8 +402,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('mutual')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'mutual'
-                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -414,8 +414,8 @@ export default function FeedPage() {
             <button
               onClick={() => setFilter('same-gym')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'same-gym'
-                ? 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white shadow-[0_12px_30px_-18px_rgba(15,36,118,0.46)]'
-                : 'bg-[rgba(243,247,255,0.92)] text-[color:var(--text-subtle)] border border-[rgba(44,82,190,0.18)] hover:bg-white'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
                 }`}
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
@@ -428,19 +428,19 @@ export default function FeedPage() {
 
         {/* Error State */}
         {error && (
-          <div className="gt-card border border-[rgba(248,113,113,0.35)] bg-[rgba(255,237,237,0.95)] p-4 sm:p-5">
+          <div className="gt-card border border-[rgba(231,103,76,0.28)] bg-[rgba(254,255,250,0.96)] p-4 sm:p-5">
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-5 h-5 text-[color:var(--gt-primary)]" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
-              <p className="text-sm font-semibold text-rose-600">{error}</p>
+              <p className="text-sm font-semibold text-[color:var(--gt-primary-strong)]">{error}</p>
             </div>
             <button
               onClick={() => {
                 setError(null);
                 loadInitialPosts();
               }}
-              className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white/80 border border-[rgba(248,113,113,0.35)] text-rose-600 hover:bg-white transition-colors"
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white/80 border border-[rgba(231,103,76,0.28)] text-[color:var(--gt-primary-strong)] hover:bg-white transition-colors"
             >
               再試行
             </button>
@@ -483,8 +483,8 @@ export default function FeedPage() {
                     disabled={isLoadingMore}
                     className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                       isLoadingMore
-                        ? 'bg-[rgba(243,247,255,0.8)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(44,82,190,0.18)]'
-                        : 'bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white hover:from-[#2645c8] hover:to-[#3b6fff] shadow-[0_18px_34px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_22px_40px_-20px_rgba(15,36,118,0.52)]'
+                        ? 'bg-[rgba(254,255,250,0.8)] text-[color:var(--text-muted)] cursor-not-allowed border border-[rgba(231,103,76,0.18)]'
+                        : 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] hover:from-accent-strong hover:to-accent-tertiary shadow-[0_18px_34px_-20px_rgba(189,101,78,0.44)] hover:shadow-[0_22px_40px_-20px_rgba(189,101,78,0.5)]'
                     }`}
                   >
                     {isLoadingMore ? (
@@ -507,7 +507,7 @@ export default function FeedPage() {
               {/* End of Posts Indicator */}
               {!hasMore && posts.length > 0 && (
                 <div className="text-center py-8">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(243,247,255,0.92)] border border-[rgba(44,82,190,0.18)] rounded-full text-[color:var(--text-subtle)] text-sm">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-full text-[color:var(--text-subtle)] text-sm">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z" />
                     </svg>
@@ -519,7 +519,7 @@ export default function FeedPage() {
               {/* Empty State */}
               {posts.length === 0 && !isLoading && (
                 <div className="text-center py-12">
-                  <svg className="w-16 h-16 mx-auto text-[rgba(44,82,190,0.32)] mb-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-16 h-16 mx-auto text-[rgba(231,103,76,0.32)] mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                   </svg>
                   <p className="text-sm text-[color:var(--text-subtle)]">まだ投稿がありません</p>
@@ -532,10 +532,10 @@ export default function FeedPage() {
         {/* Post Button - Fixed Position */}
         <button
           onClick={() => router.push('/add')}
-          className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
+          className="fixed bottom-20 right-6 sm:bottom-24 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-[color:var(--gt-primary)] rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center group"
           style={{
             zIndex: 9999,
-            background: 'linear-gradient(135deg, #1f4fff, #2a5fe8)',
+            background: 'var(--gt-accent-gradient)',
             backdropFilter: 'blur(10px)'
           }}
         >

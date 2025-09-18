@@ -85,7 +85,7 @@ export default function AdminReviewsPage() {
           <Star
             key={i}
             className={`w-3 h-3 ${
-              i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+              i < rating ? 'fill-[color:var(--gt-tertiary)] text-[color:var(--gt-tertiary)]' : 'text-[rgba(68,73,73,0.4)]'
             }`}
           />
         ))}
@@ -101,20 +101,20 @@ export default function AdminReviewsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-[rgba(254,255,250,0.96)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[color:var(--gt-primary)]"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[rgba(243,247,255,0.96)]">
+    <div className="min-h-screen bg-[rgba(254,255,250,0.96)]">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-bold text-[color:var(--foreground)]">レビュー管理</h1>
-              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] rounded-full text-sm font-medium">
                 管理者専用
               </span>
             </div>
@@ -124,15 +124,15 @@ export default function AdminReviewsPage() {
                 <span>{filteredReviews.length}件のレビュー</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-[color:var(--text-subtle)]">
-                <Star className="w-4 h-4 text-yellow-400" />
+                <Star className="w-4 h-4 text-[color:var(--gt-tertiary)]" />
                 <span>平均 {getAverageRating()}</span>
               </div>
               <button
                 onClick={() => setShowRatings(!showRatings)}
                 className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                   showRatings
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    : 'bg-gray-100 text-[color:var(--text-subtle)] hover:bg-gray-200'
+                    ? 'bg-[rgba(240,142,111,0.14)] text-[color:var(--gt-secondary-strong)] hover:bg-[rgba(240,142,111,0.18)]'
+                    : 'bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.9)]'
                 }`}
               >
                 {showRatings ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -145,12 +145,12 @@ export default function AdminReviewsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 管理者向け説明 */}
-        <div className="bg-blue-50 border border-[rgba(31,79,255,0.22)] rounded-lg p-4 mb-6">
+        <div className="bg-[rgba(231,103,76,0.08)] border border-[rgba(231,103,76,0.22)] rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
-            <MessageCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <MessageCircle className="w-5 h-5 text-[color:var(--gt-secondary-strong)] flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium text-blue-900 mb-1">管理者向け機能について</h3>
-              <p className="text-sm text-blue-800">
+              <h3 className="font-medium text-[color:var(--gt-primary-strong)] mb-1">管理者向け機能について</h3>
+              <p className="text-sm text-[color:var(--gt-secondary-strong)]">
                 ユーザーは星評価を入力できますが、一般ユーザーには個別の評価は表示されません。
                 このページでは管理者のみがユーザーの詳細な評価を確認できます。
                 右上の「星評価表示/非表示」ボタンで表示を切り替えられます。
@@ -169,7 +169,7 @@ export default function AdminReviewsPage() {
               <select
                 value={selectedGym}
                 onChange={(e) => setSelectedGym(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-[rgba(186,122,103,0.28)] rounded-lg focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-[color:var(--gt-primary)]"
               >
                 <option value="all">すべてのジム</option>
                 {gyms.map((gym, index) => (
@@ -185,7 +185,7 @@ export default function AdminReviewsPage() {
               <select
                 value={ratingFilter || ''}
                 onChange={(e) => setRatingFilter(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-[rgba(186,122,103,0.28)] rounded-lg focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-[color:var(--gt-primary)]"
               >
                 <option value="">すべての評価</option>
                 <option value="5">⭐⭐⭐⭐⭐ (5)</option>
@@ -201,13 +201,13 @@ export default function AdminReviewsPage() {
                 検索
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgba(44,82,190,0.32)] w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgba(231,103,76,0.32)] w-4 h-4" />
                 <input
                   type="text"
                   placeholder="ジム名、ユーザー名、レビュー内容で検索..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-[rgba(186,122,103,0.28)] rounded-lg focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-[color:var(--gt-primary)]"
                 />
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function AdminReviewsPage() {
             <div key={review.id} className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)] rounded-full flex items-center justify-center">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -235,7 +235,7 @@ export default function AdminReviewsPage() {
                       <span className="text-sm font-medium text-[color:var(--foreground)]">
                         {review.rating}/5
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium ml-2">
+                      <span className="px-2 py-1 bg-[rgba(245,177,143,0.14)] text-[color:var(--gt-tertiary-strong)] text-xs rounded-full font-medium ml-2">
                         管理者のみ表示
                       </span>
                     </div>
@@ -264,7 +264,7 @@ export default function AdminReviewsPage() {
                 <div className="border-t pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <p className="text-sm font-medium text-[color:var(--text-subtle)]">詳細評価</p>
-                    <span className="px-2 py-1 bg-red-100 text-[#c85963] text-xs rounded-full font-medium">
+                    <span className="px-2 py-1 bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-medium">
                       管理者のみ表示
                     </span>
                   </div>
@@ -310,7 +310,7 @@ export default function AdminReviewsPage() {
 
         {filteredReviews.length === 0 && (
           <div className="text-center py-12">
-            <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <MessageCircle className="w-12 h-12 text-[rgba(68,73,73,0.4)] mx-auto mb-4" />
             <p className="text-[color:var(--text-muted)] text-lg">条件に一致するレビューがありません</p>
           </div>
         )}
