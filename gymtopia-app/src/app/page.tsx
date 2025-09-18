@@ -97,7 +97,7 @@ export default function Home() {
               理想のジムトピアが<br className="sm:hidden" />ここにある
             </h2>
             <p className="text-[color:var(--gt-on-primary)]/80 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-              街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。{/* Deployment test */}
+              街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
             </p>
           </div>
         </div>
