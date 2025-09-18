@@ -45,15 +45,15 @@
         }
         .error {
             background: rgba(201, 86, 61, 0.14);
-            color: #a44433;
+            color: var(--gt-primary-strong);
         }
         .info {
             background: rgba(240, 142, 111, 0.12);
             color: var(--gt-secondary);
         }
         .sql-box {
-            background: #2d2d2d;
-            color: #f8f8f2;
+            background: rgba(68, 73, 73, 0.94);
+            color: #fff7f2;
             padding: 20px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
@@ -217,7 +217,7 @@ CREATE POLICY "Anyone can view public check-ins" ON check_ins
                 link.textContent = 'Supabase SQLエディタを開く';
                 link.style.display = 'inline-block';
                 link.style.marginTop = '10px';
-                link.style.color = '#e7674c';
+                link.style.color = 'var(--gt-primary)';
                 document.getElementById('status').appendChild(link);
 
             } catch (error) {

@@ -623,14 +623,14 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(240,244,255,0.32),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(64,106,255,0.18),transparent_64%),radial-gradient(circle_at_86%_18%,rgba(108,150,255,0.14),transparent_74%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(231,103,76,0.08),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_18%,rgba(245,177,143,0.12),transparent_76%)]" />
         <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />
-        <div className="absolute bottom-[-8%] left-[-4%] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(100,140,255,0.24),transparent_80%)] blur-[160px] opacity-58" />
+        <div className="absolute bottom-[-8%] left-[-4%] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(245,177,143,0.2),transparent_80%)] blur-[160px] opacity-58" />
       </div>
       <Header />
 
       {/* Profile Header */}
-      <div className="relative border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.95)] pt-24 sm:pt-28">
+      <div className="relative border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.95)] pt-24 sm:pt-28">
         <div className="max-w-6xl mx-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             {/* Avatar */}
