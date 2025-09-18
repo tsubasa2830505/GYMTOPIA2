@@ -124,16 +124,8 @@ export default function ProfilePage() {
     })
   }, [])
 
-  // Use authenticated user's ID - requires login
-  const userId = user?.id;
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-  }, [user, router]);
+  // Always use Tsubasa's user ID
+  const userId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
 
   useEffect(() => {
     // Performance optimization: Skip if already loading or already loaded
@@ -141,32 +133,85 @@ export default function ProfilePage() {
       return;
     }
 
-    // If no user, show default data
-    if (!userId) {
-      console.log('👤 認証なしユーザー: デフォルトデータを表示');
-      setProfileData({
-        user_id: 'default-user',
-        display_name: 'Tsubasa',
-        username: 'tsubasa_gym',
-        email: 'tsubasa.a.283.0505@gmail.com',
-        avatar_url: '/muscle-taro-avatar.svg',
-        bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
-        location: '東京',
-        joined_at: '2024-01-01T00:00:00Z',
-        is_verified: true,
-        workout_count: 142,
-        workout_streak: 7,
-        followers_count: 89,
-        following_count: 126,
-        mutual_follows_count: 24,
-        posts_count: 38,
-        achievements_count: 12,
-        favorite_gyms_count: 5
-      });
-      setIsLoading(false);
-      hasLoadedData.current = true;
-      return;
-    }
+    // Always show Tsubasa's data immediately
+    console.log('👤 Tsubasaのプロフィールを表示');
+    setProfileData({
+      user_id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+      display_name: 'Tsubasa',
+      username: 'tsubasa_gym',
+      email: 'tsubasa.a.283.0505@gmail.com',
+      avatar_url: '/muscle-taro-avatar.svg',
+      bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
+      location: '東京',
+      joined_at: '2024-01-01T00:00:00Z',
+      is_verified: true,
+      workout_count: 142,
+      workout_streak: 7,
+      followers_count: 89,
+      following_count: 126,
+      mutual_follows_count: 24,
+      posts_count: 38,
+      achievements_count: 12,
+      favorite_gyms_count: 5
+    });
+
+    // Set weekly stats
+    setWeeklyStats({
+      workout_count: 4,
+      total_weight_kg: 8500,
+      avg_duration_minutes: 75,
+      streak_days: 7,
+      favorite_exercises: [
+        { name: 'ベンチプレス', frequency: 3 },
+        { name: 'スクワット', frequency: 2 },
+        { name: 'デッドリフト', frequency: 2 }
+      ],
+      workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
+    });
+
+    // Set some sample posts
+    setUserPosts([
+      {
+        id: 'post-1',
+        user_id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+        content: '今日はベンチプレス90kg × 5回達成！💪\n100kg目標まであと少し！',
+        workout_session_id: 'session-1',
+        likes_count: 24,
+        comments_count: 5,
+        shares_count: 2,
+        is_public: true,
+        created_at: '2025-01-14T10:00:00Z',
+        updated_at: '2025-01-14T10:00:00Z',
+        user: {
+          id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+          display_name: 'Tsubasa',
+          username: 'tsubasa_gym',
+          avatar_url: '/muscle-taro-avatar.svg',
+          bio: '週4でジムに通っています💪 ベンチプレス100kg目標！',
+          joined_at: '2024-01-01T00:00:00Z',
+          is_verified: true,
+          workout_streak: 7,
+          total_workouts: 142,
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2025-01-14T00:00:00Z'
+        },
+        training_details: {
+          gym_name: 'ゴールドジム渋谷',
+          exercises: [
+            { name: 'ベンチプレス', weight: [90], sets: 3, reps: [5] },
+            { name: 'インクラインダンベルプレス', weight: [30], sets: 3, reps: [10] },
+            { name: 'ケーブルフライ', weight: [20], sets: 3, reps: [12] }
+          ],
+          crowd_status: '普通'
+        }
+      }
+    ]);
+
+    // Set unique gyms count
+    setUniqueGymsCount(8);
+    setIsLoading(false);
+    hasLoadedData.current = true;
+    return;
 
     let isActive = true;
     let retryCount = 0;
@@ -416,7 +461,7 @@ export default function ProfilePage() {
         clearTimeout(retryTimeout);
       }
     };
-  }, [userId]); // userIdが変更されたときに実行
+  }, []); // 初回のみ実行
 
   const loadMorePosts = async () => {
     if (!hasMorePosts || isLoadingMorePosts || !userId) return;

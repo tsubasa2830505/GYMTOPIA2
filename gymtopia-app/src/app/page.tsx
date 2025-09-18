@@ -207,7 +207,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6 border-b border-[rgba(157,176,226,0.38)] bg-[rgba(247,250,255,0.88)]">
+              <div className="p-4 sm:p-6 border-b border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.88)]">
                 <div className="gt-tab-track flex gap-1">
                   <button
                     onClick={() => setActiveTab('machine')}
@@ -260,7 +260,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="p-4 sm:p-6 border-t border-[rgba(157,176,226,0.38)] bg-[rgba(247,250,255,0.9)]">
+              <div className="p-4 sm:p-6 border-t border-[rgba(44,82,190,0.18)] bg-[rgba(247,250,255,0.9)]">
                 <button
                   onClick={goToSearchResults}
                   className="w-full gt-pill-button justify-center text-sm sm:text-base"
@@ -275,10 +275,10 @@ export default function Home() {
           </div>
 
           <div className="col-span-1 hidden lg:block">
-            <div className="gt-card p-6 sticky top-24 backdrop-blur-[8px] border border-[rgba(157,176,226,0.5)]">
-              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-[rgba(157,176,226,0.45)] bg-[radial-gradient(circle_at_20%_16%,rgba(142,208,255,0.22),transparent_60%),linear-gradient(180deg,rgba(247,250,255,0.96),rgba(234,242,255,0.9))] p-6">
+            <div className="gt-card p-6 sticky top-24 backdrop-blur-[8px] border border-[rgba(44,82,190,0.2)]">
+              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-[rgba(44,82,190,0.18)] bg-[radial-gradient(circle_at_20%_16%,rgba(96,134,255,0.18),transparent_60%),linear-gradient(180deg,rgba(247,250,255,0.96),rgba(234,242,255,0.9))] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(59,99,243,0.28),rgba(132,210,255,0.28))] flex items-center justify-center shadow-[0_20px_42px_-30px_rgba(26,44,94,0.45)]">
+                  <div className="w-11 h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(31,79,255,0.28),rgba(96,134,255,0.24))] flex items-center justify-center shadow-[0_20px_42px_-30px_rgba(15,36,118,0.46)]">
                     <MapPin className="w-5 h-5 text-[var(--gt-on-primary)]" />
                   </div>
                   <div>
@@ -290,7 +290,7 @@ export default function Home() {
 
               {!hasAnySelection() ? (
                 <div className="text-center py-12">
-                  <div className="w-14 h-14 bg-[rgba(243,247,255,0.94)] border border-[rgba(157,176,226,0.45)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(26,44,94,0.45)]">
+                  <div className="w-14 h-14 bg-[rgba(243,247,255,0.94)] border border-[rgba(44,82,190,0.18)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(15,36,118,0.45)]">
                     <Calendar className="w-7 h-7 text-[color:var(--text-muted)]" />
                   </div>
                   <p className="gt-title-sm text-[color:var(--foreground)] mb-2">条件を選択してください</p>
@@ -304,7 +304,7 @@ export default function Home() {
                   {Array.from(selectedMachines.entries()).map(([machineId, count]) => (
                     <div
                       key={`machine-summary-${machineId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(26,44,94,0.45)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
                     >
                       <span className="gt-label-lg text-[color:var(--gt-secondary-strong)]">{count > 1 ? `${machineId} (${count}台)` : machineId}</span>
                       <button
@@ -313,7 +313,7 @@ export default function Home() {
                           newMachines.delete(machineId)
                           setSelectedMachines(newMachines)
                         }}
-                        className="text-[color:var(--gt-secondary-strong)] hover:text-[#1f4f83] text-sm leading-none"
+                        className="text-[color:var(--gt-secondary-strong)] hover:text-[#1b46c4] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -323,7 +323,7 @@ export default function Home() {
                   {Array.from(selectedFreeWeights).map(([weightId, count]) => (
                     <div
                       key={`weight-summary-${weightId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(26,44,94,0.45)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
                     >
                       <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId} ({count}個)</span>
                       <button
@@ -332,7 +332,7 @@ export default function Home() {
                           newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}
-                        className="text-[color:var(--gt-primary-strong)] hover:text-[#1d3784] text-sm leading-none"
+                        className="text-[color:var(--gt-primary-strong)] hover:text-[#1a3bcc] text-sm leading-none"
                       >
                         ×
                       </button>
@@ -342,7 +342,7 @@ export default function Home() {
                   {Array.from(selectedFacilities).map((facility) => (
                     <div
                       key={`facility-summary-${facility}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(26,44,94,0.45)]"
+                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(15,36,118,0.44)]"
                     >
                       <span className="gt-label-lg" style={{ color: 'var(--gt-tertiary-strong)' }}>{facility}</span>
                       <button
@@ -351,7 +351,7 @@ export default function Home() {
                           newFacilities.delete(facility)
                           setSelectedFacilities(newFacilities)
                         }}
-                        className="text-[color:var(--gt-tertiary-strong)] hover:text-[#3848ad] text-sm leading-none"
+                        className="text-[color:var(--gt-tertiary-strong)] hover:text-[#2f5de0] text-sm leading-none"
                       >
                         ×
                       </button>
