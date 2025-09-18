@@ -769,7 +769,7 @@ export default function ProfileEditPage() {
 
             <div className="space-y-4">
               {/* ジム活動全体の非公開設定 */}
-              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+              <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-red-50 border-red-200' : 'bg-[rgba(243,247,255,0.95)] border-[rgba(44,82,190,0.16)]'}`}>
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-3">
                     {gymActivityPrivate ? <EyeOff className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-green-500" />}
@@ -784,7 +784,7 @@ export default function ProfileEditPage() {
                     type="button"
                     onClick={() => setGymActivityPrivate(!gymActivityPrivate)}
                     className={`relative w-12 h-6 rounded-full transition-colors ${
-                      gymActivityPrivate ? 'bg-red-500' : 'bg-gray-300'
+                      gymActivityPrivate ? 'bg-[#e04f5f]' : 'bg-[rgba(223,233,255,0.9)]'
                     }`}
                   >
                     <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -797,9 +797,9 @@ export default function ProfileEditPage() {
               {/* 個別の公開設定（ジム活動が公開の場合のみ） */}
               {!gymActivityPrivate && (
                 <>
-                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showStatsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      {showStatsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">統計情報を公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">トレーニング回数、時間など</p>
@@ -809,7 +809,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowStatsPublic(!showStatsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showStatsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
+                        showStatsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -818,9 +818,9 @@ export default function ProfileEditPage() {
                     </button>
                   </label>
 
-                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showAchievementsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      {showAchievementsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">アチーブメントを公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">獲得したバッジや実績</p>
@@ -830,7 +830,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowAchievementsPublic(!showAchievementsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showAchievementsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
+                        showAchievementsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -839,9 +839,9 @@ export default function ProfileEditPage() {
                     </button>
                   </label>
 
-                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <label className="flex items-center justify-between p-3 bg-[rgba(243,247,255,0.95)] rounded-lg">
                     <div className="flex items-center gap-3">
-                      {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      {showFavoriteGymsPublic ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-[rgba(44,82,190,0.32)]" />}
                       <div>
                         <span className="text-sm font-medium text-[color:var(--foreground)]">お気に入りジムを公開</span>
                         <p className="text-xs text-[color:var(--text-subtle)]">登録したお気に入りのジム</p>
@@ -851,7 +851,7 @@ export default function ProfileEditPage() {
                       type="button"
                       onClick={() => setShowFavoriteGymsPublic(!showFavoriteGymsPublic)}
                       className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showFavoriteGymsPublic ? 'bg-[#1f4fff]' : 'bg-gray-300'
+                        showFavoriteGymsPublic ? 'bg-[#1f4fff]' : 'bg-[rgba(223,233,255,0.9)]'
                       }`}
                     >
                       <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${

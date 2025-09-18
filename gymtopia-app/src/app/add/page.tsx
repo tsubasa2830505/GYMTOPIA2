@@ -168,7 +168,7 @@ function AddGymPostContent() {
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 8 12 8zm0 10c-2.03 0-4.43-.82-6.14-2.88C7.55 14.8 9.68 14 12 14s4.45.8 6.14 2.12C16.43 17.18 14.03 18 12 18z"/>
       </svg>
-    ), color: 'bg-green-100 text-green-700' },
+    ), color: 'bg-[rgba(31,79,255,0.12)] text-[color:var(--gt-primary-strong)]' },
     { value: 'normal' as const, label: '普通', icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
@@ -328,7 +328,7 @@ function AddGymPostContent() {
                 type="submit"
                 form="post-form"
                 disabled={!gymName || !content || isSubmitting}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(15,36,118,0.5)] transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -346,7 +346,7 @@ function AddGymPostContent() {
               <button
                 onClick={handleEquipmentSubmit}
                 disabled={!equipmentGymName || (selectedFreeWeights.size === 0 && selectedMachines.size === 0) || isSubmitting}
-                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-[#1f4fff] to-[#2a5fe8] text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_14px_32px_-20px_rgba(15,36,118,0.46)] hover:shadow-[0_18px_38px_-20px_rgba(15,36,118,0.5)] transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -369,7 +369,7 @@ function AddGymPostContent() {
               onClick={() => setActiveTab('post')}
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'post'
-                  ? 'border-blue-500 text-blue-600 font-medium'
+                  ? 'border-[rgba(31,79,255,0.3)] text-[color:var(--gt-primary-strong)] font-medium'
                   : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
@@ -380,7 +380,7 @@ function AddGymPostContent() {
               onClick={() => setActiveTab('equipment')}
               className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 border-b-2 transition-colors ${
                 activeTab === 'equipment'
-                  ? 'border-green-500 text-green-600 font-medium'
+                  ? 'border-[rgba(31,79,255,0.3)] text-[color:var(--gt-secondary-strong)] font-medium'
                   : 'border-transparent text-[color:var(--text-subtle)] hover:text-[color:var(--foreground)]'
               }`}
             >
@@ -397,8 +397,8 @@ function AddGymPostContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-8 max-w-sm mx-4 shadow-2xl">
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Settings className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-[rgba(31,79,255,0.12)] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Settings className="w-8 h-8 text-[color:var(--gt-secondary-strong)]" />
                 </div>
                 <h2 className="text-xl font-bold text-[color:var(--foreground)] mb-2">登録完了！</h2>
                 <p className="text-[color:var(--text-subtle)]">ジム機器の登録が完了しました</p>
@@ -515,7 +515,7 @@ function AddGymPostContent() {
                     console.log('種目追加ボタンがクリックされました')
                     setShowExerciseForm(true)
                   }}
-                  className="px-3 py-1 bg-blue-100 text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-[rgba(31,79,255,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(31,79,255,0.22)] transition-colors flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   種目を追加
@@ -596,7 +596,7 @@ function AddGymPostContent() {
                   <button
                     type="button"
                     onClick={handleAddExercise}
-                    className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                    className="flex-1 px-3 py-2 bg-[#1f4fff] text-white rounded-lg text-sm font-medium hover:bg-[#1a3bcc] transition-colors"
                   >
                     追加
                   </button>
@@ -629,7 +629,7 @@ function AddGymPostContent() {
                   onClick={() => setCrowdStatus(option.value)}
                   className={`p-3 rounded-lg border-2 transition-all ${
                     crowdStatus === option.value
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-[rgba(31,79,255,0.3)] bg-[rgba(31,79,255,0.12)]'
                       : 'border-[rgba(44,82,190,0.16)] hover:border-[rgba(44,82,190,0.2)]'
                   }`}
                 >
@@ -803,7 +803,7 @@ export default function AddGymPostPage() {
     <Suspense fallback={
       <div className="min-h-screen bg-[rgba(243,247,255,0.96)] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[color:var(--text-subtle)]">読み込み中...</p>
         </div>
       </div>
