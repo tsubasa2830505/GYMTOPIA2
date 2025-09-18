@@ -38,6 +38,10 @@ export interface Post {
     name: string
   }
   is_liked?: boolean
+  is_verified?: boolean
+  check_in_id?: string | null
+  verification_method?: 'check_in' | 'manual' | null
+  distance_from_gym?: number | null
 }
 
 export interface Comment {

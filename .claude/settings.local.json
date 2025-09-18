@@ -155,7 +155,8 @@
       "Bash(for page in \"/user/0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8\" \"/user/5da8ed48-e07f-47f8-9fa5-56b5c4a0b6f0\")",
       "Bash(for url in \"https://gymtopia-dvnkndwee-tsubasaa2830505-7621s-projects.vercel.app\" \"https://gym-topia.com\" \"https://gymtopia-app.vercel.app\" \"https://gymtopia.vercel.app\")",
       "WebFetch(domain:gymtopia-app.vercel.app)",
-      "Bash(/usr/bin/git commit -m \"🔧 デザイン調整: フィード・フォロー・ポストカード最新版\n\n✅ 調整内容:\n- フィードページのデザイン最新化（グラデーション背景、カードスタイル）\n- フォローページの青系テーマ統一\n- PostCardのInstagramアイコン追加（ストーリー機能）\n- 全体的なUI一貫性向上\n\n🎯 効果:\n- モダンで統一されたデザイン言語\n- ユーザー体験の向上\n- 視覚的な魅力向上\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)"
+      "Bash(/usr/bin/git commit -m \"🔧 デザイン調整: フィード・フォロー・ポストカード最新版\n\n✅ 調整内容:\n- フィードページのデザイン最新化（グラデーション背景、カードスタイル）\n- フォローページの青系テーマ統一\n- PostCardのInstagramアイコン追加（ストーリー機能）\n- 全体的なUI一貫性向上\n\n🎯 効果:\n- モダンで統一されたデザイン言語\n- ユーザー体験の向上\n- 視覚的な魅力向上\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)",
+      "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 npx vercel --prod --yes)"
     ],
     "deny": [],
     "ask": []

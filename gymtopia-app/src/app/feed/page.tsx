@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import PostCard from '@/components/PostCard';
+import PostCardWithVerification from '@/components/PostCardWithVerification';
 import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +30,10 @@ const getSamplePosts = (): Post[] => [
     gym: {
       name: 'エクサイズジム渋谷'
     },
+    is_verified: true,
+    check_in_id: 'sample-checkin-1',
+    verification_method: 'check_in',
+    distance_from_gym: 25,
     training_details: {
       gym_name: 'エクサイズジム渋谷',
       exercises: [
@@ -73,6 +77,8 @@ const getSamplePosts = (): Post[] => [
     gym: {
       name: 'フィットネスジム新宿'
     },
+    is_verified: false,
+    verification_method: 'manual',
     training_details: {
       gym_name: 'フィットネスジム新宿',
       exercises: [
@@ -84,6 +90,47 @@ const getSamplePosts = (): Post[] => [
         }
       ],
       crowd_status: 'empty'
+    }
+  },
+  {
+    id: 'sample-3',
+    user_id: 'sample-user-3',
+    gym_id: 'sample-gym-3',
+    content: 'チェックインしてすぐに筋トレ開始！\n\n今日は胸と背中を集中的に鍛えました。近距離チェックインで高精度認証もバッチリ✨',
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    likes_count: 22,
+    comments_count: 5,
+    is_liked: true,
+    user: {
+      id: 'sample-user-3',
+      display_name: 'マッスル一郎',
+      username: 'muscle_ichiro',
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face'
+    },
+    gym: {
+      name: 'ゴールドジム銀座'
+    },
+    is_verified: true,
+    check_in_id: 'sample-checkin-2',
+    verification_method: 'check_in',
+    distance_from_gym: 15,
+    training_details: {
+      gym_name: 'ゴールドジム銀座',
+      exercises: [
+        {
+          name: 'ベンチプレス',
+          weight: 120,
+          sets: 4,
+          reps: 6
+        },
+        {
+          name: 'ラットプルダウン',
+          weight: 90,
+          sets: 3,
+          reps: 10
+        }
+      ],
+      crowd_status: 'crowded'
     }
   }
 ];
@@ -463,15 +510,29 @@ export default function FeedPage() {
             {/* Feed Posts */}
             <div className="space-y-4">
               {posts.map((post) => (
-                <PostCard
+                <PostCardWithVerification
                   key={post.id}
-                  post={post}
-                  currentUserId={user?.id}
-                  onEdit={handleEditPost}
-                  onDelete={handleDeletePost}
-                  onLike={handleLike}
-                  onToggleTraining={() => toggleTrainingDetails(post.id)}
-                  expandedTraining={expandedTraining}
+                  id={post.id}
+                  user={{
+                    id: post.user.id,
+                    username: post.user.username,
+                    displayName: post.user.display_name,
+                    avatarUrl: post.user.avatar_url
+                  }}
+                  gym={{
+                    id: post.gym_id,
+                    name: post.gym.name
+                  }}
+                  content={post.content}
+                  images={post.images}
+                  likes={post.likes_count}
+                  comments={post.comments_count}
+                  createdAt={post.created_at}
+                  isLiked={post.is_liked}
+                  isVerified={post.is_verified}
+                  checkInId={post.check_in_id}
+                  verificationMethod={post.verification_method}
+                  distanceFromGym={post.distance_from_gym}
                 />
               ))}
 

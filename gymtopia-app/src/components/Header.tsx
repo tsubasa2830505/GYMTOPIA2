@@ -57,7 +57,7 @@ export default function Header({ title, subtitle }: HeaderProps = {}) {
             />
 
             {/* Menu Content */}
-            <div className="fixed top-[72px] sm:top-[81px] right-4 w-64 gt-card z-50 overflow-hidden">
+            <div className="absolute top-full right-4 mt-2 w-64 gt-card z-50 overflow-hidden">
               <div className="p-2 space-y-1">
                 <button
                   onClick={() => {
