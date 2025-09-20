@@ -34,6 +34,22 @@
 - 計画立案・コードレビュー・デバッグ
 - リファクタリング・テスト生成
 
+### 🚀 Gemini自動フォールバックシステム
+**実装済み**: 5段階の自動モデル切り替え
+1. **gemini-2.0-flash-lite** (30 RPM, 1M TPM, 200 RPD) - 最優先
+2. **gemini-2.0-flash** (15 RPM, 1M TPM, 200 RPD)
+3. **gemini-2.5-flash-lite** (15 RPM, 250k TPM, 1000 RPD)
+4. **gemini-2.5-flash** (10 RPM, 250k TPM, 250 RPD)
+5. **gemini-2.5-pro** (5 RPM, 250k TPM, 100 RPD) - 高品質
+
+**使用量監視**: `./scripts/gemini-usage-monitor.sh`
+- `limits`: モデル別制限表示
+- `recommend`: フォールバック順序
+- `test`: モデル動作テスト
+- `log`: 使用履歴表示
+
+**費用**: 通常使用なら**完全無料**（月1500リクエスト制限内）
+
 ## AIアシスタントツール統合
 このプロジェクトでは、Claude Code、Zen MCP、Codex（Cursor）を統合使用しています。
 どちらのツールを使用する場合も、以下のガイドラインに従ってください。

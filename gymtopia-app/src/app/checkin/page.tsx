@@ -190,7 +190,7 @@ export default function CheckInPage() {
       const supabase = getSupabaseClient()
 
       // デモモードでユーザーIDを固定
-      const demoUserId = '0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8'
+      const demoUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
 
       // 最近のチェックインを取得
       const { data: checkIns, error: checkInsError } = await supabase
@@ -304,7 +304,7 @@ export default function CheckInPage() {
     setCheckingIn(gymId)
 
     try {
-      const demoUserId = '0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8'
+      const demoUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
       const gym = nearbyGyms.find(g => g.id === gymId)
 
       if (!gym) {

@@ -111,9 +111,10 @@ export async function performGPSCheckin(
       .single()
 
     if (checkinError || !checkin) {
+      console.error('Checkin error:', checkinError)
       return {
         success: false,
-        error: 'Failed to save check-in',
+        error: `Failed to save check-in: ${checkinError?.message || 'Unknown error'}`,
         verification
       }
     }
