@@ -5,5 +5,8 @@
   "installCommand": "cd gymtopia-app && npm cache clean --force && npm install",
   "framework": "nextjs",
   "devCommand": "cd gymtopia-app && npm run dev",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ."
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD .",
+  "env": {
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzEzNDI0NiwiZXhwIjoyMDcyNzEwMjQ2fQ.VVNIX12yaN7t3seEzRwbMRtmNEbHoEkPXYeBzt60JBs"
+  }
 }
