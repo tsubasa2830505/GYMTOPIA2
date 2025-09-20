@@ -21,7 +21,20 @@ const nextConfig = {
   
   // 画像の最適化設定
   images: {
-    domains: ['localhost', 'htytewqvkgwyuvcsvjwm.supabase.co', 'images.unsplash.com'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'htytewqvkgwyuvcsvjwm.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
 }
 

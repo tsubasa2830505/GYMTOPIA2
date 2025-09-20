@@ -125,7 +125,7 @@ function AddGymPostContent() {
 
   // 機器登録用の状態
   const [equipmentGymName, setEquipmentGymName] = useState('')
-  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
+  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
   const [error, setError] = useState<string | null>(null)

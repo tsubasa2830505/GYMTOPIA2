@@ -68,7 +68,7 @@ export default function BottomNavigation() {
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] mt-1 font-medium transition-colors duration-150 ${
+                  <span className={`text-[10px] mt-1 font-medium transition-colors duration-150 whitespace-nowrap ${
                     item.isActive
                       ? 'text-[color:var(--gt-primary-strong)]'
                       : 'text-[color:var(--text-muted)]'

@@ -195,7 +195,7 @@ function SearchResultsContent() {
       params.set('machines', newConditions.machines.map(m => `${m.name}:${m.count}`).join(','))
     }
     if (newConditions.freeWeights.length > 0) {
-      params.set('freeWeights', newConditions.freeWeights.map(fw => `${fw.name}:${fw.count}`).join(','))
+      params.set('freeWeights', newConditions.freeWeights.map(fw => fw.name).join(','))
     }
     if (newConditions.facilities.length > 0) {
       params.set('facilities', newConditions.facilities.join(','))
@@ -411,11 +411,10 @@ function SearchResultsContent() {
       return { name, count: parseInt(count) || 1 }
     })
 
-    // Parse freeWeights with count (format: "name:count")
+    // Parse freeWeights (format: "name" - presence based)
     const freeWeightsParam = searchParams.get('freeWeights')?.split(',').filter(Boolean) || []
-    const freeWeights = freeWeightsParam.map(item => {
-      const [name, count] = item.split(':')
-      return { name, count: parseInt(count) || 1 }
+    const freeWeights = freeWeightsParam.map(name => {
+      return { name: name.trim(), count: 1 } // Always 1 for presence-based design
     })
     const facilities = searchParams.get('facilities')?.split(',').filter(Boolean) || []
 

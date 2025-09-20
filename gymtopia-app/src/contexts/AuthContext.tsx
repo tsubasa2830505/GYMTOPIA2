@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         displayName: process.env.NEXT_PUBLIC_MOCK_DISPLAY_NAME || 'Tsubasa',
         avatarUrl: process.env.NEXT_PUBLIC_MOCK_AVATAR_URL || null
       }
+      console.log('📱 AuthContext: Setting mock user:', mockUser)
       setUser(mockUser)
       setSession({
         access_token: 'mock-token',
@@ -73,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } as any)
       setIsLoading(false)
+      console.log('📱 AuthContext: Mock auth setup complete')
       return
     } else if (useMockAuth && isLoggedOut) {
       console.log('📱 AuthContext: User is logged out, staying logged out')

@@ -66,7 +66,7 @@ export async function upsertGymFacilities(data: FacilityFormData): Promise<{ suc
 
     // 2) フリーウェイト: nameベースでequipmentを解決（type = 'free_weight'）
     if (data.freeWeights.size > 0) {
-      const names = Array.from(data.freeWeights.keys())
+      const names = Array.from(data.freeWeights)
       // 正規化: exact match優先
       const { data: fwEquipments, error: fwErr } = await supabase
         .from('equipment')
@@ -80,7 +80,7 @@ export async function upsertGymFacilities(data: FacilityFormData): Promise<{ suc
         const rows = (fwEquipments || []).map(e => ({
           gym_id: gymId,
           equipment_id: e.id,
-          count: data.freeWeights.get(e.name) || 1,
+          count: 1, // 有無ベースなので常に1
           condition: 'good'
         }))
 

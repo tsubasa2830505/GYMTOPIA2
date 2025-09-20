@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2, Shield } from 'lucide-react';
 import TrainingDetails from '@/components/TrainingDetails';
 import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
 import type { Post } from '@/lib/supabase/posts';
@@ -120,6 +120,12 @@ export default function PostCard({
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                   </svg>
                   <span className="text-xs text-[color:var(--gt-primary-strong)]">{post.gym.name}</span>
+                </div>
+              )}
+              {post.is_verified && (
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                  <Shield className="w-3 h-3 text-green-600" />
+                  <span className="text-xs text-green-700 font-medium">GPS認証済み</span>
                 </div>
               )}
               <span className="text-xs text-[color:var(--text-muted)]">

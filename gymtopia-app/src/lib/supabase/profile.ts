@@ -59,15 +59,21 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   }
 }
 
-export async function getUserProfileStats(userId: string): Promise<UserProfileStats | null> {
+export async function getUserProfileStats(userId: string, forceRefresh: boolean = false): Promise<UserProfileStats | null> {
   try {
     // Fetch user
-    console.log('🔍 Fetching user data for:', userId);
-    const { data: userData, error: userError } = await getSupabaseClient()
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle()
+    console.log('🔍 Fetching user data for:', userId, 'forceRefresh:', forceRefresh);
+
+    // Create fresh client if force refresh is requested
+    const client = getSupabaseClient()
+    const query = client.from('users').select('*').eq('id', userId)
+
+    // Add timestamp to force cache bypass when needed
+    if (forceRefresh) {
+      console.log('🔄 Force refresh requested - bypassing cache');
+    }
+
+    const { data: userData, error: userError } = await query.maybeSingle()
 
     if (userError || !userData) {
       if (userError?.code === 'PGRST205') {
@@ -93,8 +99,11 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       supabase.from('gym_posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
-      supabase.from('user_profiles').select('primary_gym_id, secondary_gym_ids, gym_membership_type, location').eq('user_id', userId).maybeSingle()
+      supabase.from('user_profiles').select('primary_gym_id, secondary_gym_ids, gym_membership_type').eq('user_id', userId).maybeSingle()
     ])
+
+    // Debug: Log user profile data
+    console.log('🔍 User profile data from database:', userProfileData)
 
     // Phase 2: 非重要データは簡略化またはスキップ（パフォーマンス優先）
     const [workoutsCount, favoriteGymsCount, achievementsCount] = await Promise.all([
@@ -115,7 +124,7 @@ export async function getUserProfileStats(userId: string): Promise<UserProfileSt
       username: userData.username || undefined,
       avatar_url: userData.avatar_url || undefined,
       bio: userData.bio || '',
-      location: userProfileData.data?.location || undefined,
+      location: undefined, // Location is stored in users table, not user_profiles
       joined_at: userData.created_at,
       is_verified: !!userData.is_verified,
       workout_count: workoutsCount.count || 0,

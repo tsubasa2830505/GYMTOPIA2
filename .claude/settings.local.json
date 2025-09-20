@@ -168,7 +168,18 @@
       "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel env add SUPABASE_SERVICE_ROLE_KEY production --value=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzEzNDI0NiwiZXhwIjoyMDcyNzEwMjQ2fQ.VVNIX12yaN7t3seEzRwbMRtmNEbHoEkPXYeBzt60JBs\")",
       "Bash(./scripts/gemini-usage-monitor.sh:*)",
       "mcp__zen__chat",
-      "Bash(VERCEL_ORG_ID=tsubasaa2830505-7621s-projects vercel --token 2f2GpJnu7CGewTunxUCn2i91 projects ls)"
+      "Bash(VERCEL_ORG_ID=tsubasaa2830505-7621s-projects vercel --token 2f2GpJnu7CGewTunxUCn2i91 projects ls)",
+      "Bash(unset NEXT_PUBLIC_SUPABASE_URL)",
+      "Bash(unset:*)",
+      "Bash(env:*)",
+      "Bash(bash:*)",
+      "Bash(for page in \"/profile\" \"/profile/edit\")",
+      "mcp__zen__challenge",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/profile/edit\")",
+      "mcp__zen__analyze",
+      "Bash(PORT=3002 npm run dev)",
+      "Bash(PORT=3003 npm run dev)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

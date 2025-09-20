@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('machine')
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
-  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Map<string, number>>(new Map())
+  const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
   const conditionSectionRef = useRef<HTMLDivElement>(null)
   const totalSelections = selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size
@@ -34,7 +34,7 @@ export default function Home() {
       params.set('machines', machinesParam)
     }
     if (selectedFreeWeights.size > 0) {
-      params.set('freeWeights', Array.from(selectedFreeWeights.keys()).join(','))
+      params.set('freeWeights', Array.from(selectedFreeWeights).join(','))
     }
     if (selectedFacilities.size > 0) {
       params.set('facilities', Array.from(selectedFacilities).join(','))
@@ -124,7 +124,7 @@ export default function Home() {
                       <button
                         onClick={() => {
                           setSelectedMachines(new Map())
-                          setSelectedFreeWeights(new Map())
+                          setSelectedFreeWeights(new Set())
                           setSelectedFacilities(new Set())
                         }}
                         className="text-[10px] sm:text-xs font-semibold text-[color:var(--text-muted)] underline-offset-4 hover:underline"
@@ -156,12 +156,12 @@ export default function Home() {
                             </button>
                           </div>
                         ))}
-                        {Array.from(selectedFreeWeights).map(([weightId, count]) => (
+                        {Array.from(selectedFreeWeights).map((weightId) => (
                           <div key={`weight-${weightId}`} className="gt-chip gt-chip--primary text-[11px] sm:text-xs">
-                            <span>{weightId} ({count}個)</span>
+                            <span>{weightId}</span>
                             <button
                               onClick={() => {
-                                const newWeights = new Map(selectedFreeWeights)
+                                const newWeights = new Set(selectedFreeWeights)
                                 newWeights.delete(weightId)
                                 setSelectedFreeWeights(newWeights)
                               }}
@@ -320,15 +320,15 @@ export default function Home() {
                     </div>
                   ))}
 
-                  {Array.from(selectedFreeWeights).map(([weightId, count]) => (
+                  {Array.from(selectedFreeWeights).map((weightId) => (
                     <div
                       key={`weight-summary-${weightId}`}
                       className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
                     >
-                      <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId} ({count}個)</span>
+                      <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId}</span>
                       <button
                         onClick={() => {
-                          const newWeights = new Map(selectedFreeWeights)
+                          const newWeights = new Set(selectedFreeWeights)
                           newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}

@@ -66,7 +66,7 @@ export default function MachineSelector({ selectedMachines, onSelectionChange }:
     type: [],
     maker: []
   })
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['target', 'maker']))
   const [targetOptions, setTargetOptions] = useState(defaultTargetOptions)
   const [isLoadingParts, setIsLoadingParts] = useState(true)
   const [showPartsDetail, setShowPartsDetail] = useState(false)

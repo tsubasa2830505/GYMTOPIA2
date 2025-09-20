@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
-import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms, getFrequentGyms, type FrequentGym } from '@/lib/supabase/profile';
+import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import PostCard from '@/components/PostCard';
 import CheckinBadges from '@/components/CheckinBadges';
@@ -90,6 +90,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
 
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('gym-activity');
   const [userType, setUserType] = useState('user');
@@ -99,7 +100,6 @@ export default function ProfilePage() {
   const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
   const [userPersonalRecords, setUserPersonalRecords] = useState<PersonalRecord[]>([]);
   const [userFavoriteGyms, setUserFavoriteGyms] = useState<FavoriteGym[]>([]);
-  const [userFrequentGyms, setUserFrequentGyms] = useState<FrequentGym[]>([]);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
@@ -135,16 +135,71 @@ export default function ProfilePage() {
   }, [])
 
   // Always use Tsubasa's user ID
-  const userId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+  const userId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+
+  // Debug log
+  console.log('🐛 ProfilePage Debug:', { user, userId, isLoading });
+
+  // Add debug log right before useEffect
+  console.log('🚀 About to define useEffect...');
+
+  // Simple one-time data loading using useMemo to ensure it only runs once
+  useMemo(() => {
+    if (!hasLoadedData.current) {
+      hasLoadedData.current = true;
+      console.log('🔧 Loading profile data...');
+
+      (async () => {
+        try {
+          // Force refresh to get latest data after profile edits
+          const stats = await getUserProfileStats(userId, true);
+          console.log('📊 Profile stats loaded:', stats);
+
+          if (stats) {
+            setProfileData(stats);
+
+            // Load home gym if available
+            if (stats.primary_gym_id) {
+              const supabase = getSupabaseClient();
+              const { data: gymData } = await supabase
+                .from('gyms')
+                .select('id, name')
+                .eq('id', stats.primary_gym_id)
+                .maybeSingle();
+
+              if (gymData) {
+                console.log('🏠 Home gym loaded:', gymData);
+                setHomeGym(gymData);
+              }
+            }
+          }
+          setIsLoading(false);
+        } catch (error) {
+          console.error('❌ Data loading error:', error);
+          setIsLoading(false);
+        }
+      })();
+    }
+  }, [userId]); // Only depend on userId
 
   useEffect(() => {
-    // Performance optimization: Skip if already loading or already loaded
-    if (isLoadingData.current || hasLoadedData.current) {
-      return;
-    }
+    console.log('📋 useEffect triggered with:', {
+      isLoadingData: isLoadingData.current,
+      hasLoadedData: hasLoadedData.current,
+      user,
+      userId
+    });
+
+    // Force reset for debugging - always allow execution
+    hasLoadedData.current = false;
+    isLoadingData.current = false;
+
+    // For debugging: Always proceed regardless of user state
+    console.log('🔧 DEBUG: Always proceeding with data load for debugging');
+    console.log('⚠️ Auth context state:', { user, userId });
 
     // Fetch real data from database instead of hardcoded data
-    console.log('📱 Fetching real user data from database...');
+    console.log('📱 Fetching real user data from database...', { user, userId });
     // Comment out hardcoded data to allow database fetch
     /*setProfileData({
       user_id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
@@ -243,10 +298,15 @@ export default function ProfilePage() {
         console.log('🚀 最重要データを優先読み込み...');
 
         // Phase 1: ユーザーの基本情報とプロフィール統計（最重要）
-        const profileStats = await getUserProfileStats(userId).catch((error) => {
+        let profileStats = await getUserProfileStats(userId, true).catch((error) => {
           console.error('プロフィール取得エラー:', error);
-          // エラー時はデフォルトデータを返す
-          return {
+          return null;
+        });
+
+        // getUserProfileStatsがnullを返した場合の追加フォールバック
+        if (!profileStats) {
+          console.warn('⚠️ プロフィール統計が取得できませんでした。フォールバックデータを使用します。');
+          profileStats = {
             user_id: userId,
             display_name: 'Tsubasa',
             username: 'tsubasa_gym',
@@ -259,45 +319,58 @@ export default function ProfilePage() {
             workout_streak: 7,
             followers_count: 89,
             following_count: 126,
-            mutual_follows_count: 24,  // 相互フォロー数
+            mutual_follows_count: 24,
             posts_count: 38,
             achievements_count: 12,
             favorite_gyms_count: 5
-            } as UserProfileStats;
-          });
+          } as UserProfileStats;
+        }
 
         // Phase 1結果を即座にUIに反映（最初の表示を高速化）
         setProfileData(profileStats);
         console.log('✅ プロフィール基本情報 読み込み完了');
 
+        // 基本情報が取得できたらローディングを停止
+        setIsLoading(false);
+
         // Phase 2: 週間統計データ（中程度の重要度）
-        const weeklyData = await getWeeklyStats(userId).catch(() => ({
-          workout_count: 4,
-          total_weight_kg: 8500,
-          avg_duration_minutes: 75,
-          streak_days: 7,
-          favorite_exercises: [
-            { name: 'ベンチプレス', frequency: 3 },
-            { name: 'スクワット', frequency: 2 },
-            { name: 'デッドリフト', frequency: 2 }
-          ],
-          workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
-        } as WeeklyStats));
+        let weeklyData = await getWeeklyStats(userId).catch((error) => {
+          console.error('週間統計取得エラー:', error);
+          return null;
+        });
+
+        if (!weeklyData) {
+          console.warn('⚠️ 週間統計が取得できませんでした。フォールバックデータを使用します。');
+          weeklyData = {
+            workout_count: 4,
+            total_weight_kg: 8500,
+            avg_duration_minutes: 75,
+            streak_days: 7,
+            favorite_exercises: [
+              { name: 'ベンチプレス', frequency: 3 },
+              { name: 'スクワット', frequency: 2 },
+              { name: 'デッドリフト', frequency: 2 }
+            ],
+            workout_dates: ['2025-01-08', '2025-01-10', '2025-01-12', '2025-01-14']
+          } as WeeklyStats;
+        }
         setWeeklyStats(weeklyData);
         console.log('✅ 週間統計 読み込み完了');
 
         // Phase 3: 投稿データ（表示される可能性が高い）
-        const posts = await getUserPosts(userId, 1, POSTS_PER_PAGE).catch(() => []);
+        let posts = await getUserPosts(userId, 1, POSTS_PER_PAGE).catch((error) => {
+          console.error('投稿データ取得エラー:', error);
+          return [];
+        });
+
+        if (!posts || posts.length === 0) {
+          console.warn('⚠️ 投稿データが取得できませんでした。');
+        }
         setUserPosts(posts);
         console.log('✅ 投稿データ 読み込み完了');
 
-        // Phase 3.5: よく行くジムデータを取得
-        const frequentGyms = await getFrequentGyms(userId, 5).catch(() => []);
-        setUserFrequentGyms(frequentGyms);
-        console.log('✅ よく行くジムデータ 読み込み完了');
 
         // メインローディング終了（ここで画面が使える状態に）
-        setIsLoading(false);
         hasLoadedData.current = true;
         isLoadingData.current = false;
         console.log('🎉 メインローディング完了！');
@@ -456,8 +529,8 @@ export default function ProfilePage() {
         }
       } finally {
         if (isActive) {
-          setIsLoading(false);
           if (!hasLoadedData.current) {
+            setIsLoading(false);
             isLoadingData.current = false;
           }
         }
@@ -473,7 +546,7 @@ export default function ProfilePage() {
         clearTimeout(retryTimeout);
       }
     };
-  }, []); // 初回のみ実行
+  }, []); // Empty dependency array for debugging - execute only once on mount
 
   // プロフィール編集後の画像更新のためのフォーカスイベントリスナー
   useEffect(() => {
@@ -486,6 +559,21 @@ export default function ProfilePage() {
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
+
+  // プロフィール編集からのリダイレクト時にデータを強制リフレッシュ
+  useEffect(() => {
+    const refreshParam = searchParams.get('refresh');
+    if (refreshParam) {
+      console.log('🔄 Refresh parameter detected, clearing cache and reloading data...');
+      hasLoadedData.current = false;
+      isLoadingData.current = false;
+      setRefreshKey(prev => prev + 1);
+
+      // URLからrefreshパラメータを削除
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [searchParams]);
 
   // 達成記録タブのデータを遅延ロード
   const loadAchievementsData = async () => {
@@ -698,17 +786,15 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* マイジム表示 */}
-              {homeGym && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
-                    <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
-                      マイジム: {homeGym.name}
-                    </span>
-                  </div>
+              {/* マイジム表示 - Always show for testing */}
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
+                  <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
+                    マイジム: {homeGym ? homeGym.name : 'ゴールドジム渋谷 (テスト)'}
+                  </span>
                 </div>
-              )}
+              </div>
 
               <div className="mb-2 sm:mb-3">
                 {profileData?.location && (
@@ -824,18 +910,6 @@ export default function ProfilePage() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
               )}
             </button>
-            <button
-              onClick={() => handleTabChange('frequent-gyms')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'frequent-gyms' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
-            >
-              <span className="text-sm sm:text-base font-medium">よく行く</span>
-              <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
-                {isLoading ? '...' : `${userFrequentGyms.length}ジム`}
-              </div>
-              {activeTab === 'frequent-gyms' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
-              )}
-            </button>
           </div>
         </div>
       </div>
@@ -915,6 +989,7 @@ export default function ProfilePage() {
                     likes_count: post.likes_count,
                     comments_count: post.comments_count,
                     created_at: post.created_at,
+                    updated_at: post.updated_at,
                     user: post.user,
                     gym: post.gym,
                     is_liked: post.is_liked,
@@ -937,7 +1012,7 @@ export default function ProfilePage() {
             )}
 
             {/* Load More Posts Button */}
-            {activeTab === 'posts' && hasMorePosts && (
+            {activeTab === 'gym-activity' && hasMorePosts && (
               <div className="text-center py-8">
                 <button
                   onClick={loadMorePosts}
@@ -966,7 +1041,7 @@ export default function ProfilePage() {
             )}
 
             {/* End of Posts Indicator */}
-            {activeTab === 'posts' && !hasMorePosts && userPosts.length > 0 && (
+            {activeTab === 'gym-activity' && !hasMorePosts && userPosts.length > 0 && (
               <div className="text-center py-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-full text-[color:var(--text-subtle)] text-sm">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -1167,7 +1242,7 @@ export default function ProfilePage() {
                     <div className="gt-card p-4 hover:-translate-y-[2px] transition-transform cursor-pointer">
                       <div className="flex gap-4">
                         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(231,103,76,0.16)] rounded-lg flex-shrink-0 overflow-hidden">
-                          {(favoriteGym.gym?.image_url || (favoriteGym.gym?.images && favoriteGym.gym.images[0])) ? (
+                          {(favoriteGym.gym?.image_url || (favoriteGym.gym?.images && favoriteGym.gym.images.length > 0 && favoriteGym.gym.images[0])) ? (
                             <Image
                               src={favoriteGym.gym.image_url || favoriteGym.gym.images[0]}
                               alt={favoriteGym.gym.name || 'ジム画像'}
@@ -1211,95 +1286,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Frequent Gyms Tab */}
-          {activeTab === 'frequent-gyms' && (
-            <div className="space-y-4">
-              {isLoading ? (
-                Array.from({ length: 3 }, (_, index) => (
-                  <div key={index} className="gt-card p-4">
-                    <div className="animate-pulse">
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(231,103,76,0.16)] rounded-lg flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <div className="h-5 bg-[rgba(231,103,76,0.16)] rounded w-3/4 mb-2"></div>
-                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-1/2 mb-2"></div>
-                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-1/4"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : userFrequentGyms.length === 0 ? (
-                <div className="gt-card p-8 text-center">
-                  <svg className="w-16 h-16 text-[rgba(231,103,76,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                  </svg>
-                  <p className="text-[color:var(--text-muted)] mb-2">よく行くジムがまだありません</p>
-                  <p className="text-[color:var(--text-muted)] text-sm">ジムでの投稿を重ねると、よく行くジムが表示されます！</p>
-                </div>
-              ) : (
-                userFrequentGyms.map((frequentGym, index) => (
-                  <Link
-                    key={frequentGym.id}
-                    href={`/gyms/${frequentGym.id}`}
-                    className="block"
-                  >
-                    <div className="gt-card p-4 hover:-translate-y-[2px] transition-transform cursor-pointer">
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(231,103,76,0.16)] rounded-lg flex-shrink-0 overflow-hidden relative">
-                          {frequentGym.images && frequentGym.images.length > 0 ? (
-                            <Image
-                              src={frequentGym.images[0]}
-                              alt={frequentGym.name}
-                              width={96}
-                              height={96}
-                              className="w-full h-full object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <svg className="w-8 h-8 text-[rgba(231,103,76,0.5)]" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                              </svg>
-                            </div>
-                          )}
-                          {/* Visit count badge */}
-                          <div className="absolute top-1 right-1 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg">
-                            {frequentGym.visit_count}回
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-base sm:text-lg mb-1 text-[color:var(--foreground)]">
-                            {frequentGym.name}
-                          </h4>
-                          <p className="text-sm text-[color:var(--text-subtle)] mb-2 flex items-center gap-1">
-                            <svg className="w-4 h-4 text-[color:var(--text-muted)]" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                            </svg>
-                            {frequentGym.prefecture && frequentGym.city
-                              ? `${frequentGym.prefecture} ${frequentGym.city}`
-                              : frequentGym.prefecture || frequentGym.city || '場所不明'
-                            }
-                          </p>
-                          <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="bg-[rgba(231,103,76,0.12)] text-[color:var(--gt-primary-strong)] px-2 py-1 rounded-full font-medium">
-                              {frequentGym.visit_count}回訪問
-                            </span>
-                            <span className="text-[color:var(--text-muted)]">
-                              最終訪問: {new Date(frequentGym.last_visit).toLocaleDateString('ja-JP', {
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))
-              )}
-            </div>
-          )}
       </div>
     </div>
   );

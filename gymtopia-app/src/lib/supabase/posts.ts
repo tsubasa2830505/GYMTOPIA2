@@ -1,5 +1,6 @@
 import { getSupabaseClient } from './client'
 import type { GymPost as Post, PostComment as Comment } from '@/lib/types/profile'
+import { getRecentCheckinForGym } from './checkin'
 
 // Re-export the types for backward compatibility
 export type { Post, Comment }
@@ -133,10 +134,10 @@ export async function getFeedPosts(
       shares_count: 0,
       is_public: true,
       is_liked: false,
-      is_verified: false,
-      check_in_id: null,
-      verification_method: null,
-      distance_from_gym: null,
+      is_verified: post.is_verified || false,
+      check_in_id: post.checkin_id || null,
+      verification_method: post.verification_method || null,
+      distance_from_gym: post.distance_from_gym || null,
       created_at: post.created_at,
       updated_at: post.updated_at || post.created_at,
       training_details: post.training_details,
@@ -211,6 +212,81 @@ export async function getUserPosts(userId: string, page = 1, limit = 10) {
   }
 }
 
+// チェックイン成功時の自動投稿を作成
+export async function createCheckinPost(
+  checkinId: string,
+  gym: { id: string; name: string; area?: string },
+  badges: Array<{ badge_name: string; badge_icon: string; rarity: string }>,
+  options: {
+    shareLevel: 'badge_only' | 'gym_name' | 'gym_with_area' | 'none'
+    delayMinutes: number
+    audience: 'public' | 'friends' | 'private'
+  }
+) {
+  try {
+    const { data: { user } } = await getSupabaseClient().auth.getUser()
+    if (!user?.id) {
+      throw new Error('ログインが必要です')
+    }
+
+    if (options.shareLevel === 'none') {
+      return null // 投稿しない
+    }
+
+    // コンテンツ生成
+    let content = ''
+    let visibility = options.audience
+
+    // バッジ情報
+    if (badges.length > 0) {
+      const badgeTexts = badges.map(badge => `${badge.badge_icon} ${badge.badge_name}`)
+      content += `🎯 新しいバッジ獲得！\n${badgeTexts.join('\n')}\n\n`
+    }
+
+    // ジム情報の表示レベル
+    if (options.shareLevel === 'gym_name') {
+      content += `🏋️‍♂️ ${gym.name}でワークアウト完了！`
+    } else if (options.shareLevel === 'gym_with_area' && gym.area) {
+      content += `🏋️‍♂️ ${gym.name} (${gym.area})でワークアウト完了！`
+    } else if (options.shareLevel === 'badge_only') {
+      content += `🏋️‍♂️ ワークアウト完了！`
+    }
+
+    content += '\n✅ GPS認証済み'
+
+    // 遅延投稿の場合は将来的に実装
+    // 現在は即座投稿のみ
+    if (options.delayMinutes > 0) {
+      console.log(`遅延投稿予定: ${options.delayMinutes}分後`)
+      // TODO: 遅延投稿の実装（バックグラウンドジョブまたはcron job）
+    }
+
+    const { data, error } = await getSupabaseClient()
+      .from('gym_posts')
+      .insert({
+        user_id: user.id,
+        gym_id: gym.id,
+        content,
+        images: [],
+        post_type: 'check_in',
+        visibility,
+        is_public: visibility === 'public',
+        // チェックイン関連の追加情報
+        checkin_id: checkinId,
+        is_verified: true, // GPS認証済み
+        verification_method: 'gps'
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Error creating checkin post:', error)
+    throw error
+  }
+}
+
 // 投稿を作成
 export async function createPost(post: {
   content?: string
@@ -232,6 +308,8 @@ export async function createPost(post: {
     crowd_status?: string
   } | null
   visibility?: 'public' | 'followers' | 'private'
+  is_verified?: boolean
+  verification_method?: 'gps' | null
 }) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
@@ -240,6 +318,29 @@ export async function createPost(post: {
       throw new Error('ログインが必要です')
     }
     const actualUserId = user.id
+
+    // GPS認証情報を自動付与（ジム投稿の場合）
+    let gpsVerificationData = {
+      checkin_id: post.checkin_id || null,
+      is_verified: post.is_verified || false,
+      verification_method: post.verification_method || null,
+      distance_from_gym: null
+    }
+
+    if (post.gym_id && !post.checkin_id) {
+      // 直近24時間以内のGPS認証チェックインを検索
+      const { data: recentCheckin } = await getRecentCheckinForGym(actualUserId, post.gym_id, 24)
+
+      if (recentCheckin) {
+        gpsVerificationData = {
+          checkin_id: recentCheckin.id,
+          is_verified: recentCheckin.location_verified,
+          verification_method: 'gps',
+          distance_from_gym: recentCheckin.distance_to_gym
+        }
+        console.log('GPS認証情報を自動付与:', recentCheckin.id)
+      }
+    }
 
     const { data, error } = await getSupabaseClient()
       .from('gym_posts')
@@ -251,7 +352,8 @@ export async function createPost(post: {
         training_details: post.training_details || null,
         crowd_status: post.achievement_data?.crowd_status || post.training_details?.crowd_status || 'normal',
         visibility: post.visibility || 'public',
-        is_public: (post.visibility ?? 'public') === 'public'
+        is_public: (post.visibility ?? 'public') === 'public',
+        ...gpsVerificationData
       })
       .select()
       .single()

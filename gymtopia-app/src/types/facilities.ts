@@ -147,8 +147,8 @@ export interface GymFacility {
 // フォームから送信される施設情報
 export interface FacilityFormData {
   gymName: string
-  freeWeights: Map<string, number>
-  machines: Map<string, number>     // Set<string>からMap<string, number>に変更
+  freeWeights: Set<string>           // 有無ベースの設計に変更
+  machines: Map<string, number>      // マシンは台数管理
 }
 
 // 施設検索用のフィルター

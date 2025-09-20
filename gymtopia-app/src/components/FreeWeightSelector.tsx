@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  ChevronRight, Dumbbell, Weight, 
+import {
+  ChevronRight, Dumbbell, Weight,
   Circle, Armchair, Home,
-  Plus, Minus
+  Check, Target
 } from 'lucide-react'
 
 interface FreeWeightCategory {
@@ -22,9 +22,26 @@ interface FreeWeightItem {
 }
 
 interface FreeWeightSelectorProps {
-  selectedFreeWeights: Map<string, number>
-  onSelectionChange: (selected: Map<string, number>) => void
+  selectedFreeWeights: Set<string>
+  onSelectionChange: (selected: Set<string>) => void
 }
+
+// ダンベル重量範囲の定義
+interface WeightRange {
+  id: string
+  label: string
+  min?: number
+  max?: number
+  color: string // グラデーション用
+}
+
+const dumbbellWeightRanges: WeightRange[] = [
+  { id: 'all', label: '指定なし', min: 0, max: Infinity, color: 'from-gray-400 to-gray-500' },
+  { id: 'light', label: '〜20kg（初心者向け）', min: 1, max: 20, color: 'from-green-400 to-green-500' },
+  { id: 'medium', label: '21-40kg（中級者向け）', min: 21, max: 40, color: 'from-blue-400 to-blue-500' },
+  { id: 'heavy', label: '41-60kg（上級者向け）', min: 41, max: 60, color: 'from-orange-400 to-orange-500' },
+  { id: 'pro', label: '61kg以上（プロ仕様）', min: 61, max: Infinity, color: 'from-red-500 to-red-600' }
+]
 
 const freeWeightCategories: FreeWeightCategory[] = [
   {
@@ -98,35 +115,49 @@ const freeWeightCategories: FreeWeightCategory[] = [
 
 export default function FreeWeightSelector({ selectedFreeWeights, onSelectionChange }: FreeWeightSelectorProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const [selectedWeightRanges, setSelectedWeightRanges] = useState<Set<string>>(new Set(['all']))
 
-  const handleQuantityChange = (itemId: string, quantity: number) => {
-    const newSelected = new Map(selectedFreeWeights)
-    
-    if (quantity === 0) {
+  const toggleItem = (itemId: string) => {
+    const newSelected = new Set(selectedFreeWeights)
+
+    if (newSelected.has(itemId)) {
       newSelected.delete(itemId)
     } else {
-      newSelected.set(itemId, quantity)
+      newSelected.add(itemId)
     }
-    
+
     onSelectionChange(newSelected)
   }
-  
-  const incrementQuantity = (itemId: string) => {
-    const currentQty = selectedFreeWeights.get(itemId) || 0
-    handleQuantityChange(itemId, Math.min(currentQty + 1, 99))
+
+  const toggleWeightRange = (rangeId: string) => {
+    const newSelected = new Set(selectedWeightRanges)
+
+    if (rangeId === 'all') {
+      // 「指定なし」を選択した場合、他をすべてクリア
+      setSelectedWeightRanges(new Set(['all']))
+    } else {
+      // 他の範囲を選択した場合、「指定なし」を削除
+      newSelected.delete('all')
+
+      if (newSelected.has(rangeId)) {
+        newSelected.delete(rangeId)
+      } else {
+        newSelected.add(rangeId)
+      }
+
+      // 何も選択されていない場合は「指定なし」に戻す
+      if (newSelected.size === 0) {
+        newSelected.add('all')
+      }
+
+      setSelectedWeightRanges(newSelected)
+    }
   }
-  
-  const decrementQuantity = (itemId: string) => {
-    const currentQty = selectedFreeWeights.get(itemId) || 0
-    handleQuantityChange(itemId, Math.max(currentQty - 1, 0))
-  }
-  
+
   const getCategoryItemCount = (categoryId: string) => {
     const category = freeWeightCategories.find(c => c.id === categoryId)
     if (!category) return 0
-    return category.items.reduce((total, item) => {
-      return total + (selectedFreeWeights.get(item.id) || 0)
-    }, 0)
+    return category.items.filter(item => selectedFreeWeights.has(item.id)).length
   }
 
   const toggleExpandCategory = (categoryId: string) => {
@@ -165,7 +196,7 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
               <div className="flex items-center gap-2">
                 {getCategoryItemCount(category.id) > 0 && (
                   <span className="gt-badge text-[11px]">
-                    {getCategoryItemCount(category.id)}個
+                    {getCategoryItemCount(category.id)}種類
                   </span>
                 )}
                 <ChevronRight 
@@ -178,15 +209,57 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
 
             {/* Category Items */}
             {expandedCategories.has(category.id) && (
-              <div className="border-t border-[rgba(231,103,76,0.16)] p-4 space-y-2">
+              <div className="border-t border-[rgba(231,103,76,0.16)] p-4 space-y-4">
+                {/* Weight Range Filter for Dumbbell */}
+                {category.id === 'dumbbell' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4 text-[color:var(--gt-primary-strong)]" />
+                      <h4 className="font-semibold text-sm text-[color:var(--foreground)]">重量範囲で絞り込み</h4>
+                      {(selectedWeightRanges.size > 1 || !selectedWeightRanges.has('all')) && (
+                        <span className="gt-badge text-[10px]">
+                          {selectedWeightRanges.has('all') ? '指定なし' : `${selectedWeightRanges.size}種類`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {dumbbellWeightRanges.map((range) => {
+                        const isSelected = selectedWeightRanges.has(range.id)
+                        return (
+                          <button
+                            key={range.id}
+                            onClick={() => toggleWeightRange(range.id)}
+                            className={`p-3 rounded-xl text-left transition-all border-2 ${
+                              isSelected
+                                ? `bg-gradient-to-r ${range.color} text-white shadow-[0_16px_36px_-24px_rgba(189,101,78,0.44)] border-transparent`
+                                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border-[rgba(231,103,76,0.18)] hover:bg-white hover:border-[rgba(231,103,76,0.32)]'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold">{range.label}</span>
+                              {isSelected && <Check className="w-4 h-4" />}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <div className="border-t border-[rgba(231,103,76,0.16)] pt-3">
+                      <p className="text-xs text-[color:var(--text-muted)]">
+                        💡 複数の重量範囲を選択可能です。これにより該当範囲のダンベルが揃っているジムを検索できます。
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Individual Items */}
                 {category.items.map((item) => {
-                  const quantity = selectedFreeWeights.get(item.id) || 0
+                  const isSelected = selectedFreeWeights.has(item.id)
                   return (
-                    <div
+                    <button
                       key={item.id}
+                      onClick={() => toggleItem(item.id)}
                       className={`w-full p-3 rounded-2xl flex items-center justify-between gt-transition ${
-                        quantity > 0
+                        isSelected
                           ? 'gt-primary-plate border border-[rgba(231,103,76,0.18)] ring-1 ring-[rgba(231,103,76,0.26)]'
                           : 'gt-surface-outline hover:shadow-[0_20px_40px_-30px_rgba(189,101,78,0.42)]'
                       }`}
@@ -197,35 +270,18 @@ export default function FreeWeightSelector({ selectedFreeWeights, onSelectionCha
                           <p className="gt-label-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.description}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => decrementQuantity(item.id)}
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors border-2 ${
-                            quantity > 0
-                              ? 'bg-[rgba(254,255,250,0.9)] text-[color:var(--gt-primary-strong)] border-[rgba(231,103,76,0.18)] hover:bg-white hover:border-[rgba(231,103,76,0.28)]'
-                              : 'bg-[rgba(254,255,250,0.6)] text-[color:var(--text-muted)] border-[rgba(231,103,76,0.16)] cursor-not-allowed'
+                      <div className="flex items-center">
+                        <div
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white'
+                              : 'bg-[rgba(254,255,250,0.9)] border-2 border-[rgba(231,103,76,0.18)]'
                           }`}
-                          disabled={quantity === 0}
                         >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <div className="w-12 text-center">
-                          <span className={`font-semibold ${
-                            quantity > 0 ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'
-                          }`}>
-                            {quantity}
-                          </span>
+                          {isSelected && <Check className="w-4 h-4" />}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => incrementQuantity(item.id)}
-                          className="w-8 h-8 rounded-xl bg-gradient-to-r from-[var(--gt-primary)] via-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white hover:shadow-[0_12px_34px_-22px_rgba(189,101,78,0.46)] flex items-center justify-center transition-all border-2 border-transparent"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
                       </div>
-                    </div>
+                    </button>
                   )
                 })}
               </div>

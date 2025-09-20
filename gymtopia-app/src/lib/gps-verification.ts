@@ -25,11 +25,11 @@ export interface LocationVerificationOptions {
   enableHighAccuracy: boolean
 }
 
-// デフォルト設定
+// デフォルト設定（強化版）
 export const DEFAULT_VERIFICATION_OPTIONS: LocationVerificationOptions = {
-  maxDistance: 100, // 100m以内
-  requiredAccuracy: 50, // 50m以下の精度が必要
-  timeoutMs: 10000, // 10秒
+  maxDistance: 80, // 80m以内（より厳格）
+  requiredAccuracy: 30, // 30m以下の精度が必要（より厳格）
+  timeoutMs: 15000, // 15秒（より長く待機してより精度の高い結果を得る）
   enableHighAccuracy: true
 }
 
@@ -148,7 +148,7 @@ export async function getAccuratePosition(
 }
 
 /**
- * ジムとの距離認証
+ * ジムとの距離認証（強化版）
  */
 export function verifyDistanceToGym(
   userLocation: Coordinates,
@@ -159,14 +159,30 @@ export function verifyDistanceToGym(
   const distance = calculateDistance(userLocation, gymLocation)
   const accuracy = userLocation.accuracy || 999
 
-  // 信頼度レベルを計算
+  // より厳格な信頼度レベル計算
   let confidenceLevel: 'high' | 'medium' | 'low' = 'low'
-  if (accuracy <= 10) confidenceLevel = 'high'
-  else if (accuracy <= 30) confidenceLevel = 'medium'
+  if (accuracy <= 8) confidenceLevel = 'high'        // 8m以下で高信頼度
+  else if (accuracy <= 20) confidenceLevel = 'medium' // 20m以下で中信頼度
 
-  // 認証成功判定（精度が悪い場合は許容距離を拡大）
-  const adjustedMaxDistance = config.maxDistance + Math.min(accuracy, 50)
-  const isValid = distance <= adjustedMaxDistance
+  // 厳格な認証成功判定
+  let adjustedMaxDistance = config.maxDistance
+
+  // 精度による許容距離調整をより厳格に
+  if (accuracy <= 10) {
+    // 高精度の場合は距離をほぼそのまま
+    adjustedMaxDistance = config.maxDistance + Math.min(accuracy * 0.5, 10)
+  } else if (accuracy <= 30) {
+    // 中精度の場合は少し緩和
+    adjustedMaxDistance = config.maxDistance + Math.min(accuracy * 0.8, 25)
+  } else {
+    // 低精度の場合は大幅緩和するが上限を設ける
+    adjustedMaxDistance = config.maxDistance + Math.min(accuracy, 40)
+  }
+
+  // 複数の条件をチェック
+  const isValid = distance <= adjustedMaxDistance &&
+                  accuracy <= config.requiredAccuracy &&
+                  confidenceLevel !== 'low'
 
   return {
     isValid,
@@ -198,43 +214,88 @@ export function getDeviceInfo(): Record<string, any> {
 }
 
 /**
- * 位置情報の偽装チェック（基本的な検出）
+ * 位置情報の偽装チェック（強化版）
  */
 export function detectLocationSpoofing(position: Coordinates): {
   suspicious: boolean
   reasons: string[]
+  riskLevel: 'low' | 'medium' | 'high'
 } {
   const reasons: string[] = []
+  let riskScore = 0
 
-  // 精度が異常に高い（通常のGPSでは1-5m以下は困難）
-  if (position.accuracy && position.accuracy < 1) {
-    reasons.push('GPS accuracy too perfect')
+  // 1. 精度が異常に高い（通常のGPSでは1m以下は困難）
+  if (position.accuracy && position.accuracy < 0.5) {
+    reasons.push('GPS accuracy suspiciously perfect')
+    riskScore += 30
+  } else if (position.accuracy && position.accuracy < 2) {
+    reasons.push('GPS accuracy unusually high')
+    riskScore += 15
   }
 
-  // 座標が整数値すぎる（偽装ツールは小数点以下が少ない傾向）
+  // 2. 座標の精度不足（偽装ツールは小数点以下が少ない傾向）
   const latDecimals = (position.latitude.toString().split('.')[1] || '').length
   const lngDecimals = (position.longitude.toString().split('.')[1] || '').length
-  if (latDecimals < 4 || lngDecimals < 4) {
-    reasons.push('Coordinates lack precision')
+  if (latDecimals < 5 || lngDecimals < 5) {
+    reasons.push('Coordinates lack sufficient precision')
+    riskScore += 20
   }
 
-  // 有名な偽装座標をチェック
+  // 3. 座標が整数に近すぎる
+  const latFraction = Math.abs(position.latitude - Math.round(position.latitude))
+  const lngFraction = Math.abs(position.longitude - Math.round(position.longitude))
+  if (latFraction < 0.001 || lngFraction < 0.001) {
+    reasons.push('Coordinates suspiciously close to integers')
+    riskScore += 25
+  }
+
+  // 4. 有名な偽装座標をチェック（拡張版）
   const commonFakeCoords = [
     { lat: 0, lng: 0 }, // 原点
-    { lat: 37.7749, lng: -122.4194 }, // サンフランシスコ（VPNでよく使われる）
+    { lat: 37.7749, lng: -122.4194 }, // サンフランシスコ
     { lat: 40.7128, lng: -74.0060 }, // ニューヨーク
+    { lat: 51.5074, lng: -0.1278 }, // ロンドン
+    { lat: 48.8566, lng: 2.3522 }, // パリ
+    { lat: 35.6762, lng: 139.6503 }, // 東京駅（テスト用によく使われる）
   ]
 
   for (const fake of commonFakeCoords) {
     const distance = calculateDistance(position, { latitude: fake.lat, longitude: fake.lng })
-    if (distance < 10) {
-      reasons.push('Matches known fake coordinates')
+    if (distance < 50) {
+      reasons.push(`Too close to known fake location (${distance.toFixed(1)}m)`)
+      riskScore += 40
     }
   }
 
+  // 5. 時刻チェック（位置情報取得からの経過時間）
+  if (position.timestamp) {
+    const timeDiff = Date.now() - position.timestamp
+    if (timeDiff < 100) {
+      reasons.push('Position timestamp too recent (possible injection)')
+      riskScore += 15
+    } else if (timeDiff > 60000) {
+      reasons.push('Position timestamp too old (possible replay)')
+      riskScore += 10
+    }
+  }
+
+  // 6. 座標パターンチェック（連続した同じ値など）
+  const latStr = position.latitude.toString()
+  const lngStr = position.longitude.toString()
+  if (latStr.includes('000') || lngStr.includes('000')) {
+    reasons.push('Coordinates contain suspicious patterns')
+    riskScore += 10
+  }
+
+  // リスクレベル判定
+  let riskLevel: 'low' | 'medium' | 'high' = 'low'
+  if (riskScore >= 50) riskLevel = 'high'
+  else if (riskScore >= 25) riskLevel = 'medium'
+
   return {
     suspicious: reasons.length > 0,
-    reasons
+    reasons,
+    riskLevel
   }
 }
 

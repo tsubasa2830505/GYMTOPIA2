@@ -11,6 +11,7 @@ import {
   type Coordinates,
   type DistanceVerificationResult
 } from '../gps-verification'
+import { createCheckinPost } from './posts'
 
 export interface GymCheckInData {
   gym_id: string
@@ -50,6 +51,11 @@ export async function performGPSCheckin(
     crowdLevel?: 'empty' | 'normal' | 'crowded'
     photoUrl?: string
     note?: string
+    autoPost?: {
+      shareLevel: 'badge_only' | 'gym_name' | 'gym_with_area' | 'none'
+      delayMinutes: number
+      audience: 'public' | 'friends' | 'private'
+    }
   } = {}
 ): Promise<CheckInResult> {
   const supabase = getSupabaseClient()
@@ -78,11 +84,19 @@ export async function performGPSCheckin(
 
     const verification = verifyDistanceToGym(userLocation, gymLocation)
 
-    // 3. 位置偽装チェック
+    // 3. 位置偽装チェック（強化版）
     const spoofCheck = detectLocationSpoofing(userLocation)
     if (spoofCheck.suspicious) {
-      console.warn('Suspicious location detected:', spoofCheck.reasons)
-      // 注意: 本番では更に厳密なチェックが必要
+      console.warn('Suspicious location detected:', spoofCheck.reasons, 'Risk level:', spoofCheck.riskLevel)
+
+      // 高リスクの場合はチェックインを拒否
+      if (spoofCheck.riskLevel === 'high') {
+        return {
+          success: false,
+          error: 'Location verification failed: High risk of spoofing detected',
+          verification: { riskLevel: spoofCheck.riskLevel, reasons: spoofCheck.reasons } as any
+        }
+      }
     }
 
     // 4. デバイス情報取得
@@ -135,6 +149,9 @@ export async function performGPSCheckin(
 
     // 8. バッジ獲得チェック
     const badgesEarned = await checkAndAwardBadges(userId, gymId, checkin.id, gym)
+
+    // 9. GPS認証情報を保存（投稿は作成しない）
+    console.log('GPS check-in completed with verification data saved')
 
     return {
       success: true,
@@ -237,43 +254,50 @@ async function checkAndAwardBadges(
       }
     }
 
-    // バッジをデータベースに保存
+    // バッジをデータベースに保存（UPSERT使用で重複防止）
     for (const badge of badges) {
-      const { data: existingBadge } = await supabase
-        .from('checkin_badges')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('badge_type', badge.badge_type)
-        .eq('gym_id', gymId)
-        .maybeSingle()
-
-      // 重複チェック
-      if (!existingBadge) {
-        const { data: newBadge } = await supabase
+      try {
+        // UPSERT操作で原子的に重複防止
+        const { data: upsertedBadge, error: upsertError } = await supabase
           .from('checkin_badges')
-          .insert({
+          .upsert({
             user_id: userId,
             gym_id: badge.badge_type?.includes('gym') ? gymId : null,
-            badge_type: badge.badge_type,
-            badge_name: badge.badge_name,
-            badge_description: badge.badge_description,
-            badge_icon: badge.badge_icon,
+            badge_type: badge.badge_type!,
+            badge_name: badge.badge_name!,
+            badge_description: badge.badge_description!,
+            badge_icon: badge.badge_icon!,
             metadata: {
               checkin_id: checkinId,
               gym_name: gym.name,
               total_checkins: totalCheckins,
-              unique_gyms: uniqueGyms
-            }
+              unique_gyms: uniqueGyms,
+              last_earned: new Date().toISOString()
+            },
+            earned_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,badge_type,gym_id',
+            ignoreDuplicates: true
           })
           .select('*')
           .single()
 
-        if (newBadge) {
-          badgesEarned.push({
-            ...badge,
-            rarity: badge.rarity || 'common'
-          } as BadgeEarned)
+        // 新しいバッジが作成された場合のみ配列に追加
+        if (upsertedBadge && !upsertError) {
+          // earned_atが最近の場合のみ「新規獲得」として扱う
+          const earnedTime = new Date(upsertedBadge.earned_at).getTime()
+          const now = Date.now()
+
+          if (now - earnedTime < 5000) { // 5秒以内に作成された場合
+            badgesEarned.push({
+              ...badge,
+              rarity: badge.rarity || 'common'
+            } as BadgeEarned)
+          }
         }
+      } catch (error) {
+        console.error(`Badge upsert error for ${badge.badge_type}:`, error)
+        // エラーが発生してもバッジ処理は継続
       }
     }
 
@@ -356,6 +380,38 @@ export async function findNearbyGyms(
       radius_km: radiusKm,
       max_results: limit
     })
+
+  return { data, error }
+}
+
+/**
+ * ユーザーの直近のチェックイン情報を取得（GPS認証投稿用）
+ */
+export async function getRecentCheckinForGym(
+  userId: string,
+  gymId: string,
+  hoursAgo: number = 24
+) {
+  const supabase = getSupabaseClient()
+
+  const timeThreshold = new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString()
+
+  const { data, error } = await supabase
+    .from('gym_checkins')
+    .select(`
+      id,
+      location_verified,
+      distance_to_gym,
+      checked_in_at,
+      verification_status:checkin_verifications(verification_status)
+    `)
+    .eq('user_id', userId)
+    .eq('gym_id', gymId)
+    .eq('location_verified', true)
+    .gte('checked_in_at', timeThreshold)
+    .order('checked_in_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   return { data, error }
 }
