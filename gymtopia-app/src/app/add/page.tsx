@@ -236,7 +236,7 @@ function AddGymPostContent() {
         content: content.trim(),
         post_type: exercises.length > 0 ? 'workout' as const : 'normal' as const,
         gym_id: selectedGym?.id, // ジムIDを追加
-        check_in_id: checkInId || undefined, // チェックインIDを追加
+        checkin_id: checkInId || undefined, // チェックインIDを追加（checkin_idに修正）
         images: imageUrls, // 画像URLを追加
         workout_started_at: workoutStartTime || undefined,
         workout_ended_at: workoutEndTime || undefined,

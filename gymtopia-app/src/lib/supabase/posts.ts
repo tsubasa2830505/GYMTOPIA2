@@ -327,9 +327,20 @@ export async function createPost(post: {
       distance_from_gym: null
     }
 
+    console.log('[createPost] GPS自動付与チェック:', {
+      gym_id: post.gym_id,
+      checkin_id: post.checkin_id,
+      should_check: post.gym_id && !post.checkin_id
+    })
+
     if (post.gym_id && !post.checkin_id) {
       // 直近24時間以内のGPS認証チェックインを検索
-      const { data: recentCheckin } = await getRecentCheckinForGym(actualUserId, post.gym_id, 24)
+      console.log('[createPost] GPS認証チェックイン検索中...', { userId: actualUserId, gymId: post.gym_id })
+      const { data: recentCheckin, error } = await getRecentCheckinForGym(actualUserId, post.gym_id, 24)
+
+      if (error) {
+        console.error('[createPost] チェックイン検索エラー:', error)
+      }
 
       if (recentCheckin) {
         gpsVerificationData = {
@@ -338,7 +349,13 @@ export async function createPost(post: {
           verification_method: 'gps',
           distance_from_gym: recentCheckin.distance_to_gym
         }
-        console.log('GPS認証情報を自動付与:', recentCheckin.id)
+        console.log('[createPost] GPS認証情報を自動付与:', {
+          checkin_id: recentCheckin.id,
+          distance: recentCheckin.distance_to_gym,
+          verified: recentCheckin.location_verified
+        })
+      } else {
+        console.log('[createPost] 24時間以内のGPS認証チェックインなし')
       }
     }
 

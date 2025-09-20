@@ -964,13 +964,7 @@ function ProfileContent() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-[color:var(--foreground)] mb-2">まだ投稿がありません</h3>
-                <p className="text-[color:var(--text-muted)] mb-4">最初のジム活を投稿してみましょう！</p>
-                <button
-                  onClick={() => router.push('/add')}
-                  className="px-6 py-3 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-lg font-medium hover:from-[var(--gt-primary-strong)] hover:to-[var(--gt-tertiary)] transition-colors"
-                >
-                  投稿する
-                </button>
+                <p className="text-[color:var(--text-muted)]">ジム活動を記録していきましょう！</p>
               </div>
             ) : (
               <div className="space-y-4">
