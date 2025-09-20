@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -88,7 +88,7 @@ function getAchievementIcon(badgeIcon: string | null | undefined, achievementTyp
 
 // Removed static achievements and personalRecords arrays - now fetched from database
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -1288,5 +1288,20 @@ export default function ProfilePage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[color:var(--bg-primary)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[color:var(--gt-primary-strong)] mx-auto mb-4"></div>
+          <p className="text-[color:var(--text-muted)]">読み込み中...</p>
+        </div>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }
