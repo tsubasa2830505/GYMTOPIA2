@@ -86,22 +86,49 @@ export async function getFeedPosts(
         }
       } else if (filter === 'same-gym') {
         // 同じジムの投稿のみを取得
-        // まずユーザーの最近のジムを取得
-        const { data: userGyms } = await getSupabaseClient()
-          .from('gym_posts')
-          .select('gym_id')
+        // まずユーザーのホームジム設定を取得
+        const { data: userProfile } = await getSupabaseClient()
+          .from('user_profiles')
+          .select('primary_gym_id, secondary_gym_ids')
           .eq('user_id', actualUserId)
-          .not('gym_id', 'is', null)
-          .order('created_at', { ascending: false })
-          .limit(10);
+          .single();
 
-        if (userGyms && userGyms.length > 0) {
-          const gymIds = [...new Set(userGyms.map(g => g.gym_id))];
+        let gymIds: string[] = [];
+
+        // ホームジム（primary_gym_id）を最優先で追加
+        if (userProfile?.primary_gym_id) {
+          gymIds.push(userProfile.primary_gym_id);
+          console.log('getFeedPosts: Using home gym:', userProfile.primary_gym_id);
+        }
+
+        // セカンダリジムも追加
+        if (userProfile?.secondary_gym_ids && userProfile.secondary_gym_ids.length > 0) {
+          gymIds.push(...userProfile.secondary_gym_ids);
+          console.log('getFeedPosts: Including secondary gyms:', userProfile.secondary_gym_ids);
+        }
+
+        // ホームジム設定がない場合は、最近の投稿からジムを取得
+        if (gymIds.length === 0) {
+          const { data: recentGyms } = await getSupabaseClient()
+            .from('gym_posts')
+            .select('gym_id')
+            .eq('user_id', actualUserId)
+            .not('gym_id', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+          if (recentGyms && recentGyms.length > 0) {
+            gymIds = [...new Set(recentGyms.map(g => g.gym_id))];
+            console.log('getFeedPosts: No home gym set, using recent gyms:', gymIds);
+          }
+        }
+
+        if (gymIds.length > 0) {
           query = query.in('gym_id', gymIds);
-          console.log('getFeedPosts: Filtering by same gyms:', gymIds);
+          console.log('getFeedPosts: Filtering by gyms:', gymIds);
         } else {
-          console.log('getFeedPosts: User has no gym posts, returning all');
-          // ジムの投稿がない場合はすべて表示
+          console.log('getFeedPosts: User has no gym association, showing all posts');
+          // ジムの関連がない場合はすべて表示
         }
       }
     }
