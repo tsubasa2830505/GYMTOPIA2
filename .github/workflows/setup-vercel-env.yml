@@ -1,0 +1,44 @@
+name: Setup Vercel Environment Variables
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment (production/preview/development)'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - preview
+        - development
+
+jobs:
+  setup-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Authenticate Vercel
+        run: |
+          echo "${{ secrets.VERCEL_TOKEN }}" | vercel login --stdin
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Link Project
+        run: vercel link --yes --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Add SUPABASE_SERVICE_ROLE_KEY
+        run: |
+          echo "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" | vercel env add SUPABASE_SERVICE_ROLE_KEY ${{ github.event.inputs.environment }} --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Environment Variable
+        run: vercel env ls --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Trigger Deployment
+        if: github.event.inputs.environment == 'production'
+        run: vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}

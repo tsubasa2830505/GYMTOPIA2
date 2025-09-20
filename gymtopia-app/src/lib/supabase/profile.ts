@@ -655,6 +655,93 @@ export async function removeFavoriteGym(userId: string, gymId: string): Promise<
 }
 
 // ========================================
+// FREQUENT GYMS FUNCTIONS
+// ========================================
+
+export interface FrequentGym {
+  id: string
+  name: string
+  prefecture?: string
+  city?: string
+  images?: string[]
+  visit_count: number
+  last_visit: string
+  first_visit: string
+}
+
+export async function getFrequentGyms(userId: string, limit = 5): Promise<FrequentGym[]> {
+  try {
+    const { data, error } = await getSupabaseClient()
+      .from('gym_posts')
+      .select(`
+        gym_id,
+        gym:gyms(id, name, prefecture, city, images),
+        created_at
+      `)
+      .eq('user_id', userId)
+      .not('gym_id', 'is', null)
+
+    if (error) {
+      console.error('Error fetching frequent gyms:', error)
+      return []
+    }
+
+    if (!data || data.length === 0) {
+      return []
+    }
+
+    // Group by gym and calculate visit counts
+    const gymVisits = new Map<string, {
+      gym: any
+      visits: string[]
+    }>()
+
+    data.forEach(post => {
+      if (post.gym_id && post.gym) {
+        const existing = gymVisits.get(post.gym_id)
+        if (existing) {
+          existing.visits.push(post.created_at)
+        } else {
+          gymVisits.set(post.gym_id, {
+            gym: post.gym,
+            visits: [post.created_at]
+          })
+        }
+      }
+    })
+
+    // Convert to FrequentGym array and sort by visit count
+    const frequentGyms: FrequentGym[] = Array.from(gymVisits.entries())
+      .map(([gymId, { gym, visits }]) => {
+        const sortedVisits = visits.sort()
+        return {
+          id: gym.id,
+          name: gym.name,
+          prefecture: gym.prefecture,
+          city: gym.city,
+          images: gym.images || [],
+          visit_count: visits.length,
+          last_visit: sortedVisits[sortedVisits.length - 1],
+          first_visit: sortedVisits[0]
+        }
+      })
+      .sort((a, b) => {
+        // Sort by visit count descending, then by last visit descending
+        if (b.visit_count !== a.visit_count) {
+          return b.visit_count - a.visit_count
+        }
+        return new Date(b.last_visit).getTime() - new Date(a.last_visit).getTime()
+      })
+      .slice(0, limit)
+
+    return frequentGyms
+  } catch (error) {
+    console.error('Error fetching frequent gyms:', error)
+    return []
+  }
+}
+
+// ========================================
 // STATISTICS FUNCTIONS
 // ========================================
 

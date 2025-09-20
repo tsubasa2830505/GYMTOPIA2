@@ -1,14 +1,54 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// 長期運用を考慮した堅牢な環境変数チェック
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Create a Supabase client with service role key for uploads
-const supabaseService = createClient(supabaseUrl, supabaseServiceKey)
+// 環境変数の存在チェック
+function validateEnvironmentVariables(): { isValid: boolean; error?: string } {
+  if (!supabaseUrl) {
+    return { isValid: false, error: 'NEXT_PUBLIC_SUPABASE_URL environment variable is not configured' }
+  }
+  if (!supabaseServiceKey) {
+    return { isValid: false, error: 'SUPABASE_SERVICE_ROLE_KEY environment variable is not configured' }
+  }
+  return { isValid: true }
+}
+
+// 環境変数が有効な場合のみSupabaseクライアントを作成
+function createSupabaseServiceClient() {
+  const validation = validateEnvironmentVariables()
+  if (!validation.isValid) {
+    return null
+  }
+  return createClient(supabaseUrl!, supabaseServiceKey!)
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // 環境変数の検証（ビルド時エラー回避）
+    const validation = validateEnvironmentVariables()
+    if (!validation.isValid) {
+      console.error('Environment configuration error:', validation.error)
+      return NextResponse.json(
+        {
+          error: 'Avatar upload service is temporarily unavailable',
+          details: 'Environment configuration required'
+        },
+        { status: 503 }
+      )
+    }
+
+    // Supabaseクライアントの作成
+    const supabaseService = createSupabaseServiceClient()
+    if (!supabaseService) {
+      return NextResponse.json(
+        { error: 'Service initialization failed' },
+        { status: 500 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
     const userId = formData.get('userId') as string

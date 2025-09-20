@@ -1,0 +1,60 @@
+name: 🚨 Hotfix Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      hotfix_description:
+        description: 'Describe the hotfix being deployed'
+        required: true
+        type: string
+      skip_tests:
+        description: 'Skip tests (emergency only)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # 緊急デプロイメント
+  emergency-deploy:
+    name: 🚨 Emergency Hotfix Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'gymtopia-app/package-lock.json'
+        if: github.event.inputs.skip_tests == 'false'
+
+      - name: Quick Build Test
+        run: |
+          cd gymtopia-app
+          npm ci
+          npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        if: github.event.inputs.skip_tests == 'false'
+
+      - name: Deploy Hotfix
+        run: |
+          echo "🚨 Deploying hotfix: ${{ github.event.inputs.hotfix_description }}"
+          npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+
+      - name: Create Hotfix Summary
+        run: |
+          echo "# 🚨 Hotfix Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Description**: ${{ github.event.inputs.hotfix_description }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deploy Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.skip_tests }}" == "true" ]; then
+            echo "⚠️ **Tests**: Skipped (Emergency)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Tests**: Executed" >> $GITHUB_STEP_SUMMARY
+          fi

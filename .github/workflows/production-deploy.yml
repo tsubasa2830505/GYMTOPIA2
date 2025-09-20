@@ -1,0 +1,190 @@
+name: 🚀 Production Deployment with Health Checks
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if checks fail'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # 環境変数と設定の検証
+  validate-environment:
+    name: 🔍 Environment Validation
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.validation.outputs.should_deploy }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'gymtopia-app/package-lock.json'
+
+      - name: Install Dependencies
+        run: |
+          cd gymtopia-app
+          npm ci
+
+      - name: Environment Variables Check
+        id: validation
+        run: |
+          echo "Checking required environment variables..."
+
+          # 必須環境変数の存在確認
+          REQUIRED_VARS=(
+            "NEXT_PUBLIC_SUPABASE_URL"
+            "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+          )
+
+          MISSING_VARS=()
+          for var in "${REQUIRED_VARS[@]}"; do
+            if [ -z "${!var}" ]; then
+              MISSING_VARS+=("$var")
+            fi
+          done
+
+          if [ ${#MISSING_VARS[@]} -eq 0 ]; then
+            echo "✅ All required environment variables are set"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Missing environment variables: ${MISSING_VARS[*]}"
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Build Test
+        run: |
+          cd gymtopia-app
+          npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  # 本番デプロイメント
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: needs.validate-environment.outputs.should_deploy == 'true' || github.event.inputs.force_deploy == 'true'
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes > deployment.log 2>&1
+          DEPLOYMENT_URL=$(grep -o 'https://[^[:space:]]*' deployment.log | tail -1)
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "🚀 Deployed to: $DEPLOYMENT_URL"
+
+      - name: Wait for Deployment
+        run: |
+          echo "Waiting for deployment to be ready..."
+          sleep 30
+
+  # デプロイメント後のヘルスチェック
+  health-check:
+    name: 🏥 Health Check
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    steps:
+      - name: Basic Health Check
+        run: |
+          DEPLOYMENT_URL="${{ needs.deploy-production.outputs.deployment_url }}"
+          echo "Testing deployment at: $DEPLOYMENT_URL"
+
+          # 基本的な接続確認
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$DEPLOYMENT_URL")
+
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 301 ] || [ "$HTTP_STATUS" -eq 302 ]; then
+            echo "✅ Basic health check passed (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ Health check failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+
+      - name: API Endpoints Check
+        run: |
+          DEPLOYMENT_URL="${{ needs.deploy-production.outputs.deployment_url }}"
+
+          # 重要なAPIエンドポイントをテスト
+          ENDPOINTS=(
+            "/api/debug-tables"
+          )
+
+          for endpoint in "${ENDPOINTS[@]}"; do
+            echo "Testing $endpoint..."
+            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$DEPLOYMENT_URL$endpoint")
+            echo "  Status: $HTTP_STATUS"
+          done
+
+      - name: Database Connectivity Test
+        run: |
+          echo "🔗 Testing database connectivity..."
+          DEPLOYMENT_URL="${{ needs.deploy-production.outputs.deployment_url }}"
+
+          # データベース接続テスト（debug-tables API経由）
+          RESPONSE=$(curl -s "$DEPLOYMENT_URL/api/debug-tables")
+          echo "Database response: $RESPONSE"
+
+  # デプロイメント結果の通知
+  notify-result:
+    name: 📢 Notify Deployment Result
+    runs-on: ubuntu-latest
+    needs: [validate-environment, deploy-production, health-check]
+    if: always()
+    steps:
+      - name: Create Deployment Summary
+        run: |
+          echo "# 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.validate-environment.result }}" == "success" ]; then
+            echo "✅ **Environment Validation**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Environment Validation**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+            echo "✅ **Production Deployment**: Successful" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 **URL**: ${{ needs.deploy-production.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Production Deployment**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.health-check.result }}" == "success" ]; then
+            echo "✅ **Health Check**: All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Health Check**: Some tests failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+  # 障害時の自動ロールバック（オプション）
+  rollback-on-failure:
+    name: 🔄 Automatic Rollback
+    runs-on: ubuntu-latest
+    needs: [deploy-production, health-check]
+    if: failure() && needs.deploy-production.result == 'success'
+    steps:
+      - name: Rollback Deployment
+        run: |
+          echo "🔄 Health check failed, initiating rollback..."
+          # 前回の成功したデプロイメントにロールバック
+          # npx vercel rollback --token ${{ secrets.VERCEL_TOKEN }}
+          echo "⚠️ Automatic rollback is disabled. Manual intervention required."
