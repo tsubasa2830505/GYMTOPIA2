@@ -267,24 +267,24 @@ export interface ListProps extends BaseComponentProps {
   dense?: boolean;
 }
 
-export interface TableColumn {
-  key: string;
+export interface TableColumn<T = Record<string, unknown>> {
+  key: keyof T | string;
   label: string;
   sortable?: boolean;
   width?: string | number;
   align?: 'left' | 'center' | 'right';
-  render?: (value: any, row: any) => ReactNode;
+  render?: (value: T[keyof T] | undefined, row: T) => ReactNode;
 }
 
-export interface TableProps extends BaseComponentProps {
-  columns: TableColumn[];
-  data: any[];
+export interface TableProps<T = Record<string, unknown>> extends BaseComponentProps {
+  columns: TableColumn<T>[];
+  data: T[];
   loading?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (column: string, order: 'asc' | 'desc') => void;
   rowKey?: string;
-  onRowClick?: (row: any) => void;
+  onRowClick?: (row: T) => void;
   pagination?: {
     current: number;
     total: number;

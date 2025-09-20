@@ -72,7 +72,7 @@ export default function AdminReviewsPage() {
     const matchesSearch = !searchQuery ||
       review.gym_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       review.user_display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.content.toLowerCase().includes(searchQuery.toLowerCase())
+      (review.content ? review.content.toLowerCase().includes(searchQuery.toLowerCase()) : false)
     const matchesRating = ratingFilter === null || review.rating === ratingFilter
 
     return matchesGym && matchesSearch && matchesRating

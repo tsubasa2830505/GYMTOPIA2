@@ -236,7 +236,7 @@ export default function EnhancedCheckInPage() {
 
     if (uniqueDates[0] === today || uniqueDates[0] === yesterdayStr) {
       streak = 1
-      let currentDate = new Date(uniqueDates[0])
+      const currentDate = new Date(uniqueDates[0])
 
       for (let i = 1; i < uniqueDates.length; i++) {
         currentDate.setDate(currentDate.getDate() - 1)

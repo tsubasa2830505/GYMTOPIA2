@@ -157,7 +157,13 @@
       "WebFetch(domain:gymtopia-app.vercel.app)",
       "Bash(/usr/bin/git commit -m \"🔧 デザイン調整: フィード・フォロー・ポストカード最新版\n\n✅ 調整内容:\n- フィードページのデザイン最新化（グラデーション背景、カードスタイル）\n- フォローページの青系テーマ統一\n- PostCardのInstagramアイコン追加（ストーリー機能）\n- 全体的なUI一貫性向上\n\n🎯 効果:\n- モダンで統一されたデザイン言語\n- ユーザー体験の向上\n- 視覚的な魅力向上\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)",
       "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 npx vercel --prod --yes)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(bc)",
+      "Read(//Users/tsubasa/**)",
+      "Bash(for page in \"/\" \"/checkin\" \"/profile\")",
+      "Bash(for endpoint in \"/api/auth\" \"/api/gyms\")",
+      "Bash(for page in \"/\" \"/checkin\" \"/profile\" \"/feed\")",
+      "WebFetch(domain:aistudio.google.com)"
     ],
     "deny": [],
     "ask": []

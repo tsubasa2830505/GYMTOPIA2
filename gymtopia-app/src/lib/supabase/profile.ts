@@ -558,7 +558,7 @@ export async function getUserFollowing(
 export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
   try {
     // First try with full join
-    let { data, error } = await getSupabaseClient()
+    const { data, error } = await getSupabaseClient()
       .from('favorite_gyms')
       .select(`
         *,

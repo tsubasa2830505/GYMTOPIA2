@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/Header';
-// import PostCardWithVerification from '@/components/PostCardWithVerification';
+import PostCardWithVerification from '@/components/PostCardWithVerification';
 import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';

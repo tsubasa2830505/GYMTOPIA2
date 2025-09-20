@@ -21,6 +21,7 @@ export interface UserProfile {
 
 export interface UserProfileStats {
   user_id: string
+  email?: string
   display_name?: string
   username?: string
   avatar_url?: string
@@ -71,18 +72,29 @@ export interface Follow {
 export interface GymPost {
   id: string
   user_id: string
-  workout_session_id?: string
-  content: string
-  image_url?: string
+  workout_session_id?: string | null
+  gym_id?: string | null
+  content: string | null
+  image_url?: string | null
+  images?: string[] | null
+  post_type?: 'normal' | 'workout' | 'check_in' | 'achievement' | string | null
   likes_count: number
   comments_count: number
-  shares_count: number
-  is_public: boolean
+  shares_count?: number
+  visibility?: 'public' | 'followers' | 'private'
+  is_public?: boolean
+  is_liked?: boolean
+  check_in_id?: string | null
+  is_verified?: boolean
+  verification_method?: 'check_in' | 'manual' | null
+  distance_from_gym?: number | null
   created_at: string
   updated_at: string
-  
+
   // Relations
-  user?: UserProfile
+  user?: UserProfile & {
+    username?: string
+  }
   workout_session?: {
     id: string
     started_at: string
@@ -97,12 +109,22 @@ export interface GymPost {
     gym_name?: string
     exercises?: Array<{
       name: string
-      weight: number
+      weight: number | number[]
       sets: number
-      reps: number
+      reps: number | number[]
     }>
     crowd_status?: string
   }
+  gym?: {
+    id: string
+    name: string
+    area?: string | null
+    city?: string | null
+    prefecture?: string | null
+    images?: string[] | null
+  }
+  achievement_type?: string | null
+  achievement_data?: Record<string, unknown> | null
 }
 
 export interface PostLike {
@@ -137,13 +159,14 @@ export interface FavoriteGym {
   gym?: {
     id: string
     name: string
-    area: string
+    area?: string
     description?: string
     rating?: number
     users_count?: number
     image_url?: string
     prefecture?: string
     city?: string
+    images?: string[] | null
   }
 }
 

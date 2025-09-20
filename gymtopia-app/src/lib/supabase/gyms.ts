@@ -196,8 +196,8 @@ export async function getGyms(filters?: {
           if (rows) rows.forEach(r => r?.gym_id && gymIdSet.add(r.gym_id))
         }
         const promises: Promise<any>[] = []
-        if (ids.length) promises.push(supabase.from('gym_machines').select('gym_id').in('machine_id', ids))
-        if (names.length) promises.push(supabase.from('gym_machines').select('gym_id').in('name', names))
+        if (ids.length) promises.push(supabase.from('gym_machines').select('gym_id').in('machine_id', ids).then(r => r))
+        if (names.length) promises.push(supabase.from('gym_machines').select('gym_id').in('name', names).then(r => r))
         const results = await Promise.allSettled(promises)
         results.forEach(r => {
           if (r.status === 'fulfilled') addIds((r.value as any).data)

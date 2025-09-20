@@ -20,6 +20,22 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    files: [
+      "*.js",
+      "scripts/**/*.js",
+      "../scripts/**/*.js",
+      "test-*.js",
+      "test/**/*.js",
+      "supabase/**/*.js",
+    ],
+    languageOptions: {
+      sourceType: "commonjs",
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

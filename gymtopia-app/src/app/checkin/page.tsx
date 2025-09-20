@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { MapPin, Navigation, Clock, Trophy, Calendar, Users, ChevronRight, Loader2, Check } from 'lucide-react'
+import { MapPin, Navigation, Clock, Trophy, Calendar, Users, ChevronRight, Loader2, Check, Shield, Award } from 'lucide-react'
 import Header from '@/components/Header'
 import { searchGymsNearby } from '@/lib/supabase/search'
 import { getSupabaseClient } from '@/lib/supabase/client'
+import { performGPSCheckin, findNearbyGyms, type BadgeEarned } from '@/lib/supabase/checkin'
+import { getAccuratePosition, type Coordinates } from '@/lib/gps-verification'
 
 interface NearbyGym {
   id: string
@@ -18,6 +20,9 @@ interface NearbyGym {
   longitude: number
   checkedInToday?: boolean
   lastCheckIn?: string
+  rarity_level?: 'common' | 'rare' | 'legendary' | 'mythical'
+  rarity_tags?: string[]
+  total_checkins?: number
 }
 
 interface CheckInStats {
@@ -50,72 +55,132 @@ export default function CheckInPage() {
     thisWeek: 0
   })
   const [locationError, setLocationError] = useState<string | null>(null)
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null)
+  const [newBadges, setNewBadges] = useState<BadgeEarned[]>([])
+  const [showBadgeModal, setShowBadgeModal] = useState(false)
 
-  // Get user location
+  // Get user location with high accuracy
   useEffect(() => {
-    if (navigator.geolocation) {
+    const getHighAccuracyLocation = async () => {
       setLoading(true)
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          }
-          setUserLocation(location)
-          await fetchNearbyGyms(location)
-        },
-        (error) => {
-          console.error('Location error:', error)
-          setLocationError('位置情報を取得できませんでした。設定から位置情報の使用を許可してください。')
-          setLoading(false)
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+      try {
+        const position = await getAccuratePosition(3, {
+          maxDistance: 100,
+          requiredAccuracy: 50,
+          timeoutMs: 15000,
+          enableHighAccuracy: true
+        })
+
+        const location = {
+          lat: position.latitude,
+          lng: position.longitude
         }
-      )
-    } else {
-      setLocationError('お使いのブラウザは位置情報に対応していません。')
-      setLoading(false)
+
+        setUserLocation(location)
+        setGpsAccuracy(position.accuracy || null)
+        await fetchNearbyGyms(location)
+      } catch (error) {
+        console.error('GPS error:', error)
+        if (error instanceof Error) {
+          if (error.message.includes('permission')) {
+            setLocationError('位置情報へのアクセスが拒否されました。ブラウザの設定から位置情報を許可してください。')
+          } else if (error.message.includes('accuracy')) {
+            setLocationError('GPS精度が不十分です。屋外または窓の近くで再試行してください。')
+          } else {
+            setLocationError('位置情報を取得できませんでした。GPS機能を確認してください。')
+          }
+        } else {
+          setLocationError('位置情報サービスがご利用いただけません。')
+        }
+        setLoading(false)
+      }
     }
+
+    getHighAccuracyLocation()
   }, [])
 
-  // Fetch nearby gyms
+  // Fetch nearby gyms using GPS-based search
   const fetchNearbyGyms = async (location: { lat: number; lng: number }) => {
     try {
-      // RPC関数が存在しないため、一旦全てのジムを取得して表示
+      const userCoords: Coordinates = {
+        latitude: location.lat,
+        longitude: location.lng
+      }
+
+      const { data: nearbyGymData, error } = await findNearbyGyms(userCoords, 2, 20)
+
+      if (error) {
+        console.error('Error fetching nearby gyms:', error)
+        // フォールバック: 従来の方法
+        await fetchNearbyGymsFromDb(location)
+        return
+      }
+
+      const gymsWithDistance = (nearbyGymData || []).map((gym: any) => ({
+        id: gym.id,
+        name: gym.name,
+        address: gym.address,
+        distance: gym.distance_meters / 1000, // Convert to km
+        image_url: gym.image_url,
+        latitude: gym.latitude,
+        longitude: gym.longitude,
+        rarity_level: gym.rarity_level,
+        rarity_tags: gym.rarity_tags,
+        total_checkins: gym.total_checkins,
+        checkedInToday: false // Will be checked in loadCheckInData
+      }))
+
+      setNearbyGyms(gymsWithDistance)
+      await loadCheckInData()
+    } catch (error) {
+      console.error('Error fetching nearby gyms:', error)
+      await fetchNearbyGymsFromDb(location)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fallback method for fetching gyms
+  const fetchNearbyGymsFromDb = async (location: { lat: number; lng: number }) => {
+    try {
       const supabase = getSupabaseClient()
       const { data: gymRows, error: gymError } = await supabase
         .from('gyms')
-        .select('*')
+        .select(`
+          id, name, address, latitude, longitude, images,
+          gym_rarities (rarity_level, rarity_tags)
+        `)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
         .limit(20)
 
       if (gymError) throw gymError
 
-      const gymsWithDistance = (gymRows || []).map((gym: any, index: number) => {
-        // ダミーの距離を設定（0.5km～3kmのランダム）
-        const dummyDistance = (0.5 + Math.random() * 2.5)
+      const gymsWithDistance = (gymRows || []).map((gym: any) => {
+        const distance = gym.latitude && gym.longitude
+          ? Math.sqrt(
+              Math.pow((gym.latitude - location.lat) * 111, 2) +
+              Math.pow((gym.longitude - location.lng) * 111 * Math.cos(location.lat * Math.PI / 180), 2)
+            )
+          : Math.random() * 3 + 0.5
+
         return {
           id: gym.id,
           name: gym.name,
-          address: gym.address || `${gym.prefecture} ${gym.city}`,
-          distance: dummyDistance,
-          image_url: gym.image_url || (gym.images && gym.images[0]),
-          latitude: gym.latitude || location.lat + (Math.random() - 0.5) * 0.02,
-          longitude: gym.longitude || location.lng + (Math.random() - 0.5) * 0.02,
-          checkedInToday: false // TODO: Check from database
+          address: gym.address || '住所未設定',
+          distance,
+          image_url: gym.images?.[0],
+          latitude: gym.latitude || location.lat,
+          longitude: gym.longitude || location.lng,
+          rarity_level: gym.gym_rarities?.rarity_level || 'common',
+          rarity_tags: gym.gym_rarities?.rarity_tags || [],
+          checkedInToday: false
         }
-      }).sort((a: NearbyGym, b: NearbyGym) => a.distance - b.distance)
+      }).sort((a, b) => a.distance - b.distance)
 
       setNearbyGyms(gymsWithDistance)
-
-      // Load check-in data and stats
-      await loadCheckInData()
     } catch (error) {
-      console.error('Error fetching nearby gyms:', error)
-    } finally {
-      setLoading(false)
+      console.error('Fallback gym fetch error:', error)
     }
   }
 
@@ -129,7 +194,7 @@ export default function CheckInPage() {
 
       // 最近のチェックインを取得
       const { data: checkIns, error: checkInsError } = await supabase
-        .from('check_ins')
+        .from('gym_checkins')
         .select('*, gyms(name)')
         .eq('user_id', demoUserId)
         .order('checked_in_at', { ascending: false })
@@ -155,7 +220,7 @@ export default function CheckInPage() {
 
       // 統計を計算
       const { data: statsData } = await supabase
-        .from('check_ins')
+        .from('gym_checkins')
         .select('gym_id, checked_in_at')
         .eq('user_id', demoUserId)
 
@@ -212,7 +277,7 @@ export default function CheckInPage() {
     // 今日か昨日にチェックインがある場合のみ連続とみなす
     if (uniqueDates[0] === today || uniqueDates[0] === yesterdayStr) {
       streak = 1
-      let currentDate = new Date(uniqueDates[0])
+      const currentDate = new Date(uniqueDates[0])
 
       for (let i = 1; i < uniqueDates.length; i++) {
         currentDate.setDate(currentDate.getDate() - 1)
@@ -229,44 +294,65 @@ export default function CheckInPage() {
     return streak
   }
 
-  // Handle check-in
+  // Handle GPS-verified check-in
   const handleCheckIn = async (gymId: string) => {
+    if (!userLocation) {
+      alert('位置情報が取得できていません。')
+      return
+    }
+
     setCheckingIn(gymId)
 
     try {
-      const supabase = getSupabaseClient()
       const demoUserId = '0ab7b9a0-fbf6-447c-9af5-ff5b12e92fa8'
       const gym = nearbyGyms.find(g => g.id === gymId)
 
-      // チェックインを保存
-      const { data, error } = await supabase
-        .from('check_ins')
-        .insert({
-          user_id: demoUserId,
-          gym_id: gymId,
-          latitude: userLocation?.lat,
-          longitude: userLocation?.lng,
-          note: null
-        })
-        .select('*, gyms(name)')
-        .single()
+      if (!gym) {
+        throw new Error('ジム情報が見つかりません')
+      }
 
-      if (error) throw error
+      // GPS認証付きチェックイン実行
+      const result = await performGPSCheckin(
+        demoUserId,
+        gymId,
+        {
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          accuracy: gpsAccuracy || undefined
+        },
+        {
+          crowdLevel: 'normal' // TODO: ユーザーに選択させる
+        }
+      )
 
-      // チェックイン済みのジムに追加
+      if (!result.success) {
+        if (result.verification && !result.verification.isValid) {
+          const distance = Math.round(result.verification.distance)
+          alert(`チェックインできませんでした。\nジムから${distance}m離れています。\n（許可範囲: ${Math.round(result.verification.maxAllowedDistance)}m）`)
+        } else {
+          alert(`チェックインに失敗しました: ${result.error}`)
+        }
+        return
+      }
+
+      // チェックイン成功
       setCheckedInGyms(prev => new Set([...prev, gymId]))
 
-      // 最近のチェックインに追加
-      if (data) {
-        const newCheckIn: CheckIn = {
-          id: data.id,
-          gym_id: data.gym_id,
-          gym_name: gym?.name || data.gyms?.name || 'Unknown Gym',
-          checked_in_at: data.checked_in_at,
-          note: data.note
-        }
-        setRecentCheckIns(prev => [newCheckIn, ...prev].slice(0, 10))
+      // 新しいバッジがある場合は表示
+      if (result.badges_earned && result.badges_earned.length > 0) {
+        setNewBadges(result.badges_earned)
+        setShowBadgeModal(true)
       }
+
+      // 最近のチェックインに追加
+      const newCheckIn: CheckIn = {
+        id: result.checkin_id || '',
+        gym_id: gymId,
+        gym_name: gym.name,
+        checked_in_at: new Date().toISOString(),
+        note: undefined
+      }
+      setRecentCheckIns(prev => [newCheckIn, ...prev].slice(0, 10))
 
       // 統計を更新
       setStats(prev => ({
@@ -274,10 +360,10 @@ export default function CheckInPage() {
         totalCheckIns: prev.totalCheckIns + 1,
         thisWeek: prev.thisWeek + 1
       }))
+
     } catch (error) {
-      console.error('Check-in error:', error)
-      // エラーが起きても UI 上では成功したように見せる（デモ用）
-      setCheckedInGyms(prev => new Set([...prev, gymId]))
+      console.error('GPS check-in error:', error)
+      alert('チェックインに失敗しました。再度お試しください。')
     } finally {
       setCheckingIn(null)
     }
@@ -317,22 +403,33 @@ export default function CheckInPage() {
 
       {/* Location Status */}
       <div className="px-4 py-3 bg-white border-b">
-        <div className="max-w-4xl mx-auto flex items-center gap-2 text-sm">
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin text-[color:var(--gt-secondary-strong)]" />
-              <span className="text-[color:var(--text-muted)]">現在地を取得中...</span>
-            </>
-          ) : locationError ? (
-            <>
-              <MapPin className="w-4 h-4 text-[color:var(--gt-primary)]" />
-              <span className="text-[color:var(--gt-primary-strong)]">{locationError}</span>
-            </>
-          ) : (
-            <>
-              <Navigation className="w-4 h-4 text-[color:var(--gt-secondary)]" />
-              <span className="text-[color:var(--text-muted)]">現在地から2km以内のジム</span>
-            </>
+        <div className="max-w-4xl mx-auto flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-[color:var(--gt-secondary-strong)]" />
+                <span className="text-[color:var(--text-muted)]">高精度GPS取得中...</span>
+              </>
+            ) : locationError ? (
+              <>
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="text-red-600">{locationError}</span>
+              </>
+            ) : (
+              <>
+                <Navigation className="w-4 h-4 text-[color:var(--gt-secondary)]" />
+                <span className="text-[color:var(--text-muted)]">現在地から2km以内のジム</span>
+              </>
+            )}
+          </div>
+          {gpsAccuracy && !loading && !locationError && (
+            <div className="flex items-center gap-1 text-xs">
+              <div className={`w-2 h-2 rounded-full ${
+                gpsAccuracy <= 10 ? 'bg-green-500' :
+                gpsAccuracy <= 30 ? 'bg-yellow-500' : 'bg-orange-500'
+              }`}></div>
+              <span className="text-[color:var(--text-subtle)]">GPS精度: {Math.round(gpsAccuracy)}m</span>
+            </div>
           )}
         </div>
       </div>
@@ -400,6 +497,17 @@ export default function CheckInPage() {
                         <Navigation className="w-3 h-3" />
                         {gym.distance.toFixed(1)}km
                       </span>
+                      {gym.rarity_level && gym.rarity_level !== 'common' && (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          gym.rarity_level === 'mythical' ? 'bg-purple-100 text-purple-700' :
+                          gym.rarity_level === 'legendary' ? 'bg-yellow-100 text-yellow-700' :
+                          gym.rarity_level === 'rare' ? 'bg-blue-100 text-blue-700' : ''
+                        }`}>
+                          {gym.rarity_level === 'mythical' ? '💎 神話級' :
+                           gym.rarity_level === 'legendary' ? '👑 伝説級' :
+                           gym.rarity_level === 'rare' ? '⭐ レア' : ''}
+                        </span>
+                      )}
                       {checkedInGyms.has(gym.id) && (
                         <span className="text-[color:var(--gt-secondary-strong)] font-medium flex items-center gap-1">
                           <Check className="w-4 h-4" />
@@ -493,6 +601,33 @@ export default function CheckInPage() {
                 <p className="text-sm">まだチェックインがありません</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Badge Achievement Modal */}
+        {showBadgeModal && newBadges.length > 0 && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+              <div className="text-4xl mb-4">🎉</div>
+              <h3 className="text-xl font-bold text-[color:var(--foreground)] mb-2">バッジ獲得！</h3>
+              <div className="space-y-3 mb-6">
+                {newBadges.map((badge, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-[rgba(254,255,250,0.9)] rounded-xl">
+                    <div className="text-2xl">{badge.badge_icon}</div>
+                    <div className="text-left flex-1">
+                      <div className="font-bold text-[color:var(--foreground)]">{badge.badge_name}</div>
+                      <div className="text-sm text-[color:var(--text-muted)]">{badge.badge_description}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowBadgeModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-xl font-medium"
+              >
+                確認
+              </button>
+            </div>
           </div>
         )}
       </div>

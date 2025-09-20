@@ -1,62 +1,8 @@
 import { getSupabaseClient } from './client'
+import type { GymPost as Post, PostComment as Comment } from '@/lib/types/profile'
 
-// 投稿の型定義
-export interface Post {
-  id: string
-  user_id: string
-  content?: string
-  image_url?: string | null
-  images?: string[]
-  post_type?: 'normal' | 'workout' | 'check_in' | 'achievement'
-  workout_session_id?: string | null
-  gym_id?: string | null
-  checkin_id?: string
-  achievement_type?: string
-  achievement_data?: any
-  training_details?: {
-    gym_name?: string
-    exercises?: {
-      name: string
-      weight: number
-      sets: number
-      reps: number
-    }[]
-    crowd_status?: string
-  } | null
-  visibility?: 'public' | 'followers' | 'private'
-  is_public?: boolean
-  likes_count: number
-  comments_count: number
-  created_at: string
-  user?: {
-    id: string
-    display_name: string
-    username: string
-    avatar_url?: string
-  }
-  gym?: {
-    name: string
-  }
-  is_liked?: boolean
-  is_verified?: boolean
-  check_in_id?: string | null
-  verification_method?: 'check_in' | 'manual' | null
-  distance_from_gym?: number | null
-}
-
-export interface Comment {
-  id: string
-  user_id: string
-  post_id: string
-  content: string
-  parent_comment_id?: string
-  created_at: string
-  user?: {
-    display_name: string
-    username: string
-    avatar_url?: string
-  }
-}
+// Re-export the types for backward compatibility
+export type { Post, Comment }
 
 // フィードの投稿を取得
 export async function getFeedPosts(
@@ -173,35 +119,50 @@ export async function getFeedPosts(
 
 
     // gym_posts テーブルに合わせたマッピング（実際のユーザー情報を使用）
-    const posts = (data || []).map(post => ({
+    const posts: Post[] = (data || []).map(post => ({
       id: post.id,
       user_id: post.user_id,
-      content: post.content,
+      content: post.content || null,
       images: post.images || post.image_urls || [],
       gym_id: post.gym_id,
-      workout_type: post.workout_type,
-      muscle_groups_trained: post.muscle_groups_trained,
-      duration_minutes: post.duration_minutes,
-      crowd_status: post.crowd_status,
-      visibility: post.visibility,
+      post_type: 'normal' as const,
+      workout_session_id: post.workout_session_id || null,
+      visibility: post.visibility || 'public' as const,
       likes_count: post.likes_count_live || post.likes_count || post.like_count || 0,
       comments_count: post.comments_count_live || post.comments_count || post.comment_count || 0,
-      created_at: post.created_at,
-      training_details: post.training_details, // トレーニング詳細を追加
+      shares_count: 0,
+      is_public: true,
       is_liked: false,
+      is_verified: false,
+      check_in_id: null,
+      verification_method: null,
+      distance_from_gym: null,
+      created_at: post.created_at,
+      updated_at: post.updated_at || post.created_at,
+      training_details: post.training_details,
       user: post.user ? {
         id: post.user.id,
-        display_name: post.user.display_name || 'ユーザー',
-        username: post.user.username || 'user',
-        avatar_url: post.user.avatar_url
-      } : {
-        id: post.user_id,
-        display_name: 'ユーザー',
-        username: 'user',
-        avatar_url: undefined
-      },
-      gym: post.gym ? { name: post.gym.name } : undefined
-    })) as Post[]
+        display_name: post.user.display_name || undefined,
+        username: post.user.username || undefined,
+        avatar_url: post.user.avatar_url || undefined,
+        bio: undefined,
+        location: undefined,
+        joined_at: post.user.created_at || new Date().toISOString(),
+        is_verified: false,
+        workout_streak: 0,
+        total_workouts: 0,
+        created_at: post.user.created_at || new Date().toISOString(),
+        updated_at: post.user.updated_at || new Date().toISOString()
+      } : undefined,
+      gym: post.gym ? {
+        id: post.gym.id || post.gym_id,
+        name: post.gym.name,
+        area: post.gym.area || null,
+        city: post.gym.city || null,
+        prefecture: post.gym.prefecture || null,
+        images: post.gym.images || null
+      } : undefined
+    }))
 
     return posts
   } catch (error) {
@@ -217,54 +178,10 @@ export async function getFeedPosts(
   }
 }
 
-// サンプルフィードデータを生成する関数
-function getSampleFeedPosts(): Post[] {
-  return [
-    {
-      id: 'sample-1',
-      user_id: 'sample-user-1',
-      gym_id: 'sample-gym-1',
-      content: '今日も良いトレーニングができました！ベンチプレス100kg達成🔥',
-      created_at: new Date().toISOString(),
-      likes_count: 0,
-      comments_count: 0,
-      is_liked: false,
-      user: {
-        id: 'sample-user-1',
-        display_name: 'サンプルユーザー',
-        username: 'sample_user',
-        avatar_url: undefined
-      },
-      gym: {
-        name: 'サンプルジム'
-      }
-    },
-    {
-      id: 'sample-2',
-      user_id: 'sample-user-2',
-      gym_id: 'sample-gym-2',
-      content: '駅近の新しいジムに行ってみました。設備が充実していて満足です！',
-      created_at: new Date(Date.now() - 3600000).toISOString(), // 1時間前
-      likes_count: 0,
-      comments_count: 0,
-      is_liked: false,
-      user: {
-        id: 'sample-user-2',
-        display_name: 'フィットネス太郎',
-        username: 'fitness_taro',
-        avatar_url: undefined
-      },
-      gym: {
-        name: 'エクサイズジム渋谷'
-      }
-    }
-  ]
-}
 
 // ユーザーの投稿を取得
 export async function getUserPosts(userId: string, page = 1, limit = 10) {
   try {
-    const { data: { user } } = await getSupabaseClient().auth.getUser()
     const offset = (page - 1) * limit
 
     const { data, error } = await getSupabaseClient()

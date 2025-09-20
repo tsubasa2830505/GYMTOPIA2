@@ -116,7 +116,7 @@ export default function ProfileEditPage() {
 
       if (!profileError && profileData?.primary_gym_id) {
         setPrimaryGymId(profileData.primary_gym_id)
-        setPrimaryGymName(profileData.gyms?.name || '')
+        setPrimaryGymName((profileData as any).gyms?.name || '')
       }
     } catch (error) {
       console.error('プロフィール取得エラー:', error)

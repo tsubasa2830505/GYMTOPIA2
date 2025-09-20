@@ -159,7 +159,7 @@ function SearchResultsContent() {
       }
     } catch (error) {
       console.error('Error toggling like:', error)
-      alert('エラーが発生しました: ' + error.message)
+      alert('エラーが発生しました: ' + (error instanceof Error ? error.message : String(error)))
     } finally {
       setProcessingLikes(prev => {
         const newSet = new Set(prev)
@@ -241,15 +241,7 @@ function SearchResultsContent() {
       if (facilities && facilities.length > 0) filters.facilities = facilities
 
       // Pass all condition filters to getGyms
-      if (conditions.machines?.length) {
-        filters.machines = conditions.machines
-      }
-      if (conditions.freeWeights?.length) {
-        filters.machineTypes = conditions.freeWeights
-      }
-      if (conditions.facilities?.length) {
-        filters.categories = conditions.facilities
-      }
+      // Note: conditions are handled separately in the UI, not passed to getGyms
       
       const data = await getGyms(filters)
       
@@ -278,9 +270,9 @@ function SearchResultsContent() {
             id: gym.id || `gym-${index}`, // Ensure unique ID
             name: gym.name || 'ジム名未設定',
             location: stationInfo.walkingMinutes > 0
-              ? `${stationInfo.station}から徒歩${stationInfo.walkingMinutes}分`
+              ? `${stationInfo.station}から徒歩${String(stationInfo.walkingMinutes)}分`
               : stationInfo.area,
-            distance: stationInfo.walkingText,
+            distance: String(stationInfo.walkingText),
             distanceFromUser: distanceFromUser, // Distance in km from user location
             likes: gym.review_count || 0,
             tags: gym.equipment_types || [],

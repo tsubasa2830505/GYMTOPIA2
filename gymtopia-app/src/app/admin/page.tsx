@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, TrendingUp, Activity } from 'lucide-react'
+import { Upload, Dumbbell, Plus, Trash2, Send, Heart, Users, Activity } from 'lucide-react'
 import Image from 'next/image'
-import { getGyms } from '@/lib/supabase/gyms'
 import { getGymAdminStatistics, getTimeBasedPostDistribution, getFrequentPosters } from '@/lib/supabase/admin-statistics'
 import {
   getUserManagedGyms,
