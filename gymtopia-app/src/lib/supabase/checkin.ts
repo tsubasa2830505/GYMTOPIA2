@@ -12,6 +12,7 @@ import {
   type DistanceVerificationResult
 } from '../gps-verification'
 import { createCheckinPost } from './posts'
+import { logger } from '../utils/logger'
 
 export interface GymCheckInData {
   gym_id: string
@@ -87,7 +88,7 @@ export async function performGPSCheckin(
     // 3. 位置偽装チェック（強化版）
     const spoofCheck = detectLocationSpoofing(userLocation)
     if (spoofCheck.suspicious) {
-      console.warn('Suspicious location detected:', spoofCheck.reasons, 'Risk level:', spoofCheck.riskLevel)
+      logger.warn('Suspicious location detected:', spoofCheck.reasons, 'Risk level:', spoofCheck.riskLevel)
 
       // 高リスクの場合はチェックインを拒否
       if (spoofCheck.riskLevel === 'high') {
@@ -125,7 +126,7 @@ export async function performGPSCheckin(
       .single()
 
     if (checkinError || !checkin) {
-      console.error('Checkin error:', checkinError)
+      logger.error('Checkin error:', checkinError)
       return {
         success: false,
         error: `Failed to save check-in: ${checkinError?.message || 'Unknown error'}`,
@@ -151,7 +152,7 @@ export async function performGPSCheckin(
     const badgesEarned = await checkAndAwardBadges(userId, gymId, checkin.id, gym)
 
     // 9. GPS認証情報を保存（投稿は作成しない）
-    console.log('GPS check-in completed with verification data saved')
+    logger.log('GPS check-in completed with verification data saved')
 
     return {
       success: true,
@@ -161,7 +162,7 @@ export async function performGPSCheckin(
     }
 
   } catch (error) {
-    console.error('GPS check-in error:', error)
+    logger.error('GPS check-in error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -296,7 +297,7 @@ async function checkAndAwardBadges(
           }
         }
       } catch (error) {
-        console.error(`Badge upsert error for ${badge.badge_type}:`, error)
+        logger.error(`Badge upsert error for ${badge.badge_type}:`, error)
         // エラーが発生してもバッジ処理は継続
       }
     }
@@ -304,7 +305,7 @@ async function checkAndAwardBadges(
     return badgesEarned
 
   } catch (error) {
-    console.error('Badge check error:', error)
+    logger.error('Badge check error:', error)
     return badgesEarned
   }
 }

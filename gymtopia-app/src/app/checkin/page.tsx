@@ -62,6 +62,12 @@ export default function CheckInPage() {
   const [selectedGym, setSelectedGym] = useState<NearbyGym | null>(null)
   const [realtimeVerificationActive, setRealtimeVerificationActive] = useState(false)
   const [preVerificationResult, setPreVerificationResult] = useState<any>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successModalData, setSuccessModalData] = useState<{
+    gymName: string
+    checkInTime: string
+    badges?: BadgeEarned[]
+  } | null>(null)
 
 
   // Get user location with high accuracy
@@ -347,11 +353,6 @@ export default function CheckInPage() {
       // チェックイン成功処理
       setCheckedInGyms(prev => new Set([...prev, selectedGym.id]))
 
-      if (result.badges_earned && result.badges_earned.length > 0) {
-        setNewBadges(result.badges_earned)
-        setShowBadgeModal(true)
-      }
-
       const newCheckIn: CheckIn = {
         id: result.checkin_id || '',
         gym_id: selectedGym.id,
@@ -367,6 +368,17 @@ export default function CheckInPage() {
         thisWeek: prev.thisWeek + 1
       }))
 
+      // チェックイン成功モーダルを表示
+      setSuccessModalData({
+        gymName: selectedGym.name,
+        checkInTime: new Date().toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        badges: result.badges_earned
+      })
+      setShowSuccessModal(true)
+
       // リセット
       setSelectedGym(null)
       setPreVerificationResult(null)
@@ -374,6 +386,48 @@ export default function CheckInPage() {
     } catch (error) {
       console.error('GPS check-in error:', error)
       alert('チェックインに失敗しました。再度お試しください。')
+    } finally {
+      setCheckingIn(null)
+    }
+  }
+
+  // Test check-in without GPS (for debugging)
+  const executeTestCheckIn = async (gym: NearbyGym) => {
+    setCheckingIn(gym.id)
+
+    try {
+      // チェックイン成功処理
+      setCheckedInGyms(prev => new Set([...prev, gym.id]))
+
+      const newCheckIn: CheckIn = {
+        id: `test-${Date.now()}`,
+        gym_id: gym.id,
+        gym_name: gym.name,
+        checked_in_at: new Date().toISOString(),
+        note: undefined
+      }
+      setRecentCheckIns(prev => [newCheckIn, ...prev].slice(0, 10))
+
+      setStats(prev => ({
+        ...prev,
+        totalCheckIns: prev.totalCheckIns + 1,
+        thisWeek: prev.thisWeek + 1
+      }))
+
+      // チェックイン成功モーダルを表示
+      setSuccessModalData({
+        gymName: gym.name,
+        checkInTime: new Date().toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        badges: []
+      })
+      setShowSuccessModal(true)
+
+    } catch (error) {
+      console.error('Test check-in error:', error)
+      alert('テストチェックインに失敗しました。')
     } finally {
       setCheckingIn(null)
     }
@@ -423,12 +477,6 @@ export default function CheckInPage() {
       // チェックイン成功
       setCheckedInGyms(prev => new Set([...prev, gymId]))
 
-      // 新しいバッジがある場合は表示
-      if (result.badges_earned && result.badges_earned.length > 0) {
-        setNewBadges(result.badges_earned)
-        setShowBadgeModal(true)
-      }
-
       // 最近のチェックインに追加
       const newCheckIn: CheckIn = {
         id: result.checkin_id || '',
@@ -445,6 +493,17 @@ export default function CheckInPage() {
         totalCheckIns: prev.totalCheckIns + 1,
         thisWeek: prev.thisWeek + 1
       }))
+
+      // チェックイン成功モーダルを表示
+      setSuccessModalData({
+        gymName: gym.name,
+        checkInTime: new Date().toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        badges: result.badges_earned
+      })
+      setShowSuccessModal(true)
 
     } catch (error) {
       console.error('GPS check-in error:', error)
@@ -553,21 +612,19 @@ export default function CheckInPage() {
               >
                 <div className="flex gap-4">
                   {/* Gym Image */}
-                  <div className="w-20 h-20 bg-[rgba(254,255,250,0.95)] rounded-lg overflow-hidden flex-shrink-0">
-                    {gym.image_url ? (
-                      <Image
-                        src={gym.image_url}
-                        alt={gym.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <MapPin className="w-8 h-8 text-[rgba(68,73,73,0.4)]" />
-                      </div>
-                    )}
+                  <div className="w-20 h-20 bg-[rgba(254,255,250,0.95)] rounded-lg overflow-hidden flex-shrink-0 border border-[rgba(231,103,76,0.1)]">
+                    <Image
+                      src={gym.image_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop&crop=center'}
+                      alt={gym.name}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop&crop=center';
+                      }}
+                    />
                   </div>
 
                   {/* Gym Info */}
@@ -612,57 +669,82 @@ export default function CheckInPage() {
                       </div>
                     )}
 
-                    {/* Check-in Button */}
-                    {selectedGym?.id === gym.id && preVerificationResult?.success ? (
-                      <button
-                        onClick={executeCheckIn}
-                        disabled={checkingIn === gym.id}
-                        className="mt-3 px-6 py-2 rounded-full font-medium transition-all bg-green-500 text-white hover:bg-green-600 hover:shadow-lg active:scale-95"
-                      >
-                        {checkingIn === gym.id ? (
-                          <span className="flex items-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            チェックイン中...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            <Check className="w-4 h-4" />
-                            認証済み - チェックイン実行
-                          </span>
-                        )}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => selectedGym?.id === gym.id ? setSelectedGym(null) : startRealtimeVerification(gym)}
-                        disabled={checkingIn === gym.id || checkedInGyms.has(gym.id) || (selectedGym !== null && selectedGym.id !== gym.id)}
-                        className={`mt-3 px-6 py-2 rounded-full font-medium transition-all ${
-                          checkedInGyms.has(gym.id)
-                            ? 'bg-[rgba(240,142,111,0.16)] text-[color:var(--gt-secondary-strong)] cursor-default'
-                            : selectedGym?.id === gym.id
-                            ? 'bg-gray-500 text-white hover:bg-gray-600'
-                            : (selectedGym !== null && selectedGym.id !== gym.id)
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white hover:shadow-lg active:scale-95'
-                        }`}
-                      >
-                        {checkedInGyms.has(gym.id) ? (
-                          <span className="flex items-center gap-2">
-                            <Check className="w-4 h-4" />
-                            認証完了
-                          </span>
-                        ) : selectedGym?.id === gym.id ? (
-                          <span className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            認証キャンセル
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            リアルタイムGPS認証
-                          </span>
-                        )}
-                      </button>
-                    )}
+                    {/* Check-in Buttons */}
+                    <div className="mt-3 space-y-2">
+                      {selectedGym?.id === gym.id && preVerificationResult?.success ? (
+                        <button
+                          onClick={executeCheckIn}
+                          disabled={checkingIn === gym.id}
+                          className="w-full px-6 py-2 rounded-full font-medium transition-all bg-green-500 text-white hover:bg-green-600 hover:shadow-lg active:scale-95"
+                        >
+                          {checkingIn === gym.id ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              チェックイン中...
+                            </span>
+                          ) : (
+                            <span className="flex items-center justify-center gap-2">
+                              <Check className="w-4 h-4" />
+                              認証済み - チェックイン実行
+                            </span>
+                          )}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => selectedGym?.id === gym.id ? setSelectedGym(null) : startRealtimeVerification(gym)}
+                            disabled={checkingIn === gym.id || checkedInGyms.has(gym.id) || (selectedGym !== null && selectedGym.id !== gym.id)}
+                            className={`w-full px-6 py-2 rounded-full font-medium transition-all ${
+                              checkedInGyms.has(gym.id)
+                                ? 'bg-[rgba(240,142,111,0.16)] text-[color:var(--gt-secondary-strong)] cursor-default'
+                                : selectedGym?.id === gym.id
+                                ? 'bg-gray-500 text-white hover:bg-gray-600'
+                                : (selectedGym !== null && selectedGym.id !== gym.id)
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white hover:shadow-lg active:scale-95'
+                            }`}
+                          >
+                            {checkedInGyms.has(gym.id) ? (
+                              <span className="flex items-center justify-center gap-2">
+                                <Check className="w-4 h-4" />
+                                認証完了
+                              </span>
+                            ) : selectedGym?.id === gym.id ? (
+                              <span className="flex items-center justify-center gap-2">
+                                <Shield className="w-4 h-4" />
+                                認証キャンセル
+                              </span>
+                            ) : (
+                              <span className="flex items-center justify-center gap-2">
+                                <Shield className="w-4 h-4" />
+                                リアルタイムGPS認証
+                              </span>
+                            )}
+                          </button>
+
+                          {/* Test Check-in Button (for development) */}
+                          {!checkedInGyms.has(gym.id) && (
+                            <button
+                              onClick={() => executeTestCheckIn(gym)}
+                              disabled={checkingIn === gym.id}
+                              className="w-full px-6 py-2 rounded-full font-medium transition-all bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg active:scale-95 text-sm"
+                            >
+                              {checkingIn === gym.id ? (
+                                <span className="flex items-center justify-center gap-2">
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  テストチェックイン中...
+                                </span>
+                              ) : (
+                                <span className="flex items-center justify-center gap-2">
+                                  <Check className="w-4 h-4" />
+                                  📝 テストチェックイン
+                                </span>
+                              )}
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -722,6 +804,57 @@ export default function CheckInPage() {
                 <p className="text-sm">まだチェックインがありません</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Check-in Success Modal */}
+        {showSuccessModal && successModalData && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+              <div className="text-5xl mb-4">🎉</div>
+              <h3 className="text-xl font-bold text-[color:var(--foreground)] mb-2">チェックイン完了！</h3>
+              <div className="bg-[rgba(254,255,250,0.9)] rounded-xl p-4 mb-6">
+                <div className="text-lg font-bold text-[color:var(--gt-primary-strong)] mb-2">
+                  {successModalData.gymName}
+                </div>
+                <div className="text-sm text-[color:var(--text-muted)] mb-3">
+                  {successModalData.checkInTime} にチェックインしました
+                </div>
+                {successModalData.badges && successModalData.badges.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-[color:var(--foreground)]">🏆 新しいバッジを獲得！</div>
+                    {successModalData.badges.map((badge, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                        <div className="text-lg">{badge.badge_icon}</div>
+                        <div className="text-left flex-1">
+                          <div className="text-sm font-bold">{badge.badge_name}</div>
+                          <div className="text-xs text-[color:var(--text-muted)]">{badge.badge_description}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="flex-1 py-3 bg-gray-100 text-[color:var(--foreground)] rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                >
+                  閉じる
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false)
+                    if (successModalData) {
+                      router.push(`/add?gymName=${encodeURIComponent(successModalData.gymName)}`)
+                    }
+                  }}
+                  className="flex-1 py-3 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                >
+                  投稿する
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

@@ -2,6 +2,7 @@
 // PRODUCTION VERSION - DATABASE ONLY (No mock data)
 
 import { getSupabaseClient } from './client'
+import { logger } from '../utils/logger'
 
 import type {
   UserProfile,
@@ -34,7 +35,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       .maybeSingle()
 
     if (error || !data) {
-      console.error('Error fetching user profile:', error)
+      logger.error('Error fetching user profile:', error)
       return null
     }
     
@@ -54,7 +55,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     
     return profile
   } catch (error) {
-    console.error('Error fetching user profile:', error)
+    logger.error('Error fetching user profile:', error)
     return null
   }
 }
@@ -62,7 +63,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 export async function getUserProfileStats(userId: string, forceRefresh: boolean = false): Promise<UserProfileStats | null> {
   try {
     // Fetch user
-    console.log('🔍 Fetching user data for:', userId, 'forceRefresh:', forceRefresh);
+    logger.log('🔍 Fetching user data for:', userId, 'forceRefresh:', forceRefresh);
 
     // Create fresh client if force refresh is requested
     const client = getSupabaseClient()
@@ -70,29 +71,29 @@ export async function getUserProfileStats(userId: string, forceRefresh: boolean 
 
     // Add timestamp to force cache bypass when needed
     if (forceRefresh) {
-      console.log('🔄 Force refresh requested - bypassing cache');
+      logger.log('🔄 Force refresh requested - bypassing cache');
     }
 
     const { data: userData, error: userError } = await query.maybeSingle()
 
     if (userError || !userData) {
       if (userError?.code === 'PGRST205') {
-        console.warn('Users table not found - using mock data for development')
+        logger.warn('Users table not found - using mock data for development')
       } else if (userError) {
-        console.error('Error fetching user data:', {
+        logger.error('Error fetching user data:', {
           message: userError.message,
           code: userError.code,
           details: userError.details
         })
       } else {
-        console.warn('User data not found for userId:', userId)
+        logger.warn('User data not found for userId:', userId)
       }
       return null
     }
 
     // 高速化: 軽量クエリを優先実行し、重いクエリは簡略化
     const supabase = getSupabaseClient()
-    console.log('⚡ 軽量統計クエリを実行中...');
+    logger.log('⚡ 軽量統計クエリを実行中...');
 
     // Phase 1: 必須かつ軽量なデータのみ
     const [postsCount, followersCount, followingCount, userProfileData] = await Promise.all([
@@ -103,7 +104,7 @@ export async function getUserProfileStats(userId: string, forceRefresh: boolean 
     ])
 
     // Debug: Log user profile data
-    console.log('🔍 User profile data from database:', userProfileData)
+    logger.log('🔍 User profile data from database:', userProfileData)
 
     // Phase 2: 非重要データは簡略化またはスキップ（パフォーマンス優先）
     const [workoutsCount, favoriteGymsCount, achievementsCount] = await Promise.all([
@@ -141,11 +142,11 @@ export async function getUserProfileStats(userId: string, forceRefresh: boolean 
     }
 
     // Return stats object
-    console.log('✅ Profile stats generated');
+    logger.log('✅ Profile stats generated');
 
     return stats
   } catch (error) {
-    console.error('Error fetching user profile stats:', error)
+    logger.error('Error fetching user profile stats:', error)
     return null
   }
 }
@@ -169,7 +170,7 @@ export async function updateUserProfile(
       .single()
 
     if (error) {
-      console.error('Error updating user profile:', error)
+      logger.error('Error updating user profile:', error)
       return null
     }
     
@@ -188,7 +189,7 @@ export async function updateUserProfile(
     }
     return profile
   } catch (error) {
-    console.error('Error updating user profile:', error)
+    logger.error('Error updating user profile:', error)
     return null
   }
 }
@@ -203,7 +204,7 @@ export async function getUserPosts(
   limit = 10
 ): Promise<GymPost[]> {
   try {
-    console.log('Fetching posts for user:', userId)
+    logger.log('Fetching posts for user:', userId)
     const offset = (page - 1) * limit
 
     // Get posts with user and gym information
@@ -224,7 +225,7 @@ export async function getUserPosts(
         // テーブルが存在しないだけなのでログ出力は不要
         return []
       } else {
-        console.error('Error fetching user posts:', {
+        logger.error('Error fetching user posts:', {
           message: error.message,
           code: error.code,
           details: error.details
@@ -260,7 +261,7 @@ export async function getUserPosts(
     
     return posts
   } catch (error) {
-    console.error('Error fetching user posts:', error)
+    logger.error('Error fetching user posts:', error)
     return []
   }
 }
@@ -283,13 +284,13 @@ export async function createGymPost(
       .single()
 
     if (error) {
-      console.error('Error creating gym post:', error)
+      logger.error('Error creating gym post:', error)
       return null
     }
     
     return data as GymPost
   } catch (error) {
-    console.error('Error creating gym post:', error)
+    logger.error('Error creating gym post:', error)
     return null
   }
 }
@@ -310,13 +311,13 @@ export async function updateGymPost(
       .single()
 
     if (error) {
-      console.error('Error updating gym post:', error)
+      logger.error('Error updating gym post:', error)
       return null
     }
     
     return data as GymPost
   } catch (error) {
-    console.error('Error updating gym post:', error)
+    logger.error('Error updating gym post:', error)
     return null
   }
 }
@@ -329,13 +330,13 @@ export async function deleteGymPost(postId: string): Promise<boolean> {
       .eq('id', postId)
 
     if (error) {
-      console.error('Error deleting gym post:', error)
+      logger.error('Error deleting gym post:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error deleting gym post:', error)
+    logger.error('Error deleting gym post:', error)
     return false
   }
 }
@@ -350,13 +351,13 @@ export async function likePost(userId: string, postId: string): Promise<boolean>
       })
 
     if (error) {
-      console.error('Error liking post:', error)
+      logger.error('Error liking post:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error liking post:', error)
+    logger.error('Error liking post:', error)
     return false
   }
 }
@@ -370,13 +371,13 @@ export async function unlikePost(userId: string, postId: string): Promise<boolea
       .eq('post_id', postId)
 
     if (error) {
-      console.error('Error unliking post:', error)
+      logger.error('Error unliking post:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error unliking post:', error)
+    logger.error('Error unliking post:', error)
     return false
   }
 }
@@ -409,13 +410,13 @@ export async function getPostComments(
       .range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Error fetching post comments:', error)
+      logger.error('Error fetching post comments:', error)
       return []
     }
     
     return data as PostComment[]
   } catch (error) {
-    console.error('Error fetching post comments:', error)
+    logger.error('Error fetching post comments:', error)
     return []
   }
 }
@@ -438,13 +439,13 @@ export async function createComment(
       .single()
 
     if (error) {
-      console.error('Error creating comment:', error)
+      logger.error('Error creating comment:', error)
       return null
     }
     
     return data as PostComment
   } catch (error) {
-    console.error('Error creating comment:', error)
+    logger.error('Error creating comment:', error)
     return null
   }
 }
@@ -463,13 +464,13 @@ export async function followUser(followerId: string, followingId: string): Promi
       })
 
     if (error) {
-      console.error('Error following user:', error)
+      logger.error('Error following user:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error following user:', error)
+    logger.error('Error following user:', error)
     return false
   }
 }
@@ -483,13 +484,13 @@ export async function unfollowUser(followerId: string, followingId: string): Pro
       .eq('following_id', followingId)
 
     if (error) {
-      console.error('Error unfollowing user:', error)
+      logger.error('Error unfollowing user:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error unfollowing user:', error)
+    logger.error('Error unfollowing user:', error)
     return false
   }
 }
@@ -513,13 +514,13 @@ export async function getUserFollowers(
       .range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Error fetching followers:', error)
+      logger.error('Error fetching followers:', error)
       return []
     }
     
     return data as Follow[]
   } catch (error) {
-    console.error('Error fetching followers:', error)
+    logger.error('Error fetching followers:', error)
     return []
   }
 }
@@ -543,13 +544,13 @@ export async function getUserFollowing(
       .range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Error fetching following:', error)
+      logger.error('Error fetching following:', error)
       return []
     }
     
     return data as Follow[]
   } catch (error) {
-    console.error('Error fetching following:', error)
+    logger.error('Error fetching following:', error)
     return []
   }
 }
@@ -592,9 +593,9 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
     if (error) {
       // テーブルが存在しない場合（42P01エラー）は警告レベルでログ出力
       if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        console.warn('Favorite gyms table not found - returning empty array')
+        logger.warn('Favorite gyms table not found - returning empty array')
       } else {
-        console.error('Error fetching favorite gyms:', {
+        logger.error('Error fetching favorite gyms:', {
           error,
           message: error?.message,
           code: error?.code,
@@ -617,7 +618,7 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
 
     return favoriteGyms as FavoriteGym[]
   } catch (error) {
-    console.error('Error fetching favorite gyms:', error)
+    logger.error('Error fetching favorite gyms:', error)
     return []
   }
 }
@@ -632,13 +633,13 @@ export async function addFavoriteGym(userId: string, gymId: string): Promise<boo
       })
 
     if (error) {
-      console.error('Error adding favorite gym:', error)
+      logger.error('Error adding favorite gym:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error adding favorite gym:', error)
+    logger.error('Error adding favorite gym:', error)
     return false
   }
 }
@@ -652,13 +653,13 @@ export async function removeFavoriteGym(userId: string, gymId: string): Promise<
       .eq('gym_id', gymId)
 
     if (error) {
-      console.error('Error removing favorite gym:', error)
+      logger.error('Error removing favorite gym:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error removing favorite gym:', error)
+    logger.error('Error removing favorite gym:', error)
     return false
   }
 }
@@ -691,7 +692,7 @@ export async function getFrequentGyms(userId: string, limit = 5): Promise<Freque
       .not('gym_id', 'is', null)
 
     if (error) {
-      console.error('Error fetching frequent gyms:', error)
+      logger.error('Error fetching frequent gyms:', error)
       return []
     }
 
@@ -745,7 +746,7 @@ export async function getFrequentGyms(userId: string, limit = 5): Promise<Freque
 
     return frequentGyms
   } catch (error) {
-    console.error('Error fetching frequent gyms:', error)
+    logger.error('Error fetching frequent gyms:', error)
     return []
   }
 }
@@ -764,7 +765,7 @@ export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null
       .order('started_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching weekly stats:', error)
+      logger.error('Error fetching weekly stats:', error)
       return null
     }
 
@@ -795,7 +796,7 @@ export async function getWeeklyStats(userId: string): Promise<WeeklyStats | null
 
     return weekly
   } catch (error) {
-    console.error('Error fetching weekly stats:', error)
+    logger.error('Error fetching weekly stats:', error)
     return null
   }
 }
@@ -811,16 +812,16 @@ export async function getUserAchievements(userId: string): Promise<Achievement[]
     if (error) {
       // テーブルが存在しない場合（PGRST205エラー）は警告レベルでログ出力
       if (error.code === 'PGRST205') {
-        console.warn('Achievements table not found - returning empty array')
+        logger.warn('Achievements table not found - returning empty array')
       } else {
-        console.error('Error fetching achievements:', error)
+        logger.error('Error fetching achievements:', error)
       }
       return []
     }
     
     return data as Achievement[]
   } catch (error) {
-    console.error('Error fetching achievements:', error)
+    logger.error('Error fetching achievements:', error)
     return []
   }
 }
@@ -843,14 +844,14 @@ export async function getUserPersonalRecords(userId: string): Promise<PersonalRe
         return []
       } else {
         // その他のエラーのみログ出力
-        console.error('Error fetching personal records:', error)
+        logger.error('Error fetching personal records:', error)
       }
       return []
     }
 
     return data as PersonalRecord[]
   } catch (error) {
-    console.error('Unexpected error fetching personal records:', error)
+    logger.error('Unexpected error fetching personal records:', error)
     return []
   }
 }
@@ -903,7 +904,7 @@ export async function getProfileDashboard(userId: string): Promise<ProfileDashbo
       favorite_gyms: favGyms
     }
   } catch (error) {
-    console.error('Error fetching profile dashboard:', error)
+    logger.error('Error fetching profile dashboard:', error)
     return null
   }
 }

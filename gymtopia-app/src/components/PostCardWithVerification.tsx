@@ -50,6 +50,14 @@ export default function PostCardWithVerification({
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(likes)
 
+  // デバッグログ
+  console.log(`Post ${id} GPS認証状態:`, {
+    isVerified,
+    checkInId,
+    verificationMethod,
+    distanceFromGym
+  })
+
   const handleLike = () => {
     setLiked(!liked)
     setLikeCount(prev => liked ? prev - 1 : prev + 1)

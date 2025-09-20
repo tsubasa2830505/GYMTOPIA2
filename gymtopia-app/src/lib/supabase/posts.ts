@@ -1,6 +1,8 @@
 import { getSupabaseClient } from './client'
 import type { GymPost as Post, PostComment as Comment } from '@/lib/types/profile'
 import { getRecentCheckinForGym } from './checkin'
+import { logger } from '../utils/logger'
+import { scheduleDelayedPost } from './delayed-posts'
 
 // Re-export the types for backward compatibility
 export type { Post, Comment }
@@ -13,28 +15,30 @@ export async function getFeedPosts(
   userId?: string
 ) {
   try {
-    console.log('getFeedPosts: Fetching posts with filter:', filter, 'userId:', userId);
+    logger.log('getFeedPosts: Fetching posts with filter:', filter, 'userId:', userId);
 
     const { data: { user } } = await getSupabaseClient().auth.getUser()
     // Use provided userId or authenticated user
     const actualUserId = userId || user?.id
 
     if (!actualUserId && filter !== 'all') {
-      console.log('getFeedPosts: No user ID available for filtered feed, returning all posts');
+      logger.log('getFeedPosts: No user ID available for filtered feed, returning all posts');
       filter = 'all'; // フィルターには認証が必要
     }
 
     let query = getSupabaseClient()
-      .from('gym_posts_with_counts')
+      .from('gym_posts')
       .select(`
         *,
-        user:users!user_id (
+        likes_count:post_likes(count),
+        comments_count:post_comments(count),
+        user:users!gym_posts_user_id_fkey (
           id,
           display_name,
           username,
           avatar_url
         ),
-        gym:gyms!gym_id (
+        gym:gyms!gym_posts_gym_id_fkey (
           id,
           name
         )
@@ -52,9 +56,9 @@ export async function getFeedPosts(
         if (followingData && followingData.length > 0) {
           const followingIds = followingData.map(f => f.following_id);
           query = query.in('user_id', followingIds);
-          console.log('getFeedPosts: Filtering by following users:', followingIds.length);
+          logger.log('getFeedPosts: Filtering by following users:', followingIds.length);
         } else {
-          console.log('getFeedPosts: User not following anyone, returning empty');
+          logger.log('getFeedPosts: User not following anyone, returning empty');
           return [];
         }
       } else if (filter === 'mutual') {
@@ -76,9 +80,9 @@ export async function getFeedPosts(
 
           if (mutualIds.length > 0) {
             query = query.in('user_id', mutualIds);
-            console.log('getFeedPosts: Filtering by mutual follows:', mutualIds.length);
+            logger.log('getFeedPosts: Filtering by mutual follows:', mutualIds.length);
           } else {
-            console.log('getFeedPosts: No mutual follows found, returning empty');
+            logger.log('getFeedPosts: No mutual follows found, returning empty');
             return [];
           }
         } else {
@@ -98,13 +102,13 @@ export async function getFeedPosts(
         // ホームジム（primary_gym_id）を最優先で追加
         if (userProfile?.primary_gym_id) {
           gymIds.push(userProfile.primary_gym_id);
-          console.log('getFeedPosts: Using home gym:', userProfile.primary_gym_id);
+          logger.log('getFeedPosts: Using home gym:', userProfile.primary_gym_id);
         }
 
         // セカンダリジムも追加
         if (userProfile?.secondary_gym_ids && userProfile.secondary_gym_ids.length > 0) {
           gymIds.push(...userProfile.secondary_gym_ids);
-          console.log('getFeedPosts: Including secondary gyms:', userProfile.secondary_gym_ids);
+          logger.log('getFeedPosts: Including secondary gyms:', userProfile.secondary_gym_ids);
         }
 
         // ホームジム設定がない場合は、最近の投稿からジムを取得
@@ -119,15 +123,15 @@ export async function getFeedPosts(
 
           if (recentGyms && recentGyms.length > 0) {
             gymIds = [...new Set(recentGyms.map(g => g.gym_id))];
-            console.log('getFeedPosts: No home gym set, using recent gyms:', gymIds);
+            logger.log('getFeedPosts: No home gym set, using recent gyms:', gymIds);
           }
         }
 
         if (gymIds.length > 0) {
           query = query.in('gym_id', gymIds);
-          console.log('getFeedPosts: Filtering by gyms:', gymIds);
+          logger.log('getFeedPosts: Filtering by gyms:', gymIds);
         } else {
-          console.log('getFeedPosts: User has no gym association, showing all posts');
+          logger.log('getFeedPosts: User has no gym association, showing all posts');
           // ジムの関連がない場合はすべて表示
         }
       }
@@ -141,7 +145,7 @@ export async function getFeedPosts(
     const { data, error } = await query
 
     if (error) {
-      console.error('getFeedPosts: Query error:', error)
+      logger.error('getFeedPosts: Query error:', error)
       throw error
     }
 
@@ -156,13 +160,15 @@ export async function getFeedPosts(
       post_type: 'normal' as const,
       workout_session_id: post.workout_session_id || null,
       visibility: post.visibility || 'public' as const,
-      likes_count: post.likes_count_live || post.likes_count || post.like_count || 0,
-      comments_count: post.comments_count_live || post.comments_count || post.comment_count || 0,
+      likes_count: post.likes_count_live ||
+                   (Array.isArray(post.likes_count) ? post.likes_count.length : post.likes_count?.count || post.like_count || 0),
+      comments_count: post.comments_count_live ||
+                      (Array.isArray(post.comments_count) ? post.comments_count.length : post.comments_count?.count || post.comment_count || 0),
       shares_count: 0,
       is_public: true,
       is_liked: false,
       is_verified: post.is_verified || false,
-      check_in_id: post.checkin_id || null,
+      checkin_id: post.checkin_id || null,
       verification_method: post.verification_method || null,
       distance_from_gym: post.distance_from_gym || null,
       created_at: post.created_at,
@@ -194,8 +200,8 @@ export async function getFeedPosts(
 
     return posts
   } catch (error) {
-    console.error('Error fetching feed posts:', error)
-    console.error('getFeedPosts: Final error details:', {
+    logger.error('Error fetching feed posts:', error)
+    logger.error('getFeedPosts: Final error details:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined
@@ -234,7 +240,7 @@ export async function getUserPosts(userId: string, page = 1, limit = 10) {
 
     return posts as Post[]
   } catch (error) {
-    console.error('Error fetching user posts:', error)
+    logger.error('Error fetching user posts:', error)
     return []
   }
 }
@@ -281,13 +287,31 @@ export async function createCheckinPost(
 
     content += '\n✅ GPS認証済み'
 
-    // 遅延投稿の場合は将来的に実装
-    // 現在は即座投稿のみ
+    // 遅延投稿の場合はスケジュールして終了
     if (options.delayMinutes > 0) {
-      console.log(`遅延投稿予定: ${options.delayMinutes}分後`)
-      // TODO: 遅延投稿の実装（バックグラウンドジョブまたはcron job）
+      logger.log(`遅延投稿をスケジュール: ${options.delayMinutes}分後`)
+
+      const delayedPostId = await scheduleDelayedPost(
+        user.id,
+        checkinId,
+        gym,
+        badges,
+        {
+          shareLevel: options.shareLevel,
+          delayMinutes: options.delayMinutes,
+          audience: options.audience
+        }
+      )
+
+      if (delayedPostId) {
+        logger.log(`遅延投稿スケジュール完了: ID ${delayedPostId}`)
+        return { id: delayedPostId, type: 'delayed', scheduledAt: new Date(Date.now() + options.delayMinutes * 60 * 1000).toISOString() }
+      } else {
+        throw new Error('遅延投稿のスケジュールに失敗しました')
+      }
     }
 
+    // 即座投稿の場合
     const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .insert({
@@ -309,7 +333,7 @@ export async function createCheckinPost(
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error creating checkin post:', error)
+    logger.error('Error creating checkin post:', error)
     throw error
   }
 }
@@ -354,7 +378,7 @@ export async function createPost(post: {
       distance_from_gym: null
     }
 
-    console.log('[createPost] GPS自動付与チェック:', {
+    logger.log('[createPost] GPS自動付与チェック:', {
       gym_id: post.gym_id,
       checkin_id: post.checkin_id,
       should_check: post.gym_id && !post.checkin_id
@@ -362,11 +386,11 @@ export async function createPost(post: {
 
     if (post.gym_id && !post.checkin_id) {
       // 直近24時間以内のGPS認証チェックインを検索
-      console.log('[createPost] GPS認証チェックイン検索中...', { userId: actualUserId, gymId: post.gym_id })
+      logger.log('[createPost] GPS認証チェックイン検索中...', { userId: actualUserId, gymId: post.gym_id })
       const { data: recentCheckin, error } = await getRecentCheckinForGym(actualUserId, post.gym_id, 24)
 
       if (error) {
-        console.error('[createPost] チェックイン検索エラー:', error)
+        logger.error('[createPost] チェックイン検索エラー:', error)
       }
 
       if (recentCheckin) {
@@ -376,13 +400,13 @@ export async function createPost(post: {
           verification_method: 'gps',
           distance_from_gym: recentCheckin.distance_to_gym
         }
-        console.log('[createPost] GPS認証情報を自動付与:', {
+        logger.log('[createPost] GPS認証情報を自動付与:', {
           checkin_id: recentCheckin.id,
           distance: recentCheckin.distance_to_gym,
           verified: recentCheckin.location_verified
         })
       } else {
-        console.log('[createPost] 24時間以内のGPS認証チェックインなし')
+        logger.log('[createPost] 24時間以内のGPS認証チェックインなし')
       }
     }
 
@@ -405,7 +429,7 @@ export async function createPost(post: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error creating post:', error)
+    logger.error('Error creating post:', error)
     throw error
   }
 }
@@ -446,7 +470,7 @@ export async function updatePost(postId: string, updates: {
 
     // 所有者のみが編集可能
     if (existingPost.user_id !== actualUserId) {
-      console.error('Unauthorized: User does not own this post')
+      logger.error('Unauthorized: User does not own this post')
       throw new Error('投稿の編集権限がありません')
     }
 
@@ -484,7 +508,7 @@ export async function updatePost(postId: string, updates: {
 
     return data
   } catch (error) {
-    console.error('Error updating post:', error)
+    logger.error('Error updating post:', error)
     throw error
   }
 }
@@ -510,7 +534,7 @@ export async function deletePost(postId: string) {
 
     // 所有者のみが削除可能
     if (existingPost.user_id !== actualUserId) {
-      console.error('Unauthorized: User does not own this post')
+      logger.error('Unauthorized: User does not own this post')
       throw new Error('投稿の削除権限がありません')
     }
 
@@ -522,7 +546,7 @@ export async function deletePost(postId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error deleting post:', error)
+    logger.error('Error deleting post:', error)
     throw error
   }
 }
@@ -548,7 +572,7 @@ export async function likePost(postId: string) {
     if (error && error.code !== '23505') throw error // Ignore duplicate key error
     return data
   } catch (error) {
-    console.error('Error liking post:', error)
+    logger.error('Error liking post:', error)
     return null
   }
 }
@@ -571,7 +595,7 @@ export async function unlikePost(postId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error unliking post:', error)
+    logger.error('Error unliking post:', error)
     return false
   }
 }
@@ -591,7 +615,7 @@ export async function getPostComments(postId: string) {
     if (error) throw error
     return data as Comment[]
   } catch (error) {
-    console.error('Error fetching comments:', error)
+    logger.error('Error fetching comments:', error)
     return []
   }
 }
@@ -624,7 +648,7 @@ export async function createComment(comment: {
     if (error) throw error
     return data as Comment
   } catch (error) {
-    console.error('Error creating comment:', error)
+    logger.error('Error creating comment:', error)
     throw error
   }
 }
@@ -640,7 +664,7 @@ export async function deleteComment(commentId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error deleting comment:', error)
+    logger.error('Error deleting comment:', error)
     throw error
   }
 }

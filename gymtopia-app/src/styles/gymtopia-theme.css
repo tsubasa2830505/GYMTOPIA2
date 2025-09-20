@@ -1,8 +1,8 @@
 /* GymTopia bespoke theme tokens and utility styles */
 :root {
-  --gt-background: #fefffa;
-  --gt-background-strong: #f9f1ea;
-  --gt-background-gradient: linear-gradient(180deg, rgba(254, 255, 250, 0.98) 0%, rgba(249, 241, 234, 0.96) 100%);
+  --gt-background: #ffffff;
+  --gt-background-strong: #ffffff;
+  --gt-background-gradient: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%);
 
   --gt-surface: #ffffff;
   --gt-surface-muted: #fdf5f0;
@@ -72,8 +72,8 @@
 }
 
 body {
-  background-image: var(--gt-background-gradient);
-  background-color: var(--gt-background);
+  background-image: none;
+  background-color: #ffffff;
   color: var(--gt-text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -93,7 +93,7 @@ body::before {
 
 .gt-page-shell {
   position: relative;
-  background: linear-gradient(184deg, rgba(255, 255, 255, 0.98) 0%, rgba(252, 239, 231, 0.92) 100%);
+  background: #ffffff;
   border-radius: var(--gt-radius-xl);
   border: 1px solid rgba(186, 122, 103, 0.24);
   box-shadow: 0 20px 48px -30px rgba(189, 101, 78, 0.32);

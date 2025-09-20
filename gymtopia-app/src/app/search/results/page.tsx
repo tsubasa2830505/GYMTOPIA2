@@ -423,7 +423,7 @@ function SearchResultsContent() {
 
     // URLのmachinesは名前を想定（ID対応が必要になった場合のみ取得）
     if (machines.length > 0) {
-      const hasNonName = machines.some(m => /:/.test(m.name || m))
+      const hasNonName = machines.some(m => /:/.test(m.name || ''))
       if (hasNonName) {
         getMachines().then(allMachines => {
           const nameMap: Record<string, string> = {}

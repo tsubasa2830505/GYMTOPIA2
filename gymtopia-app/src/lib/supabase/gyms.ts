@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { logger } from '../utils/logger'
 
 
 // ジムの型定義
@@ -83,7 +84,7 @@ export async function getGymLikesCount(gymId: string) {
     if (error) throw error
     return count || 0
   } catch (error) {
-    console.error('Error fetching gym likes count:', error)
+    logger.error('Error fetching gym likes count:', error)
     return 0
   }
 }
@@ -104,7 +105,7 @@ export async function getGymReviewStats(gymId: string): Promise<{ average: numbe
     const avg = (avgData as any)?.avg ? Number((avgData as any).avg) : 0
     return { average: isNaN(avg) ? 0 : Math.round(avg * 10) / 10, count: count || 0 }
   } catch (error) {
-    console.error('Error fetching review stats:', error)
+    logger.error('Error fetching review stats:', error)
     return { average: 0, count: 0 }
   }
 }
@@ -125,7 +126,7 @@ export async function getGymEquipmentStats(gymId: string): Promise<{ types: numb
     const totalUnits = (sumData as any)?.sum ? Number((sumData as any).sum) : 0
     return { types: types || 0, totalUnits: isNaN(totalUnits) ? 0 : totalUnits }
   } catch (error) {
-    console.error('Error fetching equipment stats:', error)
+    logger.error('Error fetching equipment stats:', error)
     return { types: 0, totalUnits: 0 }
   }
 }
@@ -237,7 +238,7 @@ export async function getGyms(filters?: {
       return data as Gym[]
     }
   } catch (error) {
-    console.log('gyms table not found, using mock data')
+    logger.log('gyms table not found, using mock data')
   }
   
   // Return mock gym data
@@ -349,7 +350,7 @@ export async function getGymById(id: string) {
     // UUID形式のチェック
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(id)) {
-      console.warn('Invalid UUID format for gym id:', id)
+      logger.warn('Invalid UUID format for gym id:', id)
       return null
     }
 
@@ -360,18 +361,18 @@ export async function getGymById(id: string) {
       .maybeSingle()
 
     if (error) {
-      console.error('Error fetching gym:', error.message || error)
+      logger.error('Error fetching gym:', error.message || error)
       return null
     }
 
     if (!data) {
-      console.error('Gym not found with id:', id)
+      logger.error('Gym not found with id:', id)
       return null
     }
 
     return data as Gym
   } catch (error) {
-    console.error('Error fetching gym:', error instanceof Error ? error.message : error)
+    logger.error('Error fetching gym:', error instanceof Error ? error.message : error)
     return null
   }
 }
@@ -396,7 +397,7 @@ export async function getGymMachines(gymId: string): Promise<GymMachine[]> {
     }))
     return rows
   } catch (error) {
-    console.error('Error fetching gym machines:', {
+    logger.error('Error fetching gym machines:', {
       error,
       message: error instanceof Error ? error.message : 'Unknown error',
       gymId
@@ -426,7 +427,7 @@ export async function getGymFreeWeights(gymId: string): Promise<GymFreeWeight[]>
     }))
     return rows
   } catch (error) {
-    console.error('Error fetching gym free weights:', error)
+    logger.error('Error fetching gym free weights:', error)
     return []
   }
 }
@@ -446,7 +447,7 @@ export async function getGymReviews(gymId: string) {
     if (error) throw error
     return data as GymReview[]
   } catch (error) {
-    console.error('Error fetching gym reviews:', error)
+    logger.error('Error fetching gym reviews:', error)
     return []
   }
 }
@@ -462,7 +463,7 @@ export async function getGymReviewCount(gymId: string) {
     if (error) throw error
     return count || 0
   } catch (error) {
-    console.error('Error fetching review count:', error)
+    logger.error('Error fetching review count:', error)
     return 0
   }
 }
@@ -494,7 +495,7 @@ export async function createGymReview(review: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error creating review:', error)
+    logger.error('Error creating review:', error)
     throw error
   }
 }
@@ -513,7 +514,7 @@ export async function addGymReviewReply(reviewId: string, content: string) {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error adding review reply:', error)
+    logger.error('Error adding review reply:', error)
     return null
   }
 }
@@ -529,7 +530,7 @@ export async function getGymReviewReplies(reviewIds: string[]) {
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error('Error fetching review replies:', error)
+    logger.error('Error fetching review replies:', error)
     return []
   }
 }
@@ -552,7 +553,7 @@ export async function addFavoriteGym(gymId: string) {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error adding favorite gym:', error)
+    logger.error('Error adding favorite gym:', error)
     throw error
   }
 }
@@ -572,7 +573,7 @@ export async function removeFavoriteGym(gymId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error removing favorite gym:', error)
+    logger.error('Error removing favorite gym:', error)
     throw error
   }
 }
@@ -593,7 +594,7 @@ export async function getUserFavoriteGyms() {
     if (error) throw error
     return data?.map(item => item.gym) || []
   } catch (error) {
-    console.error('Error fetching favorite gyms:', error)
+    logger.error('Error fetching favorite gyms:', error)
     return []
   }
 }
@@ -613,7 +614,7 @@ export async function checkOutFromGym(checkinId: string) {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error checking out:', error)
+    logger.error('Error checking out:', error)
     throw error
   }
 }
@@ -639,7 +640,7 @@ export async function getCurrentCheckin() {
     if (error) return null
     return data
   } catch (error) {
-    console.error('Error fetching current checkin:', error)
+    logger.error('Error fetching current checkin:', error)
     return null
   }
 }

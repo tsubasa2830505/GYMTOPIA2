@@ -433,6 +433,11 @@ function ProfileContent() {
         setHomeGym(homeGymData);
         // setUniqueGymsCountは早期リターンの前に移動済み
 
+        // お気に入りジム数を更新（データベースから取得）
+        if (profileStats?.favorite_gyms_count !== undefined) {
+          console.log('❤️ お気に入りジム数をデータベースから更新:', profileStats.favorite_gyms_count);
+        }
+
         // 投稿のページネーション設定
         setHasMorePosts((posts || []).length === POSTS_PER_PAGE);
         setCurrentPostPage(1);
@@ -666,12 +671,24 @@ function ProfileContent() {
           }
         ];
         setUserFavoriteGyms(sampleFavoriteGyms);
+
+        // サンプルデータの場合もお気に入りジム数を更新
+        setProfileData(prev => prev ? {
+          ...prev,
+          favorite_gyms_count: sampleFavoriteGyms.length
+        } : null);
       } else {
         setUserFavoriteGyms(favoriteGyms);
+
+        // お気に入りジム数をプロフィールデータに反映
+        setProfileData(prev => prev ? {
+          ...prev,
+          favorite_gyms_count: favoriteGyms.length
+        } : null);
       }
 
       setHasLoadedFavorites(true);
-      console.log('✅ お気に入りジムデータ取得完了');
+      console.log('✅ お気に入りジムデータ取得完了:', favoriteGyms.length, '件');
     } catch (error) {
       console.error('お気に入りジムデータ取得エラー:', error);
     } finally {
@@ -920,19 +937,6 @@ function ProfileContent() {
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
             {/* 新規投稿ボタン */}
-            <div className="gt-card p-4 border-2 border-dashed border-[rgba(231,103,76,0.18)] hover:border-[color:var(--gt-primary)] transition-colors">
-              <button 
-                onClick={() => router.push('/add')}
-                className="w-full flex items-center justify-center gap-3 py-3 text-[color:var(--text-muted)] hover:text-[color:var(--gt-primary-strong)] transition-colors"
-              >
-                <div className="w-10 h-10 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                  </svg>
-                </div>
-                <span className="font-medium">新しいジム活を投稿する</span>
-              </button>
-            </div>
             
             {isLoading ? (
               // 改善されたスケルトンローディング（投稿カード風）
@@ -1288,7 +1292,7 @@ function ProfileContent() {
 export default function ProfilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[color:var(--bg-primary)] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[color:var(--gt-primary-strong)] mx-auto mb-4"></div>
           <p className="text-[color:var(--text-muted)]">読み込み中...</p>

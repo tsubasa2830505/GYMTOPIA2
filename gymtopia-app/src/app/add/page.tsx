@@ -16,6 +16,7 @@ import MachineSelector from '@/components/MachineSelector'
 import { upsertGymFacilities } from '@/lib/supabase/facilities'
 import type { FacilityFormData } from '@/types/facilities'
 import { createPost } from '@/lib/supabase/posts'
+import { scheduleDelayedPost } from '@/lib/supabase/delayed-posts'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getSupabaseClient } from '@/lib/supabase/client'
@@ -55,6 +56,12 @@ function AddGymPostContent() {
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const [uploadingImages, setUploadingImages] = useState(false)
+
+  // 遅延投稿の状態管理
+  const [isDelayedPost, setIsDelayedPost] = useState(false)
+  const [delayMinutes, setDelayMinutes] = useState(5)
+  const [shareLevel, setShareLevel] = useState<'badge_only' | 'gym_name' | 'gym_with_area' | 'none'>('gym_name')
+  const [audience, setAudience] = useState<'public' | 'friends' | 'private'>('public')
   
   // 画像処理関数
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {

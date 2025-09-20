@@ -420,8 +420,8 @@ export default function FeedPage() {
             </span>
           </div>
 
-          {/* Filter Tabs - Removed gym tab */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Filter Tabs - Removed mutual tab */}
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'all'
@@ -445,6 +445,18 @@ export default function FeedPage() {
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
               フォロー中
+            </button>
+            <button
+              onClick={() => setFilter('same-gym')}
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'same-gym'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
+                }`}
+            >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+              同じジム
             </button>
           </div>
         </div>
@@ -485,32 +497,43 @@ export default function FeedPage() {
           <>
             {/* Feed Posts */}
             <div className="space-y-4">
-              {posts.map((post) => (
-                <PostCardWithVerification
-                  key={post.id}
-                  id={post.id}
-                  user={{
-                    id: post.user.id,
-                    username: post.user.username,
-                    displayName: post.user.display_name,
-                    avatarUrl: post.user.avatar_url
-                  }}
-                  gym={{
-                    id: post.gym_id,
-                    name: post.gym.name
-                  }}
-                  content={post.content}
-                  images={post.images}
-                  likes={post.likes_count}
-                  comments={post.comments_count}
-                  createdAt={post.created_at}
-                  isLiked={post.is_liked}
-                  isVerified={post.is_verified}
-                  checkInId={post.check_in_id}
-                  verificationMethod={post.verification_method}
-                  distanceFromGym={post.distance_from_gym}
-                />
-              ))}
+              {posts.map((post) => {
+                // デバッグログ
+                console.log('Feed post data:', {
+                  id: post.id,
+                  is_verified: post.is_verified,
+                  checkin_id: post.checkin_id,
+                  verification_method: post.verification_method,
+                  distance_from_gym: post.distance_from_gym
+                })
+
+                return (
+                  <PostCardWithVerification
+                    key={post.id}
+                    id={post.id}
+                    user={{
+                      id: post.user.id,
+                      username: post.user.username,
+                      displayName: post.user.display_name,
+                      avatarUrl: post.user.avatar_url
+                    }}
+                    gym={{
+                      id: post.gym_id,
+                      name: post.gym.name
+                    }}
+                    content={post.content}
+                    images={post.images}
+                    likes={post.likes_count}
+                    comments={post.comments_count}
+                    createdAt={post.created_at}
+                    isLiked={post.is_liked}
+                    isVerified={post.is_verified}
+                    checkInId={post.checkin_id}
+                    verificationMethod={post.verification_method}
+                    distanceFromGym={post.distance_from_gym}
+                  />
+                )
+              })}
 
               {/* Load More Button */}
               {hasMore && !isLoading && (

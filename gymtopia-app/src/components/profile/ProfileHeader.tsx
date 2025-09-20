@@ -1,110 +1,90 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { MapPin, Calendar, Edit } from 'lucide-react'
+import Image from 'next/image';
+import { UserProfileStats } from '@/lib/types/profile';
+import { logger } from '@/lib/utils/logger';
 
 interface ProfileHeaderProps {
-  user: {
-    id: string
-    display_name?: string
-    username?: string
-    avatar_url?: string
-    bio?: string
-    location?: string
-    joined_at: string
-    is_verified: boolean
-  }
-  isOwnProfile: boolean
-  onEdit?: () => void
+  stats: UserProfileStats | null;
+  gymNames: Map<string, string>;
+  onEditClick: () => void;
 }
 
-export default function ProfileHeader({
-  user,
-  isOwnProfile,
-  onEdit
-}: ProfileHeaderProps) {
-  const joinedDate = new Date(user.joined_at).toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'long'
-  })
+export default function ProfileHeader({ stats, gymNames, onEditClick }: ProfileHeaderProps) {
+  if (!stats) return null;
 
   return (
     <div className="relative">
-      {/* カバー画像的な背景 */}
-      <div className="h-32 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] rounded-lg"></div>
+      {/* カバー画像 */}
+      <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
 
       {/* プロフィール情報 */}
-      <div className="relative px-6 pb-6">
-        {/* アバター */}
-        <div className="absolute -top-16 left-6">
+      <div className="relative px-4 pb-4">
+        <div className="flex items-end -mt-12 mb-4">
           <div className="relative">
-            <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
-              {user.avatar_url ? (
-                <Image
-                  src={user.avatar_url}
-                  alt={user.display_name || 'ユーザー'}
-                  width={88}
-                  height={88}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full bg-[rgba(231,103,76,0.1)] flex items-center justify-center text-2xl font-bold text-[color:var(--gt-primary)]">
-                  {(user.display_name || user.username || 'U')[0].toUpperCase()}
-                </div>
-              )}
-            </div>
-            {user.is_verified && (
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">✓</span>
-              </div>
+            <Image
+              src={stats.avatar_url || '/default-avatar.png'}
+              alt={stats.display_name}
+              width={96}
+              height={96}
+              className="rounded-full border-4 border-white bg-white"
+            />
+          </div>
+
+          <div className="ml-4 flex-1">
+            <h1 className="text-2xl font-bold text-gray-900">
+              {stats.display_name}
+            </h1>
+            {stats.username && (
+              <p className="text-gray-500">@{stats.username}</p>
             )}
           </div>
+
+          <button
+            onClick={onEditClick}
+            className="px-4 py-2 text-sm font-semibold text-blue-600 bg-white border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            編集
+          </button>
         </div>
 
-        {/* 編集ボタン */}
-        {isOwnProfile && onEdit && (
-          <div className="absolute top-4 right-6">
-            <button
-              onClick={onEdit}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[rgba(231,103,76,0.2)] rounded-lg hover:bg-[rgba(231,103,76,0.05)] transition-colors"
-            >
-              <Edit className="w-4 h-4" />
-              <span className="text-sm font-medium">編集</span>
-            </button>
+        {/* 自己紹介 */}
+        {stats.bio && (
+          <p className="text-gray-700 mb-4">{stats.bio}</p>
+        )}
+
+        {/* マイジム表示 */}
+        {stats.primary_gym_id && (
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm text-gray-600">マイジム:</span>
+            <span className="text-sm font-semibold text-blue-600">
+              {gymNames.get(stats.primary_gym_id) || 'ジム名取得中...'}
+            </span>
           </div>
         )}
 
-        {/* ユーザー情報 */}
-        <div className="mt-12 space-y-3">
+        {/* 統計情報 */}
+        <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <h1 className="text-2xl font-bold text-[color:var(--foreground)]">
-              {user.display_name || user.username || 'ユーザー'}
-            </h1>
-            {user.username && user.display_name && (
-              <p className="text-[color:var(--text-muted)]">@{user.username}</p>
-            )}
-          </div>
-
-          {user.bio && (
-            <p className="text-[color:var(--foreground)] leading-relaxed">
-              {user.bio}
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.posts_count}
             </p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-[color:var(--text-muted)]">
-            {user.location && (
-              <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                <span>{user.location}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              <span>{joinedDate}から利用</span>
-            </div>
+            <p className="text-sm text-gray-500">投稿</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.followers_count}
+            </p>
+            <p className="text-sm text-gray-500">フォロワー</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.following_count}
+            </p>
+            <p className="text-sm text-gray-500">フォロー中</p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
