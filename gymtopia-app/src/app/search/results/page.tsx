@@ -842,19 +842,6 @@ function SearchResultsContent() {
                             </button>
                           </div>
                         </div>
-                        {gym.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
-                            {gym.tags.map((tag: string, index: number) => (
-                              <span
-                                key={index}
-                                className="gt-chip text-[10px] sm:text-xs"
-                                style={{ background: 'rgba(96, 86, 255, 0.12)', borderColor: 'rgba(96, 86, 255, 0.32)', color: 'var(--gt-primary-strong)' }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                         <div className="flex gap-2 mt-3 sm:hidden">
                           <button
                             type="button"

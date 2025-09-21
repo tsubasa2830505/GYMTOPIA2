@@ -182,7 +182,8 @@
       "Read(//tmp/**)",
       "Bash(npm cache clean:*)",
       "mcp__zen__codereview",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(for page in \"/followers\" \"/following\")"
     ],
     "deny": [],
     "ask": []
