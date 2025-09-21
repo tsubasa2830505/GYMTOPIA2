@@ -624,7 +624,7 @@ function ProfileContent() {
         <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />
         <div className="absolute bottom-[-8%] left-[-4%] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(245,177,143,0.2),transparent_80%)] blur-[160px] opacity-58" />
       </div>
-      <Header />
+      <Header subtitle="プロフィール" showMenu={true} />
 
       {/* Profile Header */}
       <div className="relative border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.95)] pt-24 sm:pt-28">

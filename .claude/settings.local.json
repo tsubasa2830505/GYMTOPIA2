@@ -181,7 +181,8 @@
       "Bash(PORT=3003 npm run dev)",
       "Read(//tmp/**)",
       "Bash(npm cache clean:*)",
-      "mcp__zen__codereview"
+      "mcp__zen__codereview",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

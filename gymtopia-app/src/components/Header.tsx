@@ -25,11 +25,11 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
             </div>
             <div>
               <Image
-                src="/images/gymtopia-logo.svg"
+                src="/images/gymtopia-logo-katakana.svg"
                 alt="ジムトピア"
-                width={120}
-                height={32}
-                className="h-6 sm:h-8 w-auto"
+                width={180}
+                height={45}
+                className="h-8 sm:h-10 w-auto"
               />
               <p className="text-xs text-[color:var(--text-muted)]">
                 {subtitle || "街の熱量と一緒にジムを探そう"}
@@ -106,6 +106,7 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
               </>
               )}
             </div>
+          )}
         </div>
       </header>
     </>

@@ -2,6 +2,7 @@
 
 import { MapPin, Calendar, Dumbbell, Search } from 'lucide-react'
 import Image from 'next/image'
+import Header from '@/components/Header'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MachineSelector from '@/components/MachineSelector'
@@ -15,6 +16,7 @@ export default function Home() {
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [selectedFreeWeights, setSelectedFreeWeights] = useState<Set<string>>(new Set())
   const [selectedFacilities, setSelectedFacilities] = useState<Set<string>>(new Set())
+  const [isSearchMode, setIsSearchMode] = useState(false)
   const conditionSectionRef = useRef<HTMLDivElement>(null)
   const totalSelections = selectedMachines.size + selectedFreeWeights.size + selectedFacilities.size
 
@@ -51,6 +53,15 @@ export default function Home() {
     }
   }, [totalSelections])
 
+  const handleStartSearch = () => {
+    setIsSearchMode(true)
+    setTimeout(() => {
+      if (conditionSectionRef.current) {
+        conditionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
+
   const hasAnySelection = () => totalSelections > 0
 
   return (
@@ -58,29 +69,14 @@ export default function Home() {
       <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.26),transparent_68%)] blur-3xl opacity-70" />
       <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(240,142,111,0.2),transparent_70%)] blur-3xl opacity-65" />
 
-      <header className="sticky top-0 z-50 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(189,101,78,0.45)]">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.42),rgba(240,142,111,0.18))] flex items-center justify-center shadow-[0_16px_30px_-20px_rgba(189,101,78,0.44)]">
-              <Dumbbell className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--gt-on-primary)]" />
-            </div>
-            <div>
-              <Image
-                src="/images/gymtopia-logo.svg"
-                alt="ジムトピア"
-                width={120}
-                height={32}
-                className="h-6 sm:h-8 w-auto"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header subtitle="ジムを探す" />
 
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-12 sm:pt-12 sm:pb-16 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-12 sm:pt-28 sm:pb-16 space-y-10">
 
         {/* Hero Section */}
-        <div className="relative text-center mb-8 rounded-3xl overflow-hidden h-64 sm:h-80">
+        <div className={`relative text-center mb-8 rounded-3xl overflow-hidden transition-all duration-500 ease-in-out ${
+          isSearchMode ? 'h-20 sm:h-24' : 'h-64 sm:h-80'
+        }`}>
           {/* Background Image */}
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -93,18 +89,39 @@ export default function Home() {
 
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center items-center h-full px-6">
-            <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
-              理想のジムトピアが<br className="sm:hidden" />ここにある
-            </h2>
-            <p className="text-[color:var(--gt-on-primary)]/80 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-              街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
-            </p>
+            {!isSearchMode && (
+              <>
+                <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
+                  理想のジムトピアが<br className="sm:hidden" />ここにある
+                </h2>
+                <p className="text-[color:var(--gt-on-primary)]/80 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-6">
+                  街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
+                </p>
+                <button
+                  onClick={handleStartSearch}
+                  className="bg-white/95 backdrop-blur-sm px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-[color:var(--gt-primary-strong)] shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:scale-105 hover:bg-white transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
+                >
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ジムトピアを探す
+                </button>
+              </>
+            )}
+            {isSearchMode && (
+              <button
+                onClick={() => setIsSearchMode(false)}
+                className="text-[color:var(--gt-on-primary)]/80 text-xs sm:text-sm hover:text-[color:var(--gt-on-primary)] transition-colors"
+              >
+                ← トップに戻る
+              </button>
+            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="col-span-1 lg:col-span-2">
-            <div className="gt-card rounded-[32px] border border-[rgba(231,103,76,0.2)] backdrop-blur-sm">
+            <div className={`gt-card rounded-[32px] border border-[rgba(231,103,76,0.2)] backdrop-blur-sm transition-all duration-500 ${
+              isSearchMode ? 'mt-0' : ''
+            }`}>
               <div
                 className="relative p-4 sm:p-6 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)]"
                 ref={conditionSectionRef}
