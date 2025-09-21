@@ -3,27 +3,39 @@ import { getSupabaseClient } from './client'
 export async function getGymDetail(gymId: string) {
   try {
     const supabase = getSupabaseClient()
-    const { data, error } = await supabase
+
+    // まず基本情報を取得
+    const { data: gymData, error: gymError } = await supabase
       .from('gyms')
-      .select(`
-        *,
-        reviews:gym_reviews(
+      .select('*')
+      .eq('id', gymId)
+      .single()
+
+    if (gymError) {
+      console.error('Error fetching gym:', gymError)
+      return { data: null, error: gymError }
+    }
+
+    // レビューは別途取得（エラーがあっても基本情報は返す）
+    let reviews = []
+    try {
+      const { data: reviewData } = await supabase
+        .from('gym_reviews')
+        .select(`
           id,
           rating,
           comment,
           created_at,
-          user:user_id(
-            id,
-            username,
-            display_name,
-            avatar_url
-          )
-        )
-      `)
-      .eq('id', gymId)
-      .single()
+          user_id
+        `)
+        .eq('gym_id', gymId)
 
-    if (error) throw error
+      reviews = reviewData || []
+    } catch (reviewError) {
+      console.warn('Could not fetch reviews:', reviewError)
+    }
+
+    const data = { ...gymData, reviews }
 
     // データ形式を整形
     if (data) {

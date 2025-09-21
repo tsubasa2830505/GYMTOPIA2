@@ -53,7 +53,10 @@ export async function getFollowers(userId: string) {
       .eq('following_id', userId)
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.warn('Error fetching followers:', error.message)
+      return { data: [], error: error.message }
+    }
 
     // Get additional stats for each follower
     const followersWithStats = await Promise.all(
@@ -138,7 +141,10 @@ export async function getFollowing(userId: string) {
       .eq('follower_id', actualUserId)
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.warn('Error fetching following:', error.message)
+      return { data: [], error: error.message }
+    }
 
     if (!data || data.length === 0) {
       return { data: [], error: null }

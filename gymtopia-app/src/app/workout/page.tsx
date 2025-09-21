@@ -68,7 +68,10 @@ export default function WorkoutPage() {
   }, [user])
 
   const fetchWorkoutHistory = async () => {
-    if (!user) return
+    if (!user) {
+      setIsLoading(false)
+      return
+    }
 
     try {
       const supabase = getSupabaseClient()
@@ -79,10 +82,16 @@ export default function WorkoutPage() {
         .order('date', { ascending: false })
         .limit(10)
 
-      if (error) throw error
-      setWorkoutHistory(data || [])
+      if (error) {
+        // RLSポリシーによる403エラーやその他のエラーをハンドリング
+        console.warn('Could not fetch workout history:', error.message)
+        setWorkoutHistory([])
+      } else {
+        setWorkoutHistory(data || [])
+      }
     } catch (error) {
-      console.error('Error fetching workout history:', error)
+      console.warn('Error fetching workout history:', error)
+      setWorkoutHistory([])
     } finally {
       setIsLoading(false)
     }
@@ -165,7 +174,11 @@ export default function WorkoutPage() {
         .from('workout_sessions')
         .insert(workoutData)
 
-      if (error) throw error
+      if (error) {
+        console.warn('Error saving workout:', error.message)
+        alert('ワークアウトの保存に失敗しました。再度お試しください。')
+        return
+      }
 
       // リセット
       setExercises([])

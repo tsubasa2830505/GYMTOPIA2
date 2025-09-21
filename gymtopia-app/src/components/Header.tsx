@@ -18,20 +18,23 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(189,101,78,0.42)]">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[73.5px] flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-20 sm:h-24 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-accent to-accent-secondary rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(189,101,78,0.46)]">
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--gt-on-primary)]" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-accent to-accent-secondary rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(189,101,78,0.46)]">
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--gt-on-primary)]" />
             </div>
             <div>
               <Image
-                src="/images/gymtopia-logo-katakana.svg"
+                src="/images/gymtopia.png"
                 alt="ジムトピア"
-                width={180}
-                height={45}
-                className="h-8 sm:h-10 w-auto"
+                width={320}
+                height={80}
+                className="h-14 sm:h-16 w-auto"
+                style={{
+                  filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
+                }}
               />
-              <p className="text-xs text-[color:var(--text-muted)]">
+              <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">
                 {subtitle || "街の熱量と一緒にジムを探そう"}
               </p>
             </div>
