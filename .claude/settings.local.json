@@ -200,7 +200,14 @@
       "Bash(for page in \"/\" \"/feed\" \"/search/results\" \"/gym-stats\")",
       "Bash(PORT=3004 npm run dev)",
       "Bash(for page in \"/search/results\" \"/search/results?keyword=エニタイム\" \"/search/results?prefecture=東京都\")",
-      "Bash(for page in \"/admin\" \"/checkin\")"
+      "Bash(for page in \"/admin\" \"/checkin\")",
+      "Bash(for page in \"/\" \"/feed\" \"/search/results\" \"/profile\" \"/admin\" \"/gyms/1/feed\")",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search/results\" \"/add\" \"/gym-stats\" \"/admin\" \"/followers\" \"/following\")",
+      "Bash(for page in \"/feed\" \"/profile\" \"/search/results\" \"/add\" \"/gym-stats\" \"/admin\")",
+      "Bash(for page in \"/followers\" \"/following\" \"/map\" \"/workout\")",
+      "Bash(python3:*)",
+      "Bash(for endpoint in \"/api/auth\" \"/api/gyms\" \"/api/posts\" \"/api/users\")",
+      "Bash(for page in \"/following\" \"/followers\")"
     ],
     "deny": [],
     "ask": []

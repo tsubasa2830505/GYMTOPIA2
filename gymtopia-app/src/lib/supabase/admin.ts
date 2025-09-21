@@ -11,13 +11,43 @@ export async function getUserManagedGyms() {
       throw new Error('Not authenticated')
     }
 
-    const { data, error } = await supabase
+    // まずgym_ownersを取得
+    const { data: ownerData, error: ownerError } = await supabase
       .from('gym_owners')
-      .select(`
-        *,
-        gym:gyms(*)
-      `)
+      .select('*')
       .eq('user_id', user.id)
+
+    if (ownerError) {
+      console.error('Database error:', ownerError)
+      throw ownerError
+    }
+
+    if (!ownerData || ownerData.length === 0) {
+      console.log('No gyms found for user')
+      return []
+    }
+
+    // gym_idのリストを作成
+    const gymIds = ownerData.map(o => o.gym_id)
+
+    // gymsテーブルから該当するジムを取得
+    const { data: gymsData, error: gymsError } = await supabase
+      .from('gyms')
+      .select('*')
+      .in('id', gymIds)
+
+    if (gymsError) {
+      console.error('Error fetching gyms:', gymsError)
+      throw gymsError
+    }
+
+    // データを結合
+    const data = ownerData.map(owner => ({
+      ...owner,
+      gym: gymsData?.find(g => g.id === owner.gym_id) || null
+    }))
+
+    const error = null
 
     console.log('Gym owners query result:', { data, error })
     

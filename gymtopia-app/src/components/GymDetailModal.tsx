@@ -119,33 +119,31 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
   const loadGymData = async () => {
     setLoading(true)
     try {
-      // ジム情報を取得
-      const gym = await getGymById(gymId)
-      if (gym) {
-        // マシンとフリーウェイト情報、イキタイ情報を並列取得
-        const [machines, freeWeights, favoriteCount, userFavorite] = await Promise.all([
-          getGymMachines(gymId),
-          getGymFreeWeights(gymId),
-          // イキタイ数を取得
-          supabase
-            .from('favorite_gyms')
-            .select('id', { count: 'exact', head: true })
-            .eq('gym_id', gymId),
-          // 現在のユーザーがイキタイしているかチェック
-          supabase
-            .from('favorite_gyms')
-            .select('id')
-            .eq('gym_id', gymId)
-            .eq('user_id', user?.id)
-            .maybeSingle()
-        ])
+      // APIから詳細情報を含むジムデータを取得
+      const response = await fetch(`/api/gyms/${gymId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch gym data')
+      }
 
-        const actualLikesCount = favoriteCount.count || 0
+      const data = await response.json()
+      const gymInfo = data.gym
+
+      if (gymInfo) {
+        // 現在のユーザーがイキタイしているかチェック
+        const userFavorite = await supabase
+          .from('favorite_gyms')
+          .select('id')
+          .eq('gym_id', gymId)
+          .eq('user_id', user?.id)
+          .maybeSingle()
+
+        const actualLikesCount = gymInfo.favoriteCount || 0
         const isLikedByUser = userFavorite.data !== null && !userFavorite.error
 
         console.log('=== LOADING GYM DATA ===')
         console.log('Gym ID:', gymId)
         console.log('User ID:', user?.id)
+        console.log('Gym Info:', gymInfo)
         console.log('User favorite query result:', {
           data: userFavorite.data,
           error: userFavorite.error,
@@ -156,44 +154,65 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         console.log('Total likes count:', actualLikesCount)
         console.log('=======================')
 
+        // 詳細情報から価格情報を取得
+        const pricingInfo = gymInfo.detailedInfo?.pricing_system || {}
+        const operatingHours = gymInfo.detailedInfo?.operating_hours || {}
+        const accessInfo = gymInfo.detailedInfo?.access_information || {}
+
         // データを統合
         const fullGymData = {
-          ...gym,
-          tags: gym.equipment_types || [],
+          ...gymInfo,
+          tags: gymInfo.equipment_types || [],
           location: {
-            area: gym.city || gym.prefecture || '未設定',
-            walkingMinutes: 7
+            area: gymInfo.city || gymInfo.prefecture || '未設定',
+            walkingMinutes: accessInfo.walking_time ?
+              parseInt(accessInfo.walking_time.match(/\d+/)?.[0] || '7') : 7
           },
-          businessHours: gym.business_hours || [{ open: '09:00', close: '22:00', days: [0, 1, 2, 3, 4, 5, 6] }],
+          businessHours: operatingHours.weekday ? [{
+            open: operatingHours.weekday.open || '00:00',
+            close: operatingHours.weekday.close || '24:00',
+            days: [0, 1, 2, 3, 4, 5, 6]
+          }] : [{ open: '09:00', close: '22:00', days: [0, 1, 2, 3, 4, 5, 6] }],
           isOpenNow: true,
           likesCount: actualLikesCount,
           likedByMe: isLikedByUser,
-          images: gym.images && gym.images.length > 0 ? gym.images : [
+          images: gymInfo.images && gymInfo.images.length > 0 ? gymInfo.images : [
             'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
             'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
           ],
-          pricingPlans: gym.price_info || [
-            { id: 'monthly', title: '月額会員', priceJPY: 10000, link: '#' },
-            { id: 'visitor', title: 'ドロップイン', priceJPY: 3000, link: '#' }
+          pricingPlans: [
+            {
+              id: 'monthly',
+              title: '月額会員',
+              priceJPY: pricingInfo.monthly_fee || 10000,
+              link: gymInfo.website || '#'
+            },
+            {
+              id: 'visitor',
+              title: 'ドロップイン',
+              priceJPY: pricingInfo.dropin_fee || 3000,
+              link: gymInfo.website || '#'
+            }
           ],
-          machines: machines.map(m => ({
-            name: m.name,
+          machines: gymInfo.machines?.map((m: any) => ({
+            name: m.name || m.equipment_name,
             brand: m.brand || '',
             count: m.count || 1,
-          })),
-          freeWeights: freeWeights.map(fw => ({
-            name: fw.name,
+          })) || [],
+          freeWeights: gymInfo.freeWeights?.map((fw: any) => ({
+            name: fw.name || fw.equipment_name,
             brand: fw.brand || '',
             count: fw.count,
             range: fw.weight_range,
-          })),
-          facilities: gym.facilities || {},
+          })) || [],
+          facilities: gymInfo.facilities || {},
           contact: {
-            phone: gym.phone || '',
-            website: gym.website || ''
+            phone: gymInfo.phone || '',
+            website: gymInfo.website || ''
           },
-          reviews: []
+          reviews: [],
+          detailedInfo: gymInfo.detailedInfo
         }
 
         setGymData(fullGymData)

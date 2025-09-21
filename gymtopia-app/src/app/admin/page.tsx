@@ -13,7 +13,8 @@ import {
 } from '@/lib/supabase/admin'
 import {
   getGymDetailedInfoForOwner,
-  upsertGymDetailedInfo
+  upsertGymDetailedInfo,
+  createInitialGymDetailedInfo
 } from '@/lib/supabase/gym-detailed-info'
 import type { GymDetailedInfo } from '@/lib/supabase/gym-detailed-info'
 import { useRouter } from 'next/navigation'
@@ -119,12 +120,12 @@ export default function AdminPage() {
 
   // Load statistics and data when gym is selected
   useEffect(() => {
-    if (selectedGym) {
+    if (selectedGym && authUser) {
       loadGymStatistics(selectedGym.id)
       loadGymEquipmentData(selectedGym.id)
       loadGymDetailedInfo(selectedGym.id)
     }
-  }, [selectedGym])
+  }, [selectedGym, authUser])
 
   const loadGymEquipmentData = async (gymId: string) => {
     try {
@@ -156,15 +157,29 @@ export default function AdminPage() {
 
 
   const loadGymDetailedInfo = async (gymId: string) => {
-    if (!authUser) return
+    if (!authUser) {
+      console.log('[Admin] No authUser, skipping detailed info load')
+      return
+    }
 
+    console.log('[Admin] Loading detailed info for gym:', gymId, 'with user:', authUser.id)
     setDetailFormLoading(true)
     try {
       const info = await getGymDetailedInfoForOwner(gymId, authUser.id)
+      console.log('[Admin] Detailed info received:', info)
       if (info) {
         setDetailFormData(info)
+        console.log('[Admin] DetailFormData set successfully')
       } else {
-        setDetailFormData({})
+        // 詳細情報が存在しない場合は作成
+        console.log('[Admin] No detailed info found, creating initial data')
+        const newInfo = await createInitialGymDetailedInfo(gymId, authUser.id)
+        if (newInfo) {
+          setDetailFormData(newInfo)
+          console.log('[Admin] Initial detailed info created')
+        } else {
+          setDetailFormData({})
+        }
       }
     } catch (error) {
       console.error('Error loading gym detailed info:', error)
@@ -175,13 +190,22 @@ export default function AdminPage() {
   }
 
   const handleDetailFormSave = async () => {
-    if (!selectedGym || !authUser) return
+    if (!selectedGym || !authUser) {
+      console.log('[Admin] Cannot save: selectedGym:', selectedGym, 'authUser:', authUser)
+      return
+    }
+
+    console.log('[Admin] Saving detailed info for gym:', selectedGym.id)
+    console.log('[Admin] Data to save:', detailFormData)
 
     setDetailFormSaving(true)
     try {
       const result = await upsertGymDetailedInfo(selectedGym.id, detailFormData, authUser.id)
+      console.log('[Admin] Save result:', result)
       if (result) {
         alert('詳細情報を保存しました')
+        // 保存後にデータを再読み込み
+        loadGymDetailedInfo(selectedGym.id)
       } else {
         alert('保存に失敗しました')
       }
@@ -194,9 +218,14 @@ export default function AdminPage() {
   }
 
   const updateDetailFormSection = (section: string, sectionData: any) => {
-    setDetailFormData({
-      ...detailFormData,
-      [section]: sectionData
+    console.log('[Admin] Updating section:', section, 'with data:', sectionData)
+    setDetailFormData(prev => {
+      const updated = {
+        ...prev,
+        [section]: sectionData
+      }
+      console.log('[Admin] Updated form data:', updated)
+      return updated
     })
   }
 
@@ -205,6 +234,41 @@ export default function AdminPage() {
     try {
       // Supabaseから直接認証ユーザーを取得
       const { data: { user: supabaseUser } } = await supabase.auth.getUser()
+
+      // デバッグモードを無効化
+      const DEBUG_MODE = false
+
+      if (DEBUG_MODE && !supabaseUser) {
+        console.log('DEBUG MODE: Loading Hammer Strength Shibuya')
+
+        // ハンマーストレングス渋谷のデータを直接設定
+        const debugGymData = [{
+          id: 'debug-1',
+          user_id: 'debug-user',
+          gym_id: '03f2693a-49a1-41f4-bf4b-be5c192d4d32',
+          role: 'owner',
+          gym: {
+            id: '03f2693a-49a1-41f4-bf4b-be5c192d4d32',
+            name: 'ハンマーストレングス渋谷',
+            area: '渋谷',
+            prefecture: '東京都',
+            address: '東京都渋谷区道玄坂1-1-1',
+            lat: 35.6580,
+            lng: 139.7017,
+            has_24h: true,
+            has_parking: false,
+            has_shower: true
+          }
+        }]
+
+        setManagedGyms(debugGymData)
+        setGyms(debugGymData.map(g => g.gym))
+        setSelectedGym(debugGymData[0].gym)
+        setHasAccess(true)
+        setAuthUser({ id: 'debug-user', email: 'debug@example.com' })
+        setLoading(false)
+        return
+      }
 
       setAuthUser(supabaseUser)
 

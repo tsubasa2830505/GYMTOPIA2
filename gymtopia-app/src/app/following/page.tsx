@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Search, MoreHorizontal } from 'lucide-react'
-import { getUserFollowers, getUserFollowing } from '@/lib/supabase/profile'
+import { getUserFollowers, getUserFollowing, unfollowUser } from '@/lib/supabase/profile'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 
@@ -16,7 +16,6 @@ interface Following {
     username: string
     display_name: string
     avatar_url: string | null
-    is_verified: boolean
   }
   created_at: string
 }
@@ -67,6 +66,21 @@ export default function FollowingPage() {
       user.following.username?.toLowerCase().includes(query)
     )
   })
+
+  const handleUnfollow = async (unfollowUserId: string) => {
+    if (!userId) return
+
+    try {
+      const success = await unfollowUser(userId, unfollowUserId)
+      if (success) {
+        // リストから削除
+        setFollowing(prev => prev.filter(f => f.following.id !== unfollowUserId))
+        setFollowingCount(prev => prev - 1)
+      }
+    } catch (error) {
+      console.error('フォロー解除エラー:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -172,11 +186,6 @@ export default function FollowingPage() {
                       <p className="font-semibold text-[color:var(--foreground)] truncate">
                         {user.following.display_name || user.following.username}
                       </p>
-                      {user.following.is_verified && (
-                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-xs">✓</span>
-                        </div>
-                      )}
                     </div>
                     {user.following.username && user.following.display_name && (
                       <p className="text-sm text-[color:var(--text-muted)] truncate">@{user.following.username}</p>
@@ -185,7 +194,10 @@ export default function FollowingPage() {
                 </Link>
 
                 {/* Action Button */}
-                <button className="px-6 py-1.5 bg-[color:var(--gt-primary)] hover:bg-[color:var(--gt-primary-strong)] text-white text-sm font-medium rounded-lg transition-colors">
+                <button
+                  onClick={() => handleUnfollow(user.following.id)}
+                  className="px-6 py-1.5 bg-[color:var(--gt-primary)] hover:bg-[color:var(--gt-primary-strong)] text-white text-sm font-medium rounded-lg transition-colors"
+                >
                   フォロー中
                 </button>
               </div>

@@ -159,6 +159,7 @@ export async function getGyms(filters?: {
       query = query.eq('city', filters.city)
     }
     if (filters?.search) {
+      console.log('[getGyms] Searching for:', filters.search)
       query = query.ilike('name', `%${filters.search}%`)
     }
     if (filters?.facilities && filters.facilities.length > 0) {

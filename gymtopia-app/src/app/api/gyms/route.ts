@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('gyms')
       .select('*')
+      .eq('status', 'active')
       .range(offset, offset + limit - 1)
       .order('name', { ascending: true })
 

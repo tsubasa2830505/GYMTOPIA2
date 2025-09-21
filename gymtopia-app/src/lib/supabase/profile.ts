@@ -506,7 +506,7 @@ export async function getUserFollowers(
       .from('follows')
       .select(`
         *,
-        follower:users!follower_id(id, display_name, username, avatar_url, is_verified)
+        follower:users!follower_id(id, display_name, username, avatar_url)
       `)
       .eq('following_id', userId)
       .order('created_at', { ascending: false })
@@ -536,7 +536,7 @@ export async function getUserFollowing(
       .from('follows')
       .select(`
         *,
-        following:users!following_id(id, display_name, username, avatar_url, is_verified)
+        following:users!following_id(id, display_name, username, avatar_url)
       `)
       .eq('follower_id', userId)
       .order('created_at', { ascending: false })

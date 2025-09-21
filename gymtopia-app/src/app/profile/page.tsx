@@ -7,9 +7,11 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
-import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms, getUserFollowers, getUserFollowing } from '@/lib/supabase/profile';
+import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms, getUserFollowers, getUserFollowing, updateGymPost, deleteGymPost } from '@/lib/supabase/profile';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { updatePost, deletePost as deletePostAPI } from '@/lib/supabase/posts';
 import PostCard from '@/components/PostCard';
+import PostEditModal from '@/components/PostEditModal';
 import CheckinBadges from '@/components/CheckinBadges';
 import GymDetailModal from '@/components/GymDetailModal';
 import type { Post } from '@/lib/supabase/posts';
@@ -98,6 +100,8 @@ function ProfileContent() {
   // モーダル管理用のstate
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null);
   const [isGymModalOpen, setIsGymModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [userType, setUserType] = useState('user');
   const [profileData, setProfileData] = useState<UserProfileStats | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null);
@@ -606,6 +610,56 @@ function ProfileContent() {
     setSelectedGymId(null);
   };
 
+  // 投稿編集処理 - 編集ページへ遷移
+  const handleEditPost = (post: GymPost) => {
+    // 編集ページへ遷移（投稿IDをパラメータとして渡す）
+    router.push(`/edit/${post.id}`);
+  };
+
+  // 投稿削除処理
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('この投稿を削除してもよろしいですか？')) {
+      return;
+    }
+
+    try {
+      const success = await deleteGymPost(postId);
+      if (success) {
+        setUserPosts(userPosts.filter(p => p.id !== postId));
+      } else {
+        alert('投稿の削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('投稿の削除に失敗しました');
+    }
+  };
+
+  // 投稿更新処理
+  const handleUpdatePost = async (postId: string, content: string, images?: string[]) => {
+    try {
+      const updated = await updateGymPost(postId, {
+        content,
+        images: images || []
+      });
+
+      if (updated) {
+        setUserPosts(userPosts.map(p =>
+          p.id === postId
+            ? { ...p, content, images: images || p.images }
+            : p
+        ));
+        setIsEditModalOpen(false);
+        setEditingPost(null);
+      } else {
+        alert('投稿の更新に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error updating post:', error);
+      alert('投稿の更新に失敗しました');
+    }
+  };
+
   const loadMorePosts = async () => {
     if (!hasMorePosts || isLoadingMorePosts || !userId) return;
 
@@ -891,10 +945,12 @@ function ProfileContent() {
                     <PostCard
                       key={post.id}
                       post={postForCard}
-                      currentUserId={userId}
-                      showActions={true} // ストーリー機能を含むアクションを表示
+                      currentUserId={user?.id}
+                      showActions={true} // ストーリー機能を含むアクションと編集・削除を表示
                       onToggleTraining={() => toggleTrainingDetails(post.id)}
                       expandedTraining={expandedTraining}
+                      onEdit={() => handleEditPost(post)}
+                      onDelete={() => handleDeletePost(post.id)}
                     />
                   );
                 })}
@@ -1094,6 +1150,19 @@ function ProfileContent() {
           isOpen={isGymModalOpen}
           onClose={handleGymModalClose}
           gymId={selectedGymId}
+        />
+      )}
+
+      {/* PostEditModal */}
+      {editingPost && (
+        <PostEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingPost(null);
+          }}
+          post={editingPost}
+          onSave={handleUpdatePost}
         />
       )}
     </div>

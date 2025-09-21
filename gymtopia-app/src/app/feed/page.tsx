@@ -519,12 +519,11 @@ export default function FeedPage() {
                 <PostCard
                   key={post.id}
                   post={post}
+                  currentUserId={user?.id}
                   expandedTraining={expandedTraining}
                   onToggleTraining={() => toggleTrainingDetails(post.id)}
                   showActions={true}
                   onLike={() => handleLike(post)}
-                  onEdit={() => handleEditPost(post)}
-                  onDelete={() => handleDeletePost(post.id)}
                 />
               ))}
 

@@ -893,24 +893,19 @@ function SearchResultsContent() {
                               </div>
                               <div className="text-right">
                                 {gym.monthlyPrice && gym.dropinPrice ? (
-                                  <div className="space-y-0.5">
-                                    <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
-                                      月額¥{gym.monthlyPrice.toLocaleString()}
-                                    </div>
-                                    <div className="text-[10px] sm:text-xs text-[color:var(--text-muted)]">
-                                      ドロップイン¥{gym.dropinPrice.toLocaleString()}
-                                    </div>
+                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
+                                    月額¥{gym.monthlyPrice.toLocaleString()} / ¥{gym.dropinPrice.toLocaleString()}
                                   </div>
                                 ) : gym.monthlyPrice ? (
-                                  <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
+                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
                                     月額¥{gym.monthlyPrice.toLocaleString()}
                                   </div>
                                 ) : gym.dropinPrice ? (
-                                  <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
+                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
                                     ドロップイン¥{gym.dropinPrice.toLocaleString()}
                                   </div>
                                 ) : (
-                                  <div className="text-xs sm:text-sm text-[color:var(--text-muted)]">
+                                  <div className="text-sm sm:text-base text-[color:var(--text-muted)]">
                                     料金要問合せ
                                   </div>
                                 )}

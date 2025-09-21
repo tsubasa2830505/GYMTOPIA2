@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Search, MoreHorizontal } from 'lucide-react'
-import { getUserFollowers, getUserFollowing } from '@/lib/supabase/profile'
+import { getUserFollowers, getUserFollowing, followUser, unfollowUser } from '@/lib/supabase/profile'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 
@@ -16,7 +16,6 @@ interface Follower {
     username: string
     display_name: string
     avatar_url: string | null
-    is_verified: boolean
   }
   created_at: string
 }
@@ -29,6 +28,7 @@ export default function FollowersPage() {
   const [followersCount, setFollowersCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
 
   const userId = user?.id
 
@@ -52,10 +52,44 @@ export default function FollowersPage() {
       setFollowers(followersData)
       setFollowersCount(followersData.length)
       setFollowingCount(followingData.length)
+
+      // フォロー中のIDセットを作成
+      const ids = new Set(followingData.map(f => f.following.id))
+      setFollowingIds(ids)
     } catch (error) {
       console.error('データ取得エラー:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleFollow = async (targetUserId: string) => {
+    if (!userId) return
+
+    try {
+      const success = await followUser(userId, targetUserId)
+      if (success) {
+        setFollowingIds(prev => new Set([...prev, targetUserId]))
+      }
+    } catch (error) {
+      console.error('フォローエラー:', error)
+    }
+  }
+
+  const handleUnfollow = async (targetUserId: string) => {
+    if (!userId) return
+
+    try {
+      const success = await unfollowUser(userId, targetUserId)
+      if (success) {
+        setFollowingIds(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(targetUserId)
+          return newSet
+        })
+      }
+    } catch (error) {
+      console.error('フォロー解除エラー:', error)
     }
   }
 
@@ -172,11 +206,6 @@ export default function FollowersPage() {
                       <p className="font-semibold text-[color:var(--foreground)] truncate">
                         {follower.follower.display_name || follower.follower.username}
                       </p>
-                      {follower.follower.is_verified && (
-                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-xs">✓</span>
-                        </div>
-                      )}
                     </div>
                     {follower.follower.username && follower.follower.display_name && (
                       <p className="text-sm text-[color:var(--text-muted)] truncate">@{follower.follower.username}</p>
@@ -185,9 +214,21 @@ export default function FollowersPage() {
                 </Link>
 
                 {/* Action Button */}
-                <button className="px-6 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg transition-colors">
-                  削除
-                </button>
+                {followingIds.has(follower.follower.id) ? (
+                  <button
+                    onClick={() => handleUnfollow(follower.follower.id)}
+                    className="px-6 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    フォロー中
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleFollow(follower.follower.id)}
+                    className="px-6 py-1.5 bg-[color:var(--gt-primary)] hover:bg-[color:var(--gt-primary-strong)] text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    フォローバック
+                  </button>
+                )}
               </div>
             ))
           )}

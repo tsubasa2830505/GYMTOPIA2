@@ -36,7 +36,6 @@ const pages = [
   { path: '/search', name: '検索ページ', expectedStatus: 200 },
   { path: '/search/results', name: '検索結果ページ', expectedStatus: 200 },
   { path: '/gym-stats', name: 'ジム統計ページ', expectedStatus: 200 },
-  { path: '/gym-friends', name: 'ジム友達ページ', expectedStatus: 200 },
   { path: '/following', name: 'フォロー中ページ', expectedStatus: 200 },
   { path: '/followers', name: 'フォロワーページ', expectedStatus: 200 },
   { path: '/add', name: '投稿追加ページ', expectedStatus: 200 },

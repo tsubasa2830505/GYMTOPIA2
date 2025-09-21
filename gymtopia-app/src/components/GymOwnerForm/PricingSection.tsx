@@ -57,6 +57,43 @@ export default function PricingSection({ data, onChange }: PricingSectionProps) 
 
   return (
     <div className="space-y-8">
+      {/* 基本料金 */}
+      <div className="bg-gray-50 rounded-lg p-4 border">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">基本料金</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">月額料金（円）</label>
+            <input
+              type="number"
+              value={(data as any).monthly_fee || ''}
+              onChange={(e) => onChange({ ...data, ...{ monthly_fee: parseInt(e.target.value) || 0 } } as any)}
+              placeholder="12800"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ドロップイン料金（円）</label>
+            <input
+              type="number"
+              value={(data as any).dropin_fee || ''}
+              onChange={(e) => onChange({ ...data, ...{ dropin_fee: parseInt(e.target.value) || 0 } } as any)}
+              placeholder="3200"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">入会金（円）</label>
+            <input
+              type="number"
+              value={(data as any).enrollment_fee || ''}
+              onChange={(e) => onChange({ ...data, ...{ enrollment_fee: parseInt(e.target.value) || 0 } } as any)}
+              placeholder="10000"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* 会員プラン */}
       <div>
         <div className="flex justify-between items-center mb-4">

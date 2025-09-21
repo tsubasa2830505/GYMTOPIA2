@@ -301,9 +301,10 @@ function AddGymPostContent() {
       // 投稿成功
       alert('投稿しました！')
       router.push('/feed')
-    } catch (error) {
+    } catch (error: any) {
       console.error('投稿エラー:', error)
-      alert('投稿に失敗しました。もう一度お試しください。')
+      const errorMessage = error?.message || '投稿に失敗しました。もう一度お試しください。'
+      alert(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
