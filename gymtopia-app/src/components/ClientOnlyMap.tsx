@@ -13,6 +13,7 @@ interface ClientOnlyMapProps {
 export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }: ClientOnlyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const userMarkerRef = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [leaflet, setLeaflet] = useState<any>(null);
 
@@ -68,11 +69,19 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !leaflet || !mapRef.current || mapInstanceRef.current) return;
+    if (!isLoaded || !leaflet || !mapRef.current) return;
 
-    // マップが既に初期化されている場合はスキップ
+    // 既存のマップインスタンスがある場合は削除
+    if (mapInstanceRef.current) {
+      console.log('🗑️ 既存のマップを削除');
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    // マップが既に初期化されている場合はクリア
     if ((mapRef.current as any)._leaflet_id) {
-      return;
+      console.log('⚠️ 既存のLeaflet IDを検出、クリア');
+      delete (mapRef.current as any)._leaflet_id;
     }
 
     // デフォルトアイコンの修正
@@ -100,39 +109,8 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
       attribution: '© OpenStreetMap contributors'
     }).addTo(mapInstance);
 
-    // ユーザー位置のマーカー
-    if (userLocation) {
-      const userIcon = leaflet.divIcon({
-        className: 'user-location-marker',
-        html: `<div style="position: relative;">
-          <div style="
-            background-color: var(--gt-secondary-strong);
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-          "></div>
-          <div style="
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid var(--gt-secondary-strong);
-            opacity: 0.3;
-            animation: pulse 2s infinite;
-          "></div>
-        </div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-
-      leaflet.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
-        .addTo(mapInstance)
-        .bindPopup('現在地');
-    }
+    // ユーザー位置のマーカーは別のuseEffectで管理
+    console.log('🗺️ マップ初期化完了');
 
 
     mapInstanceRef.current = mapInstance;
@@ -148,7 +126,58 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
       }
       mapInstanceRef.current = null;
     };
-  }, [isLoaded, leaflet]); // 依存配列を最小限に
+  }, [isLoaded, leaflet]); // マップ初期化のみに依存
+
+  // ユーザー位置マーカーを別途管理
+  useEffect(() => {
+    if (!mapInstanceRef.current || !leaflet || !userLocation) return;
+
+    console.log('📍 現在地マーカー更新:', userLocation);
+
+    // 既存のユーザーマーカーを削除
+    if (userMarkerRef.current) {
+      console.log('🗑️ 既存の現在地マーカーを削除');
+      mapInstanceRef.current.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = null;
+    }
+
+    // 新しいユーザーマーカーを追加
+    const userIcon = leaflet.divIcon({
+      className: 'user-location-marker',
+      html: `<div style="position: relative;">
+        <div style="
+          background-color: #4285F4;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        "></div>
+        <div style="
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 2px solid #4285F4;
+          opacity: 0.3;
+          animation: pulse 2s infinite;
+        "></div>
+      </div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    userMarkerRef.current = leaflet.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+      .addTo(mapInstanceRef.current)
+      .bindPopup('現在地');
+
+    console.log('✅ 現在地マーカー追加完了');
+
+    // マップを現在地にパン
+    mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14);
+  }, [leaflet, userLocation]); // userLocationの変更を監視
 
   // ジムマーカーを更新
   useEffect(() => {

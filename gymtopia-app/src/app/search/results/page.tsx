@@ -382,15 +382,19 @@ function SearchResultsContent() {
   // Get user location
   useEffect(() => {
     if (navigator.geolocation) {
+      console.log('📍 位置情報取得を開始...');
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
+          const location = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
+          };
+          console.log('✅ 現在地取得成功:', location);
+          setUserLocation(location);
         },
         (error) => {
-          console.error('Location error:', error);
+          console.error('❌ 位置情報取得エラー:', error);
+          console.error('エラーコード:', error.code, 'メッセージ:', error.message);
           // Don't set default location - let user see actual position
           // Users can still use the map without location permission
         },
@@ -400,6 +404,8 @@ function SearchResultsContent() {
           maximumAge: 0
         }
       );
+    } else {
+      console.error('❌ Geolocation APIがサポートされていません');
     }
   }, []);
 
@@ -551,7 +557,7 @@ function SearchResultsContent() {
       {/* Header */}
       <Header subtitle="検索結果" />
 
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 pt-20">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-4 sm:pt-28 sm:pb-6">
 
         {/* Results Summary Card */}
         <div className="gt-card p-4 sm:p-6 mb-4 sm:mb-6 space-y-6">
@@ -706,27 +712,28 @@ function SearchResultsContent() {
               </div>
             </div>
 
-            <div className="relative" ref={sortControlRef}>
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  setSortDropdownOpen(!sortDropdownOpen)
-                }}
-              className="flex items-center gap-1 sm:gap-2 gt-pressable border-2 border-[rgba(186,122,103,0.32)] hover:border-[rgba(231,103,76,0.38)] rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(189,101,78,0.38)] hover:-translate-y-[1px] transition-all"
-              >
-                {sortBy === 'distance' ? (
-                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
-                ) : (
-                  <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
-                )}
-                <span className="gt-pill-label text-[10px] sm:text-xs text-[color:var(--foreground)]">
-                  {sortBy === 'distance' ? '近い順' : 'イキタイの多い順'}
-                </span>
-                <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--text-muted)] transition-transform ${sortDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
+            {viewMode === 'list' && (
+              <div className="relative" ref={sortControlRef}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setSortDropdownOpen(!sortDropdownOpen)
+                  }}
+                  className="flex items-center gap-1 sm:gap-2 gt-pressable border-2 border-[rgba(186,122,103,0.32)] hover:border-[rgba(231,103,76,0.38)] rounded-2xl bg-white/80 px-2.5 sm:px-3 py-1 sm:py-1.5 shadow-[0_12px_32px_-26px_rgba(189,101,78,0.38)] hover:-translate-y-[1px] transition-all"
+                >
+                  {sortBy === 'distance' ? (
+                    <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
+                  ) : (
+                    <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
+                  )}
+                  <span className="gt-pill-label text-[10px] sm:text-xs text-[color:var(--foreground)]">
+                    {sortBy === 'distance' ? '近い順' : 'イキタイの多い順'}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--text-muted)] transition-transform ${sortDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {sortDropdownOpen && (
+                {sortDropdownOpen && (
                 <div
                   className="absolute right-0 top-full mt-2 gt-card p-1 w-44 z-50"
                   onClick={(event) => event.stopPropagation()}
@@ -759,8 +766,9 @@ function SearchResultsContent() {
                     {!userLocation && <span className="text-[10px] text-[color:var(--text-muted)] ml-auto">要位置情報</span>}
                   </button>
                 </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

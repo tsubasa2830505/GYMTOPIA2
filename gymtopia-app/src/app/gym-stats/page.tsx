@@ -50,6 +50,7 @@ export default function GymStatsPage() {
     monthlyVisits: 0,
     weeklyVisits: 0,
     yearlyVisits: 0,
+    periodVisits: 0,
     avgDurationMinutes: 0
   })
 
@@ -88,7 +89,7 @@ export default function GymStatsPage() {
         timeDist,
         achievementData
       ] = await Promise.all([
-        getUserWorkoutStatistics(user.id),
+        getUserWorkoutStatistics(user.id, selectedPeriod),
         getGymVisitRankings(user.id, 5, selectedPeriod),
         getRecentGymVisits(user.id, 5, selectedPeriod),
         getWeeklyPattern(user.id),
@@ -138,6 +139,7 @@ export default function GymStatsPage() {
         monthlyVisits: 0,
         weeklyVisits: 0,
         yearlyVisits: 0,
+        periodVisits: 0,
         avgDurationMinutes: 0
       })
       setGymRankings([])
@@ -152,12 +154,8 @@ export default function GymStatsPage() {
 
   // Get period-specific visits
   const getPeriodVisits = () => {
-    switch(selectedPeriod) {
-      case 'week': return stats.weeklyVisits
-      case 'month': return stats.monthlyVisits
-      case 'year': return stats.yearlyVisits
-      default: return stats.totalVisits
-    }
+    // Use the new periodVisits field that is dynamically set based on selectedPeriod
+    return stats.periodVisits
   }
 
   // Get period-specific title and dynamic count

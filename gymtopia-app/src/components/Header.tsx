@@ -19,9 +19,10 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
     <>
       <header className="fixed top-0 left-0 right-0 z-40 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)] backdrop-blur-xl shadow-[0_20px_46px_-28px_rgba(189,101,78,0.42)]">
         <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-accent to-accent-secondary rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(189,101,78,0.46)]">
-              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-[color:var(--gt-on-primary)]" />
+          {/* モバイルのみ表示 */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent-secondary rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(189,101,78,0.46)]">
+              <MapPin className="w-5 h-5 text-[color:var(--gt-on-primary)]" />
             </div>
             <div>
               <Image
@@ -29,15 +30,22 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
                 alt="ジムトピア"
                 width={280}
                 height={70}
-                className="h-10 sm:h-12 w-auto"
+                className="h-10 w-auto"
                 style={{
                   filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
                 }}
               />
-              <p className="text-xs sm:text-sm text-[color:var(--text-muted)]">
+              <p className="text-xs text-[color:var(--text-muted)]">
                 {subtitle || "街の熱量と一緒にジムを探そう"}
               </p>
             </div>
+          </div>
+
+          {/* デスクトップではsubtitleのみ表示 */}
+          <div className="hidden sm:flex items-center">
+            <p className="text-lg font-medium text-[color:var(--foreground)]">
+              {subtitle || "街の熱量と一緒にジムを探そう"}
+            </p>
           </div>
 
           {/* Hamburger Menu Button - Only show when showMenu prop is true */}

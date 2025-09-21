@@ -16,7 +16,9 @@ export async function getPeriodVisitCount(userId: string, period?: 'week' | 'mon
       switch(period) {
         case 'week':
           startDate = new Date(now)
-          startDate.setDate(now.getDate() - now.getDay())
+          const dayOfWeek = now.getDay()
+          startDate.setDate(now.getDate() - dayOfWeek)
+          startDate.setHours(0, 0, 0, 0)
           break
         case 'month':
           startDate = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -43,8 +45,13 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
   try {
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+    // Calculate start of week (Sunday) properly
     const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - now.getDay())
+    const dayOfWeek = now.getDay()
+    startOfWeek.setDate(now.getDate() - dayOfWeek)
+    startOfWeek.setHours(0, 0, 0, 0)
+
     const startOfYear = new Date(now.getFullYear(), 0, 1)
 
     // Get total visits
@@ -53,21 +60,22 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
 
-    // Get monthly visits
+    // Get period-specific visits based on selectedPeriod
+    // We'll use the already fetched counts
+
+    // Always get all period counts for display
     const { count: monthlyVisits } = await supabase
       .from('workout_sessions')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .gte('started_at', startOfMonth.toISOString())
 
-    // Get weekly visits
     const { count: weeklyVisits } = await supabase
       .from('workout_sessions')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .gte('started_at', startOfWeek.toISOString())
 
-    // Get yearly visits
     const { count: yearlyVisits } = await supabase
       .from('workout_sessions')
       .select('*', { count: 'exact', head: true })
@@ -103,11 +111,28 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
       })
     }
 
+    // Determine which count to use for periodVisits based on selectedPeriod
+    let periodVisits = 0
+    switch(selectedPeriod) {
+      case 'week':
+        periodVisits = weeklyVisits || 0
+        break
+      case 'month':
+        periodVisits = monthlyVisits || 0
+        break
+      case 'year':
+        periodVisits = yearlyVisits || 0
+        break
+      default:
+        periodVisits = totalVisits || 0
+    }
+
     return {
       totalVisits: totalVisits || 0,
       monthlyVisits: monthlyVisits || 0,
       weeklyVisits: weeklyVisits || 0,
       yearlyVisits: yearlyVisits || 0,
+      periodVisits: periodVisits, // Period-specific count based on selectedPeriod
       currentStreak,
       longestStreak,
       totalWeight,
@@ -121,6 +146,7 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
       monthlyVisits: 0,
       weeklyVisits: 0,
       yearlyVisits: 0,
+      periodVisits: 0,
       currentStreak: 0,
       longestStreak: 0,
       totalWeight: 0,
