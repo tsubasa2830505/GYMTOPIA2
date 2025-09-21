@@ -95,7 +95,7 @@ export default function Home() {
               妥協ゼロ、条件はフル装備。
             </p>
             <h2 className="gt-heading-xl sm:gt-heading-2xl font-black mb-6 sm:mb-8 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)] sm:whitespace-nowrap">
-              全国から見つける、<br className="sm:hidden" />あなたのジムトピア
+              <span className="whitespace-nowrap">全国から見つける、</span><br className="sm:hidden" /><span className="whitespace-nowrap">あなたのジムトピア</span>
             </h2>
             <button
               onClick={handleStartSearch}

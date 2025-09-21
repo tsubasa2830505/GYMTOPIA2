@@ -211,7 +211,7 @@ function ProfileContent() {
             mutual_follows_count: 24,
             posts_count: 38,
             achievements_count: 12,
-            favorite_gyms_count: 4
+            favorite_gyms_count: favoriteGyms.length > 0 ? favoriteGyms.length : 4
           } as UserProfileStats;
         }
 
@@ -367,8 +367,18 @@ function ProfileContent() {
           setUserPosts(samplePosts);
         }
 
-        // 初期読み込み時にいきたいデータを設定
-        const sampleFavoriteGyms: FavoriteGym[] = [
+        // 実際のユーザーのいきたいデータを取得
+        let favoriteGyms: FavoriteGym[] = [];
+        try {
+          favoriteGyms = await getFavoriteGyms(userId);
+          console.log('✅ ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
+        } catch (error) {
+          console.error('いきたいデータ取得エラー:', error);
+        }
+
+        // データがない場合のみサンプルデータを使用
+        if (favoriteGyms.length === 0) {
+          const sampleFavoriteGyms: FavoriteGym[] = [
             {
               id: 'fav-1',
               user_id: userId,
@@ -437,8 +447,13 @@ function ProfileContent() {
                 image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
               }
             }
-        ];
-        setUserFavoriteGyms(sampleFavoriteGyms);
+          ];
+          setUserFavoriteGyms(sampleFavoriteGyms);
+          console.log('⚠️ サンプルデータを使用中');
+        } else {
+          setUserFavoriteGyms(favoriteGyms);
+          console.log('✅ 実データを表示:', favoriteGyms.length, '件');
+        }
         setHasLoadedFavorites(true);
 
       } catch (error) {

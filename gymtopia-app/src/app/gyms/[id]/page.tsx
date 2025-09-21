@@ -83,11 +83,8 @@ export default function GymDetailPage() {
   useEffect(() => {
     async function fetchGymDetail() {
       try {
-        // UUID形式のバリデーション
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-        // サンプルデータの定義
-        const sampleGyms: Record<string, GymDetail> = {
+        // データベースからジムデータを取得
+        const { data, error } = await getGymDetail(gymId)
           'gym-1': {
             id: 'gym-1',
             name: 'ゴールドジム渋谷',

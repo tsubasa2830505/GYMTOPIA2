@@ -485,7 +485,7 @@ export default function CheckInPage() {
           <p className="text-[rgba(255,240,234,0.85)] text-sm mb-6">ジムに到着したらチェックインしよう</p>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
               <div className="text-2xl font-bold">{stats.streak}</div>
               <div className="text-xs text-[rgba(255,240,234,0.85)]">連続日数</div>
@@ -497,10 +497,6 @@ export default function CheckInPage() {
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
               <div className="text-2xl font-bold">{stats.uniqueGyms}</div>
               <div className="text-xs text-[rgba(255,240,234,0.85)]">開拓ジム</div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold">{stats.thisWeek}</div>
-              <div className="text-xs text-[rgba(255,240,234,0.85)]">今週</div>
             </div>
           </div>
         </div>
