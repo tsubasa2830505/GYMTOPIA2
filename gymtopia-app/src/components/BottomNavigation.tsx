@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, FileSearch, CheckCircle, Activity, User } from 'lucide-react'
+import { MapPin, Search, CheckCircle, Activity, User } from 'lucide-react'
 
 export default function BottomNavigation() {
   const pathname = usePathname()
@@ -16,7 +16,7 @@ export default function BottomNavigation() {
     },
     {
       href: '/search/results',
-      icon: FileSearch,
+      icon: Search,
       label: '検索結果',
       isActive: pathname === '/search/results' || pathname === '/search'
     },

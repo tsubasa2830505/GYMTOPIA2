@@ -29,7 +29,7 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
         link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
         document.head.appendChild(link);
 
-        // パルスアニメーションのCSSを追加
+        // パルスアニメーションとz-indexのCSSを追加
         const style = document.createElement('style');
         style.textContent = `
           @keyframes pulse {
@@ -52,6 +52,15 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
           }
           .gym-marker:hover > div {
             transform: scale(1.2);
+          }
+          .user-location-marker {
+            z-index: 10000 !important;
+          }
+          .leaflet-marker-icon.user-location-marker {
+            z-index: 10000 !important;
+          }
+          .leaflet-pane.leaflet-marker-pane {
+            z-index: 700;
           }
         `;
         document.head.appendChild(style);
@@ -141,39 +150,59 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
       userMarkerRef.current = null;
     }
 
-    // 新しいユーザーマーカーを追加
+    // 新しいユーザーマーカーを追加（z-indexを高く設定）
     const userIcon = leaflet.divIcon({
       className: 'user-location-marker',
-      html: `<div style="position: relative;">
+      html: `<div style="position: relative; z-index: 9999;">
         <div style="
           background-color: #4285F4;
-          width: 14px;
-          height: 14px;
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
-          border: 3px solid white;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+          border: 4px solid white;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.8);
+          z-index: 9999;
+          position: relative;
         "></div>
         <div style="
           position: absolute;
-          top: -5px;
-          left: -5px;
-          width: 24px;
-          height: 24px;
+          top: -8px;
+          left: -8px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          border: 2px solid #4285F4;
-          opacity: 0.3;
+          border: 3px solid #4285F4;
+          opacity: 0.4;
           animation: pulse 2s infinite;
+          z-index: 9998;
         "></div>
       </div>`,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12]
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
 
-    userMarkerRef.current = leaflet.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+    userMarkerRef.current = leaflet.marker([userLocation.lat, userLocation.lng], {
+      icon: userIcon,
+      zIndexOffset: 10000,  // マーカー自体のz-indexも高く設定
+      className: 'user-location-marker' // クラス名も設定
+    })
       .addTo(mapInstanceRef.current)
       .bindPopup('現在地');
 
-    console.log('✅ 現在地マーカー追加完了');
+    console.log('✅ 現在地マーカー追加完了:', {
+      position: [userLocation.lat, userLocation.lng],
+      markerExists: !!userMarkerRef.current,
+      mapExists: !!mapInstanceRef.current
+    });
+
+    // マーカーがマップに追加されているか確認
+    let userMarkerFound = false;
+    mapInstanceRef.current.eachLayer((layer: any) => {
+      if (layer === userMarkerRef.current) {
+        userMarkerFound = true;
+      }
+    });
+    console.log('🔍 マップ内にユーザーマーカーが存在:', userMarkerFound);
 
     // マップを現在地にパン
     mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14);
@@ -183,12 +212,27 @@ export function ClientOnlyMap({ gyms, selectedGym, onMarkerClick, userLocation }
   useEffect(() => {
     if (!mapInstanceRef.current || !leaflet) return;
 
-    // 既存のマーカーをクリア
+    console.log('🏪 ジムマーカー更新開始');
+    console.log('🔍 現在のuserMarkerRef:', userMarkerRef.current ? '存在' : 'null');
+
+    // 既存のマーカーをクリア（ユーザーマーカー以外）
+    let removedCount = 0;
     mapInstanceRef.current.eachLayer((layer: any) => {
-      if (layer instanceof leaflet.Marker && layer.options.className !== 'user-location-marker') {
+      // ユーザーマーカーの判定を複数の方法で行う
+      const isUserMarker =
+        layer === userMarkerRef.current || // 参照で判定
+        layer.options?.className === 'user-location-marker' || // クラス名で判定
+        (layer._icon && layer._icon.className && layer._icon.className.includes('user-location-marker')); // DOM要素で判定
+
+      if (layer instanceof leaflet.Marker && !isUserMarker) {
+        console.log('🗑️ ジムマーカー削除:', layer.options);
         mapInstanceRef.current.removeLayer(layer);
+        removedCount++;
+      } else if (isUserMarker) {
+        console.log('✅ ユーザーマーカーを保持:', layer.options);
       }
     });
+    console.log(`🏪 ${removedCount}個のジムマーカーを削除`);
 
     // ジムマーカーを追加
     gyms.forEach(gym => {

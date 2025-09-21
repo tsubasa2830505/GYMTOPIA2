@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地図の現在地表示テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4285F4;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #4285F4;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        button {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #357ae8;
+        }
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .log-entry {
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-left: 3px solid #4285F4;
+            background: white;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ GYMTOPIA 地図機能テスト</h1>
+
+        <div class="test-section">
+            <div class="test-title">📍 位置情報取得テスト</div>
+            <button onclick="testGeolocation()">位置情報を取得</button>
+            <div id="location-status"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🌐 ブラウザサポート確認</div>
+            <div id="browser-support"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 コンソールログ</div>
+            <div id="console-logs" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🗺️ 地図表示テスト</div>
+            <button onclick="window.open('http://localhost:3000/search/results', '_blank')">検索結果ページを開く</button>
+            <button onclick="simulateMapTest()">地図機能をシミュレート</button>
+            <div id="map-test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">✅ テスト結果サマリー</div>
+            <div id="test-summary"></div>
+        </div>
+    </div>
+
+    <script>
+        // コンソールログをキャプチャ
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logs = [];
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog('LOG', args.join(' '));
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog('ERROR', args.join(' '));
+        };
+
+        function addLog(type, message) {
+            const logsDiv = document.getElementById('console-logs');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<strong>[${type}]</strong> ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        // ブラウザサポート確認
+        function checkBrowserSupport() {
+            const supportDiv = document.getElementById('browser-support');
+            const features = {
+                'Geolocation API': 'geolocation' in navigator,
+                'HTTPS/localhost': location.protocol === 'https:' || location.hostname === 'localhost',
+                'Permissions API': 'permissions' in navigator,
+                'LocalStorage': typeof Storage !== 'undefined'
+            };
+
+            let html = '';
+            for (const [feature, supported] of Object.entries(features)) {
+                const status = supported ? '✅ サポート' : '❌ 未サポート';
+                const className = supported ? 'success' : 'error';
+                html += `<div class="status ${className}">${feature}: ${status}</div>`;
+            }
+            supportDiv.innerHTML = html;
+
+            return features;
+        }
+
+        // 位置情報テスト
+        async function testGeolocation() {
+            const statusDiv = document.getElementById('location-status');
+            statusDiv.innerHTML = '<div class="status info">📡 位置情報を取得中...</div>';
+
+            if (!navigator.geolocation) {
+                statusDiv.innerHTML = '<div class="status error">❌ Geolocation APIがサポートされていません</div>';
+                return;
+            }
+
+            // 権限確認
+            if (navigator.permissions) {
+                try {
+                    const permission = await navigator.permissions.query({ name: 'geolocation' });
+                    statusDiv.innerHTML += `<div class="status info">権限状態: ${permission.state}</div>`;
+
+                    permission.onchange = () => {
+                        statusDiv.innerHTML += `<div class="status warning">権限が変更されました: ${permission.state}</div>`;
+                    };
+                } catch (e) {
+                    console.error('権限確認エラー:', e);
+                }
+            }
+
+            // 位置情報取得
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    statusDiv.innerHTML += `
+                        <div class="status success">
+                            ✅ 位置情報取得成功！<br>
+                            緯度: ${latitude.toFixed(6)}<br>
+                            経度: ${longitude.toFixed(6)}<br>
+                            精度: ${accuracy.toFixed(0)}m<br>
+                            タイムスタンプ: ${new Date(position.timestamp).toLocaleString()}
+                        </div>
+                    `;
+
+                    // Googleマップリンク
+                    statusDiv.innerHTML += `
+                        <div class="status info">
+                            <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank">
+                                📍 Googleマップで確認
+                            </a>
+                        </div>
+                    `;
+
+                    updateTestSummary();
+                },
+                (error) => {
+                    let errorMessage = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = '位置情報の使用が拒否されました';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = '位置情報が取得できません';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'タイムアウトしました';
+                            break;
+                        default:
+                            errorMessage = '不明なエラー';
+                    }
+
+                    statusDiv.innerHTML += `
+                        <div class="status error">
+                            ❌ エラー: ${errorMessage}<br>
+                            コード: ${error.code}<br>
+                            メッセージ: ${error.message}
+                        </div>
+                    `;
+
+                    // トラブルシューティング
+                    statusDiv.innerHTML += `
+                        <div class="status warning">
+                            💡 トラブルシューティング:<br>
+                            1. ブラウザの設定で位置情報を許可してください<br>
+                            2. HTTPSまたはlocalhost環境で実行してください<br>
+                            3. デバイスの位置情報設定を確認してください
+                        </div>
+                    `;
+
+                    updateTestSummary();
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // 地図機能のシミュレーション
+        function simulateMapTest() {
+            const resultDiv = document.getElementById('map-test-result');
+
+            // 東京駅の座標でテスト
+            const testLocation = {
+                lat: 35.6812,
+                lng: 139.7671
+            };
+
+            resultDiv.innerHTML = `
+                <div class="status info">
+                    📍 テスト座標（東京駅）:<br>
+                    緯度: ${testLocation.lat}<br>
+                    経度: ${testLocation.lng}
+                </div>
+            `;
+
+            // コンソールログをシミュレート
+            console.log('📍 位置情報取得を開始...');
+            console.log('✅ 現在地取得成功:', testLocation);
+            console.log('🗺️ マップ初期化完了');
+            console.log('📍 現在地マーカー更新:', testLocation);
+            console.log('✅ 現在地マーカー追加完了');
+
+            resultDiv.innerHTML += `
+                <div class="status success">
+                    ✅ 地図機能のシミュレーション完了<br>
+                    コンソールログを確認してください
+                </div>
+            `;
+
+            updateTestSummary();
+        }
+
+        // テストサマリー更新
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            const now = new Date().toLocaleString();
+
+            summaryDiv.innerHTML = `
+                <div class="status info">
+                    最終更新: ${now}<br>
+                    <strong>テスト項目:</strong><br>
+                    ✓ ブラウザサポート確認<br>
+                    ✓ 位置情報取得テスト<br>
+                    ✓ コンソールログ監視<br>
+                    ✓ 地図機能シミュレーション
+                </div>
+            `;
+        }
+
+        // 初期化
+        window.onload = function() {
+            checkBrowserSupport();
+            updateTestSummary();
+
+            // 自動テスト開始
+            setTimeout(() => {
+                console.log('🚀 地図機能テストページが読み込まれました');
+                console.log('📍 ブラウザサポート状況を確認済み');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

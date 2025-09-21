@@ -42,18 +42,8 @@ export default function SidebarNavigation() {
 
   return (
     <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border-r border-[rgba(231,103,76,0.18)] z-[60] flex-col py-6">
-      {/* Logo */}
-      <div className="px-6 mb-8">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-[color:var(--gt-primary)] to-[color:var(--gt-secondary)] rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">G</span>
-          </div>
-          <span className="text-xl font-bold text-[color:var(--foreground)]">GYMTOPIA</span>
-        </Link>
-      </div>
-
       {/* Navigation Items */}
-      <div className="flex-1 px-3">
+      <div className="flex-1 px-3 mt-8">
         <div className="space-y-1">
           {navItems.map((item) => (
             <Link

@@ -164,9 +164,9 @@ export async function getFeedPosts(
             avatar_url: post.user.avatar_url
           } : null,
           gym: post.gym ? {
-            id: post.gym.id,
-            name: post.gym.name,
-            address: post.gym.address
+            id: post.gym?.id,
+            name: post.gym?.name || '',
+            address: post.gym?.address
           } : null
         }
       })

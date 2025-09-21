@@ -6,14 +6,16 @@ export const dynamic = 'force-dynamic'
 import {
   Save, X, MapPin, Camera, Plus, Minus, Users,
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,
-  Settings, Package, Building, AlertCircle
+  Settings, Package, Building, AlertCircle, Search
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FreeWeightSelector from '@/components/FreeWeightSelector'
 import MachineSelector from '@/components/MachineSelector'
+import ExerciseSelector from '@/components/ExerciseSelector'
 import { upsertGymFacilities } from '@/lib/supabase/facilities'
+import type { Exercise as ExerciseType } from '@/data/exercise-master'
 import type { FacilityFormData } from '@/types/facilities'
 import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
@@ -26,6 +28,12 @@ interface Exercise {
   weight: string
   sets: string
   reps: string
+  mets?: number
+  category?: string
+  // 有酸素運動用のフィールド
+  duration?: string  // 時間（分）
+  distance?: string  // 距離（km）
+  speed?: string     // 速度（km/h）
 }
 
 import { Suspense } from 'react'
@@ -45,12 +53,16 @@ function AddGymPostContent() {
   const [workoutEndTime, setWorkoutEndTime] = useState('')
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [showExerciseForm, setShowExerciseForm] = useState(false)
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false)
   const [currentExercise, setCurrentExercise] = useState<Exercise>({
     id: '',
     name: '',
     weight: '',
     sets: '',
-    reps: ''
+    reps: '',
+    duration: '',
+    distance: '',
+    speed: ''
   })
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
@@ -193,13 +205,38 @@ function AddGymPostContent() {
   ]
 
   const handleAddExercise = () => {
-    if (currentExercise.name.trim() && currentExercise.weight.trim() && currentExercise.sets.trim() && currentExercise.reps.trim()) {
-      setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
-      setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '' })
-      setShowExerciseForm(false)
+    // 有酸素運動かどうかチェック
+    const isCardio = currentExercise.category === 'cardio'
+
+    if (isCardio) {
+      // 有酸素運動の場合は時間が必須
+      if (currentExercise.name.trim() && currentExercise.duration?.trim()) {
+        setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
+        setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '', duration: '', distance: '', speed: '' })
+        setShowExerciseForm(false)
+      } else {
+        alert('種目名と時間を入力してください')
+      }
     } else {
-      alert('すべての項目を入力してください')
+      // 筋トレの場合は従来通り
+      if (currentExercise.name.trim() && currentExercise.weight.trim() && currentExercise.sets.trim() && currentExercise.reps.trim()) {
+        setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
+        setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '', duration: '', distance: '', speed: '' })
+        setShowExerciseForm(false)
+      } else {
+        alert('すべての項目を入力してください')
+      }
     }
+  }
+
+  const handleExerciseSelect = (exercise: ExerciseType) => {
+    setCurrentExercise({
+      ...currentExercise,
+      name: exercise.name,
+      mets: exercise.base_mets,
+      category: exercise.category
+    })
+    setShowExerciseSelector(false)
   }
 
   const handleRemoveExercise = (id: string) => {
@@ -244,9 +281,14 @@ function AddGymPostContent() {
         training_details: exercises.length > 0 ? {
           exercises: exercises.map(ex => ({
             name: ex.name,
-            weight: parseFloat(ex.weight) || 0,
-            sets: parseInt(ex.sets) || 1,
-            reps: parseInt(ex.reps) || 1
+            weight: ex.category === 'cardio' ? 0 : (parseFloat(ex.weight) || 0),
+            sets: ex.category === 'cardio' ? 1 : (parseInt(ex.sets) || 1),
+            reps: ex.category === 'cardio' ? 1 : (parseInt(ex.reps) || 1),
+            mets: ex.mets || null,
+            category: ex.category || null,
+            duration: ex.duration ? parseInt(ex.duration) : null,
+            distance: ex.distance ? parseFloat(ex.distance) : null,
+            speed: ex.speed ? parseFloat(ex.speed) : null
           })),
           gym_name: gymName,
           crowd_status: crowdStatus
@@ -572,9 +614,29 @@ function AddGymPostContent() {
                 {exercises.map((exercise) => (
                   <div key={exercise.id} className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.96)] rounded-lg">
                     <div className="flex-1">
-                      <p className="font-medium text-[color:var(--foreground)]">{exercise.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-[color:var(--foreground)]">{exercise.name}</p>
+                        {exercise.mets && (
+                          <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                            METs: {exercise.mets}
+                          </span>
+                        )}
+                        {exercise.category && (
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full">
+                            {exercise.category}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-[color:var(--text-subtle)]">
-                        {exercise.weight}kg × {exercise.sets}セット × {exercise.reps}回
+                        {exercise.category === 'cardio' ? (
+                          <>
+                            {exercise.duration && `${exercise.duration}分`}
+                            {exercise.distance && ` / ${exercise.distance}km`}
+                            {exercise.speed && ` / ${exercise.speed}km/h`}
+                          </>
+                        ) : (
+                          `${exercise.weight}kg × ${exercise.sets}セット × ${exercise.reps}回`
+                        )}
                       </p>
                     </div>
                     <button
@@ -595,36 +657,102 @@ function AddGymPostContent() {
             {/* 種目追加フォーム */}
             {showExerciseForm && (
               <div className="space-y-3 p-4 bg-[rgba(254,255,250,0.96)] rounded-lg">
-                <input
-                  type="text"
-                  placeholder="種目名（例：ベンチプレス）"
-                  value={currentExercise.name}
-                  onChange={(e) => setCurrentExercise({ ...currentExercise, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                />
-                <div className="grid grid-cols-3 gap-2">
+                <div className="relative">
                   <input
-                    type="number"
-                    placeholder="重量(kg)"
-                    value={currentExercise.weight}
-                    onChange={(e) => setCurrentExercise({ ...currentExercise, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                    type="text"
+                    placeholder="種目名を入力または選択"
+                    value={currentExercise.name}
+                    onChange={(e) => setCurrentExercise({ ...currentExercise, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm pr-10"
                   />
-                  <input
-                    type="number"
-                    placeholder="セット数"
-                    value={currentExercise.sets}
-                    onChange={(e) => setCurrentExercise({ ...currentExercise, sets: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                  />
-                  <input
-                    type="number"
-                    placeholder="回数"
-                    value={currentExercise.reps}
-                    onChange={(e) => setCurrentExercise({ ...currentExercise, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowExerciseSelector(true)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[rgba(231,103,76,0.08)] rounded-lg transition-colors"
+                    title="種目を選択"
+                  >
+                    <Search className="w-4 h-4 text-[color:var(--gt-primary)]" />
+                  </button>
                 </div>
+                {/* 有酸素運動と筋トレで入力フィールドを切り替え */}
+                {currentExercise.category === 'cardio' ? (
+                  /* 有酸素運動用の入力フィールド */
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <input
+                        type="number"
+                        placeholder="時間(分) *"
+                        value={currentExercise.duration}
+                        onChange={(e) => {
+                          const duration = e.target.value
+                          const distance = currentExercise.distance
+                          // 時間と距離から速度を自動計算
+                          if (duration && distance) {
+                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1)
+                            setCurrentExercise({ ...currentExercise, duration, speed })
+                          } else {
+                            setCurrentExercise({ ...currentExercise, duration })
+                          }
+                        }}
+                        className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                      />
+                      <input
+                        type="number"
+                        placeholder="距離(km)"
+                        value={currentExercise.distance}
+                        onChange={(e) => {
+                          const distance = e.target.value
+                          const duration = currentExercise.duration
+                          // 時間と距離から速度を自動計算
+                          if (duration && distance) {
+                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1)
+                            setCurrentExercise({ ...currentExercise, distance, speed })
+                          } else {
+                            setCurrentExercise({ ...currentExercise, distance })
+                          }
+                        }}
+                        className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                      />
+                      <input
+                        type="number"
+                        placeholder="速度(km/h)"
+                        value={currentExercise.speed}
+                        onChange={(e) => setCurrentExercise({ ...currentExercise, speed: e.target.value })}
+                        className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm bg-gray-50"
+                        readOnly={!!currentExercise.duration && !!currentExercise.distance}
+                        title={currentExercise.duration && currentExercise.distance ? "時間と距離から自動計算されます" : "時間と距離を入力すると自動計算されます"}
+                      />
+                    </div>
+                    <p className="text-xs text-[color:var(--text-muted)]">
+                      ※ 時間は必須です。速度は時間と距離から自動計算されます
+                    </p>
+                  </div>
+                ) : (
+                  /* 筋トレ用の入力フィールド */
+                  <div className="grid grid-cols-3 gap-2">
+                    <input
+                      type="number"
+                      placeholder="重量(kg)"
+                      value={currentExercise.weight}
+                      onChange={(e) => setCurrentExercise({ ...currentExercise, weight: e.target.value })}
+                      className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                    />
+                    <input
+                      type="number"
+                      placeholder="セット数"
+                      value={currentExercise.sets}
+                      onChange={(e) => setCurrentExercise({ ...currentExercise, sets: e.target.value })}
+                      className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                    />
+                    <input
+                      type="number"
+                      placeholder="回数"
+                      value={currentExercise.reps}
+                      onChange={(e) => setCurrentExercise({ ...currentExercise, reps: e.target.value })}
+                      className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                    />
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -637,7 +765,7 @@ function AddGymPostContent() {
                     type="button"
                     onClick={() => {
                       setShowExerciseForm(false)
-                      setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '' })
+                      setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '', duration: '', distance: '', speed: '' })
                     }}
                     className="flex-1 px-3 py-2 bg-[rgba(231,103,76,0.12)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.16)] transition-colors"
                   >
@@ -827,6 +955,14 @@ function AddGymPostContent() {
           </form>
         )}
       </main>
+
+      {/* 種目選択モーダル */}
+      {showExerciseSelector && (
+        <ExerciseSelector
+          onSelect={handleExerciseSelect}
+          onClose={() => setShowExerciseSelector(false)}
+        />
+      )}
     </div>
   )
 }

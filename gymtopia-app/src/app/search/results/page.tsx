@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import GymDetailModal from '@/components/GymDetailModal'
 import { UberStyleMapView } from '@/components/UberStyleMapView'
-import { getGyms, Gym } from '@/lib/supabase/gyms'
+import { getGyms, Gym, getGymLikesCount } from '@/lib/supabase/gyms'
 import { searchGymsNearby } from '@/lib/supabase/search'
 import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
@@ -256,8 +256,16 @@ function SearchResultsContent() {
           }
         }
 
+        // Get likes count for each gym
+        const gymsWithLikes = await Promise.all(
+          data.map(async (gym: Gym) => {
+            const likesCount = await getGymLikesCount(gym.id)
+            return { ...gym, likesCount }
+          })
+        )
+
         // Transform data to match component format
-        const transformedData = data.map((gym: Gym, index: number) => {
+        const transformedData = gymsWithLikes.map((gym: Gym & { likesCount: number }, index: number) => {
           // 距離と駅情報を計算
           const stationInfo = enrichGymWithStationInfo({
             address: gym.address,
@@ -284,7 +292,7 @@ function SearchResultsContent() {
               : stationInfo.area,
             distance: String(stationInfo.walkingText),
             distanceFromUser: distanceFromUser, // Distance in km from user location
-            likes: gym.review_count || 0,
+            likes: gym.likesCount || 0,
             tags: gym.equipment_types || [],
             image: gym.images && gym.images.length > 0
               ? gym.images[0]

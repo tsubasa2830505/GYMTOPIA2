@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { trackWorkoutCompletion, aggregatePeriodicStatistics, getUserStatistics, getGymVisitStatistics } from './statistics-tracker'
 
 
 // Get period-specific visit count
@@ -89,13 +90,69 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
     const currentStreak = streakResult?.current_streak || 0
     const longestStreak = streakResult?.longest_streak || 0
 
+    // Get period-specific data based on selectedPeriod
+    let periodStartDate: Date
+    switch(selectedPeriod) {
+      case 'week':
+        periodStartDate = startOfWeek
+        break
+      case 'month':
+        periodStartDate = startOfMonth
+        break
+      case 'year':
+        periodStartDate = startOfYear
+        break
+      default:
+        periodStartDate = new Date(0) // All time
+    }
+
+    // Get sessions for the selected period
+    const { data: periodSessions } = await supabase
+      .from('workout_sessions')
+      .select('id, started_at, ended_at')
+      .eq('user_id', userId)
+      .gte('started_at', periodStartDate.toISOString())
+      .not('ended_at', 'is', null)
+
+    // Calculate period-specific duration
+    let periodDurationHours = 0
+    let periodSessionCount = 0
+    if (periodSessions) {
+      periodSessionCount = periodSessions.length
+      periodSessions.forEach(session => {
+        const start = new Date(session.started_at).getTime()
+        const end = new Date(session.ended_at).getTime()
+        periodDurationHours += (end - start) / (1000 * 60 * 60)
+      })
+    }
+
+    // Calculate period-specific weight
+    // Get exercises for the period
+    const { data: periodExercises } = await supabase
+      .from('workout_exercises')
+      .select('sets')
+      .in('session_id', periodSessions?.map(s => s.id) || [])
+
+    let periodWeight = 0
+    if (periodExercises) {
+      periodExercises.forEach(exercise => {
+        if (exercise.sets && Array.isArray(exercise.sets)) {
+          exercise.sets.forEach((set: any) => {
+            if (set.weight && set.reps) {
+              periodWeight += set.weight * set.reps
+            }
+          })
+        }
+      })
+    }
+
     // Calculate total weight lifted using SQL to bypass RLS issues
     const { data: weightResult } = await supabase
       .rpc('calculate_user_total_weight', { target_user_id: userId })
 
     const totalWeight = weightResult || 0
 
-    // Calculate total duration
+    // Calculate total duration for all time
     const { data: sessions } = await supabase
       .from('workout_sessions')
       .select('started_at, ended_at')
@@ -133,6 +190,9 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
       weeklyVisits: weeklyVisits || 0,
       yearlyVisits: yearlyVisits || 0,
       periodVisits: periodVisits, // Period-specific count based on selectedPeriod
+      periodDurationHours: Math.round(periodDurationHours), // Period-specific duration
+      periodWeight: periodWeight, // Period-specific weight
+      periodAvgDurationMinutes: periodSessionCount > 0 ? Math.round((periodDurationHours * 60) / periodSessionCount) : 0,
       currentStreak,
       longestStreak,
       totalWeight,
@@ -147,6 +207,9 @@ export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 
       weeklyVisits: 0,
       yearlyVisits: 0,
       periodVisits: 0,
+      periodDurationHours: 0,
+      periodWeight: 0,
+      periodAvgDurationMinutes: 0,
       currentStreak: 0,
       longestStreak: 0,
       totalWeight: 0,
@@ -454,4 +517,12 @@ export async function getAchievementProgress(userId: string) {
     console.error('Error fetching achievement progress:', error)
     return []
   }
+}
+
+// Export new statistics tracking functions
+export {
+  trackWorkoutCompletion,
+  aggregatePeriodicStatistics,
+  getUserStatistics as getUserStatisticsNew,
+  getGymVisitStatistics as getGymVisitStatisticsNew
 }

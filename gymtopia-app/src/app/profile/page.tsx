@@ -197,10 +197,7 @@ function ProfileContent() {
   });
 
   // 🔥 即座に関数を呼び出し
-  if (userFavoriteGyms.length === 0) {
-    console.log('📞 コンポーネントレンダリング時に直接forceLoadRealFavorites呼び出し');
-    forceLoadRealFavoritesInline();
-  }
+  // レンダリング中の直接呼び出しを削除（useEffect内で処理）
 
   // Debug log
   console.log('🐛 ProfilePage Debug:', { user, userId, isLoading });

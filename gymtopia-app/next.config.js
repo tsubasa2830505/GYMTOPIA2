@@ -3,6 +3,9 @@ const nextConfig = {
   // 開発環境の設定
   reactStrictMode: true,
 
+  // Server Components external packages
+  serverExternalPackages: ['@next/bundle-analyzer'],
+
   // ESLintをビルド時に無視（デプロイ用）
   eslint: {
     ignoreDuringBuilds: true,

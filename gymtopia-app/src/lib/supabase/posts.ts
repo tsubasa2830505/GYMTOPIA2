@@ -227,12 +227,12 @@ export async function getFeedPosts(
         updated_at: post.user.updated_at || new Date().toISOString()
       } : undefined,
       gym: post.gym ? {
-        id: post.gym.id || post.gym_id,
-        name: post.gym.name,
-        area: post.gym.area || null,
-        city: post.gym.city || null,
-        prefecture: post.gym.prefecture || null,
-        images: post.gym.images || null
+        id: post.gym?.id || post.gym_id,
+        name: post.gym?.name || '',
+        area: post.gym?.area || null,
+        city: post.gym?.city || null,
+        prefecture: post.gym?.prefecture || null,
+        images: post.gym?.images || null
       } : undefined
     }))
 
@@ -375,12 +375,19 @@ export async function createPost(post: {
       weight: number
       sets: number
       reps: number
+      mets?: number | null
+      category?: string | null
+      duration?: number | null // 時間（分）
+      distance?: number | null // 距離（km）
+      speed?: number | null    // 速度（km/h）
     }[]
     crowd_status?: string
   } | null
   visibility?: 'public' | 'followers' | 'private'
   is_verified?: boolean
   verification_method?: 'gps' | null
+  workout_started_at?: string
+  workout_ended_at?: string
 }) {
   try {
     const { data: { user } } = await getSupabaseClient().auth.getUser()
@@ -430,6 +437,15 @@ export async function createPost(post: {
       }
     }
 
+    // workout_duration_calculatedを計算
+    let workoutDuration = null
+    if (post.workout_started_at && post.workout_ended_at) {
+      const [startHour, startMin] = post.workout_started_at.split(':').map(Number)
+      const [endHour, endMin] = post.workout_ended_at.split(':').map(Number)
+      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin)
+      workoutDuration = duration > 0 ? duration : 0
+    }
+
     const { data, error } = await getSupabaseClient()
       .from('gym_posts')
       .insert({
@@ -441,6 +457,9 @@ export async function createPost(post: {
         crowd_status: post.achievement_data?.crowd_status || post.training_details?.crowd_status || 'normal',
         visibility: post.visibility || 'public',
         is_public: (post.visibility ?? 'public') === 'public',
+        workout_started_at: post.workout_started_at || null,
+        workout_ended_at: post.workout_ended_at || null,
+        workout_duration_calculated: workoutDuration,
         ...gpsVerificationData
       })
       .select()
@@ -465,6 +484,11 @@ export async function updatePost(postId: string, updates: {
       weight: number
       sets: number
       reps: number
+      mets?: number | null
+      category?: string | null
+      duration?: number | null // 時間（分）
+      distance?: number | null // 距離（km）
+      speed?: number | null    // 速度（km/h）
     }[]
     crowd_status?: string
   } | null

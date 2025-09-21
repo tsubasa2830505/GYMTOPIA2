@@ -41,19 +41,25 @@ const getSamplePosts = (): Post[] => [
           name: 'ベンチプレス',
           weight: 100,
           sets: 3,
-          reps: 8
+          reps: 8,
+          mets: 5.0,
+          category: 'chest'
         },
         {
           name: 'スクワット',
           weight: 80,
           sets: 4,
-          reps: 12
+          reps: 12,
+          mets: 6.0,
+          category: 'legs'
         },
         {
           name: 'デッドリフト',
           weight: 120,
           sets: 3,
-          reps: 5
+          reps: 5,
+          mets: 6.0,
+          category: 'back'
         }
       ],
       crowd_status: 'normal'
@@ -523,7 +529,7 @@ export default function FeedPage() {
                   }}
                   gym={{
                     id: post.gym_id,
-                    name: post.gym.name
+                    name: post.gym?.name || ''
                   }}
                   content={post.content}
                   images={post.images}

@@ -1,12 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-
 interface Exercise {
   name?: string
   weight?: number | number[]
   sets?: number
   reps?: number | number[]
+  mets?: number | null
+  category?: string | null
+  duration?: number | null
+  distance?: number | null
+  speed?: number | null
 }
 
 interface TrainingDetailsProps {
@@ -31,77 +34,124 @@ export default function TrainingDetails({
   if (!exercises || exercises.length === 0) return null
 
   return (
-    <div className="px-4 sm:px-6 pb-4">
-      <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-xl shadow-sm overflow-hidden">
-        <button
-          onClick={onToggle}
-          className="w-full px-4 py-2 bg-[rgba(254,255,250,0.95)] hover:bg-[rgba(254,255,250,0.9)] border-b border-[rgba(186,122,103,0.26)] transition-all duration-200"
-          disabled={!onToggle}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm text-[color:var(--text-subtle)]">トレーニング詳細</span>
-              <span className="text-xs bg-[rgba(254,255,250,0.9)] text-[color:var(--text-muted)] px-2 py-1 rounded-full">
-                {exercises.length}種目
-              </span>
-            </div>
-            <svg
-              className={`w-4 h-4 text-[color:var(--text-muted)] transition-transform duration-200 ${
-                isExpanded ? 'rotate-180' : ''
-              }`}
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 border-b border-gray-200 transition-all duration-200"
+        disabled={!onToggle}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-sm text-gray-700">トレーニング詳細</span>
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+              {exercises.length}種目
+            </span>
           </div>
-        </button>
+          <div className="text-gray-400">
+            {isExpanded ? '▲' : '▼'}
+          </div>
+        </div>
+      </button>
 
-        {isExpanded && (
-          <div className="p-4 border-t border-[rgba(186,122,103,0.26)]">
-            <div className="grid gap-3">
-              {exercises.map((exercise, index) => {
-                const weight = Array.isArray(exercise.weight) ? exercise.weight[0] : exercise.weight
-                const reps = Array.isArray(exercise.reps) ? exercise.reps[0] : exercise.reps
+      {isExpanded && (
+        <div className="p-4 border-t border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-2 px-3 font-medium text-gray-700">種目</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">重量</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">セット</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">回数</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">時間</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">距離</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">速度</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-700">METs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exercises.map((exercise, index) => {
+                  const weight = Array.isArray(exercise.weight) ? exercise.weight[0] : exercise.weight
+                  const reps = Array.isArray(exercise.reps) ? exercise.reps[0] : exercise.reps
+                  const isCardio = exercise.category === 'cardio'
 
-                return (
-                  <div key={index} className="flex items-center justify-between py-3 px-4 bg-[rgba(254,255,250,0.97)] rounded-lg border border-[rgba(186,122,103,0.18)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-[rgba(240,142,111,0.14)] text-[color:var(--gt-secondary-strong)] rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      <span className="font-medium text-[color:var(--foreground)]">{exercise.name || '種目名不明'}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-[color:var(--text-muted)]">
-                        <span className="font-semibold text-[color:var(--gt-secondary-strong)]">
-                          {(weight ?? 0) > 0 ? `${weight}kg` : '自重'}
+                  return (
+                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{exercise.name || '種目名不明'}</div>
+                            {exercise.category && (
+                              <div className="text-xs text-gray-500">
+                                {exercise.category === 'cardio' ? '有酸素' :
+                                 exercise.category === 'chest' ? '胸' :
+                                 exercise.category === 'back' ? '背中' :
+                                 exercise.category === 'legs' ? '脚' :
+                                 exercise.category === 'shoulders' ? '肩' :
+                                 exercise.category === 'arms' ? '腕' :
+                                 exercise.category === 'abs' ? '腹筋' :
+                                 exercise.category === 'glutes' ? '臀筋' : exercise.category}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {isCardio ? '-' : (weight ?? 0) > 0 ? `${weight}kg` : '自重'}
                         </span>
-                      </span>
-                      <span className="text-[color:var(--text-muted)]">
-                        <span className="font-semibold text-[color:var(--gt-secondary-strong)]">{exercise.sets ?? 0}</span>セット
-                      </span>
-                      <span className="text-[color:var(--text-muted)]">
-                        <span className="font-semibold text-[color:var(--gt-secondary-strong)]">{reps ?? 0}</span>回
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            {crowdStatus && (
-              <div className="mt-3 pt-3 border-t border-[rgba(186,122,103,0.26)]">
-                <div className="flex items-center gap-2 text-sm text-[color:var(--text-muted)]">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.988 1.988 0 0 0 18 7h-2c-.8 0-1.54.5-1.84 1.25l-1.92 5.77-2.39-2.39A2.002 2.002 0 0 0 8.41 11H6c-.8 0-1.54.5-1.84 1.25L2 18h2v3.5c0 .28.22.5.5.5s.5-.22.5-.5V18h2v3.5c0 .28.22.5.5.5s.5-.22.5-.5V18h10z"/>
-                  </svg>
-                  <span>混雑状況: {crowdStatus}</span>
-                </div>
-              </div>
-            )}
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {isCardio ? '-' : (exercise.sets ?? 0)}
+                        </span>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {isCardio ? '-' : (reps ?? 0)}
+                        </span>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {exercise.duration ? `${exercise.duration}分` : '-'}
+                        </span>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {exercise.distance ? `${exercise.distance}km` : '-'}
+                        </span>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        <span className="font-semibold text-gray-900">
+                          {exercise.speed ? `${exercise.speed}km/h` : '-'}
+                        </span>
+                      </td>
+                      <td className="text-center py-3 px-3">
+                        {exercise.mets && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-600">
+                            {exercise.mets}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+          {crowdStatus && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span>👥</span>
+                <span>混雑状況: {crowdStatus}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

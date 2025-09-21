@@ -41,11 +41,26 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
             </div>
           </div>
 
-          {/* デスクトップではsubtitleのみ表示 */}
-          <div className="hidden sm:flex items-center">
-            <p className="text-lg font-medium text-[color:var(--foreground)]">
-              {subtitle || "街の熱量と一緒にジムを探そう"}
-            </p>
+          {/* デスクトップ版でもロゴを表示 */}
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-secondary rounded-full flex items-center justify-center shadow-[0_16px_34px_-20px_rgba(189,101,78,0.46)]">
+              <MapPin className="w-6 h-6 text-[color:var(--gt-on-primary)]" />
+            </div>
+            <div>
+              <Image
+                src="/images/gymtopia.png"
+                alt="ジムトピア"
+                width={320}
+                height={80}
+                className="h-12 w-auto"
+                style={{
+                  filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
+                }}
+              />
+              <p className="text-sm text-[color:var(--text-muted)]">
+                {subtitle || "街の熱量と一緒にジムを探そう"}
+              </p>
+            </div>
           </div>
 
           {/* Hamburger Menu Button - Only show when showMenu prop is true */}

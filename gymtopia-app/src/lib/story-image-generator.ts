@@ -439,7 +439,7 @@ export class StoryImageGenerator {
             this.ctx.fillStyle = 'rgba(255, 240, 234, 0.9)';
             this.ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(post.gym.name, this.width / 2, footerY);
+            this.ctx.fillText(post.gym?.name || '', this.width / 2, footerY);
         }
 
         // いいね・コメント数（シンプルなデザイン）

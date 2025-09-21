@@ -185,7 +185,9 @@
       "Bash(git stash:*)",
       "Bash(for page in \"/followers\" \"/following\")",
       "Bash(for page in \"/gym-stats\")",
-      "Bash(for page in \"/profile\")"
+      "Bash(for page in \"/profile\")",
+      "Bash(NEXT_PRIVATE_DEVTOOLS=false PORT=3001 npm run dev)",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\")"
     ],
     "deny": [],
     "ask": []
