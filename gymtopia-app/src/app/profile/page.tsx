@@ -211,7 +211,7 @@ function ProfileContent() {
             mutual_follows_count: 24,
             posts_count: 38,
             achievements_count: 12,
-            favorite_gyms_count: 5
+            favorite_gyms_count: 4
           } as UserProfileStats;
         }
 
@@ -372,10 +372,10 @@ function ProfileContent() {
             {
               id: 'fav-1',
               user_id: userId,
-              gym_id: 'gym-1',
+              gym_id: 'ecef0d28-c740-4833-b15e-48703108196c',
               created_at: '2024-06-01T00:00:00Z',
               gym: {
-                id: 'gym-1',
+                id: 'ecef0d28-c740-4833-b15e-48703108196c',
                 name: 'ゴールドジム渋谷',
                 area: '渋谷',
                 prefecture: '東京都',
@@ -389,10 +389,10 @@ function ProfileContent() {
             {
               id: 'fav-2',
               user_id: userId,
-              gym_id: 'gym-2',
+              gym_id: 'd240e778-b922-4ecd-b9bc-86cbd8ac6e3e',
               created_at: '2024-07-15T00:00:00Z',
               gym: {
-                id: 'gym-2',
+                id: 'd240e778-b922-4ecd-b9bc-86cbd8ac6e3e',
                 name: 'エニタイムフィットネス新宿',
                 area: '新宿',
                 prefecture: '東京都',
@@ -401,6 +401,40 @@ function ProfileContent() {
                 rating: 4.2,
                 users_count: 412,
                 image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&q=80'
+              }
+            },
+            {
+              id: 'fav-3',
+              user_id: userId,
+              gym_id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
+              created_at: '2024-08-01T00:00:00Z',
+              gym: {
+                id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
+                name: 'コナミスポーツクラブ池袋',
+                area: '池袋',
+                prefecture: '東京都',
+                city: '豊島区',
+                description: 'プール・スタジオ完備の総合スポーツクラブ',
+                rating: 4.3,
+                users_count: 342,
+                image_url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop&q=80'
+              }
+            },
+            {
+              id: 'fav-4',
+              user_id: userId,
+              gym_id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
+              created_at: '2024-09-10T00:00:00Z',
+              gym: {
+                id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
+                name: 'パワーリフティングジム東京',
+                area: '六本木',
+                prefecture: '東京都',
+                city: '港区',
+                description: 'パワーリフティング専門の本格派ジム',
+                rating: 4.8,
+                users_count: 156,
+                image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
               }
             }
           ];
@@ -505,10 +539,10 @@ function ProfileContent() {
           {
             id: 'fav-1',
             user_id: userId,
-            gym_id: 'gym-1',
+            gym_id: 'ecef0d28-c740-4833-b15e-48703108196c',
             created_at: '2024-06-01T00:00:00Z',
             gym: {
-              id: 'gym-1',
+              id: 'ecef0d28-c740-4833-b15e-48703108196c',
               name: 'ゴールドジム渋谷',
               area: '渋谷',
               prefecture: '東京都',
@@ -539,10 +573,10 @@ function ProfileContent() {
           {
             id: 'fav-3',
             user_id: userId,
-            gym_id: 'gym-3',
+            gym_id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
             created_at: '2024-08-01T00:00:00Z',
             gym: {
-              id: 'gym-3',
+              id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
               name: 'コナミスポーツクラブ池袋',
               area: '池袋',
               prefecture: '東京都',
@@ -551,6 +585,23 @@ function ProfileContent() {
               rating: 4.3,
               users_count: 342,
               image_url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop&q=80'
+            }
+          },
+          {
+            id: 'fav-4',
+            user_id: userId,
+            gym_id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
+            created_at: '2024-09-10T00:00:00Z',
+            gym: {
+              id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
+              name: 'パワーリフティングジム東京',
+              area: '六本木',
+              prefecture: '東京都',
+              city: '港区',
+              description: 'パワーリフティング専門の本格派ジム',
+              rating: 4.8,
+              users_count: 156,
+              image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
             }
           }
         ];

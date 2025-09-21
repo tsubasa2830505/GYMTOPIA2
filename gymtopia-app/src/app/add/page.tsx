@@ -324,11 +324,14 @@ function AddGymPostContent() {
                 <X className="w-5 h-5" />
               </button>
               <Image
-                src="/images/gymtopia-logo.svg"
+                src="/images/gymtopia.png"
                 alt="ジムトピア"
                 width={80}
                 height={24}
                 className="h-5 w-auto"
+                style={{
+                  filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
+                }}
               />
               <span className="text-[rgba(231,103,76,0.36)]">|</span>
               <h1 className="text-xl font-bold text-[color:var(--foreground)]">
@@ -429,7 +432,7 @@ function AddGymPostContent() {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium opacity-90">チェックイン済み</p>
+                  <p className="text-sm font-medium opacity-90">Check-In</p>
                   <p className="text-lg font-bold">{checkInGymName}</p>
                 </div>
               </div>

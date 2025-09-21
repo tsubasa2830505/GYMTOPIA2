@@ -277,7 +277,7 @@ export class StoryImageGenerator {
 
         try {
             // ロゴ画像を読み込み
-            const logoImg = await this.loadImage('/images/gymtopia-logo-black.png');
+            const logoImg = await this.loadImage('/images/gymtopia.png');
 
             // ロゴのサイズと位置を調整
             const logoWidth = 400;

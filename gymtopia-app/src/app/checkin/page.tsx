@@ -616,7 +616,7 @@ export default function CheckInPage() {
                       {checkedInGyms.has(gym.id) && (
                         <span className="text-[color:var(--gt-secondary-strong)] font-medium flex items-center gap-1">
                           <Check className="w-4 h-4" />
-                          チェックイン済み
+                          Check-In
                         </span>
                       )}
                     </div>

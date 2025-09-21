@@ -8,6 +8,7 @@ import { ArrowLeft, MapPin, Star, Users, Heart, Clock, Phone, Globe, Instagram, 
 import Header from '@/components/Header'
 import { enrichGymWithStationInfo } from '@/lib/utils/distance'
 import { getGymDetail, checkFavoriteStatus, toggleFavorite } from '@/lib/supabase/gym-detail'
+import { getCurrentUser } from '@/lib/supabase/auth'
 
 interface GymDetail {
   id: string
@@ -51,7 +52,8 @@ export default function GymDetailPage() {
   const [gymDetail, setGymDetail] = useState<GymDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [user, setUser] = useState<any>(null) // 一時的にユーザー状態を管理
+  const [user, setUser] = useState<any>(null)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
 
   // 駅からの距離情報を計算
   const stationInfo = useMemo(() => {
@@ -62,6 +64,21 @@ export default function GymDetailPage() {
       longitude: typeof gymDetail.longitude === 'number' ? gymDetail.longitude : parseFloat(gymDetail.longitude || '0')
     })
   }, [gymDetail])
+
+  // 認証状態を確認
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
+      } catch (error) {
+        console.error('Error checking auth:', error)
+      } finally {
+        setIsLoadingUser(false)
+      }
+    }
+    checkAuth()
+  }, [])
 
   useEffect(() => {
     async function fetchGymDetail() {
@@ -297,9 +314,9 @@ export default function GymDetailPage() {
   }, [gymId, user])
 
   const handleFavoriteToggle = async () => {
-    if (!user) {
-      // ログインしていない場合はログインページへ
-      router.push('/login')
+    if (!user || isLoadingUser) {
+      // ユーザー情報が読み込み中、またはログインしていない場合は何もしない
+      console.log('User not authenticated or still loading')
       return
     }
 
@@ -442,14 +459,17 @@ export default function GymDetailPage() {
             <div className="gt-card p-4">
               <button
                 onClick={handleFavoriteToggle}
+                disabled={isLoadingUser}
                 className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
-                  isFavorite
+                  isLoadingUser
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : isFavorite
                     ? 'bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-primary-strong)] hover:bg-[rgba(231,103,76,0.12)]'
                     : 'bg-[color:var(--gt-primary)] text-white hover:bg-[color:var(--gt-primary-strong)]'
                 }`}
               >
                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                {isFavorite ? 'イキタイ登録済み' : 'イキタイに追加'}
+                {isLoadingUser ? '読み込み中...' : isFavorite ? 'イキタイ登録済み' : 'イキタイに追加'}
               </button>
             </div>
 

@@ -471,7 +471,7 @@ function AddGymPostContent() {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium opacity-90">チェックイン済み</p>
+                  <p className="text-sm font-medium opacity-90">Check-In</p>
                   <p className="text-lg font-bold">{checkInGymName}</p>
                 </div>
               </div>

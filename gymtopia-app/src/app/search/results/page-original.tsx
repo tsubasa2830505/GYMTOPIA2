@@ -862,7 +862,7 @@ function SearchResultsContent() {
                                   return (
                                     <div className="flex items-center gap-1 text-[color:var(--gt-secondary-strong)]">
                                       <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
-                                      <span className="text-xs sm:text-sm font-semibold">チェックイン済み</span>
+                                      <span className="text-xs sm:text-sm font-semibold">Check-In</span>
                                       {status.checkin_count > 1 && (
                                         <span className="text-xs text-[color:var(--text-muted)]">({status.checkin_count}回)</span>
                                       )}

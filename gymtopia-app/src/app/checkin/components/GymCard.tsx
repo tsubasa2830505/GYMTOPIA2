@@ -96,7 +96,7 @@ const GymCard = memo(function GymCard({
               ) : isCheckedIn ? (
                 <>
                   <Check className="w-4 h-4" />
-                  チェックイン済み
+                  Check-In
                 </>
               ) : (
                 <>

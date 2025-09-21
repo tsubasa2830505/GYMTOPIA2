@@ -72,7 +72,7 @@ export default function Home() {
       <Header subtitle="ジムを探す" />
 
       <div className={`max-w-7xl mx-auto px-4 pb-12 sm:pb-16 transition-all duration-500 ${
-        isSearchMode ? 'pt-20 sm:pt-24 space-y-0' : 'pt-24 sm:pt-28 space-y-10'
+        isSearchMode ? 'pt-16 sm:pt-20 space-y-0' : 'pt-24 sm:pt-28 space-y-10'
       }`}>
 
         {/* Hero Section */}
@@ -91,12 +91,12 @@ export default function Home() {
 
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center items-center h-full px-6">
-            <h2 className="gt-heading-lg sm:gt-heading-xl font-black mb-3 sm:mb-4 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
-              理想のジムトピアが<br className="sm:hidden" />ここにある
-            </h2>
-            <p className="text-[color:var(--gt-on-primary)]/80 max-w-2xl mx-auto text-sm sm:text-base drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-6">
-              街のリアルな声で選ぶ。マシンや設備から条件を選んで、あなたにぴったりのトレーニング環境を見つけましょう。
+            <p className="text-[color:var(--gt-on-primary)]/85 max-w-xl mx-auto text-base sm:text-lg drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-3 sm:mb-4 font-semibold">
+              妥協ゼロ、条件はフル装備。
             </p>
+            <h2 className="gt-heading-xl sm:gt-heading-2xl font-black mb-6 sm:mb-8 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
+              全国から見つける、<br className="sm:hidden" />あなたのジムトピア
+            </h2>
             <button
               onClick={handleStartSearch}
               className="bg-white/95 backdrop-blur-sm px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-[color:var(--gt-primary-strong)] shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:scale-105 hover:bg-white transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
