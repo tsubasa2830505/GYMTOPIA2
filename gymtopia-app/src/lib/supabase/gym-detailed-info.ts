@@ -32,6 +32,13 @@ export interface GymDetailedInfo {
  */
 export async function getGymDetailedInfo(gymId: string): Promise<GymDetailedInfo | null> {
   try {
+    // UUID形式のバリデーション
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(gymId)) {
+      console.warn(`Invalid UUID format for gymId: ${gymId}`)
+      return null
+    }
+
     const { data, error } = await supabase
       .from('gym_detailed_info')
       .select('*')
@@ -58,6 +65,12 @@ export async function saveGymDetailedInfo(
   info: Partial<Omit<GymDetailedInfo, 'id' | 'gym_id' | 'created_at' | 'updated_at' | 'updated_by'>>
 ): Promise<{ success: boolean; error?: string; data?: GymDetailedInfo }> {
   try {
+    // UUID形式のバリデーション
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(gymId)) {
+      return { success: false, error: `Invalid UUID format for gymId: ${gymId}` }
+    }
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return { success: false, error: 'ログインが必要です' }

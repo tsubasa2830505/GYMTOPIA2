@@ -2,16 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Dumbbell, BarChart3, User } from 'lucide-react'
+import { Home, MapPin, Dumbbell, Users, User } from 'lucide-react'
 
 export default function Navigation() {
   const pathname = usePathname()
 
   const navItems = [
     { href: '/', icon: Home, label: 'ホーム' },
-    { href: '/search/results', icon: Search, label: '検索' },
-    { href: '/add', icon: Dumbbell, label: 'ワークアウト' },
-    { href: '/stats', icon: BarChart3, label: '統計' },
+    { href: '/map', icon: MapPin, label: 'マップ' },
+    { href: '/workout', icon: Dumbbell, label: 'ワークアウト' },
+    { href: '/feed', icon: Users, label: 'フィード' },
     { href: '/profile', icon: User, label: 'プロフィール' },
   ]
 
@@ -21,9 +21,7 @@ export default function Navigation() {
         <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = item.href === '/search/results'
-            ? (pathname === '/search/results' || pathname === '/search')
-            : pathname === item.href
+          const isActive = pathname === item.href
           
           return (
             <Link

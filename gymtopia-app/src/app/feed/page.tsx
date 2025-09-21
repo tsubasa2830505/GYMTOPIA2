@@ -176,6 +176,20 @@ export default function FeedPage() {
         feedPosts = await getFeedPosts(POSTS_PER_PAGE, 0, 'all', null);
       }
 
+      // チェックイン情報のデバッグ
+      if (feedPosts.length > 0) {
+        const postsWithCheckin = feedPosts.filter(p => p.check_in_id);
+        console.log('Posts with check-in:', postsWithCheckin.length, '/', feedPosts.length);
+        if (postsWithCheckin.length > 0) {
+          console.log('Sample check-in post:', {
+            id: postsWithCheckin[0].id,
+            check_in_id: postsWithCheckin[0].check_in_id,
+            is_verified: postsWithCheckin[0].is_verified,
+            verification_method: postsWithCheckin[0].verification_method
+          });
+        }
+      }
+
       console.log('FeedPage: Database query result:', {
         count: feedPosts.length,
         isFromDatabase: feedPosts.length > 0 && !feedPosts[0].id.startsWith('sample-'),
@@ -407,7 +421,7 @@ export default function FeedPage() {
         <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.32),transparent_72%)] blur-[150px] opacity-68" />
         <div className="absolute bottom-[-6%] right-[-4%] h-[21rem] w-[21rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(245, 177, 143,0.24),transparent_78%)] blur-[150px] opacity-58" />
       </div>
-      <Header />
+      <Header subtitle="フィード" />
 
       {/* Main Content */}
       <div className="relative max-w-4xl mx-auto px-4 pt-20 sm:pt-24 py-6 space-y-6">
@@ -420,8 +434,8 @@ export default function FeedPage() {
             </span>
           </div>
 
-          {/* Filter Tabs - Removed gym tab */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Filter Tabs */}
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'all'
@@ -445,6 +459,18 @@ export default function FeedPage() {
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
               フォロー中
+            </button>
+            <button
+              onClick={() => setFilter('same-gym')}
+              className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-1 ${filter === 'same-gym'
+                ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.44)]'
+                : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)]'
+                }`}
+            >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+              同じジム
             </button>
           </div>
         </div>

@@ -1,7 +1,8 @@
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 
 export async function getGymDetail(gymId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('gyms')
       .select(`
@@ -79,6 +80,7 @@ export async function getGymDetail(gymId: string) {
 // お気に入り状態を確認
 export async function checkFavoriteStatus(gymId: string, userId: string) {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('user_gym_favorites')
       .select('id')
@@ -96,6 +98,7 @@ export async function checkFavoriteStatus(gymId: string, userId: string) {
 // お気に入りの追加/削除
 export async function toggleFavorite(gymId: string, userId: string, currentStatus: boolean) {
   try {
+    const supabase = getSupabaseClient()
     if (currentStatus) {
       // お気に入りから削除
       const { error } = await supabase

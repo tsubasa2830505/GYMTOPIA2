@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { TrendingUp, Calendar, Target, Activity } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 import { getUserWorkoutStatistics, getWeeklyPattern } from '@/lib/supabase/statistics'
 
 
@@ -9,17 +11,25 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   const [weeklyData, setWeeklyData] = useState<any[]>([])
   const [stats, setStats] = useState<any[]>([])
+  const { user } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
+    if (!user) {
+      router.push('/auth/login?redirect=/stats')
+      return
+    }
     loadStatistics()
-  }, [])
+  }, [user, router])
 
   const loadStatistics = async () => {
+    if (!user) return
+
     setLoading(true)
     try {
       const [workoutStats, weeklyPattern] = await Promise.all([
-        getUserWorkoutStatistics(''), // TODO: Get from auth context
-        getWeeklyPattern('') // TODO: Get from auth context
+        getUserWorkoutStatistics(user.id),
+        getWeeklyPattern(user.id)
       ])
 
       // Format weekly data for chart

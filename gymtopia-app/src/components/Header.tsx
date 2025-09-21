@@ -8,9 +8,10 @@ import { MapPin } from 'lucide-react'
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  showMenu?: boolean;
 }
 
-export default function Header({ title, subtitle }: HeaderProps = {}) {
+export default function Header({ title, subtitle, showMenu = false }: HeaderProps = {}) {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -36,19 +37,20 @@ export default function Header({ title, subtitle }: HeaderProps = {}) {
             </div>
           </div>
 
-          {/* Hamburger Menu Button */}
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-xl bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)] transition-colors"
-            >
-              <svg className="w-6 h-6 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+          {/* Hamburger Menu Button - Only show when showMenu prop is true */}
+          {showMenu && (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-xl bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,1)] transition-colors"
+              >
+                <svg className="w-6 h-6 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
 
-            {/* Dropdown Menu */}
-            {menuOpen && (
+              {/* Dropdown Menu */}
+              {menuOpen && (
               <>
                 {/* Backdrop */}
                 <div
@@ -89,7 +91,7 @@ export default function Header({ title, subtitle }: HeaderProps = {}) {
 
                     <button
                       onClick={() => {
-                        router.push('/login')
+                        router.push('/auth/login')
                         setMenuOpen(false)
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all hover:bg-[rgba(254,255,250,0.92)]"
@@ -102,8 +104,8 @@ export default function Header({ title, subtitle }: HeaderProps = {}) {
                   </div>
                 </div>
               </>
-            )}
-          </div>
+              )}
+            </div>
         </div>
       </header>
     </>

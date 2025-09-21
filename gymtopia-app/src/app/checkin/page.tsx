@@ -10,6 +10,7 @@ import { searchGymsNearby } from '@/lib/supabase/search'
 import { getSupabaseClient } from '@/lib/supabase/client'
 import { performGPSCheckin, findNearbyGyms, type BadgeEarned } from '@/lib/supabase/checkin'
 import { getAccuratePosition, type Coordinates } from '@/lib/gps-verification'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface NearbyGym {
   id: string
@@ -43,6 +44,7 @@ interface CheckIn {
 
 export default function CheckInPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [nearbyGyms, setNearbyGyms] = useState<NearbyGym[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,8 +66,17 @@ export default function CheckInPage() {
   const [preVerificationResult, setPreVerificationResult] = useState<any>(null)
 
 
+  // 認証チェック
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth/login?redirect=/checkin')
+    }
+  }, [user, router])
+
   // Get user location with high accuracy
   useEffect(() => {
+    if (!user) return // 認証されていない場合は何もしない
+
     const getHighAccuracyLocation = async () => {
       setLoading(true)
       try {
@@ -102,7 +113,7 @@ export default function CheckInPage() {
     }
 
     getHighAccuracyLocation()
-  }, [])
+  }, [user])
 
   // Fetch nearby gyms using GPS-based search
   const fetchNearbyGyms = async (location: { lat: number; lng: number }) => {
@@ -454,9 +465,18 @@ export default function CheckInPage() {
     }
   }
 
+  // 認証されていない場合は何も表示しない
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(240,142,111,0.1)]">
-      <Header />
+      <Header subtitle="チェックイン" />
 
       {/* Hero Section with Stats */}
       <div className="relative bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white pt-20 pb-8 px-4">

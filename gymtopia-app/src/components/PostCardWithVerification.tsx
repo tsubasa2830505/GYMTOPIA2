@@ -91,7 +91,17 @@ export default function PostCardWithVerification({
                   <span>{gym.name}</span>
                 </Link>
 
-                {isVerified && (
+                {isVerified && checkInId && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span className="flex items-center gap-0.5 text-green-600">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span className="text-xs">チェックイン済み</span>
+                    </span>
+                  </>
+                )}
+
+                {isVerified && !checkInId && verificationMethod === 'manual' && (
                   <>
                     <span className="text-gray-400">•</span>
                     <span className="flex items-center gap-0.5 text-blue-600">

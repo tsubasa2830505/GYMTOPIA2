@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { MapPin, List, Filter, ChevronDown, Heart, Map as MapIcon, Star, ArrowLeft, Navigation, X } from 'lucide-react'
 import Image from 'next/image'
+import Header from '@/components/Header'
 import { useState, useEffect, Suspense, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -523,27 +524,9 @@ function SearchResultsContent() {
   return (
     <div className="min-h-screen pb-16 bg-gradient-to-br from-[rgba(231,103,76,0.08)] via-[rgba(245,177,143,0.12)] to-[rgba(240,142,111,0.16)]">
       {/* Header */}
-  <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/60 shadow-[0_22px_40px_-32px_rgba(189,101,78,0.38)]">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] bg-gradient-to-br from-[var(--gt-primary)] via-[var(--gt-primary)] to-[var(--gt-primary-strong)] rounded-full flex items-center justify-center shadow-lg">
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
-            <div>
-              <Image
-                src="/images/gymtopia-logo.svg"
-                alt="ジムトピア"
-                width={120}
-                height={32}
-                className="h-6 sm:h-8 w-auto"
-              />
-              <h2 className="text-lg font-medium text-[color:var(--text-subtle)]">ジム検索</h2>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header subtitle="検索結果" />
 
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 pt-20">
 
         {/* Results Summary Card */}
         <div className="gt-card p-4 sm:p-6 mb-4 sm:mb-6 space-y-6">

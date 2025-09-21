@@ -56,7 +56,7 @@
     "eslint-config-next": "15.5.2",
     "node-fetch": "2.7.0",
     "pg": "^8.12.0",
-    "puppeteer": "^23",
+    "puppeteer": "23.11.1",
     "typescript": "^5"
   }
 }
