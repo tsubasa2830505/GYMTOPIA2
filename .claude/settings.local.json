@@ -183,7 +183,9 @@
       "Bash(npm cache clean:*)",
       "mcp__zen__codereview",
       "Bash(git stash:*)",
-      "Bash(for page in \"/followers\" \"/following\")"
+      "Bash(for page in \"/followers\" \"/following\")",
+      "Bash(for page in \"/gym-stats\")",
+      "Bash(for page in \"/profile\")"
     ],
     "deny": [],
     "ask": []

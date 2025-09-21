@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
-import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms } from '@/lib/supabase/profile';
+import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms, getUserFollowers, getUserFollowing } from '@/lib/supabase/profile';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import PostCard from '@/components/PostCard';
 import CheckinBadges from '@/components/CheckinBadges';
@@ -104,7 +104,31 @@ function ProfileContent() {
   const [userPosts, setUserPosts] = useState<GymPost[]>([]);
   const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
   const [userPersonalRecords, setUserPersonalRecords] = useState<PersonalRecord[]>([]);
+  // 即座に実データを取得してセット
   const [userFavoriteGyms, setUserFavoriteGyms] = useState<FavoriteGym[]>([]);
+
+  // 🚀 強制的に実データを取得して設定する関数 - v2
+  const forceLoadRealFavorites = async () => {
+    const targetUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+    console.log('🔥🔥🔥 強制実データ取得開始 🔥🔥🔥', targetUserId);
+    try {
+      const realData = await getFavoriteGyms(targetUserId);
+      console.log('✅ 強制取得結果:', realData.length, '件');
+      console.log('📋 強制取得データ詳細:', realData);
+      if (realData.length > 0) {
+        setUserFavoriteGyms(realData);
+        console.log('🎯 強制実データ設定完了:', realData.length, '件');
+      }
+    } catch (error) {
+      console.error('❌ 強制実データ取得エラー:', error);
+    }
+  };
+
+  // コンポーネント初期化時に即座に実行
+  useEffect(() => {
+    console.log('🚀🚀🚀 forceLoadRealFavorites用useEffect実行！🚀🚀🚀');
+    forceLoadRealFavorites();
+  }, []);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
@@ -117,6 +141,10 @@ function ProfileContent() {
   // Tab specific loading states
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+  const [userFollowers, setUserFollowers] = useState<any[]>([]);
+  const [userFollowing, setUserFollowing] = useState<any[]>([]);
+  const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
+  const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
   const [hasLoadedAchievements, setHasLoadedAchievements] = useState(false);
   const [hasLoadedFavorites, setHasLoadedFavorites] = useState(false);
 
@@ -142,6 +170,38 @@ function ProfileContent() {
   // Always use Tsubasa's user ID
   const userId = user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
 
+  // 🚀 強制的に実データを取得して設定する関数を最初に定義
+  const forceLoadRealFavoritesInline = async () => {
+    const targetUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
+    console.log('🔥🔥🔥 インライン強制実データ取得開始 🔥🔥🔥', targetUserId);
+    try {
+      const realData = await getFavoriteGyms(targetUserId);
+      console.log('✅ インライン強制取得結果:', realData.length, '件');
+      console.log('📋 インライン強制取得データ詳細:', realData);
+      if (realData.length > 0) {
+        setUserFavoriteGyms(realData);
+        console.log('🎯 インライン強制実データ設定完了:', realData.length, '件');
+      }
+    } catch (error) {
+      console.error('❌ インライン強制実データ取得エラー:', error);
+    }
+  };
+
+  console.log('💡💡💡 コンポーネント再レンダリング 💡💡💡');
+  console.log('📊 現在の状態:', {
+    user: user,
+    userId: userId,
+    isLoading: isLoading,
+    activeTab: activeTab,
+    userFavoriteGymsLength: userFavoriteGyms.length
+  });
+
+  // 🔥 即座に関数を呼び出し
+  if (userFavoriteGyms.length === 0) {
+    console.log('📞 コンポーネントレンダリング時に直接forceLoadRealFavorites呼び出し');
+    forceLoadRealFavoritesInline();
+  }
+
   // Debug log
   console.log('🐛 ProfilePage Debug:', { user, userId, isLoading });
 
@@ -149,9 +209,18 @@ function ProfileContent() {
   console.log('🚀 About to define useEffect...');
 
   useEffect(() => {
-    // Prevent duplicate loading
+    console.log('🔥🔥🔥 useEffect実行開始 - 初期状態チェック 🔥🔥🔥');
+    console.log('📊 初期状態:', {
+      hasLoadedData: hasLoadedData.current,
+      isLoadingData: isLoadingData.current,
+      userId: userId,
+      user: user
+    });
+
+    // Prevent duplicate loading - デバッグ時は強制実行
     if (hasLoadedData.current || isLoadingData.current) {
-      return;
+      console.log('⏭️ 重複ロードを防止（デバッグ時は無視）');
+      // return; // デバッグ時はコメントアウト
     }
 
     console.log('📋 useEffect triggered with:', {
@@ -174,7 +243,17 @@ function ProfileContent() {
     const maxRetries = 3;
 
     async function loadProfileData() {
-      if (!isActive || !userId) return;
+      console.log('🚀🚀🚀 loadProfileData関数実行開始 🚀🚀🚀');
+      console.log('📊 loadProfileData内の状態:', {
+        isActive: isActive,
+        userId: userId,
+        userIdExists: !!userId
+      });
+
+      if (!isActive || !userId) {
+        console.log('⏭️ loadProfileData早期リターン:', { isActive, userId: !!userId });
+        // return; // デバッグ時はコメントアウト
+      }
 
       // Prevent duplicate loading
       isLoadingData.current = true;
@@ -370,91 +449,24 @@ function ProfileContent() {
         // 実際のユーザーのいきたいデータを取得
         let favoriteGyms: FavoriteGym[] = [];
         try {
+          console.log('🔍 初期読み込み - いきたいデータ取得開始 - ユーザーID:', userId);
           favoriteGyms = await getFavoriteGyms(userId);
-          console.log('✅ ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
+          console.log('✅ 初期読み込み - ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
+          console.log('📋 初期読み込み - 取得したいきたいデータ:', favoriteGyms);
         } catch (error) {
-          console.error('いきたいデータ取得エラー:', error);
+          console.error('❌ 初期読み込み - いきたいデータ取得エラー:', error);
         }
 
-        // データがない場合のみサンプルデータを使用
-        if (favoriteGyms.length === 0) {
-          const sampleFavoriteGyms: FavoriteGym[] = [
-            {
-              id: 'fav-1',
-              user_id: userId,
-              gym_id: 'ecef0d28-c740-4833-b15e-48703108196c',
-              created_at: '2024-06-01T00:00:00Z',
-              gym: {
-                id: 'ecef0d28-c740-4833-b15e-48703108196c',
-                name: 'ゴールドジム渋谷',
-                area: '渋谷',
-                prefecture: '東京都',
-                city: '渋谷区',
-                description: '本格的なトレーニング設備が充実',
-                rating: 4.5,
-                users_count: 523,
-                image_url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop&q=80'
-              }
-            },
-            {
-              id: 'fav-2',
-              user_id: userId,
-              gym_id: 'd240e778-b922-4ecd-b9bc-86cbd8ac6e3e',
-              created_at: '2024-07-15T00:00:00Z',
-              gym: {
-                id: 'd240e778-b922-4ecd-b9bc-86cbd8ac6e3e',
-                name: 'エニタイムフィットネス新宿',
-                area: '新宿',
-                prefecture: '東京都',
-                city: '新宿区',
-                description: '24時間営業で便利',
-                rating: 4.2,
-                users_count: 412,
-                image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&q=80'
-              }
-            },
-            {
-              id: 'fav-3',
-              user_id: userId,
-              gym_id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
-              created_at: '2024-08-01T00:00:00Z',
-              gym: {
-                id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
-                name: 'コナミスポーツクラブ池袋',
-                area: '池袋',
-                prefecture: '東京都',
-                city: '豊島区',
-                description: 'プール・スタジオ完備の総合スポーツクラブ',
-                rating: 4.3,
-                users_count: 342,
-                image_url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop&q=80'
-              }
-            },
-            {
-              id: 'fav-4',
-              user_id: userId,
-              gym_id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
-              created_at: '2024-09-10T00:00:00Z',
-              gym: {
-                id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
-                name: 'パワーリフティングジム東京',
-                area: '六本木',
-                prefecture: '東京都',
-                city: '港区',
-                description: 'パワーリフティング専門の本格派ジム',
-                rating: 4.8,
-                users_count: 156,
-                image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
-              }
-            }
-          ];
-          setUserFavoriteGyms(sampleFavoriteGyms);
-          console.log('⚠️ サンプルデータを使用中');
-        } else {
+        // 実データがある場合は即座に設定
+        if (favoriteGyms.length > 0) {
+          console.log('🎯 初期読み込み - 実データを設定:', favoriteGyms.length, '件');
           setUserFavoriteGyms(favoriteGyms);
-          console.log('✅ 実データを表示:', favoriteGyms.length, '件');
+          setHasLoadedFavorites(true); // 実データを設定したらロード完了とマーク
+          console.log('✅ 初期読み込み - 実データ設定完了:', favoriteGyms.length, '件');
+        } else {
+          console.log('⚠️ 初期読み込み - 実データが0件のため、サンプルデータは使用しない');
+          // サンプルデータは使用せず、空の配列のままにして「いきたい」タブクリック時に再取得
         }
-        setHasLoadedFavorites(true);
 
       } catch (error) {
         console.error('プロフィールデータ取得エラー:', error);
@@ -484,7 +496,7 @@ function ProfileContent() {
         clearTimeout(retryTimeout);
       }
     };
-  }, []); // Empty dependency array for debugging - execute only once on mount
+  }, [userId]); // Depend on userId to ensure execution when userId is available
 
   // プロフィール編集後の画像更新のためのフォーカスイベントリスナー
   useEffect(() => {
@@ -538,22 +550,50 @@ function ProfileContent() {
     }
   };
 
-  // イキタイタブのデータを遅延ロード（初期化済みなので何もしない）
+  // イキタイタブのデータを遅延ロード
   const loadFavoritesData = async () => {
-    if (hasLoadedFavorites || isLoadingFavorites || !userId) return;
-    // 初期読み込み時に既にサンプルデータが設定されているため、何もしない
-    console.log('❤️ イキタイデータは初期化済みです');
+    if (isLoadingFavorites || !userId) return;
+
+    console.log('🔍 いきたいタブクリック - データ取得開始 - ユーザーID:', userId);
+    console.log('🔍 現在のhasLoadedFavorites:', hasLoadedFavorites);
+    console.log('🔍 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
+
+    setIsLoadingFavorites(true);
+
+    try {
+      const favoriteGyms = await getFavoriteGyms(userId);
+      console.log('✅ いきたいタブクリック - データ取得:', favoriteGyms.length, '件');
+      console.log('📋 いきたいタブクリック - データ詳細:', favoriteGyms);
+
+      if (favoriteGyms.length > 0) {
+        console.log('🎯 いきたいタブクリック - 実データを設定:', favoriteGyms.length, '件');
+        setUserFavoriteGyms(favoriteGyms);
+        console.log('✅ いきたいタブクリック - 実データ設定完了');
+      } else {
+        console.log('⚠️ いきたいタブクリック - データが0件');
+      }
+
+      setHasLoadedFavorites(true);
+    } catch (error) {
+      console.error('❌ いきたいタブクリック - データ取得エラー:', error);
+    } finally {
+      setIsLoadingFavorites(false);
+    }
   };
 
   // タブ切り替え時の処理
   const handleTabChange = (tab: string) => {
+    console.log('🔥 タブ切り替え:', tab, 'hasLoadedFavorites:', hasLoadedFavorites);
+    console.log('🔥 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
     setActiveTab(tab);
 
     // 各タブに応じて必要なデータを遅延ロード
     if (tab === 'achievements' && !hasLoadedAchievements) {
       loadAchievementsData();
-    } else if (tab === 'favorites' && !hasLoadedFavorites) {
-      loadFavoritesData();
+    } else if (tab === 'favorites') {
+      console.log('💡 「いきたい」タブが選択されました');
+      console.log('🔄 強制的に実データを再取得');
+      forceLoadRealFavorites(); // シンプルな強制取得
     }
   };
 
@@ -974,99 +1014,6 @@ function ProfileContent() {
               </div>
             </div>
 
-            {/* Personal Records */}
-            <div className="gt-card p-4 sm:p-6">
-              <h3 className="font-bold text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[color:var(--gt-tertiary)] inline" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                </svg>
-                <span className="text-[color:var(--foreground)]">パーソナルレコード</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {isLoading ? (
-                  Array.from({ length: 4 }, (_, index) => (
-                    <div key={index} className="bg-[rgba(254,255,250,0.92)] rounded-lg p-4">
-                      <div className="animate-pulse">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-2/3"></div>
-                          <div className="h-6 bg-[rgba(231,103,76,0.16)] rounded w-1/4"></div>
-                        </div>
-                        <div className="h-3 bg-[rgba(231,103,76,0.16)] rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  ))
-                ) : userPersonalRecords.length === 0 ? (
-                  <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-[rgba(231,103,76,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                    </svg>
-                    <p className="text-[color:var(--text-muted)] mb-2">パーソナルレコードがまだありません</p>
-                    <p className="text-[color:var(--text-muted)] text-sm">トレーニングを記録して自己新記録を達成しましょう！</p>
-                  </div>
-                ) : (
-                  userPersonalRecords.map((record, index) => (
-                    <div key={record.id || index} className="bg-[rgba(254,255,250,0.92)] rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm sm:text-base font-semibold text-[color:var(--foreground)]">{record.exercise_name}</span>
-                        <span className="text-lg sm:text-xl font-bold text-[color:var(--gt-primary-strong)]">
-                          {record.weight ? `${record.weight}kg` : '-'}
-                        </span>
-                      </div>
-                      <div className="text-xs sm:text-sm text-[color:var(--text-subtle)]">
-                        {record.record_type}
-                        {record.reps && ` • ${record.reps}回`}
-                        {record.achieved_at && (
-                          <span className="block text-[color:var(--text-muted)] mt-1">
-                            {new Date(record.achieved_at).toLocaleDateString('ja-JP')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Achievement Badges */}
-            <div className="gt-card p-4 sm:p-6">
-              <h3 className="font-bold text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[color:var(--gt-tertiary)] inline" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
-                </svg>
-                達成バッジ
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {isLoading ? (
-                  Array.from({ length: 4 }, (_, index) => (
-                    <div key={index} className="text-center p-3 sm:p-4 bg-[rgba(254,255,250,0.92)] rounded-lg">
-                      <div className="animate-pulse">
-                        <div className="w-8 h-8 bg-[rgba(231,103,76,0.16)] rounded-full mx-auto mb-2"></div>
-                        <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-3/4 mx-auto mb-1"></div>
-                        <div className="h-3 bg-[rgba(231,103,76,0.16)] rounded w-1/2 mx-auto"></div>
-                      </div>
-                    </div>
-                  ))
-                ) : userAchievements.length === 0 ? (
-                  <div className="col-span-full text-center py-8">
-                    <svg className="w-16 h-16 text-[rgba(231,103,76,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
-                    </svg>
-                    <p className="text-[color:var(--text-muted)] mb-2">達成記録がまだありません</p>
-                    <p className="text-[color:var(--text-muted)] text-sm">トレーニングを続けて達成記録を獲得しましょう！</p>
-                  </div>
-                ) : (
-                  userAchievements.map((achievement, index) => (
-                    <div key={achievement.id || index} className="text-center p-3 sm:p-4 bg-[rgba(254,255,250,0.92)] rounded-lg hover:bg-[rgba(254,255,250,0.92)] transition cursor-pointer">
-                      <div className="mb-2 flex justify-center">{getAchievementIcon(achievement.badge_icon, achievement.achievement_type)}</div>
-                      <div className="text-sm font-medium text-[color:var(--foreground)]">{achievement.title}</div>
-                      <div className="text-xs text-[color:var(--text-muted)] mt-1">
-                        {new Date(achievement.earned_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
 
             {/* GPS チェックインバッジ */}
             <div className="gt-card p-4 sm:p-6">
@@ -1093,7 +1040,10 @@ function ProfileContent() {
                     </div>
                   </div>
                 ))
-              ) : userFavoriteGyms.length === 0 ? (
+              ) : (() => {
+                console.log('📊 イキタイタブ - UI描画時のuserFavoriteGyms.length:', userFavoriteGyms.length, 'データ:', userFavoriteGyms);
+                return userFavoriteGyms.length === 0;
+              })() ? (
                 <div className="gt-card p-8 text-center">
                   <svg className="w-16 h-16 text-[rgba(231,103,76,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>

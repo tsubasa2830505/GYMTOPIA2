@@ -1,0 +1,90 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { MapPin, FileSearch, CheckCircle, SlidersHorizontal, User } from 'lucide-react'
+
+export default function SidebarNavigation() {
+  const pathname = usePathname()
+
+  const navItems = [
+    {
+      href: '/',
+      icon: MapPin,
+      label: 'ジムを探す',
+      isActive: pathname === '/'
+    },
+    {
+      href: '/search/results',
+      icon: FileSearch,
+      label: '検索結果',
+      isActive: pathname === '/search/results' || pathname === '/search'
+    },
+    {
+      href: '/checkin',
+      icon: CheckCircle,
+      label: 'チェックイン',
+      isActive: pathname === '/checkin'
+    },
+    {
+      href: '/feed',
+      icon: SlidersHorizontal,
+      label: 'フィード',
+      isActive: pathname === '/feed'
+    },
+    {
+      href: '/profile',
+      icon: User,
+      label: 'プロフィール',
+      isActive: pathname === '/profile'
+    },
+  ]
+
+  return (
+    <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border-r border-[rgba(231,103,76,0.18)] z-[60] flex-col py-6">
+      {/* Logo */}
+      <div className="px-6 mb-8">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-[color:var(--gt-primary)] to-[color:var(--gt-secondary)] rounded-lg flex items-center justify-center">
+            <span className="text-white text-sm font-bold">G</span>
+          </div>
+          <span className="text-xl font-bold text-[color:var(--foreground)]">GYMTOPIA</span>
+        </Link>
+      </div>
+
+      {/* Navigation Items */}
+      <div className="flex-1 px-3">
+        <div className="space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 group ${
+                item.isActive
+                  ? 'bg-[color:var(--gt-primary)] text-white shadow-lg'
+                  : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)] hover:text-[color:var(--foreground)]'
+              }`}
+            >
+              <item.icon
+                className={`w-6 h-6 transition-transform duration-200 ${
+                  item.isActive ? 'scale-110' : 'group-hover:scale-105'
+                }`}
+              />
+              <span className="font-medium text-base">{item.label}</span>
+              {item.isActive && (
+                <div className="ml-auto w-1 h-6 bg-white rounded-full opacity-80" />
+              )}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 pt-4 border-t border-[rgba(231,103,76,0.18)]">
+        <div className="text-xs text-[color:var(--text-muted)] text-center">
+          © 2024 GYMTOPIA
+        </div>
+      </div>
+    </nav>
+  )
+}

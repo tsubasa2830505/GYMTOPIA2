@@ -4,374 +4,195 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, UserPlus, Calendar, Search, UserCheck, Clock } from 'lucide-react'
-import { getFollowers, getFollowCounts, followUser, unfollowUser } from '@/lib/supabase/follows'
+import { ArrowLeft, Search, MoreHorizontal } from 'lucide-react'
+import { getUserFollowers, getUserFollowing } from '@/lib/supabase/profile'
 import { useAuth } from '@/contexts/AuthContext'
+import Header from '@/components/Header'
 
 interface Follower {
   id: string
-  username: string
-  display_name: string
-  avatar_url: string | null
-  bio: string | null
+  follower: {
+    id: string
+    username: string
+    display_name: string
+    avatar_url: string | null
+    is_verified: boolean
+  }
   created_at: string
-  is_active: boolean
-  last_seen_at: string | null
-  follow_date: string
-  is_following_back: boolean
-  is_mutual_follow: boolean  // 相互フォロー
-  posts_count: number
-  mutual_friends_count: number
 }
 
 export default function FollowersPage() {
   const router = useRouter()
   const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState('all')
   const [followers, setFollowers] = useState<Follower[]>([])
-  const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 })
+  const [followersCount, setFollowersCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [processingIds, setProcessingIds] = useState<string[]>([])
 
   const userId = user?.id
 
   useEffect(() => {
     if (userId) {
-      loadFollowers()
-      loadFollowCounts()
+      loadData()
     } else {
       setLoading(false)
     }
   }, [userId])
 
-  const loadFollowers = async () => {
-    if (!userId) {
+  const loadData = async () => {
+    if (!userId) return
+
+    try {
+      const [followersData, followingData] = await Promise.all([
+        getUserFollowers(userId),
+        getUserFollowing(userId)
+      ])
+
+      setFollowers(followersData)
+      setFollowersCount(followersData.length)
+      setFollowingCount(followingData.length)
+    } catch (error) {
+      console.error('データ取得エラー:', error)
+    } finally {
       setLoading(false)
-      return
-    }
-    setLoading(true)
-    const { data, error } = await getFollowers(userId)
-    if (!error && data) {
-      setFollowers(data as Follower[])
-    }
-    setLoading(false)
-  }
-
-  const loadFollowCounts = async () => {
-    if (!userId) {
-      return
-    }
-    const counts = await getFollowCounts(userId)
-    if (!counts.error) {
-      setFollowCounts(counts)
     }
   }
 
-  const handleFollowBack = async (targetUserId: string) => {
-    if (!userId) {
-      alert('ログインが必要です')
-      return
-    }
-    setProcessingIds(prev => [...prev, targetUserId])
-    const { error } = await followUser(userId, targetUserId)
-    if (!error) {
-      setFollowers(prev => prev.map(f =>
-        f.id === targetUserId ? { ...f, is_following_back: true } : f
-      ))
-      loadFollowCounts()
-    } else {
-      console.error('フォローエラー:', error)
-      alert(`フォローに失敗しました: ${error}`)
-    }
-    setProcessingIds(prev => prev.filter(id => id !== targetUserId))
-  }
-
-  const handleUnfollow = async (targetUserId: string) => {
-    if (!userId) {
-      return
-    }
-    setProcessingIds(prev => [...prev, targetUserId])
-    const { error } = await unfollowUser(userId, targetUserId)
-    if (!error) {
-      setFollowers(prev => prev.map(f => 
-        f.id === targetUserId ? { ...f, is_following_back: false } : f
-      ))
-      loadFollowCounts()
-    }
-    setProcessingIds(prev => prev.filter(id => id !== targetUserId))
-  }
-
-  const formatLastActive = (lastSeenAt: string | null) => {
-    if (!lastSeenAt) return 'オフライン'
-    
-    const lastSeen = new Date(lastSeenAt)
-    const now = new Date()
-    const diffMs = now.getTime() - lastSeen.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return 'オンライン'
-    if (diffMins < 60) return `${diffMins}分前`
-  if (diffHours < 24) return `${diffHours}時間前`
-  if (diffDays < 7) return `${diffDays}日前`
-  return lastSeen.toLocaleDateString('ja-JP')
-}
-
-  const isRecentlyActive = (lastSeenAt: string | null) => {
-    if (!lastSeenAt) return false
-    const diff = Date.now() - new Date(lastSeenAt).getTime()
-    return diff <= 24 * 60 * 60 * 1000 // 24時間以内
-  }
-
-  const formatJoinDate = (createdAt: string) => {
-    const date = new Date(createdAt)
-    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })
-  }
-
-  const getAvatarColor = (name: string) => {
-    const colors = ['var(--gt-secondary-strong)', 'var(--gt-tertiary-strong)', 'var(--gt-tertiary)', 'var(--gt-primary-strong)', 'var(--gt-secondary)', 'var(--gt-secondary)']
-    const index = name.charCodeAt(0) % colors.length
-    return colors[index]
-  }
-
-  const filteredFollowers = followers.filter(user => {
-    const matchesSearch = 
-      (user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
-    
-    if (selectedFilter === 'all') return matchesSearch
-    if (selectedFilter === 'mutual') return matchesSearch && user.is_mutual_follow
-    if (selectedFilter === 'not-following') return matchesSearch && !user.is_following_back
-    if (selectedFilter === 'recent') return matchesSearch && isRecentlyActive(user.last_seen_at)
-    return matchesSearch
+  const filteredFollowers = followers.filter(follower => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      follower.follower.display_name?.toLowerCase().includes(query) ||
+      follower.follower.username?.toLowerCase().includes(query)
+    )
   })
 
-  const mutualFollowCount = followers.filter(f => f.is_following_back).length
-  const notFollowingBackCount = followers.filter(f => !f.is_following_back).length
-  const recentActiveCount = followers.filter(f => isRecentlyActive(f.last_seen_at)).length
-
-  const filterOptions = [
-    { value: 'all', label: 'すべて', count: followers.length },
-    { value: 'mutual', label: '相互', count: mutualFollowCount },
-    { value: 'not-following', label: '未フォロー', count: notFollowingBackCount },
-    { value: 'recent', label: '最近アクティブ', count: recentActiveCount },
-  ]
-
-  return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(240,244,255,0.34),transparent_86%),radial-gradient(circle_at_12%_18%,rgba(58,104,255,0.18),transparent_62%),radial-gradient(circle_at_84%_14%,rgba(108,148,255,0.14),transparent_70%)]" />
-        <div className="absolute -top-28 right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_70%)] blur-[140px] opacity-70" />
-        <div className="absolute top-[52%] -left-32 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(98,138,255,0.26),transparent_74%)] blur-[150px] opacity-60" />
-      </div>
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)] backdrop-blur-xl shadow-[0_18px_48px_-26px_rgba(189,101,78,0.4)]">
-        <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => router.push('/profile')}
-              className="p-2 rounded-xl bg-[rgba(254,255,250,0.9)] border border-[rgba(231,103,76,0.18)] hover:bg-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
-            </button>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button 
-                onClick={() => router.push('/following')}
-                className="gt-chip text-xs sm:text-sm"
-              >
-                <span className="font-semibold text-[color:var(--text-subtle)]">フォロー</span>
-                <span className="gt-pill-label text-[color:var(--gt-primary-strong)]">{followCounts.following}</span>
-              </button>
-              <div className="gt-chip gt-chip--primary text-xs sm:text-sm shadow-[0_14px_34px_-22px_rgba(189,101,78,0.46)]">
-                <span className="font-semibold text-[color:var(--foreground)]">フォロワー</span>
-                <span className="gt-pill-label">{followCounts.followers}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Search & Filters */}
-        <div className="gt-card p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[color:var(--text-muted)]" />
-              <input
-                type="text"
-                placeholder="名前、ユーザー名で検索..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2 rounded-xl border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] bg-[rgba(254,255,250,0.9)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)]"
-              />
-            </div>
-            <div className="gt-tab-track flex flex-wrap gap-2 py-1">
-              {filterOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSelectedFilter(option.value)}
-                  className={`gt-tab gt-pill-label flex items-center gap-1 px-3 sm:px-4 py-1.5 transition-all ${
-                    selectedFilter === option.value ? 'gt-tab-active' : 'gt-tab-inactive'
-                  }`}
-                >
-                  <span>{option.label}</span>
-                  <span className="gt-pill-label text-[color:var(--text-muted)]">{option.count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="gt-label-lg text-[color:var(--text-subtle)]">総フォロワー</span>
-              <UserPlus className="w-5 h-5 text-[color:var(--gt-primary-strong)]" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[color:var(--foreground)]">{followCounts.followers}</div>
-            <p className="gt-body mt-2">コミュニティ全体の人数</p>
-          </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="gt-label-lg text-[color:var(--text-subtle)]">相互フォロー</span>
-              <UserCheck className="w-5 h-5 text-[color:var(--gt-tertiary-strong)]" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[color:var(--gt-tertiary-strong)]">{mutualFollowCount}</div>
-            <p className="gt-body mt-2">
-              {followCounts.followers > 0
-                ? `フォロワーの${Math.round((mutualFollowCount / followCounts.followers) * 100)}%`
-                : 'まだ相互フォローはありません'}
-            </p>
-          </div>
-          <div className="gt-card p-4 sm:p-5 bg-gradient-to-br from-[var(--gt-background-strong)] to-[var(--gt-background-strong)]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="gt-label-lg text-[color:var(--text-subtle)]">フォロー候補</span>
-              <Clock className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[color:var(--gt-secondary-strong)]">{notFollowingBackCount}</div>
-            <p className="gt-body mt-2">あなたをフォローしていて、まだフォロー返ししていないユーザー</p>
-          </div>
-        </div>
-
-        {/* Followers */}
-        {loading ? (
-          <div className="gt-card p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent"></div>
-            <p className="gt-body mt-3">読み込み中...</p>
-          </div>
-        ) : filteredFollowers.length === 0 ? (
-          <div className="gt-card p-8 text-center">
-            <h3 className="text-lg font-semibold text-[color:var(--foreground)] mb-2">フォロワーが見つかりません</h3>
-            <p className="gt-body">
-              {searchQuery ? '条件に合うユーザーがいません。キーワードを変えてみてください。' : 'まだフォロワーがいません。あなたの活動をシェアしてみましょう。'}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredFollowers.map((user) => (
-              <div key={user.id} className="gt-card p-4 sm:p-5 hover:-translate-y-[2px] transition-transform">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href={`/user/${user.id}`} className="flex-shrink-0">
-                    {user.avatar_url ? (
-                      <Image
-                        src={user.avatar_url}
-                        alt={user.display_name || user.username}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-white/70"
-                      />
-                    ) : (
-                      <div
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
-                        style={{ backgroundColor: getAvatarColor(user.display_name || user.username) }}
-                      >
-                        {(user.display_name || user.username).charAt(0)}
-                      </div>
-                    )}
-                  </Link>
-
-                  <div className="flex-1 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Link href={`/user/${user.id}`} className="text-base sm:text-lg font-semibold text-[color:var(--foreground)] hover:text-[color:var(--gt-primary-strong)] transition-colors">
-                            {user.display_name || user.username}
-                          </Link>
-                          {user.is_mutual_follow && (
-                            <span className="gt-chip gt-chip--primary text-[10px] sm:text-xs">相互</span>
-                          )}
-                          {user.is_following_back && !user.is_mutual_follow && (
-                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(245,177,143,0.12)', borderColor: 'rgba(245,177,143,0.28)', color: 'var(--gt-primary-strong)' }}>
-                              フォロー中
-                            </span>
-                          )}
-                          {!user.is_following_back && (
-                            <span className="gt-chip text-[10px] sm:text-xs" style={{ background: 'rgba(255,203,112,0.18)', borderColor: 'rgba(255,203,112,0.35)', color: 'var(--gt-tertiary-strong)' }}>
-                              フォローバック候補
-                            </span>
-                          )}
-                        </div>
-                        <Link href={`/user/${user.id}`} className="gt-pill-label text-[color:var(--text-muted)]">@{user.username}</Link>
-                        {user.bio && (
-                          <p className="gt-body mt-2">{user.bio}</p>
-                        )}
-                        <div className="flex flex-wrap gap-3 mt-3 text-[10px] sm:text-xs text-[color:var(--text-muted)]">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{formatJoinDate(user.created_at)}から</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span>{user.posts_count}投稿</span>
-                          </div>
-                          {user.mutual_friends_count > 0 && (
-                            <div className="flex items-center gap-1">
-                              <span>共通の友達 {user.mutual_friends_count}人</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>最終: {formatLastActive(user.last_seen_at)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => user.is_following_back ? handleUnfollow(user.id) : handleFollowBack(user.id)}
-                          disabled={processingIds.includes(user.id)}
-                          className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                            user.is_following_back
-                              ? 'bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] text-[color:var(--text-subtle)] hover:-translate-y-[1px]'
-                              : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white shadow-[0_18px_32px_-22px_rgba(189,101,78,0.48)] hover:-translate-y-[2px]'
-                          } ${processingIds.includes(user.id) ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        >
-                          {processingIds.includes(user.id) ? (
-                            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                          ) : user.is_following_back ? (
-                            <>
-                              <UserCheck className="w-3 h-3" />
-                              フォロー中
-                            </>
-                          ) : (
-                            <>
-                              <UserPlus className="w-3 h-3" />
-                              フォローバック
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[color:var(--background)]">
+        <Header />
+        <div className="max-w-2xl mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </main>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-[color:var(--background)]">
+      <Header />
+
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-[color:var(--foreground)]">フォロワー</h1>
+              <p className="text-sm text-[color:var(--text-muted)]">{followersCount}人</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-200 mb-6">
+          <button className="flex-1 py-3 text-center font-medium border-b-2 border-[color:var(--gt-primary)] text-[color:var(--gt-primary)]">
+            フォロワー
+          </button>
+          <button
+            onClick={() => router.push('/following')}
+            className="flex-1 py-3 text-center font-medium text-[color:var(--text-muted)] hover:text-[color:var(--foreground)]"
+          >
+            フォロー中
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[color:var(--text-muted)]" />
+          <input
+            type="text"
+            placeholder="検索"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--gt-primary)] focus:bg-white transition-all"
+          />
+        </div>
+
+        {/* Followers List */}
+        <div className="space-y-0">
+          {filteredFollowers.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[color:var(--text-muted)]">
+                {searchQuery ? '検索結果が見つかりませんでした' : 'フォロワーがいません'}
+              </p>
+            </div>
+          ) : (
+            filteredFollowers.map((follower) => (
+              <div key={follower.id} className="flex items-center justify-between py-3 hover:bg-gray-50 px-2 rounded-lg transition-colors">
+                <Link href={`/user/${follower.follower.id}`} className="flex items-center gap-3 flex-1">
+                  {/* Avatar */}
+                  <div className="w-12 h-12 relative">
+                    {follower.follower.avatar_url ? (
+                      <Image
+                        src={follower.follower.avatar_url}
+                        alt={follower.follower.display_name || follower.follower.username}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gradient-to-br from-[color:var(--gt-primary)] to-[color:var(--gt-secondary)] rounded-full flex items-center justify-center">
+                        <span className="text-white text-lg font-semibold">
+                          {(follower.follower.display_name || follower.follower.username || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1">
+                      <p className="font-semibold text-[color:var(--foreground)] truncate">
+                        {follower.follower.display_name || follower.follower.username}
+                      </p>
+                      {follower.follower.is_verified && (
+                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </div>
+                    {follower.follower.username && follower.follower.display_name && (
+                      <p className="text-sm text-[color:var(--text-muted)] truncate">@{follower.follower.username}</p>
+                    )}
+                  </div>
+                </Link>
+
+                {/* Action Button */}
+                <button className="px-6 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg transition-colors">
+                  削除
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   )
 }

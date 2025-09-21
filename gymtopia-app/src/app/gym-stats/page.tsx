@@ -89,8 +89,8 @@ export default function GymStatsPage() {
         achievementData
       ] = await Promise.all([
         getUserWorkoutStatistics(user.id),
-        getGymVisitRankings(user.id),
-        getRecentGymVisits(user.id),
+        getGymVisitRankings(user.id, 5, selectedPeriod),
+        getRecentGymVisits(user.id, 5, selectedPeriod),
         getWeeklyPattern(user.id),
         getTimeDistribution(user.id),
         getAchievementProgress(user.id)
@@ -98,6 +98,9 @@ export default function GymStatsPage() {
 
       console.log('📈 Statistics loaded successfully:', {
         totalVisits: userStats.totalVisits,
+        weeklyVisits: userStats.weeklyVisits,
+        monthlyVisits: userStats.monthlyVisits,
+        yearlyVisits: userStats.yearlyVisits,
         totalWeight: userStats.totalWeight,
         currentStreak: userStats.currentStreak
       })

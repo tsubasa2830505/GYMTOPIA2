@@ -46,13 +46,6 @@ function sortGyms(gyms: any[], sortBy: string, userLocation: { lat: number; lng:
         return distA - distB
       })
 
-    case 'rating':
-      // Sort by rating (highest first)
-      return sorted.sort((a, b) => {
-        const ratingA = a.rating || 0
-        const ratingB = b.rating || 0
-        return ratingB - ratingA
-      })
 
     case 'popular':
     default:
@@ -69,7 +62,7 @@ function SearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
-  const [sortBy, setSortBy] = useState<'popular' | 'distance' | 'rating'>('popular')
+  const [sortBy, setSortBy] = useState<'popular' | 'distance'>('popular')
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null)
   const [gyms, setGyms] = useState<any[]>([])
@@ -245,8 +238,24 @@ function SearchResultsContent() {
       // Note: conditions are handled separately in the UI, not passed to getGyms
       
       const data = await getGyms(filters)
-      
+
       if (data) {
+        // Get user's favorite gyms
+        let userFavorites: string[] = []
+        if (user) {
+          try {
+            const supabase = getSupabaseClient()
+            const { data: favoritesData } = await supabase
+              .from('favorite_gyms')
+              .select('gym_id')
+              .eq('user_id', user.id)
+
+            userFavorites = favoritesData?.map(f => f.gym_id) || []
+          } catch (error) {
+            console.error('Error fetching user favorites:', error)
+          }
+        }
+
         // Transform data to match component format
         const transformedData = data.map((gym: Gym, index: number) => {
           // 距離と駅情報を計算
@@ -281,7 +290,7 @@ function SearchResultsContent() {
               ? gym.images[0]
               : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             price: '¥10,000～', // Placeholder
-            isLiked: false,
+            isLiked: userFavorites.includes(gym.id),
             address: gym.address || '',
             images: gym.images || [], // 全画像を保持
             // DatabaseGym format for map (convert string to number)
@@ -352,7 +361,7 @@ function SearchResultsContent() {
     } finally {
       setLoading(false)
     }
-  }, [searchParams, sortBy, userLocation])
+  }, [searchParams, sortBy, userLocation, user])
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
@@ -461,6 +470,22 @@ function SearchResultsContent() {
             .in('id', ids)
           const distMap = new Map<string, number>()
           ;(data || []).forEach((r: any) => distMap.set(r.id, r.distance_km))
+
+          // Get user's favorite gyms for nearby search
+          let userFavorites: string[] = []
+          if (user) {
+            try {
+              const { data: favoritesData } = await supabase
+                .from('favorite_gyms')
+                .select('gym_id')
+                .eq('user_id', user.id)
+
+              userFavorites = favoritesData?.map(f => f.gym_id) || []
+            } catch (error) {
+              console.error('Error fetching user favorites:', error)
+            }
+          }
+
           let transformed = (gymRows || []).map((g: any) => ({
             id: g.id,
             name: g.name,
@@ -471,7 +496,7 @@ function SearchResultsContent() {
             tags: g.equipment_types || [],
             image: g.images && g.images.length > 0 ? g.images[0] : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             price: '—',
-            isLiked: false,
+            isLiked: userFavorites.includes(g.id),
             address: g.address || '',
             images: g.images || [],
             rating: g.rating,
@@ -692,15 +717,11 @@ function SearchResultsContent() {
               >
                 {sortBy === 'distance' ? (
                   <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
-                ) : sortBy === 'rating' ? (
-                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
                 ) : (
                   <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--gt-secondary-strong)]" />
                 )}
                 <span className="gt-pill-label text-[10px] sm:text-xs text-[color:var(--foreground)]">
-                  {sortBy === 'distance' ? '近い順' :
-                   sortBy === 'rating' ? '評価の高い順' :
-                   'イキタイの多い順'}
+                  {sortBy === 'distance' ? '近い順' : 'イキタイの多い順'}
                 </span>
                 <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-[color:var(--text-muted)] transition-transform ${sortDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -736,18 +757,6 @@ function SearchResultsContent() {
                     <Navigation className="w-3 h-3" />
                     近い順
                     {!userLocation && <span className="text-[10px] text-[color:var(--text-muted)] ml-auto">要位置情報</span>}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setSortBy('rating')
-                      setSortDropdownOpen(false)
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'rating' ? 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white' : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'}`}
-                  >
-                    <Star className="w-3 h-3" />
-                    評価の高い順
                   </button>
                 </div>
               )}

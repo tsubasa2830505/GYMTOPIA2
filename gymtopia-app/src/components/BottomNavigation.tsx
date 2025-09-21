@@ -41,7 +41,7 @@ export default function BottomNavigation() {
   ]
 
   return (
-    <nav className="fixed bottom-4 left-0 right-0 z-[60] sm:hidden px-4">
+    <nav className="md:hidden fixed bottom-4 left-0 right-0 z-[60] px-4">
       <div className="max-w-md mx-auto">
         <div className="gt-shell bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border border-[rgba(231,103,76,0.18)] shadow-[0_20px_44px_-30px_rgba(189,101,78,0.46)]">
           <div className="flex">

@@ -94,13 +94,37 @@ export async function getUserWorkoutStatistics(userId: string) {
 }
 
 // Get gym visit rankings
-export async function getGymVisitRankings(userId: string, limit = 5) {
+export async function getGymVisitRankings(userId: string, limit = 5, period?: 'week' | 'month' | 'year') {
   try {
-    const { data: sessions } = await supabase
+    let query = supabase
       .from('workout_sessions')
       .select('gym_id, started_at')
       .eq('user_id', userId)
       .not('gym_id', 'is', null)
+
+    // Add period filter if specified
+    if (period) {
+      const now = new Date()
+      let startDate: Date
+
+      switch(period) {
+        case 'week':
+          startDate = new Date(now)
+          startDate.setDate(now.getDate() - now.getDay())
+          break
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+          break
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1)
+          break
+        default:
+          startDate = new Date(0) // No filter
+      }
+      query = query.gte('started_at', startDate.toISOString())
+    }
+
+    const { data: sessions } = await query
 
     if (!sessions || sessions.length === 0) {
       return []
@@ -161,9 +185,9 @@ export async function getGymVisitRankings(userId: string, limit = 5) {
 }
 
 // Get recent gym visits
-export async function getRecentGymVisits(userId: string, limit = 5) {
+export async function getRecentGymVisits(userId: string, limit = 5, period?: 'week' | 'month' | 'year') {
   try {
-    const { data: sessions } = await supabase
+    let query = supabase
       .from('workout_sessions')
       .select(`
         id,
@@ -173,6 +197,30 @@ export async function getRecentGymVisits(userId: string, limit = 5) {
         exercises:workout_exercises(exercise_name, sets)
       `)
       .eq('user_id', userId)
+
+    // Add period filter if specified
+    if (period) {
+      const now = new Date()
+      let startDate: Date
+
+      switch(period) {
+        case 'week':
+          startDate = new Date(now)
+          startDate.setDate(now.getDate() - now.getDay())
+          break
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+          break
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1)
+          break
+        default:
+          startDate = new Date(0) // No filter
+      }
+      query = query.gte('started_at', startDate.toISOString())
+    }
+
+    const { data: sessions } = await query
       .order('started_at', { ascending: false })
       .limit(limit)
 

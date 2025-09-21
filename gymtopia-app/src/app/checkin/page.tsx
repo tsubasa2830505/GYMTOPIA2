@@ -137,7 +137,7 @@ export default function CheckInPage() {
         name: gym.name,
         address: gym.address,
         distance: gym.distance_meters / 1000, // Convert to km
-        image_url: gym.image_url,
+        image_url: gym.images?.[0],
         latitude: gym.latitude,
         longitude: gym.longitude,
         rarity_level: gym.rarity_level,

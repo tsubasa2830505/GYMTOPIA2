@@ -174,17 +174,6 @@ export default function CheckinBadges({ userId }: CheckinBadgesProps) {
             <MapPin className="w-4 h-4 inline mr-2" />
             ジム制覇 ({stats.uniqueGyms})
           </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`flex-1 py-3 px-4 text-sm font-medium ${
-              activeTab === 'stats'
-                ? 'text-[color:var(--gt-primary-strong)] border-b-2 border-[color:var(--gt-primary)]'
-                : 'text-[color:var(--text-muted)] hover:text-[color:var(--foreground)]'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 inline mr-2" />
-            統計
-          </button>
         </div>
       </div>
 
@@ -346,95 +335,6 @@ export default function CheckinBadges({ userId }: CheckinBadgesProps) {
           </div>
         )}
 
-        {activeTab === 'stats' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-[rgba(254,255,250,0.9)] rounded-xl">
-                <div className="text-2xl font-bold text-[color:var(--gt-primary-strong)]">{stats.totalCheckins}</div>
-                <div className="text-xs text-[color:var(--text-muted)]">総チェックイン</div>
-              </div>
-              <div className="text-center p-4 bg-[rgba(254,255,250,0.9)] rounded-xl">
-                <div className="text-2xl font-bold text-green-600">{stats.verifiedCheckins}</div>
-                <div className="text-xs text-[color:var(--text-muted)]">GPS認証済み</div>
-              </div>
-              <div className="text-center p-4 bg-[rgba(254,255,250,0.9)] rounded-xl">
-                <div className="text-2xl font-bold text-blue-600">{stats.uniqueGyms}</div>
-                <div className="text-xs text-[color:var(--text-muted)]">制覇ジム数</div>
-              </div>
-              <div className="text-center p-4 bg-[rgba(254,255,250,0.9)] rounded-xl">
-                <div className="text-2xl font-bold text-yellow-600">{stats.rareGyms}</div>
-                <div className="text-xs text-[color:var(--text-muted)]">レアジム</div>
-              </div>
-            </div>
-
-            <div className="bg-[rgba(254,255,250,0.9)] rounded-xl p-4">
-              <h4 className="font-bold text-[color:var(--foreground)] mb-2">GPS精度</h4>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] h-2 rounded-full"
-                    style={{ width: `${Math.min((stats.verifiedCheckins / Math.max(stats.totalCheckins, 1)) * 100, 100)}%` }}
-                  ></div>
-                </div>
-                <span className="text-sm font-medium text-[color:var(--foreground)]">
-                  {Math.round((stats.verifiedCheckins / Math.max(stats.totalCheckins, 1)) * 100)}%
-                </span>
-              </div>
-              <p className="text-xs text-[color:var(--text-muted)] mt-1">
-                平均距離: {stats.averageDistance > 0 ? `${Math.round(stats.averageDistance)}m` : '未計算'}
-              </p>
-            </div>
-
-            {checkinHistory.length > 0 && (
-              <div className="bg-[rgba(254,255,250,0.9)] rounded-xl p-4">
-                <h4 className="font-bold text-[color:var(--foreground)] mb-3">最近のチェックイン</h4>
-                <div className="space-y-3">
-                  {checkinHistory.slice(0, 5).map(checkin => (
-                    <div key={checkin.id} className="flex items-center gap-3 text-sm bg-white rounded-lg p-3 border border-[rgba(231,103,76,0.12)] hover:border-[var(--gt-primary)] transition-colors">
-                      <div className={`w-2 h-2 rounded-full ${checkin.location_verified ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                      <div className="flex-1">
-                        <div className="font-medium text-[color:var(--foreground)]">{checkin.gyms.name}</div>
-                        <div className="text-[color:var(--text-muted)]">{new Date(checkin.checked_in_at).toLocaleDateString('ja-JP')}</div>
-                      </div>
-                      <div className="text-xs text-[color:var(--text-subtle)] mr-2">
-                        {Math.round(checkin.distance_to_gym)}m
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => {
-                            const gymId = checkin.gyms?.id || checkin.gym_id;
-                            if (gymId) {
-                              window.location.href = `/gyms/${gymId}`;
-                            } else {
-                              console.warn('ジムIDが見つかりません:', checkin);
-                            }
-                          }}
-                          className="p-1.5 bg-[rgba(231,103,76,0.08)] hover:bg-[rgba(231,103,76,0.16)] rounded-md transition-colors"
-                          title="ジム詳細を見る"
-                        >
-                          <svg className="w-3 h-3 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21 12 17.77 5.82 21 7 13.87 2 9l6.91-1.74L12 2z"/>
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            window.location.href = `/feed`;
-                          }}
-                          className="p-1.5 bg-[rgba(231,103,76,0.08)] hover:bg-[rgba(231,103,76,0.16)] rounded-md transition-colors"
-                          title="フィードを見る"
-                        >
-                          <svg className="w-3 h-3 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )

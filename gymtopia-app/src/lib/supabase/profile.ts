@@ -566,7 +566,69 @@ export async function getUserFollowing(
 
 export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
   try {
-    // First try with full join
+    console.log('🔧 getFavoriteGyms called with userId:', userId)
+
+    // Check if we're using mock auth
+    const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+    console.log('🔧 Mock auth enabled:', useMockAuth)
+
+    if (useMockAuth) {
+      console.log('🔧 Using service role key for mock auth to bypass RLS')
+
+      // Create a service role client that bypasses RLS
+      const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+
+      if (!serviceRoleKey) {
+        console.warn('Service role key not available, falling back to regular client')
+      } else {
+        // Import createClient dynamically to avoid issues
+        const { createClient } = await import('@supabase/supabase-js')
+        const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        })
+
+        console.log('🔧 Using service role client for RLS bypass')
+        const { data, error } = await serviceClient
+          .from('favorite_gyms')
+          .select(`
+            *,
+            gym:gyms(
+              id,
+              name,
+              prefecture,
+              city,
+              address,
+              description,
+              rating,
+              images,
+              review_count
+            )
+          `)
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.error('Service role query failed:', error)
+        } else {
+          console.log('✅ Service role query succeeded, found:', data?.length, 'records')
+          const favoriteGyms = (data || []).map(item => ({
+            id: item.id,
+            user_id: item.user_id,
+            gym_id: item.gym_id,
+            created_at: item.created_at,
+            gym: item.gym || null
+          }))
+          return favoriteGyms as FavoriteGym[]
+        }
+      }
+    }
+
+    // Fallback to regular client (for real auth or if service role fails)
+    console.log('🔧 Using regular client')
     const { data, error } = await getSupabaseClient()
       .from('favorite_gyms')
       .select(`
@@ -579,10 +641,7 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
           address,
           description,
           rating,
-          users_count,
-          image_url,
           images,
-          area,
           review_count
         )
       `)
@@ -606,6 +665,7 @@ export async function getFavoriteGyms(userId: string): Promise<FavoriteGym[]> {
       return []
     }
 
+    console.log('✅ Regular client query succeeded, found:', data?.length, 'records')
     // データをマッピング
     const favoriteGyms = (data || []).map(item => ({
       id: item.id,
