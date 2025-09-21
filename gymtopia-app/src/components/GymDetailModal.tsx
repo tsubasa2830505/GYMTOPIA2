@@ -502,7 +502,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                       isProcessingLike
                         ? 'bg-[rgba(254,255,250,0.82)] text-[color:var(--text-muted)] cursor-not-allowed'
                         : liked
-                        ? 'bg-[rgba(231,103,76,0.08)] text-white hover:bg-[color:var(--gt-primary-strong)]'
+                        ? 'bg-[color:var(--gt-primary)] text-white hover:bg-[color:var(--gt-primary-strong)]'
                         : 'bg-white border-2 border-[rgba(186,122,103,0.26)] text-[color:var(--foreground)] hover:bg-[rgba(254,255,250,0.98)]'
                     }`}
                   >

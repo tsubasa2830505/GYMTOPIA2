@@ -367,8 +367,8 @@ function ProfileContent() {
           setUserPosts(samplePosts);
         }
 
-        if (!userFavoriteGyms || userFavoriteGyms.length === 0) {
-          const sampleFavoriteGyms: FavoriteGym[] = [
+        // 初期読み込み時にいきたいデータを設定
+        const sampleFavoriteGyms: FavoriteGym[] = [
             {
               id: 'fav-1',
               user_id: userId,
@@ -437,9 +437,9 @@ function ProfileContent() {
                 image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
               }
             }
-          ];
-          setUserFavoriteGyms(sampleFavoriteGyms);
-        }
+        ];
+        setUserFavoriteGyms(sampleFavoriteGyms);
+        setHasLoadedFavorites(true);
 
       } catch (error) {
         console.error('プロフィールデータ取得エラー:', error);
@@ -523,100 +523,11 @@ function ProfileContent() {
     }
   };
 
-  // イキタイタブのデータを遅延ロード
+  // イキタイタブのデータを遅延ロード（初期化済みなので何もしない）
   const loadFavoritesData = async () => {
     if (hasLoadedFavorites || isLoadingFavorites || !userId) return;
-
-    setIsLoadingFavorites(true);
-    try {
-      console.log('❤️ お気に入りジムデータを取得中...');
-
-      const favoriteGyms = await getFavoriteGyms(userId).catch(() => []);
-
-      // データが空の場合はサンプルデータを設定
-      if (favoriteGyms.length === 0) {
-        const sampleFavoriteGyms: FavoriteGym[] = [
-          {
-            id: 'fav-1',
-            user_id: userId,
-            gym_id: 'ecef0d28-c740-4833-b15e-48703108196c',
-            created_at: '2024-06-01T00:00:00Z',
-            gym: {
-              id: 'ecef0d28-c740-4833-b15e-48703108196c',
-              name: 'ゴールドジム渋谷',
-              area: '渋谷',
-              prefecture: '東京都',
-              city: '渋谷区',
-              description: '本格的なトレーニング設備が充実',
-              rating: 4.5,
-              users_count: 523,
-              image_url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop&q=80'
-            }
-          },
-          {
-            id: 'fav-2',
-            user_id: userId,
-            gym_id: 'gym-2',
-            created_at: '2024-07-15T00:00:00Z',
-            gym: {
-              id: 'gym-2',
-              name: 'エニタイムフィットネス新宿',
-              area: '新宿',
-              prefecture: '東京都',
-              city: '新宿区',
-              description: '24時間営業で便利',
-              rating: 4.2,
-              users_count: 412,
-              image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&q=80'
-            }
-          },
-          {
-            id: 'fav-3',
-            user_id: userId,
-            gym_id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
-            created_at: '2024-08-01T00:00:00Z',
-            gym: {
-              id: '2bcdb138-b6b5-4d47-b2b4-cf645e315da8',
-              name: 'コナミスポーツクラブ池袋',
-              area: '池袋',
-              prefecture: '東京都',
-              city: '豊島区',
-              description: 'プール・スタジオ完備の総合スポーツクラブ',
-              rating: 4.3,
-              users_count: 342,
-              image_url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop&q=80'
-            }
-          },
-          {
-            id: 'fav-4',
-            user_id: userId,
-            gym_id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
-            created_at: '2024-09-10T00:00:00Z',
-            gym: {
-              id: 'be9d3b10-9f86-404a-a85e-d5c5fa521c0f',
-              name: 'パワーリフティングジム東京',
-              area: '六本木',
-              prefecture: '東京都',
-              city: '港区',
-              description: 'パワーリフティング専門の本格派ジム',
-              rating: 4.8,
-              users_count: 156,
-              image_url: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=400&h=300&fit=crop&q=80'
-            }
-          }
-        ];
-        setUserFavoriteGyms(sampleFavoriteGyms);
-      } else {
-        setUserFavoriteGyms(favoriteGyms);
-      }
-
-      setHasLoadedFavorites(true);
-      console.log('✅ お気に入りジムデータ取得完了');
-    } catch (error) {
-      console.error('お気に入りジムデータ取得エラー:', error);
-    } finally {
-      setIsLoadingFavorites(false);
-    }
+    // 初期読み込み時に既にサンプルデータが設定されているため、何もしない
+    console.log('❤️ イキタイデータは初期化済みです');
   };
 
   // タブ切り替え時の処理
@@ -843,9 +754,6 @@ function ProfileContent() {
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'achievements' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">達成記録</span>
-              <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
-                {isLoading ? '...' : `${profileData?.achievements_count || 0}達成`}
-              </div>
               {activeTab === 'achievements' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
               )}

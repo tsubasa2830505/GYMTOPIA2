@@ -94,7 +94,7 @@ export default function Home() {
             <p className="text-[color:var(--gt-on-primary)]/85 max-w-xl mx-auto text-base sm:text-lg drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-3 sm:mb-4 font-semibold whitespace-nowrap">
               妥協ゼロ、条件はフル装備。
             </p>
-            <h2 className="gt-heading-xl sm:gt-heading-2xl font-black mb-6 sm:mb-8 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
+            <h2 className="gt-heading-xl sm:gt-heading-2xl font-black mb-6 sm:mb-8 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)] sm:whitespace-nowrap">
               全国から見つける、<br className="sm:hidden" />あなたのジムトピア
             </h2>
             <button
