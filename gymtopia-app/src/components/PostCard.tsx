@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2, Shield } from 'lucide-react';
+import { Heart, Camera, Image as ImageIcon, Share2, MoreVertical, Edit, Trash2, Shield } from 'lucide-react';
 import TrainingDetails from '@/components/TrainingDetails';
 import { generateStoryImage, downloadStoryImage } from '@/lib/story-image-generator';
 import type { Post } from '@/lib/supabase/posts';
@@ -31,6 +31,18 @@ export default function PostCard({
 }: PostCardProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [generatingStory, setGeneratingStory] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth > 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const toggleDropdown = (postId: string) => {
     setActiveDropdown(activeDropdown === postId ? null : postId);
@@ -185,7 +197,17 @@ export default function PostCard({
         <div className="mt-3">
           <div
             className={`grid gap-1 ${
-              post.images.length === 1
+              isLargeScreen
+                ? post.images.length === 1
+                  ? 'grid-cols-1'
+                  : post.images.length === 2
+                  ? 'grid-cols-2'
+                  : post.images.length === 3
+                  ? 'grid-cols-3'
+                  : post.images.length <= 6
+                  ? 'grid-cols-3'
+                  : 'grid-cols-4'
+                : post.images.length === 1
                 ? 'grid-cols-1'
                 : post.images.length === 2
                 ? 'grid-cols-2'
@@ -194,11 +216,15 @@ export default function PostCard({
                 : 'grid-cols-2'
             }`}
           >
-            {post.images.slice(0, 4).map((image, index) => (
+            {post.images.slice(0, isLargeScreen ? post.images.length : 4).map((image, index) => (
               <div
                 key={index}
                 className={`relative bg-[rgba(254,255,250,0.92)] ${
-                  post.images!.length === 1
+                  isLargeScreen
+                    ? post.images!.length === 1
+                      ? 'aspect-[4/3]'
+                      : 'aspect-square'
+                    : post.images!.length === 1
                     ? 'aspect-[4/3]'
                     : post.images!.length === 3 && index === 0
                     ? 'col-span-3 aspect-[3/2]'
@@ -212,7 +238,7 @@ export default function PostCard({
                   className="object-cover"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
-                {post.images!.length > 4 && index === 3 && (
+                {!isLargeScreen && post.images!.length > 4 && index === 3 && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <span className="text-white text-2xl font-bold">
                       +{post.images!.length - 4}
@@ -259,13 +285,6 @@ export default function PostCard({
                 )}
               </button>
 
-              {/* Comment Button */}
-              <button className="flex items-center gap-2 px-4 py-2 text-[color:var(--text-subtle)] rounded-lg hover:bg-[rgba(254,255,250,0.92)] transition-colors border-2 border-[rgba(186,122,103,0.26)] hover:border-[rgba(231,103,76,0.32)]">
-                <MessageCircle className="w-5 h-5" />
-                {post.comments_count > 0 && (
-                  <span className="text-sm font-medium">{post.comments_count}</span>
-                )}
-              </button>
 
               {/* Story Button */}
               <button

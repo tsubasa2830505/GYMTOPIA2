@@ -848,6 +848,212 @@ export async function getTodaySetProgression(userId: string) {
   }
 }
 
+// 部位配分推移データを取得（過去12週間）
+export async function getBodyPartProgression(userId: string) {
+  try {
+    const now = new Date()
+    const weeks = []
+
+    // 過去12週間のデータを取得
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now)
+      weekStart.setDate(now.getDate() - now.getDay() - (i * 7))
+      weekStart.setHours(0, 0, 0, 0)
+
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekStart.getDate() + 6)
+      weekEnd.setHours(23, 59, 59, 999)
+
+      // その週のワークアウトセッションを取得
+      const { data: sessions } = await supabase
+        .from('workout_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .gte('started_at', weekStart.toISOString())
+        .lte('started_at', weekEnd.toISOString())
+
+      let bodyPartVolumes: Record<string, number> = {}
+
+      if (sessions && sessions.length > 0) {
+        // その週のエクササイズを取得
+        const { data: exercises } = await supabase
+          .from('workout_exercises')
+          .select(`
+            exercise_name,
+            sets,
+            exercises(category)
+          `)
+          .in('session_id', sessions.map(s => s.id))
+
+        if (exercises) {
+          exercises.forEach(exercise => {
+            const category = exercise.exercises?.category || getExerciseCategory(exercise.exercise_name)
+
+            if (exercise.sets && Array.isArray(exercise.sets)) {
+              const volume = exercise.sets.reduce((sum: number, set: any) => {
+                return sum + (set.weight || 0) * (set.reps || 0)
+              }, 0)
+
+              if (!bodyPartVolumes[category]) {
+                bodyPartVolumes[category] = 0
+              }
+              bodyPartVolumes[category] += volume
+            }
+          })
+        }
+      }
+
+      // 配分パーセンテージを計算
+      const totalVolume = Object.values(bodyPartVolumes).reduce((sum, vol) => sum + vol, 0)
+      const bodyPartPercentages: Record<string, number> = {}
+
+      Object.keys(bodyPartVolumes).forEach(category => {
+        bodyPartPercentages[category] = totalVolume > 0
+          ? Math.round((bodyPartVolumes[category] / totalVolume) * 100)
+          : 0
+      })
+
+      weeks.push({
+        weekLabel: `${weekStart.getMonth() + 1}/${weekStart.getDate()}`,
+        weekStartDate: weekStart.toISOString(),
+        bodyPartVolumes,
+        bodyPartPercentages,
+        totalVolume
+      })
+    }
+
+    return weeks
+  } catch (error) {
+    console.error('Error fetching body part progression:', error)
+    return []
+  }
+}
+
+// 連続記録ヒートマップデータを取得（過去365日）
+export async function getWorkoutStreakHeatmap(userId: string) {
+  try {
+    const now = new Date()
+    const oneYearAgo = new Date(now)
+    oneYearAgo.setFullYear(now.getFullYear() - 1)
+
+    // 過去365日のワークアウトセッションを取得
+    const { data: sessions } = await supabase
+      .from('workout_sessions')
+      .select('started_at, duration')
+      .eq('user_id', userId)
+      .gte('started_at', oneYearAgo.toISOString())
+      .order('started_at', { ascending: true })
+
+    // 日付ごとのワークアウト強度を計算
+    const heatmapData: Record<string, { intensity: number, sessions: number, totalDuration: number }> = {}
+
+    if (sessions) {
+      sessions.forEach(session => {
+        const date = new Date(session.started_at).toISOString().split('T')[0]
+
+        if (!heatmapData[date]) {
+          heatmapData[date] = { intensity: 0, sessions: 0, totalDuration: 0 }
+        }
+
+        heatmapData[date].sessions += 1
+        heatmapData[date].totalDuration += session.duration || 0
+      })
+
+      // 強度を計算（セッション数 + 時間で0-4のレベル）
+      Object.keys(heatmapData).forEach(date => {
+        const data = heatmapData[date]
+        const sessionScore = Math.min(data.sessions * 2, 4)
+        const durationScore = Math.min(Math.floor(data.totalDuration / 30), 2) // 30分ごとに+1
+        heatmapData[date].intensity = Math.min(sessionScore + durationScore, 4)
+      })
+    }
+
+    // 過去365日の配列を作成
+    const days = []
+    for (let i = 364; i >= 0; i--) {
+      const date = new Date(now)
+      date.setDate(now.getDate() - i)
+      const dateStr = date.toISOString().split('T')[0]
+
+      days.push({
+        date: dateStr,
+        dayOfWeek: date.getDay(),
+        dayOfMonth: date.getDate(),
+        month: date.getMonth(),
+        intensity: heatmapData[dateStr]?.intensity || 0,
+        sessions: heatmapData[dateStr]?.sessions || 0,
+        totalDuration: heatmapData[dateStr]?.totalDuration || 0
+      })
+    }
+
+    return days
+  } catch (error) {
+    console.error('Error fetching workout streak heatmap:', error)
+    return []
+  }
+}
+
+// 週総ボリューム推移データを取得（過去12週間）
+export async function getWeeklyVolumeProgression(userId: string) {
+  try {
+    const now = new Date()
+    const weeks = []
+
+    // 過去12週間のデータを取得
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now)
+      weekStart.setDate(now.getDate() - now.getDay() - (i * 7))
+      weekStart.setHours(0, 0, 0, 0)
+
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekStart.getDate() + 6)
+      weekEnd.setHours(23, 59, 59, 999)
+
+      // その週のワークアウトセッションを取得
+      const { data: sessions } = await supabase
+        .from('workout_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .gte('started_at', weekStart.toISOString())
+        .lte('started_at', weekEnd.toISOString())
+
+      let weeklyVolume = 0
+
+      if (sessions && sessions.length > 0) {
+        // その週のエクササイズを取得
+        const { data: exercises } = await supabase
+          .from('workout_exercises')
+          .select('sets')
+          .in('session_id', sessions.map(s => s.id))
+
+        if (exercises) {
+          exercises.forEach(exercise => {
+            if (exercise.sets && Array.isArray(exercise.sets)) {
+              exercise.sets.forEach((set: any) => {
+                if (set.weight && set.reps) {
+                  weeklyVolume += set.weight * set.reps
+                }
+              })
+            }
+          })
+        }
+      }
+
+      weeks.push({
+        weekLabel: `${weekStart.getMonth() + 1}/${weekStart.getDate()}`,
+        weekStartDate: weekStart.toISOString(),
+        volume: weeklyVolume,
+        sessionCount: sessions?.length || 0
+      })
+    }
+
+    return weeks
+  } catch (error) {
+    console.error('Error fetching weekly volume progression:', error)
+    return []
+  }
+}
+
 // Exercise category helper function
 function getExerciseCategory(exerciseName: string): string {
   const name = exerciseName.toLowerCase()

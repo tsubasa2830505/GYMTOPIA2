@@ -144,7 +144,7 @@ export async function getGyms(filters?: {
   categories?: string[] // target_category values
 }) {
   try {
-    const baseSelect = 'id, name, prefecture, city, address, latitude, longitude, images, facilities, rating, review_count, verified, description, equipment_types'
+    const baseSelect = 'id, name, prefecture, city, address, latitude, longitude, images, facilities, rating, review_count, verified, description, equipment_types, price_info'
     // Include related counts for UI if needed
     let query = supabase
       .from('gyms')

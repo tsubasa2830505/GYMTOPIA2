@@ -1,41 +1,334 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// ジム詳細情報の型定義
-export interface GymDetailedInfo {
-  id?: string
-  gym_id: string
-  pricing_details?: string | null
-  membership_plans?: string | null
-  business_hours_details?: string | null
-  staff_hours?: string | null
-  rules_and_regulations?: string | null
-  dress_code?: string | null
-  beginner_support?: string | null
-  trial_info?: string | null
-  access_details?: string | null
-  parking_details?: string | null
-  special_programs?: string | null
-  announcements?: string | null
-  additional_info?: string | null
-  created_at?: string
-  updated_at?: string
-  updated_by?: string
+// 型定義
+export interface PricingSystem {
+  membership_plans?: Array<{
+    name: string
+    price: number
+    duration: string
+    description: string
+    features: string[]
+  }>
+  day_passes?: {
+    price: number
+    description: string
+  }
+  personal_training?: {
+    available: boolean
+    price_range: string
+    description: string
+  }
+  additional_fees?: Array<{
+    name: string
+    price: number
+    description: string
+  }>
+  payment_methods?: string[]
+  cancellation_policy?: string
 }
 
-/**
- * ジム詳細情報を取得
- */
+export interface OperatingHours {
+  regular_hours?: {
+    monday?: { open: string; close: string; closed: boolean }
+    tuesday?: { open: string; close: string; closed: boolean }
+    wednesday?: { open: string; close: string; closed: boolean }
+    thursday?: { open: string; close: string; closed: boolean }
+    friday?: { open: string; close: string; closed: boolean }
+    saturday?: { open: string; close: string; closed: boolean }
+    sunday?: { open: string; close: string; closed: boolean }
+  }
+  holiday_hours?: string
+  special_hours?: Array<{
+    date: string
+    hours: string
+    description: string
+  }>
+  staff_hours?: string
+  note?: string
+}
+
+export interface RulesAndPolicies {
+  general_rules?: string[]
+  dress_code?: {
+    required: string[]
+    prohibited: string[]
+    notes: string
+  }
+  equipment_rules?: string[]
+  safety_guidelines?: string[]
+  behavior_policy?: string
+  guest_policy?: string
+  age_restrictions?: string
+  other_policies?: string[]
+}
+
+export interface BeginnerSupport {
+  orientation_available?: boolean
+  orientation_details?: string
+  free_consultation?: boolean
+  personal_training?: {
+    available: boolean
+    trial_session: boolean
+    pricing: string
+  }
+  group_classes?: {
+    beginner_friendly: boolean
+    classes: string[]
+  }
+  equipment_introduction?: boolean
+  staff_support?: string
+  resources?: string[]
+  trial_membership?: {
+    available: boolean
+    duration: string
+    price: string
+  }
+}
+
+export interface AccessInformation {
+  address_details?: string
+  nearest_station?: string
+  walking_time?: string
+  bus_access?: string
+  car_access?: string
+  parking?: {
+    available: boolean
+    capacity: number
+    pricing: string
+    time_limit: string
+    notes: string
+  }
+  bicycle_parking?: {
+    available: boolean
+    notes: string
+  }
+  accessibility?: {
+    wheelchair_accessible: boolean
+    elevator: boolean
+    notes: string
+  }
+}
+
+export interface OtherInformation {
+  special_programs?: string[]
+  events?: string[]
+  announcements?: string[]
+  contact_info?: {
+    inquiry_email: string
+    inquiry_phone: string
+    response_time: string
+  }
+  social_media?: {
+    website: string
+    instagram: string
+    facebook: string
+    twitter: string
+  }
+  amenities?: string[]
+  unique_features?: string[]
+  additional_notes?: string
+}
+
+export interface GymDetailedInfo {
+  id: string
+  gym_id: string
+  pricing_system: PricingSystem
+  operating_hours: OperatingHours
+  rules_and_policies: RulesAndPolicies
+  beginner_support: BeginnerSupport
+  access_information: AccessInformation
+  other_information: OtherInformation
+  last_updated_by?: string
+  content_status: 'draft' | 'published' | 'archived'
+  created_at: string
+  updated_at: string
+}
+
+// ジム詳細情報を取得
 export async function getGymDetailedInfo(gymId: string): Promise<GymDetailedInfo | null> {
   try {
-    // UUID形式のバリデーション
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(gymId)) {
-      console.warn(`Invalid UUID format for gymId: ${gymId}`)
+    const { data, error } = await supabase
+      .from('gym_detailed_info')
+      .select('*')
+      .eq('gym_id', gymId)
+      .eq('content_status', 'published')
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error fetching gym detailed info:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in getGymDetailedInfo:', error)
+    return null
+  }
+}
+
+// ジム詳細情報を作成または更新（オーナー用）
+export async function upsertGymDetailedInfo(
+  gymId: string,
+  detailedInfo: Partial<Omit<GymDetailedInfo, 'id' | 'gym_id' | 'created_at' | 'updated_at'>>,
+  userId: string
+): Promise<GymDetailedInfo | null> {
+  try {
+    // ジムオーナー権限をチェック
+    const { data: ownerData, error: ownerError } = await supabase
+      .from('gym_owners')
+      .select('id, permissions')
+      .eq('gym_id', gymId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (ownerError || !ownerData) {
+      console.error('User is not authorized to edit this gym:', { gymId, userId })
+      return null
+    }
+
+    // 権限チェック
+    const permissions = ownerData.permissions as any
+    if (!permissions?.canEditBasicInfo) {
+      console.error('User does not have permission to edit basic info:', { gymId, userId })
+      return null
+    }
+
+    const updateData = {
+      gym_id: gymId,
+      ...detailedInfo,
+      last_updated_by: userId,
+      updated_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabase
+      .from('gym_detailed_info')
+      .upsert(updateData, {
+        onConflict: 'gym_id'
+      })
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Error upserting gym detailed info:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in upsertGymDetailedInfo:', error)
+    return null
+  }
+}
+
+// 特定セクションのみを更新
+export async function updateGymDetailedInfoSection(
+  gymId: string,
+  section: 'pricing_system' | 'operating_hours' | 'rules_and_policies' | 'beginner_support' | 'access_information' | 'other_information',
+  sectionData: any,
+  userId: string
+): Promise<boolean> {
+  try {
+    // ジムオーナー権限をチェック
+    const { data: ownerData, error: ownerError } = await supabase
+      .from('gym_owners')
+      .select('id, permissions')
+      .eq('gym_id', gymId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (ownerError || !ownerData) {
+      console.error('User is not authorized to edit this gym:', { gymId, userId })
+      return false
+    }
+
+    const permissions = ownerData.permissions as any
+    if (!permissions?.canEditBasicInfo) {
+      console.error('User does not have permission to edit basic info:', { gymId, userId })
+      return false
+    }
+
+    const updateData = {
+      [section]: sectionData,
+      last_updated_by: userId,
+      updated_at: new Date().toISOString()
+    }
+
+    const { error } = await supabase
+      .from('gym_detailed_info')
+      .upsert(
+        { gym_id: gymId, ...updateData },
+        { onConflict: 'gym_id' }
+      )
+
+    if (error) {
+      console.error(`Error updating gym detailed info section ${section}:`, error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error(`Error in updateGymDetailedInfoSection (${section}):`, error)
+    return false
+  }
+}
+
+// コンテンツステータスを更新
+export async function updateGymDetailedInfoStatus(
+  gymId: string,
+  status: 'draft' | 'published' | 'archived',
+  userId: string
+): Promise<boolean> {
+  try {
+    // ジムオーナー権限をチェック
+    const { data: ownerData, error: ownerError } = await supabase
+      .from('gym_owners')
+      .select('id, permissions')
+      .eq('gym_id', gymId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (ownerError || !ownerData) {
+      console.error('User is not authorized to edit this gym:', { gymId, userId })
+      return false
+    }
+
+    const { error } = await supabase
+      .from('gym_detailed_info')
+      .upsert(
+        {
+          gym_id: gymId,
+          content_status: status,
+          last_updated_by: userId,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: 'gym_id' }
+      )
+
+    if (error) {
+      console.error('Error updating gym detailed info status:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in updateGymDetailedInfoStatus:', error)
+    return false
+  }
+}
+
+// ジムオーナーが管理しているジムの詳細情報を取得（下書き含む）
+export async function getGymDetailedInfoForOwner(gymId: string, userId: string): Promise<GymDetailedInfo | null> {
+  try {
+    // ジムオーナー権限をチェック
+    const { data: ownerData, error: ownerError } = await supabase
+      .from('gym_owners')
+      .select('id')
+      .eq('gym_id', gymId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (ownerError || !ownerData) {
+      console.error('User is not authorized to view this gym detailed info:', { gymId, userId })
       return null
     }
 
@@ -43,109 +336,49 @@ export async function getGymDetailedInfo(gymId: string): Promise<GymDetailedInfo
       .from('gym_detailed_info')
       .select('*')
       .eq('gym_id', gymId)
-      .single()
+      .maybeSingle()
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error fetching gym detailed info:', error.message || error)
+    if (error) {
+      console.error('Error fetching gym detailed info for owner:', error)
       return null
     }
 
-    return data as GymDetailedInfo
+    return data
   } catch (error) {
-    console.error('Error in getGymDetailedInfo:', error)
+    console.error('Error in getGymDetailedInfoForOwner:', error)
     return null
   }
 }
 
-/**
- * ジム詳細情報を保存（作成/更新）
- */
-export async function saveGymDetailedInfo(
-  gymId: string,
-  info: Partial<Omit<GymDetailedInfo, 'id' | 'gym_id' | 'created_at' | 'updated_at' | 'updated_by'>>
-): Promise<{ success: boolean; error?: string; data?: GymDetailedInfo }> {
+// 初期データを作成（空のデータ構造で）
+export async function createInitialGymDetailedInfo(gymId: string, userId: string): Promise<GymDetailedInfo | null> {
   try {
-    // UUID形式のバリデーション
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(gymId)) {
-      return { success: false, error: `Invalid UUID format for gymId: ${gymId}` }
+    const initialData: Partial<GymDetailedInfo> = {
+      gym_id: gymId,
+      pricing_system: {},
+      operating_hours: {},
+      rules_and_policies: {},
+      beginner_support: {},
+      access_information: {},
+      other_information: {},
+      content_status: 'draft',
+      last_updated_by: userId
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, error: 'ログインが必要です' }
-    }
-
-    // 既存の詳細情報があるか確認
-    const existing = await getGymDetailedInfo(gymId)
-
-    if (existing) {
-      // 更新
-      const { data, error } = await supabase
-        .from('gym_detailed_info')
-        .update({
-          ...info,
-          updated_at: new Date().toISOString(),
-          updated_by: user.id
-        })
-        .eq('gym_id', gymId)
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Error updating gym detailed info:', error)
-        return { success: false, error: '詳細情報の更新に失敗しました' }
-      }
-
-      return { success: true, data: data as GymDetailedInfo }
-    } else {
-      // 新規作成
-      const { data, error } = await supabase
-        .from('gym_detailed_info')
-        .insert({
-          gym_id: gymId,
-          ...info,
-          updated_by: user.id
-        })
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Error creating gym detailed info:', error)
-        return { success: false, error: '詳細情報の作成に失敗しました' }
-      }
-
-      return { success: true, data: data as GymDetailedInfo }
-    }
-  } catch (error) {
-    console.error('Error in saveGymDetailedInfo:', error)
-    return { success: false, error: '予期しないエラーが発生しました' }
-  }
-}
-
-/**
- * ジム詳細情報を削除
- */
-export async function deleteGymDetailedInfo(gymId: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, error: 'ログインが必要です' }
-    }
-
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('gym_detailed_info')
-      .delete()
-      .eq('gym_id', gymId)
+      .insert(initialData)
+      .select('*')
+      .single()
 
     if (error) {
-      console.error('Error deleting gym detailed info:', error)
-      return { success: false, error: '詳細情報の削除に失敗しました' }
+      console.error('Error creating initial gym detailed info:', error)
+      return null
     }
 
-    return { success: true }
+    return data
   } catch (error) {
-    console.error('Error in deleteGymDetailedInfo:', error)
-    return { success: false, error: '予期しないエラーが発生しました' }
+    console.error('Error in createInitialGymDetailedInfo:', error)
+    return null
   }
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import PostCardWithVerification from '@/components/PostCardWithVerification';
+import PostCard from '@/components/PostCard';
 import PostEditModal from '@/components/PostEditModal';
 import { getFeedPosts, likePost, unlikePost, updatePost, deletePost as deletePostAPI, type Post } from '@/lib/supabase/posts';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,7 +19,6 @@ const getSamplePosts = (): Post[] => [
     images: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1200&fit=crop&crop=center'],
     created_at: new Date().toISOString(),
     likes_count: 15,
-    comments_count: 3,
     is_liked: false,
     user: {
       id: 'sample-user-1',
@@ -72,7 +71,6 @@ const getSamplePosts = (): Post[] => [
     content: '今日は有酸素運動の日！30分間のランニングで汗を流しました💦\n\n天気も良くて気持ちよかったです！',
     created_at: new Date(Date.now() - 3600000).toISOString(),
     likes_count: 8,
-    comments_count: 2,
     is_liked: false,
     user: {
       id: 'sample-user-2',
@@ -421,7 +419,7 @@ export default function FeedPage() {
 
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
+    <div className="min-h-screen pb-20 relative">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(210deg,rgba(231,103,76,0.08),transparent_82%),radial-gradient(circle_at_16%_20%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_84%_14%,rgba(245,177,143,0.12),transparent_74%)]" />
         <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.32),transparent_72%)] blur-[150px] opacity-68" />
@@ -430,7 +428,7 @@ export default function FeedPage() {
       <Header subtitle="フィード" />
 
       {/* Main Content */}
-      <div className="relative max-w-4xl mx-auto px-4 pt-20 sm:pt-24 py-6 space-y-6">
+      <div className="relative max-w-4xl mx-auto px-4 pt-20 sm:pt-24 py-6 space-y-6 min-h-screen">
         {/* Feed Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -518,30 +516,15 @@ export default function FeedPage() {
             {/* Feed Posts */}
             <div className="space-y-4">
               {posts.map((post) => (
-                <PostCardWithVerification
+                <PostCard
                   key={post.id}
-                  id={post.id}
-                  user={{
-                    id: post.user.id,
-                    username: post.user.username,
-                    displayName: post.user.display_name,
-                    avatarUrl: post.user.avatar_url
-                  }}
-                  gym={{
-                    id: post.gym_id,
-                    name: post.gym?.name || ''
-                  }}
-                  content={post.content}
-                  images={post.images}
-                  likes={post.likes_count}
-                  comments={post.comments_count}
-                  createdAt={post.created_at}
-                  isLiked={post.is_liked}
-                  isVerified={post.is_verified}
-                  checkInId={post.check_in_id}
-                  verificationMethod={post.verification_method}
-                  distanceFromGym={post.distance_from_gym}
+                  post={post}
+                  expandedTraining={expandedTraining}
+                  onToggleTraining={() => toggleTrainingDetails(post.id)}
+                  showActions={true}
                   onLike={() => handleLike(post)}
+                  onEdit={() => handleEditPost(post)}
+                  onDelete={() => handleDeletePost(post.id)}
                 />
               ))}
 

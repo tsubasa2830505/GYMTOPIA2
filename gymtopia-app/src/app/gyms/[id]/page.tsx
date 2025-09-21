@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Star, Users, Heart, Clock, Phone, Globe, Instagram, Twitter } from 'lucide-react'
+import { ArrowLeft, MapPin, Star, Users, Heart, Clock, Phone, Globe, Instagram, Twitter, MessageSquare } from 'lucide-react'
 import Header from '@/components/Header'
 import { enrichGymWithStationInfo } from '@/lib/utils/distance'
 import { getGymDetail, checkFavoriteStatus, toggleFavorite } from '@/lib/supabase/gym-detail'
@@ -278,6 +278,55 @@ export default function GymDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* 口コミ・レビュー（ジム活フィード） */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-[color:var(--foreground)]">
+                  口コミ・レビュー
+                </h2>
+                <Link
+                  href={`/gyms/${gymId}/feed`}
+                  className="text-sm text-[color:var(--gt-primary)] hover:text-[color:var(--gt-primary-strong)] transition-colors font-medium"
+                >
+                  すべて見る →
+                </Link>
+              </div>
+
+              <div className="bg-white rounded-xl border border-[rgba(186,122,103,0.26)] p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <MessageSquare className="w-5 h-5 text-[color:var(--gt-primary)]" />
+                  <h3 className="font-semibold text-[color:var(--foreground)]">
+                    利用者のジム活レポート
+                  </h3>
+                </div>
+
+                <p className="text-sm text-[color:var(--text-subtle)] mb-4">
+                  このジムを利用した方々の実際のトレーニング体験やレビューをご覧いただけます。
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm text-[color:var(--text-muted)]">
+                    <div className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      <span>リアルな利用者の声</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4" />
+                      <span>トレーニング詳細</span>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/gyms/${gymId}/feed`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors text-sm font-medium"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    ジム活を見る
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}

@@ -284,6 +284,24 @@ function SearchResultsContent() {
             )
           }
 
+          // Format pricing information
+          const formatPricing = (priceInfo: any) => {
+            if (!priceInfo) return '料金要問合せ'
+
+            const monthly = priceInfo.monthly
+            const visitor = priceInfo.visitor
+
+            if (monthly && visitor) {
+              return `月額¥${parseInt(monthly).toLocaleString()} / ドロップイン¥${parseInt(visitor).toLocaleString()}`
+            } else if (monthly) {
+              return `月額¥${parseInt(monthly).toLocaleString()}`
+            } else if (visitor) {
+              return `ドロップイン¥${parseInt(visitor).toLocaleString()}`
+            } else {
+              return '料金要問合せ'
+            }
+          }
+
           return {
             id: gym.id || `gym-${index}`, // Ensure unique ID
             name: gym.name || 'ジム名未設定',
@@ -297,7 +315,9 @@ function SearchResultsContent() {
             image: gym.images && gym.images.length > 0
               ? gym.images[0]
               : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
-            price: '¥10,000～', // Placeholder
+            price: formatPricing(gym.price_info),
+            monthlyPrice: gym.price_info?.monthly ? parseInt(gym.price_info.monthly) : null,
+            dropinPrice: gym.price_info?.visitor ? parseInt(gym.price_info.visitor) : null,
             isLiked: userFavorites.includes(gym.id),
             address: gym.address || '',
             images: gym.images || [], // 全画像を保持
@@ -340,7 +360,9 @@ function SearchResultsContent() {
           likes: 256,
           tags: ['プレミアム', 'サウナ'],
           image: '/gym1.jpg',
-          price: '¥18,400',
+          price: '月額¥18,400 / ドロップイン¥3,500',
+          monthlyPrice: 18400,
+          dropinPrice: 3500,
           isLiked: true,
         },
         {
@@ -351,7 +373,9 @@ function SearchResultsContent() {
           likes: 189,
           tags: ['24時間', 'プール'],
           image: '/gym2.jpg',
-          price: '¥15,000',
+          price: '月額¥15,000 / ドロップイン¥3,000',
+          monthlyPrice: 15000,
+          dropinPrice: 3000,
           isLiked: false,
         },
         {
@@ -362,7 +386,9 @@ function SearchResultsContent() {
           likes: 145,
           tags: ['24時間営業', 'シャワー'],
           image: '/gym3.jpg',
-          price: '¥12,600',
+          price: '月額¥12,600 / ドロップイン¥2,500',
+          monthlyPrice: 12600,
+          dropinPrice: 2500,
           isLiked: false,
         },
       ])
@@ -447,7 +473,7 @@ function SearchResultsContent() {
 
     // URLのmachinesは名前を想定（ID対応が必要になった場合のみ取得）
     if (machines.length > 0) {
-      const hasNonName = machines.some(m => /:/.test(m.name || m))
+      const hasNonName = machines.some(m => /:/.test(typeof m === 'string' ? m : m.name))
       if (hasNonName) {
         getMachines().then(allMachines => {
           const nameMap: Record<string, string> = {}
@@ -500,6 +526,24 @@ function SearchResultsContent() {
             }
           }
 
+          // Format pricing information for nearby search
+          const formatPricingNearby = (priceInfo: any) => {
+            if (!priceInfo) return '料金要問合せ'
+
+            const monthly = priceInfo.monthly
+            const visitor = priceInfo.visitor
+
+            if (monthly && visitor) {
+              return `月額¥${parseInt(monthly).toLocaleString()} / ドロップイン¥${parseInt(visitor).toLocaleString()}`
+            } else if (monthly) {
+              return `月額¥${parseInt(monthly).toLocaleString()}`
+            } else if (visitor) {
+              return `ドロップイン¥${parseInt(visitor).toLocaleString()}`
+            } else {
+              return '料金要問合せ'
+            }
+          }
+
           let transformed = (gymRows || []).map((g: any) => ({
             id: g.id,
             name: g.name,
@@ -509,7 +553,9 @@ function SearchResultsContent() {
             likes: g.review_count || 0,
             tags: g.equipment_types || [],
             image: g.images && g.images.length > 0 ? g.images[0] : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
-            price: '—',
+            price: formatPricingNearby(g.price_info),
+            monthlyPrice: g.price_info?.monthly ? parseInt(g.price_info.monthly) : null,
+            dropinPrice: g.price_info?.visitor ? parseInt(g.price_info.visitor) : null,
             isLiked: userFavorites.includes(g.id),
             address: g.address || '',
             images: g.images || [],
@@ -519,7 +565,7 @@ function SearchResultsContent() {
           }))
 
           // Apply sorting for nearby search results too
-          transformed = sortGyms(transformed, sortBy, { lat, lng })
+          transformed = sortGyms(transformed, sortBy, { lat, lng: lon })
           setGyms(transformed)
         } catch (e: any) {
           console.error('Nearby search failed', e)
@@ -767,7 +813,11 @@ function SearchResultsContent() {
                       setSortDropdownOpen(false)
                     }}
                     disabled={!userLocation}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${sortBy === 'distance' ? 'bg-gradient-to-r from-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white' : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'} ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center gap-2 gt-pressable transition-colors ${
+                      sortBy === 'distance'
+                        ? 'bg-gradient-to-r from-[var(--gt-secondary)] to-[var(--gt-secondary)] text-white'
+                        : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)]'
+                    } ${!userLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Navigation className="w-3 h-3" />
                     近い順
@@ -836,12 +886,35 @@ function SearchResultsContent() {
                                 現在地から {gym.distanceFromUser.toFixed(1)}km
                               </p>
                             )}
-                            <div className="flex items-center gap-3 mt-2">
+                            <div className="flex items-center justify-between gap-3 mt-2">
                               <div className="flex items-center gap-1 text-[color:var(--text-muted)]">
                                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-[color:var(--gt-primary)] text-[color:var(--gt-primary)]' : ''}`} />
                                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--foreground)]">{gym.likes}</span>
                               </div>
-                              <span className="text-base sm:text-lg font-bold text-[color:var(--gt-primary-strong)]">{gym.price}</span>
+                              <div className="text-right">
+                                {gym.monthlyPrice && gym.dropinPrice ? (
+                                  <div className="space-y-0.5">
+                                    <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
+                                      月額¥{gym.monthlyPrice.toLocaleString()}
+                                    </div>
+                                    <div className="text-[10px] sm:text-xs text-[color:var(--text-muted)]">
+                                      ドロップイン¥{gym.dropinPrice.toLocaleString()}
+                                    </div>
+                                  </div>
+                                ) : gym.monthlyPrice ? (
+                                  <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
+                                    月額¥{gym.monthlyPrice.toLocaleString()}
+                                  </div>
+                                ) : gym.dropinPrice ? (
+                                  <div className="text-xs sm:text-sm font-semibold text-[color:var(--gt-primary-strong)]">
+                                    ドロップイン¥{gym.dropinPrice.toLocaleString()}
+                                  </div>
+                                ) : (
+                                  <div className="text-xs sm:text-sm text-[color:var(--text-muted)]">
+                                    料金要問合せ
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="hidden sm:flex flex-col gap-2">

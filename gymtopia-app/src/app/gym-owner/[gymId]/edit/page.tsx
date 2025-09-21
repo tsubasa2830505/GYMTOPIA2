@@ -6,8 +6,19 @@ import {
   Save, ArrowLeft, DollarSign, Clock, Users, Car,
   AlertCircle, BookOpen, Megaphone, Info, Loader2
 } from 'lucide-react'
-import { getGymDetailedInfo, saveGymDetailedInfo } from '@/lib/supabase/gym-detailed-info'
+import {
+  getGymDetailedInfoForOwner,
+  upsertGymDetailedInfo,
+  createInitialGymDetailedInfo
+} from '@/lib/supabase/gym-detailed-info'
 import type { GymDetailedInfo } from '@/lib/supabase/gym-detailed-info'
+import { supabase } from '@/lib/supabase/client'
+import PricingSection from '@/components/GymOwnerForm/PricingSection'
+import OperatingHoursSection from '@/components/GymOwnerForm/OperatingHoursSection'
+import RulesSection from '@/components/GymOwnerForm/RulesSection'
+import BeginnerSupportSection from '@/components/GymOwnerForm/BeginnerSupportSection'
+import AccessInfoSection from '@/components/GymOwnerForm/AccessInfoSection'
+import OtherInfoSection from '@/components/GymOwnerForm/OtherInfoSection'
 
 interface GymOwnerEditPageProps {
   params: Promise<{ gymId: string }>
@@ -24,14 +35,30 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState<Partial<GymDetailedInfo>>({})
   const [activeSection, setActiveSection] = useState<string>('pricing')
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    loadGymDetailedInfo()
+    loadUserAndGymInfo()
   }, [gymId])
 
-  const loadGymDetailedInfo = async () => {
+  const loadUserAndGymInfo = async () => {
     setLoading(true)
-    const info = await getGymDetailedInfo(gymId)
+
+    // ユーザー情報を取得
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+    setUser(user)
+
+    // ジム詳細情報を取得
+    let info = await getGymDetailedInfoForOwner(gymId, user.id)
+    if (!info) {
+      // 初期データを作成
+      info = await createInitialGymDetailedInfo(gymId, user.id)
+    }
+
     if (info) {
       setFormData(info)
     }
@@ -39,73 +66,61 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
   }
 
   const handleSave = async () => {
+    if (!user) return
+
     setSaving(true)
-    const result = await saveGymDetailedInfo(gymId, formData)
-    if (result.success) {
-      // 成功通知（トーストなど）
-      console.log('保存成功')
-    } else {
-      // エラー通知
-      console.error('保存失敗:', result.error)
+    try {
+      const result = await upsertGymDetailedInfo(gymId, formData, user.id)
+      if (result) {
+        console.log('保存成功')
+        // 成功通知を表示
+      } else {
+        console.error('保存失敗')
+        // エラー通知を表示
+      }
+    } catch (error) {
+      console.error('保存エラー:', error)
     }
     setSaving(false)
+  }
+
+  const updateFormSection = (section: string, sectionData: any) => {
+    setFormData({
+      ...formData,
+      [section]: sectionData
+    })
   }
 
   const sections = [
     {
       id: 'pricing',
       title: '料金体系',
-      icon: DollarSign,
-      fields: [
-        { key: 'pricing_details', label: '料金詳細', placeholder: '例：\n月額会員：¥10,000\n学生割引：20%OFF\n法人契約：要相談\nビジター利用：¥3,000/回' },
-        { key: 'membership_plans', label: '会員プラン', placeholder: '例：\nレギュラー会員：全時間利用可能\nモーニング会員：5:00-12:00のみ\nナイト会員：18:00-24:00のみ' }
-      ]
+      icon: DollarSign
     },
     {
       id: 'hours',
       title: '営業時間',
-      icon: Clock,
-      fields: [
-        { key: 'business_hours_details', label: '営業時間詳細', placeholder: '例：\n平日：5:00-24:00\n土日祝：7:00-22:00\n年末年始：短縮営業\n※祝日は通常営業' },
-        { key: 'staff_hours', label: 'スタッフ在中時間', placeholder: '例：\n平日：10:00-21:00\n土日：10:00-18:00\nパーソナルトレーナー：要予約' }
-      ]
+      icon: Clock
     },
     {
       id: 'rules',
       title: 'ルール・規定',
-      icon: BookOpen,
-      fields: [
-        { key: 'rules_and_regulations', label: '利用規約・ルール', placeholder: '例：\n・大声での会話禁止\n・器具の独占禁止（30分まで）\n・使用後の消毒必須' },
-        { key: 'dress_code', label: '服装規定', placeholder: '例：\n・室内シューズ必須\n・タンクトップOK\n・サンダル、裸足禁止' }
-      ]
+      icon: BookOpen
     },
     {
       id: 'beginner',
       title: '初心者サポート',
-      icon: Users,
-      fields: [
-        { key: 'beginner_support', label: '初心者向けサポート', placeholder: '例：\n・初回オリエンテーション無料\n・マシン使い方講習あり\n・初心者専用時間帯：火木10:00-12:00' },
-        { key: 'trial_info', label: '体験・見学', placeholder: '例：\n体験利用：¥1,000（当日入会で無料）\n見学：無料（要予約）\n体験可能時間：10:00-20:00' }
-      ]
+      icon: Users
     },
     {
       id: 'access',
       title: 'アクセス',
-      icon: Car,
-      fields: [
-        { key: 'access_details', label: 'アクセス詳細', placeholder: '例：\nJR新宿駅南口より徒歩5分\n1階にコンビニがある建物の3階\n※エレベーターあり' },
-        { key: 'parking_details', label: '駐車場情報', placeholder: '例：\n専用駐車場：5台（無料）\n提携駐車場：○○パーキング（2時間無料）\nバイク駐輪場：あり' }
-      ]
+      icon: Car
     },
     {
       id: 'other',
       title: 'その他',
-      icon: Info,
-      fields: [
-        { key: 'special_programs', label: '特別プログラム', placeholder: '例：\n毎週土曜：パワーリフティング講習会\n第2日曜：栄養セミナー\n不定期：ゲストトレーナー来館' },
-        { key: 'announcements', label: 'お知らせ', placeholder: '例：\n【重要】12/28-1/3は年末年始休業\n【NEW】新しいパワーラック導入しました' },
-        { key: 'additional_info', label: 'その他情報', placeholder: 'UIで表現できない情報を自由に記載してください' }
-      ]
+      icon: Info
     }
   ]
 
@@ -197,44 +212,95 @@ function GymOwnerEditContent({ gymId }: { gymId: string }) {
             </div>
 
             {/* Sections */}
-            {sections.map((section) => (
-              <div
-                key={section.id}
-                className={`bg-white rounded-xl shadow-sm p-6 ${
-                  activeSection === section.id ? '' : 'hidden'
-                }`}
-              >
+            {activeSection === 'pricing' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
-                    <section.icon className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                    <DollarSign className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
                   </div>
-                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">{section.title}</h2>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">料金体系</h2>
                 </div>
-
-                <div className="space-y-6">
-                  {section.fields.map((field) => (
-                    <div key={field.key}>
-                      <label className="block text-sm font-semibold text-[color:var(--text-subtle)] mb-2">
-                        {field.label}
-                      </label>
-                      <textarea
-                        value={(formData[field.key as keyof GymDetailedInfo] as string) || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          [field.key]: e.target.value
-                        })}
-                        placeholder={field.placeholder}
-                        rows={8}
-                        className="w-full px-4 py-3 bg-[rgba(254,255,250,0.97)] border border-[rgba(186,122,103,0.26)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm text-[color:var(--text-subtle)] resize-none"
-                      />
-                      <p className="text-xs text-[color:var(--text-muted)] mt-2">
-                        {((formData[field.key as keyof GymDetailedInfo] as string) || '').length} 文字
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <PricingSection
+                  data={formData.pricing_system || {}}
+                  onChange={(data) => updateFormSection('pricing_system', data)}
+                />
               </div>
-            ))}
+            )}
+
+            {activeSection === 'hours' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">営業時間</h2>
+                </div>
+                <OperatingHoursSection
+                  data={formData.operating_hours || {}}
+                  onChange={(data) => updateFormSection('operating_hours', data)}
+                />
+              </div>
+            )}
+
+            {activeSection === 'rules' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">ルール・規定</h2>
+                </div>
+                <RulesSection
+                  data={formData.rules_and_policies || {}}
+                  onChange={(data) => updateFormSection('rules_and_policies', data)}
+                />
+              </div>
+            )}
+
+            {activeSection === 'beginner' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <Users className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">初心者サポート</h2>
+                </div>
+                <BeginnerSupportSection
+                  data={formData.beginner_support || {}}
+                  onChange={(data) => updateFormSection('beginner_support', data)}
+                />
+              </div>
+            )}
+
+            {activeSection === 'access' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <Car className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">アクセス</h2>
+                </div>
+                <AccessInfoSection
+                  data={formData.access_information || {}}
+                  onChange={(data) => updateFormSection('access_information', data)}
+                />
+              </div>
+            )}
+
+            {activeSection === 'other' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[rgba(240,142,111,0.14)] rounded-lg flex items-center justify-center">
+                    <Info className="w-5 h-5 text-[color:var(--gt-secondary-strong)]" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">その他</h2>
+                </div>
+                <OtherInfoSection
+                  data={formData.other_information || {}}
+                  onChange={(data) => updateFormSection('other_information', data)}
+                />
+              </div>
+            )}
 
             {/* Preview Section */}
             <div className="bg-[rgba(231,103,76,0.08)] border border-[rgba(231,103,76,0.22)] rounded-xl p-6">

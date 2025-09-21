@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MessageCircle, Share2, MoreVertical, CheckCircle2, MapPin } from 'lucide-react'
+import { Heart, Share2, MoreVertical, CheckCircle2, MapPin } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -23,7 +23,6 @@ interface PostProps {
   content: string
   images?: string[]
   likes: number
-  comments: number
   createdAt: string
   isLiked?: boolean
   isVerified?: boolean // 位置認証済みかどうか
@@ -40,7 +39,6 @@ export default function PostCardWithVerification({
   content,
   images,
   likes,
-  comments,
   createdAt,
   isLiked = false,
   isVerified = false,
@@ -174,11 +172,6 @@ export default function PostCardWithVerification({
               className={`w-5 h-5 ${liked ? 'fill-current' : ''}`}
             />
             <span className="text-sm font-medium">{likeCount}</span>
-          </button>
-
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 text-gray-600">
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-sm font-medium">{comments}</span>
           </button>
 
           <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 text-gray-600">

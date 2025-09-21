@@ -744,29 +744,60 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               </div>
 
 
-              {/* Reviews */}
+              {/* Reviews - ジム活フィード */}
               <div>
-                <h2 className="text-lg font-bold text-[color:var(--foreground)] mb-3">口コミ・レビュー</h2>
-                <div className="space-y-3">
-                  {gymData.reviews.map((review, index) => (
-                    <div key={index} className="p-3 bg-white border border-[rgba(186,122,103,0.26)] rounded-xl">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-[var(--gt-secondary)] to-[var(--gt-primary)] rounded-full" />
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-[color:var(--foreground)]">{review.author}</p>
-                          <p className="text-xs text-[color:var(--text-muted)]">
-                            {new Date(review.date).toLocaleDateString('ja-JP', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </p>
-                        </div>
-                        {/* 個別レビューの星評価は非表示 */}
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-[color:var(--foreground)]">口コミ・レビュー</h2>
+                  <button
+                    onClick={() => {
+                      onClose()
+                      setTimeout(() => {
+                        router.push(`/gyms/${gymId}/feed`)
+                      }, 300)
+                    }}
+                    className="text-sm text-[color:var(--gt-primary)] hover:text-[color:var(--gt-primary-strong)] transition-colors font-medium"
+                  >
+                    すべて見る →
+                  </button>
+                </div>
+
+                <div className="bg-white rounded-xl border border-[rgba(186,122,103,0.26)] p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <MessageSquare className="w-5 h-5 text-[color:var(--gt-primary)]" />
+                    <h3 className="font-semibold text-[color:var(--foreground)]">
+                      利用者のジム活レポート
+                    </h3>
+                  </div>
+
+                  <p className="text-sm text-[color:var(--text-subtle)] mb-4">
+                    このジムを利用した方々の実際のトレーニング体験やレビューをご覧いただけます。
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-[color:var(--text-muted)]">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>リアルな利用者の声</span>
                       </div>
-                      <p className="text-xs text-[color:var(--text-subtle)] leading-relaxed">{review.body}</p>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4" />
+                        <span>トレーニング詳細</span>
+                      </div>
                     </div>
-                  ))}
+
+                    <button
+                      onClick={() => {
+                        onClose()
+                        setTimeout(() => {
+                          router.push(`/gyms/${gymId}/feed`)
+                        }, 300)
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition-colors text-sm font-medium"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      ジム活を見る
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

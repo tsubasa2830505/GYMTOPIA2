@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   DollarSign, Clock, Users, Car, BookOpen,
   Megaphone, Info, ChevronDown, ChevronUp
@@ -38,67 +38,141 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
     setExpandedSections(newExpanded)
   }
 
+  const renderSectionContent = (dataKey: keyof GymDetailedInfo, sectionData: any) => {
+    if (!sectionData || typeof sectionData !== 'object') return null
+
+    const renderValue = (value: any, label?: string): React.ReactNode => {
+      if (value === null || value === undefined || value === '') return null
+
+      if (typeof value === 'string') {
+        return (
+          <div className="text-sm text-[color:var(--text-subtle)] whitespace-pre-wrap leading-relaxed">
+            {value}
+          </div>
+        )
+      }
+
+      if (typeof value === 'number') {
+        return (
+          <div className="text-sm text-[color:var(--text-subtle)]">
+            {value.toLocaleString()}円
+          </div>
+        )
+      }
+
+      if (typeof value === 'boolean') {
+        return (
+          <div className="text-sm text-[color:var(--text-subtle)]">
+            {value ? 'あり' : 'なし'}
+          </div>
+        )
+      }
+
+      if (Array.isArray(value)) {
+        return (
+          <div className="space-y-1">
+            {value.map((item, index) => (
+              <div key={index} className="text-sm text-[color:var(--text-subtle)] flex items-start gap-2">
+                <span className="text-[color:var(--gt-primary)] mt-1.5">•</span>
+                <span>{typeof item === 'object' ? JSON.stringify(item) : item}</span>
+              </div>
+            ))}
+          </div>
+        )
+      }
+
+      if (typeof value === 'object') {
+        return (
+          <div className="space-y-3">
+            {Object.entries(value).map(([key, val]) => {
+              if (val === null || val === undefined || val === '') return null
+              const displayKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+              return (
+                <div key={key} className="pl-4 border-l-2 border-[rgba(186,122,103,0.18)]">
+                  <div className="text-xs font-medium text-[color:var(--text-muted)] mb-1">
+                    {displayKey}
+                  </div>
+                  {renderValue(val)}
+                </div>
+              )
+            })}
+          </div>
+        )
+      }
+
+      return (
+        <div className="text-sm text-[color:var(--text-subtle)]">
+          {String(value)}
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-4">
+        {Object.entries(sectionData).map(([key, value]) => {
+          if (value === null || value === undefined || value === '' ||
+              (Array.isArray(value) && value.length === 0) ||
+              (typeof value === 'object' && Object.keys(value).length === 0)) {
+            return null
+          }
+
+          const displayKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+
+          return (
+            <div key={key} className="border-t border-[rgba(186,122,103,0.18)] pt-4 first:border-t-0 first:pt-0">
+              <h4 className="text-xs font-semibold text-[color:var(--text-muted)] uppercase tracking-wider mb-2">
+                {displayKey}
+              </h4>
+              {renderValue(value, displayKey)}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   const sections = [
     {
       id: 'pricing',
       title: '料金体系',
       icon: DollarSign,
       color: 'text-[color:var(--gt-secondary-strong)] bg-[rgba(240,142,111,0.1)]',
-      fields: [
-        { key: 'pricing_details', label: '料金詳細' },
-        { key: 'membership_plans', label: '会員プラン' }
-      ]
+      dataKey: 'pricing_system' as keyof GymDetailedInfo
     },
     {
       id: 'hours',
       title: '営業時間',
       icon: Clock,
       color: 'text-[color:var(--gt-secondary-strong)] bg-[rgba(231,103,76,0.08)]',
-      fields: [
-        { key: 'business_hours_details', label: '営業時間詳細' },
-        { key: 'staff_hours', label: 'スタッフ在中時間' }
-      ]
+      dataKey: 'operating_hours' as keyof GymDetailedInfo
     },
     {
       id: 'rules',
       title: 'ルール・規定',
       icon: BookOpen,
       color: 'text-[color:var(--gt-secondary-strong)] bg-[rgba(240,142,111,0.1)]',
-      fields: [
-        { key: 'rules_and_regulations', label: '利用規約・ルール' },
-        { key: 'dress_code', label: '服装規定' }
-      ]
+      dataKey: 'rules_and_policies' as keyof GymDetailedInfo
     },
     {
       id: 'beginner',
       title: '初心者サポート',
       icon: Users,
       color: 'text-[color:var(--gt-tertiary-strong)] bg-[rgba(240,142,111,0.1)]',
-      fields: [
-        { key: 'beginner_support', label: '初心者向けサポート' },
-        { key: 'trial_info', label: '体験・見学' }
-      ]
+      dataKey: 'beginner_support' as keyof GymDetailedInfo
     },
     {
       id: 'access',
       title: 'アクセス',
       icon: Car,
       color: 'text-[color:var(--gt-secondary-strong)] bg-[rgba(245,177,143,0.1)]',
-      fields: [
-        { key: 'access_details', label: 'アクセス詳細' },
-        { key: 'parking_details', label: '駐車場情報' }
-      ]
+      dataKey: 'access_information' as keyof GymDetailedInfo
     },
     {
       id: 'other',
       title: 'その他',
       icon: Info,
       color: 'text-[color:var(--text-muted)] bg-[rgba(254,255,250,0.97)]',
-      fields: [
-        { key: 'special_programs', label: '特別プログラム' },
-        { key: 'announcements', label: 'お知らせ' },
-        { key: 'additional_info', label: 'その他情報' }
-      ]
+      dataKey: 'other_information' as keyof GymDetailedInfo
     }
   ]
 
@@ -121,11 +195,10 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
   }
 
   // 情報が入力されているセクションのみ表示
-  const availableSections = sections.filter(section =>
-    section.fields.some(field =>
-      detailedInfo[field.key as keyof GymDetailedInfo]
-    )
-  )
+  const availableSections = sections.filter(section => {
+    const sectionData = detailedInfo[section.dataKey]
+    return sectionData && typeof sectionData === 'object' && Object.keys(sectionData).length > 0
+  })
 
   if (availableSections.length === 0) {
     return (
@@ -155,11 +228,7 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
 
       {/* 各セクション */}
       {availableSections.map((section) => {
-        const hasContent = section.fields.some(field =>
-          detailedInfo[field.key as keyof GymDetailedInfo]
-        )
-
-        if (!hasContent) return null
+        const sectionData = detailedInfo[section.dataKey]
 
         return (
           <div key={section.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -182,21 +251,7 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
 
             {expandedSections.has(section.id) && (
               <div className="px-4 pb-4 space-y-4">
-                {section.fields.map((field) => {
-                  const content = detailedInfo[field.key as keyof GymDetailedInfo]
-                  if (!content) return null
-
-                  return (
-                    <div key={field.key} className="border-t border-[rgba(186,122,103,0.18)] pt-4">
-                      <h4 className="text-xs font-semibold text-[color:var(--text-muted)] uppercase tracking-wider mb-2">
-                        {field.label}
-                      </h4>
-                      <div className="text-sm text-[color:var(--text-subtle)] whitespace-pre-wrap leading-relaxed">
-                        {content}
-                      </div>
-                    </div>
-                  )
-                })}
+                {renderSectionContent(section.dataKey, sectionData)}
               </div>
             )}
           </div>

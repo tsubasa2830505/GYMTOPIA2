@@ -157,6 +157,7 @@ export async function getFeedPosts(
           likes_count: Array.isArray(post.likes_count) ? post.likes_count.length : 0,
           comments_count: Array.isArray(post.comments_count) ? post.comments_count.length : 0,
           is_liked: isLiked,
+          training_details: post.training_details,
           user: post.user ? {
             id: post.user.id,
             display_name: post.user.display_name,
