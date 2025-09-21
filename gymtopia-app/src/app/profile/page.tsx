@@ -709,37 +709,21 @@ function ProfileContent() {
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
                   <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
-                    マイジム: {homeGym ? homeGym.name : 'ゴールドジム渋谷 (テスト)'}
+                    マイジム: {homeGym ? homeGym.name : 'ゴールドジム渋谷'}
                   </span>
                 </div>
               </div>
 
               <div className="mb-2 sm:mb-3">
                 {profileData?.location && (
-                  <>
-                    <span className="text-[color:var(--text-muted)] hidden sm:inline">•</span>
-                    <div className="flex items-center gap-1">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm">
-                        {profileData.location}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {homeGym && (
-                  <>
-                    <span className="text-[color:var(--text-muted)] hidden sm:inline">•</span>
-                    <div className="flex items-center gap-1">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm">
-                        {homeGym.name}
-                      </span>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span className="text-xs sm:text-sm">
+                      {profileData.location}
+                    </span>
+                  </div>
                 )}
               </div>
               <p className="text-xs sm:text-sm text-[color:var(--foreground)] mb-2 sm:mb-4 px-4 sm:px-0">
@@ -817,7 +801,7 @@ function ProfileContent() {
               onClick={() => handleTabChange('favorites')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
-              <span className="text-sm sm:text-base font-medium">イキタイ</span>
+              <span className="text-sm sm:text-base font-medium">マイトピア</span>
               <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
                 {isLoading ? '...' : `${profileData?.favorite_gyms_count || 0}ジム`}
               </div>

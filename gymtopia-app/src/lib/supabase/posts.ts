@@ -146,8 +146,52 @@ export async function getFeedPosts(
     }
 
 
+    // 各投稿のいいね状態を取得
+    const postsWithLikes = await Promise.all((data || []).map(async (post) => {
+      let isLiked = false
+
+      if (actualUserId) {
+        const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+
+        if (useMockAuth) {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+          const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+
+          if (serviceRoleKey) {
+            const { createClient } = await import('@supabase/supabase-js')
+            const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
+              auth: { autoRefreshToken: false, persistSession: false }
+            })
+
+            const { data: likeData } = await serviceClient
+              .from('post_likes')
+              .select('id')
+              .eq('user_id', actualUserId)
+              .eq('post_id', post.id)
+              .single()
+
+            isLiked = !!likeData
+          }
+        } else {
+          const { data: likeData } = await getSupabaseClient()
+            .from('post_likes')
+            .select('id')
+            .eq('user_id', actualUserId)
+            .eq('post_id', post.id)
+            .single()
+
+          isLiked = !!likeData
+        }
+      }
+
+      return {
+        ...post,
+        is_liked: isLiked
+      }
+    }))
+
     // gym_posts テーブルに合わせたマッピング（実際のユーザー情報を使用）
-    const posts: Post[] = (data || []).map(post => ({
+    const posts: Post[] = postsWithLikes.map(post => ({
       id: post.id,
       user_id: post.user_id,
       content: post.content || null,
@@ -160,7 +204,7 @@ export async function getFeedPosts(
       comments_count: post.comments_count_live || post.comments_count || post.comment_count || 0,
       shares_count: 0,
       is_public: true,
-      is_liked: false,
+      is_liked: post.is_liked,
       is_verified: post.is_verified || post.checkin_id !== null || false,
       check_in_id: post.checkin_id || null,
       verification_method: post.verification_method || (post.checkin_id ? 'check_in' : null),
@@ -530,23 +574,58 @@ export async function deletePost(postId: string) {
 // いいねを追加
 export async function likePost(postId: string) {
   try {
-    const { data: { user } } = await getSupabaseClient().auth.getUser()
-    if (!user?.id) {
-      throw new Error('ログインが必要です')
-    }
-    const actualUserId = user.id
+    const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+    let actualUserId: string
 
-    const { data, error } = await getSupabaseClient()
-      .from('post_likes')
-      .insert({
-        user_id: actualUserId,
-        post_id: postId
+    if (useMockAuth) {
+      actualUserId = process.env.NEXT_PUBLIC_MOCK_USER_ID || ''
+      if (!actualUserId) {
+        throw new Error('Mock user ID is not configured')
+      }
+      console.log('🔧 Using mock auth for like:', { userId: actualUserId, postId })
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+
+      if (!serviceRoleKey) {
+        throw new Error('Service role key not available for mock auth')
+      }
+
+      const { createClient } = await import('@supabase/supabase-js')
+      const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
       })
-      .select()
-      .single()
 
-    if (error && error.code !== '23505') throw error // Ignore duplicate key error
-    return data
+      const { data, error } = await serviceClient
+        .from('post_likes')
+        .insert({
+          user_id: actualUserId,
+          post_id: postId
+        })
+        .select()
+        .single()
+
+      if (error && error.code !== '23505') throw error
+      return data
+    } else {
+      const { data: { user } } = await getSupabaseClient().auth.getUser()
+      if (!user?.id) {
+        throw new Error('ログインが必要です')
+      }
+      actualUserId = user.id
+
+      const { data, error } = await getSupabaseClient()
+        .from('post_likes')
+        .insert({
+          user_id: actualUserId,
+          post_id: postId
+        })
+        .select()
+        .single()
+
+      if (error && error.code !== '23505') throw error
+      return data
+    }
   } catch (error) {
     console.error('Error liking post:', error)
     return null
@@ -556,20 +635,52 @@ export async function likePost(postId: string) {
 // いいねを削除
 export async function unlikePost(postId: string) {
   try {
-    const { data: { user } } = await getSupabaseClient().auth.getUser()
-    if (!user?.id) {
-      throw new Error('ログインが必要です')
+    const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+    let actualUserId: string
+
+    if (useMockAuth) {
+      actualUserId = process.env.NEXT_PUBLIC_MOCK_USER_ID || ''
+      if (!actualUserId) {
+        throw new Error('Mock user ID is not configured')
+      }
+      console.log('🔧 Using mock auth for unlike:', { userId: actualUserId, postId })
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+
+      if (!serviceRoleKey) {
+        throw new Error('Service role key not available for mock auth')
+      }
+
+      const { createClient } = await import('@supabase/supabase-js')
+      const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      })
+
+      const { error } = await serviceClient
+        .from('post_likes')
+        .delete()
+        .eq('user_id', actualUserId)
+        .eq('post_id', postId)
+
+      if (error) throw error
+      return true
+    } else {
+      const { data: { user } } = await getSupabaseClient().auth.getUser()
+      if (!user?.id) {
+        throw new Error('ログインが必要です')
+      }
+      actualUserId = user.id
+
+      const { error } = await getSupabaseClient()
+        .from('post_likes')
+        .delete()
+        .eq('user_id', actualUserId)
+        .eq('post_id', postId)
+
+      if (error) throw error
+      return true
     }
-    const actualUserId = user.id
-
-    const { error } = await getSupabaseClient()
-      .from('post_likes')
-      .delete()
-      .eq('user_id', actualUserId)
-      .eq('post_id', postId)
-
-    if (error) throw error
-    return true
   } catch (error) {
     console.error('Error unliking post:', error)
     return false

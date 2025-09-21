@@ -97,12 +97,27 @@ export default function GymStatsPage() {
       ])
 
       console.log('📈 Statistics loaded successfully:', {
+        selectedPeriod,
         totalVisits: userStats.totalVisits,
         weeklyVisits: userStats.weeklyVisits,
         monthlyVisits: userStats.monthlyVisits,
         yearlyVisits: userStats.yearlyVisits,
         totalWeight: userStats.totalWeight,
         currentStreak: userStats.currentStreak
+      })
+
+      const periodInfo = {
+        week: userStats.weeklyVisits,
+        month: userStats.monthlyVisits,
+        year: userStats.yearlyVisits
+      }
+
+      console.log('🎯 Period filtering result:', {
+        selectedPeriod,
+        periodInfo,
+        currentPeriodVisits: periodInfo[selectedPeriod],
+        rankingsCount: rankings.length,
+        recentVisitsCount: visits.length
       })
 
       setStats(userStats)
@@ -142,6 +157,20 @@ export default function GymStatsPage() {
       case 'month': return stats.monthlyVisits
       case 'year': return stats.yearlyVisits
       default: return stats.totalVisits
+    }
+  }
+
+  // Get period-specific title and dynamic count
+  const getPeriodInfo = () => {
+    const periodVisits = getPeriodVisits()
+    const periodTitles = {
+      week: '今週',
+      month: '今月',
+      year: '今年'
+    }
+    return {
+      title: periodTitles[selectedPeriod] || '',
+      visits: periodVisits
     }
   }
 
@@ -224,37 +253,46 @@ export default function GymStatsPage() {
             </button>
             <h1 className="text-xl font-bold text-[color:var(--foreground)]">ジム通い統計</h1>
             <span className="px-2 py-1 bg-[rgba(231,103,76,0.14)] text-[color:var(--gt-primary-strong)] text-xs rounded-full font-medium">
-              {getPeriodVisits()}回
+              {getPeriodInfo().title}: {getPeriodInfo().visits}回
             </span>
           </div>
           
           {/* Period Selector */}
           <div className="flex gap-2">
             <button
-              onClick={() => setSelectedPeriod('week')}
+              onClick={() => {
+                console.log('🔄 Changing period to week, current period:', selectedPeriod)
+                setSelectedPeriod('week')
+              }}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedPeriod === 'week' 
-                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]' 
+                selectedPeriod === 'week'
+                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
                   : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.96)]'
               }`}
             >
               週
             </button>
             <button
-              onClick={() => setSelectedPeriod('month')}
+              onClick={() => {
+                console.log('🔄 Changing period to month, current period:', selectedPeriod)
+                setSelectedPeriod('month')
+              }}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedPeriod === 'month' 
-                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]' 
+                selectedPeriod === 'month'
+                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
                   : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.96)]'
               }`}
             >
               月
             </button>
             <button
-              onClick={() => setSelectedPeriod('year')}
+              onClick={() => {
+                console.log('🔄 Changing period to year, current period:', selectedPeriod)
+                setSelectedPeriod('year')
+              }}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedPeriod === 'year' 
-                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]' 
+                selectedPeriod === 'year'
+                  ? 'bg-gradient-to-r from-accent to-accent-secondary text-[color:var(--gt-on-primary)] shadow-[0_12px_30px_-18px_rgba(189,101,78,0.46)]'
                   : 'bg-[rgba(254,255,250,0.92)] text-[color:var(--text-subtle)] hover:bg-[rgba(254,255,250,0.96)]'
               }`}
             >

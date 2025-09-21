@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, MessageCircle, Share2, MoreVertical, CheckCircle2, MapPin } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -30,6 +30,7 @@ interface PostProps {
   checkInId?: string | null
   verificationMethod?: 'check_in' | 'manual' | null
   distanceFromGym?: number | null // チェックイン時の距離
+  onLike?: (postId: string) => void // いいね処理のコールバック関数
 }
 
 export default function PostCardWithVerification({
@@ -45,14 +46,30 @@ export default function PostCardWithVerification({
   isVerified = false,
   checkInId,
   verificationMethod,
-  distanceFromGym
+  distanceFromGym,
+  onLike
 }: PostProps) {
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(likes)
 
+  // プロップスの変更を監視してローカル状態を更新
+  useEffect(() => {
+    setLiked(isLiked)
+  }, [isLiked])
+
+  useEffect(() => {
+    setLikeCount(likes)
+  }, [likes])
+
   const handleLike = () => {
-    setLiked(!liked)
-    setLikeCount(prev => liked ? prev - 1 : prev + 1)
+    if (onLike) {
+      // 親コンポーネントのいいね処理を呼び出す
+      onLike(id)
+    } else {
+      // フォールバック: ローカル状態のみ更新
+      setLiked(!liked)
+      setLikeCount(prev => liked ? prev - 1 : prev + 1)
+    }
   }
 
   return (

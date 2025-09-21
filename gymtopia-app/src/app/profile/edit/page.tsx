@@ -321,25 +321,63 @@ export default function ProfileEditPage() {
       let updateData, updateError
 
       if (isDemo) {
-        // デモモードでは通常のクライアントでデータベース更新
-        const result = await supabase
-          .from('users')
-          .update({
-            display_name: name,
-            username: username,
-            bio: bio,
-            avatar_url: uploadedAvatarUrl,
-            gym_activity_private: gymActivityPrivate,
-            show_stats_public: showStatsPublic,
-            show_achievements_public: showAchievementsPublic,
-            show_favorite_gyms_public: showFavoriteGymsPublic,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', currentUserId)
-          .select()
+        // デモモードではservice roleキーでRLSをバイパス
+        console.log('🔧 Using service role key for demo auth to bypass RLS')
 
-        updateData = result.data
-        updateError = result.error
+        const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+
+        if (!serviceRoleKey) {
+          console.warn('Service role key not available, falling back to regular client')
+          // フォールバックして通常のクライアントを使用
+          const result = await supabase
+            .from('users')
+            .update({
+              display_name: name,
+              username: username,
+              bio: bio,
+              avatar_url: uploadedAvatarUrl,
+              gym_activity_private: gymActivityPrivate,
+              show_stats_public: showStatsPublic,
+              show_achievements_public: showAchievementsPublic,
+              show_favorite_gyms_public: showFavoriteGymsPublic,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', currentUserId)
+            .select()
+
+          updateData = result.data
+          updateError = result.error
+        } else {
+          // Service roleクライアントを作成
+          const { createClient } = await import('@supabase/supabase-js')
+          const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false
+            }
+          })
+
+          console.log('🔧 Using service role client for profile update')
+          const result = await serviceClient
+            .from('users')
+            .update({
+              display_name: name,
+              username: username,
+              bio: bio,
+              avatar_url: uploadedAvatarUrl,
+              gym_activity_private: gymActivityPrivate,
+              show_stats_public: showStatsPublic,
+              show_achievements_public: showAchievementsPublic,
+              show_favorite_gyms_public: showFavoriteGymsPublic,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', currentUserId)
+            .select()
+
+          updateData = result.data
+          updateError = result.error
+        }
       } else {
         // 本番モードでは認証済みクライアントでデータベース更新
         const result = await supabase

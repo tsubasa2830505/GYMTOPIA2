@@ -25,7 +25,7 @@ const CTAButtons = memo(function CTAButtons({
         >
           <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''} ${isProcessingLike ? 'animate-pulse' : ''}`} />
           <span className="text-sm sm:text-base">
-            {isProcessingLike ? '処理中...' : liked ? 'イキタイ済み' : 'イキタイ'}
+            {isProcessingLike ? '処理中...' : liked ? 'マイトピア' : 'イキタイ'}
           </span>
         </button>
         <button

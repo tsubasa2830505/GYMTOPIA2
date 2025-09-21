@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, FileSearch, CheckCircle, SlidersHorizontal, User } from 'lucide-react'
+import { MapPin, FileSearch, CheckCircle, Activity, User } from 'lucide-react'
 
 export default function SidebarNavigation() {
   const pathname = usePathname()
@@ -28,7 +28,7 @@ export default function SidebarNavigation() {
     },
     {
       href: '/feed',
-      icon: SlidersHorizontal,
+      icon: Activity,
       label: 'フィード',
       isActive: pathname === '/feed'
     },

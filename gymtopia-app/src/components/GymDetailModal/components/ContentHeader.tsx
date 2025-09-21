@@ -57,7 +57,7 @@ const ContentHeader = memo(function ContentHeader({ gymData, likesCount }: Stats
           {gymData.review_count || 0}件のレビュー
         </span>
         <span className="text-[color:var(--text-muted)]">•</span>
-        <span className="font-semibold">{likesCount}人がイキタイ</span>
+        <span className="font-semibold">{likesCount}人のマイトピア</span>
       </div>
     </div>
   )

@@ -1,8 +1,45 @@
 import { supabase } from './client'
 
 
+// Get period-specific visit count
+export async function getPeriodVisitCount(userId: string, period?: 'week' | 'month' | 'year') {
+  try {
+    let query = supabase
+      .from('workout_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+
+    if (period) {
+      const now = new Date()
+      let startDate: Date
+
+      switch(period) {
+        case 'week':
+          startDate = new Date(now)
+          startDate.setDate(now.getDate() - now.getDay())
+          break
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+          break
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1)
+          break
+        default:
+          startDate = new Date(0)
+      }
+      query = query.gte('started_at', startDate.toISOString())
+    }
+
+    const { count } = await query
+    return count || 0
+  } catch (error) {
+    console.error('Error fetching period visit count:', error)
+    return 0
+  }
+}
+
 // Get user's workout statistics
-export async function getUserWorkoutStatistics(userId: string) {
+export async function getUserWorkoutStatistics(userId: string, selectedPeriod?: 'week' | 'month' | 'year') {
   try {
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)

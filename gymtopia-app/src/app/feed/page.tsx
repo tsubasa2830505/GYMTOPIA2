@@ -535,6 +535,7 @@ export default function FeedPage() {
                   checkInId={post.check_in_id}
                   verificationMethod={post.verification_method}
                   distanceFromGym={post.distance_from_gym}
+                  onLike={() => handleLike(post)}
                 />
               ))}
 

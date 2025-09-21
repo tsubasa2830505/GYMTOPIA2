@@ -462,7 +462,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   {gymData.review_count || 0}件のレビュー
                 </span>
                 <span className="text-[color:var(--text-muted)]">•</span>
-                <span className="font-semibold">{likesCount}人がイキタイ</span>
+                <span className="font-semibold">{likesCount}人のマイトピア</span>
               </div>
 
               {/* Info Pills */}
@@ -508,7 +508,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   >
                     <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''} ${isProcessingLike ? 'animate-pulse' : ''}`} />
                     <span className="text-sm sm:text-base">
-                      {isProcessingLike ? '処理中...' : liked ? 'イキタイ済み' : 'イキタイ'}
+                      {isProcessingLike ? '処理中...' : liked ? 'マイトピア' : 'イキタイ'}
                     </span>
                   </button>
                   <button

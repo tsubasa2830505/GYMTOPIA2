@@ -840,7 +840,7 @@ function SearchResultsContent() {
                               } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                               <Heart className={`w-3 h-3 sm:w-4 sm:h-4 inline mr-1 ${gym.isLiked ? 'fill-white' : 'text-[color:var(--gt-secondary-strong)]'}`} />
-                              {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
+                              {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'マイトピア' : 'イキタイ')}
                             </button>
                             <button
                               type="button"
@@ -863,7 +863,7 @@ function SearchResultsContent() {
                             } ${processingLikes.has(gym.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <Heart className={`w-3 h-3 inline mr-1 ${gym.isLiked ? 'fill-white' : 'text-[color:var(--gt-secondary-strong)]'}`} />
-                            {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'イキタイ済み' : 'イキタイ')}
+                            {processingLikes.has(gym.id) ? '処理中...' : (gym.isLiked ? 'マイトピア' : 'イキタイ')}
                           </button>
                           <button
                             type="button"
