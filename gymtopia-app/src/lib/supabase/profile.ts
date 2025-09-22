@@ -197,6 +197,44 @@ export async function updateUserProfile(
 // GYM POSTS FUNCTIONS
 // ========================================
 
+// 特定の投稿を取得
+export async function getGymPost(postId: string): Promise<GymPost | null> {
+  const supabase = getSupabaseClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('gym_posts')
+      .select(`
+        *,
+        gym:gyms!gym_posts_gym_id_fkey(id, name),
+        user:profiles!gym_posts_user_id_fkey(
+          id,
+          username,
+          display_name,
+          avatar_url
+        ),
+        likes:post_likes(user_id)
+      `)
+      .eq('id', postId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching post:', error)
+      return null
+    }
+
+    return {
+      ...data,
+      user: data.user || { id: data.user_id },
+      likes_count: data.likes?.length || 0,
+      is_liked: false,
+    }
+  } catch (error) {
+    console.error('Error in getGymPost:', error)
+    return null
+  }
+}
+
 export async function getUserPosts(
   userId: string,
   page = 1,

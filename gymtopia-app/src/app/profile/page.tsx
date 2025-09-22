@@ -11,7 +11,6 @@ import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements,
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { updatePost, deletePost as deletePostAPI } from '@/lib/supabase/posts';
 import PostCard from '@/components/PostCard';
-import PostEditModal from '@/components/PostEditModal';
 import CheckinBadges from '@/components/CheckinBadges';
 import GymDetailModal from '@/components/GymDetailModal';
 import type { Post } from '@/lib/supabase/posts';
@@ -100,8 +99,6 @@ function ProfileContent() {
   // モーダル管理用のstate
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null);
   const [isGymModalOpen, setIsGymModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [userType, setUserType] = useState('user');
   const [profileData, setProfileData] = useState<UserProfileStats | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null);
@@ -649,8 +646,6 @@ function ProfileContent() {
             ? { ...p, content, images: images || p.images }
             : p
         ));
-        setIsEditModalOpen(false);
-        setEditingPost(null);
       } else {
         alert('投稿の更新に失敗しました');
       }
@@ -1153,18 +1148,6 @@ function ProfileContent() {
         />
       )}
 
-      {/* PostEditModal */}
-      {editingPost && (
-        <PostEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setEditingPost(null);
-          }}
-          post={editingPost}
-          onSave={handleUpdatePost}
-        />
-      )}
     </div>
   );
 }

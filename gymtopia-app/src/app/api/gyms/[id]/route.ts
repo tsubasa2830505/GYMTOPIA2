@@ -3,10 +3,10 @@ import { supabase } from '@/lib/supabase/client'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const gymId = params.id
+    const { id: gymId } = await params
 
     // ジム基本情報を取得
     const { data: gym, error: gymError } = await supabase
@@ -70,10 +70,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const gymId = params.id
+    const { id: gymId } = await params
     const body = await request.json()
 
     // ジム基本情報を更新

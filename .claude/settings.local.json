@@ -207,7 +207,9 @@
       "Bash(for page in \"/followers\" \"/following\" \"/map\" \"/workout\")",
       "Bash(python3:*)",
       "Bash(for endpoint in \"/api/auth\" \"/api/gyms\" \"/api/posts\" \"/api/users\")",
-      "Bash(for page in \"/following\" \"/followers\")"
+      "Bash(for page in \"/following\" \"/followers\")",
+      "Bash(for page in \"/\" \"/search/results?keyword=ハンマーストレングス\")",
+      "Bash(/usr/bin/git log --oneline -5)"
     ],
     "deny": [],
     "ask": []

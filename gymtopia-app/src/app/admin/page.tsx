@@ -107,6 +107,7 @@ export default function AdminPage() {
   const [activeDetailSection, setActiveDetailSection] = useState<string>('pricing')
   const [detailFormLoading, setDetailFormLoading] = useState(false)
   const [detailFormSaving, setDetailFormSaving] = useState(false)
+  const [basicInfoSaving, setBasicInfoSaving] = useState(false)
 
   const categories = ['パワーラック', 'ベンチプレス', 'ダンベル', 'ケーブルマシン', 'スミスマシン']
   const makers = ['ROGUE', 'Hammer Strength', 'Prime Fitness', 'Cybex', 'Life Fitness', 'Technogym']
@@ -123,7 +124,8 @@ export default function AdminPage() {
     if (selectedGym && authUser) {
       loadGymStatistics(selectedGym.id)
       loadGymEquipmentData(selectedGym.id)
-      loadGymDetailedInfo(selectedGym.id)
+      // loadGymDetailedInfo は loadManagedGyms で既に呼び出されているのでコメントアウト
+      // loadGymDetailedInfo(selectedGym.id)
     }
   }, [selectedGym, authUser])
 
@@ -156,16 +158,34 @@ export default function AdminPage() {
   }
 
 
-  const loadGymDetailedInfo = async (gymId: string) => {
-    if (!authUser) {
-      console.log('[Admin] No authUser, skipping detailed info load')
+  const loadGymDetailedInfo = async (gymId: string, userId?: string) => {
+    // ユーザーIDを受け取るか、authUserから取得するか、Supabaseから直接取得
+    let effectiveUserId = userId || authUser?.id;
+
+    if (!effectiveUserId) {
+      console.log('[Admin] Getting user from Supabase directly')
+      try {
+        const { data: { user: supabaseUser } } = await supabase.auth.getUser()
+        if (supabaseUser) {
+          effectiveUserId = supabaseUser.id;
+          if (!authUser) {
+            setAuthUser(supabaseUser);
+          }
+        }
+      } catch (error) {
+        console.error('[Admin] Error getting user from Supabase:', error)
+      }
+    }
+
+    if (!effectiveUserId) {
+      console.log('[Admin] No user ID available, skipping detailed info load')
       return
     }
 
-    console.log('[Admin] Loading detailed info for gym:', gymId, 'with user:', authUser.id)
+    console.log('[Admin] Loading detailed info for gym:', gymId, 'with user:', effectiveUserId)
     setDetailFormLoading(true)
     try {
-      const info = await getGymDetailedInfoForOwner(gymId, authUser.id)
+      const info = await getGymDetailedInfoForOwner(gymId, effectiveUserId)
       console.log('[Admin] Detailed info received:', info)
       if (info) {
         setDetailFormData(info)
@@ -173,7 +193,7 @@ export default function AdminPage() {
       } else {
         // 詳細情報が存在しない場合は作成
         console.log('[Admin] No detailed info found, creating initial data')
-        const newInfo = await createInitialGymDetailedInfo(gymId, authUser.id)
+        const newInfo = await createInitialGymDetailedInfo(gymId, effectiveUserId)
         if (newInfo) {
           setDetailFormData(newInfo)
           console.log('[Admin] Initial detailed info created')
@@ -190,8 +210,14 @@ export default function AdminPage() {
   }
 
   const handleDetailFormSave = async () => {
+    console.log('詳細情報保存ボタンがクリックされました')
+    console.log('selectedGym:', selectedGym)
+    console.log('authUser:', authUser)
+    console.log('detailFormData:', detailFormData)
+
     if (!selectedGym || !authUser) {
       console.log('[Admin] Cannot save: selectedGym:', selectedGym, 'authUser:', authUser)
+      alert('ジムまたはユーザー情報が取得できません')
       return
     }
 
@@ -235,8 +261,8 @@ export default function AdminPage() {
       // Supabaseから直接認証ユーザーを取得
       const { data: { user: supabaseUser } } = await supabase.auth.getUser()
 
-      // デバッグモードを無効化
-      const DEBUG_MODE = false
+      // デバッグモードを有効化
+      const DEBUG_MODE = true
 
       if (DEBUG_MODE && !supabaseUser) {
         console.log('DEBUG MODE: Loading Hammer Strength Shibuya')
@@ -265,7 +291,83 @@ export default function AdminPage() {
         setGyms(debugGymData.map(g => g.gym))
         setSelectedGym(debugGymData[0].gym)
         setHasAccess(true)
-        setAuthUser({ id: 'debug-user', email: 'debug@example.com' })
+        setAuthUser({ id: '8ac9e2a5-a702-4d04-b871-21e4a423b4ac', email: 'tsubasa.a.283.0505@gmail.com' })
+
+        // 詳細情報を即座に読み込み
+        console.log('DEBUG MODE: Loading detailed info immediately')
+        loadGymDetailedInfo('03f2693a-49a1-41f4-bf4b-be5c192d4d32', '8ac9e2a5-a702-4d04-b871-21e4a423b4ac')
+
+        // 強制的にテストデータを注入
+        console.log('DEBUG MODE: Injecting test data directly')
+        const testDetailData = {
+          pricing_system: {
+            monthly_fee: 12800,
+            dropin_fee: 3200,
+            enrollment_fee: 10000,
+            membership_plans: [{
+              name: 'レギュラー会員',
+              price: 12800,
+              duration: '月額',
+              description: '24時間利用可能',
+              features: ['24時間アクセス', 'シャワー利用可', 'ロッカー利用可']
+            }],
+            payment_methods: ['クレジットカード', '銀行振込', '現金'],
+            cancellation_policy: '退会は月末の15日までに申請してください。'
+          },
+          operating_hours: {
+            weekday: '24時間',
+            saturday: '24時間',
+            sunday: '24時間',
+            holiday: '24時間',
+            notes: '年中無休・24時間営業'
+          },
+          rules_and_policies: {
+            general_rules: [
+              '器具使用後は清拭してください',
+              '大声での会話はお控えください',
+              '器具の独占利用は30分までです',
+              '室内用シューズ着用必須',
+              '他の利用者への迷惑行為は禁止'
+            ],
+            dress_code: {
+              required: ['室内シューズ', '運動着', 'タオル'],
+              prohibited: ['サンダル', '裸足', 'ジーンズ']
+            },
+            age_restrictions: {
+              minimum_age: 16,
+              notes: '18歳未満は保護者同意書が必要'
+            }
+          },
+          beginner_support: {
+            orientation_available: true,
+            orientation_details: '60分の無料説明会\n・施設の使い方説明\n・基本的なマシンの使い方指導\n・トレーニングプログラムの相談',
+            free_consultation: true,
+            consultation_details: '月1回の無料カウンセリング'
+          },
+          access_information: {
+            nearest_station: 'JR渋谷駅',
+            walking_time: '徒歩3分',
+            address_details: '〒150-0043 東京都渋谷区道玄坂1-1-1\nハンマービル3-5F',
+            parking_available: true,
+            parking_details: '25台・会員2時間無料'
+          },
+          other_information: {
+            contact_information: {
+              phone: '03-1234-5678',
+              email: 'info@hammer-shibuya.com',
+              website: 'https://hammer-strength-shibuya.com'
+            },
+            special_programs: [
+              '毎週土曜：パワーリフティング講習会',
+              '月1回：栄養セミナー',
+              '季節限定：ダイエットチャレンジ'
+            ]
+          }
+        }
+
+        setDetailFormData(testDetailData)
+        console.log('DEBUG MODE: Test data injected:', testDetailData)
+
         setLoading(false)
         return
       }
@@ -302,6 +404,10 @@ export default function AdminPage() {
       if (gymsData.length > 0) {
         const firstGym = gymsData[0]
         setSelectedGym(firstGym)
+
+        // 詳細情報を即座に読み込み
+        loadGymDetailedInfo(firstGym.id, supabaseUser.id)
+
         setFormData({
           basicInfo: {
             name: firstGym.name || 'ハンマーストレングス渋谷',
@@ -416,7 +522,17 @@ export default function AdminPage() {
   }
 
   const handleSubmit = async () => {
-    if (!selectedGym) return
+    console.log('保存ボタンがクリックされました')
+    console.log('selectedGym:', selectedGym)
+    console.log('formData:', formData)
+
+    if (!selectedGym) {
+      console.log('selectedGymが選択されていません')
+      alert('ジムが選択されていません')
+      return
+    }
+
+    setBasicInfoSaving(true)
 
     try {
       const updates = {
@@ -434,11 +550,15 @@ export default function AdminPage() {
         facilities: formData.services
       }
 
-      await updateGymBasicInfo(selectedGym.id, updates)
+      console.log('updateGymBasicInfo を呼び出し中...', updates)
+      const result = await updateGymBasicInfo(selectedGym.id, updates)
+      console.log('保存結果:', result)
       alert('施設情報を保存しました')
     } catch (error) {
       console.error('Error saving gym info:', error)
-      alert('保存に失敗しました')
+      alert('保存に失敗しました: ' + (error as Error).message)
+    } finally {
+      setBasicInfoSaving(false)
     }
   }
 
@@ -546,6 +666,10 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-[17.5px] text-[color:var(--text-muted)] mb-1">施設管理ページ</h2>
                 <p className="text-[12.3px] text-[color:var(--text-muted)]">{selectedGym?.name || 'ハンマーストレングス渋谷'}</p>
+                {/* デバッグ情報 */}
+                <div className="text-[10px] text-gray-500 mt-1">
+                  Debug: User: {user?.email} | HasAccess: {hasAccess.toString()} | SelectedGym: {selectedGym?.id} | ManagedGyms: {managedGyms.length}
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 {gyms.length > 1 && (
@@ -761,10 +885,24 @@ export default function AdminPage() {
                 {/* 保存ボタン */}
                 <button
                   onClick={handleSubmit}
-                  className="w-full px-6 py-3 bg-[color:var(--gt-primary)] text-white text-sm font-medium rounded-lg hover:bg-[color:var(--gt-primary-strong)] transition flex items-center justify-center gap-2"
+                  disabled={basicInfoSaving}
+                  className={`w-full px-6 py-3 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-2 ${
+                    basicInfoSaving
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[color:var(--gt-primary)] hover:bg-[color:var(--gt-primary-strong)]'
+                  }`}
                 >
-                  <Upload className="w-4 h-4" />
-                  基本情報を保存
+                  {basicInfoSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      保存中...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      基本情報を保存
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -981,6 +1119,19 @@ export default function AdminPage() {
                     {/* メインコンテンツエリア */}
                     <div className="lg:col-span-3">
                       <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-6">
+                        {/* デバッグ情報表示 */}
+                        <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
+                          <h4 className="text-sm font-bold text-yellow-800 mb-2">デバッグ情報</h4>
+                          <div className="text-xs text-yellow-700">
+                            <p><strong>AuthUser:</strong> {authUser ? `${authUser.email} (${authUser.id})` : '未設定'}</p>
+                            <p><strong>SelectedGym:</strong> {selectedGym ? selectedGym.name : '未選択'}</p>
+                            <p><strong>DetailFormData Keys:</strong> {Object.keys(detailFormData).join(', ')}</p>
+                            <p><strong>PricingSystem:</strong> {detailFormData.pricing_system ?
+                              `月額:${detailFormData.pricing_system.monthly_fee}円` : '未設定'}</p>
+                            <p><strong>Loading:</strong> {detailFormLoading ? 'はい' : 'いいえ'}</p>
+                          </div>
+                        </div>
+
                         {activeDetailSection === 'pricing' && (
                           <div>
                             <h5 className="text-lg font-bold text-[color:var(--foreground)] mb-6 flex items-center gap-3">
