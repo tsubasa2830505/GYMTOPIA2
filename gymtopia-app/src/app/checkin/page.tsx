@@ -66,16 +66,18 @@ export default function CheckInPage() {
   const [preVerificationResult, setPreVerificationResult] = useState<any>(null)
 
 
-  // 認証チェック
+  // 認証チェック（モック認証では無効化）
   useEffect(() => {
-    if (!user) {
-      router.push('/auth/login?redirect=/checkin')
-    }
+    // モック認証使用時はリダイレクトしない
+    // if (!user) {
+    //   router.push('/auth/login?redirect=/checkin')
+    // }
   }, [user, router])
 
   // Get user location with high accuracy
   useEffect(() => {
-    if (!user) return // 認証されていない場合は何もしない
+    // モック認証では認証状態に関わらず処理を実行
+    // if (!user) return // 認証されていない場合は何もしない
 
     const getHighAccuracyLocation = async () => {
       setLoading(true)
@@ -465,14 +467,14 @@ export default function CheckInPage() {
     }
   }
 
-  // 認証されていない場合は何も表示しない
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    )
-  }
+  // モック認証では認証状態をチェックしない
+  // if (!user) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[rgba(231,103,76,0.08)] to-[rgba(240,142,111,0.1)]">

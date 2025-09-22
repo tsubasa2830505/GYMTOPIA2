@@ -165,6 +165,17 @@ export async function updatePassword(newPassword: string) {
 // =============================================
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
+  // モック認証チェック
+  if (process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true') {
+    return {
+      id: process.env.NEXT_PUBLIC_MOCK_USER_ID || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+      email: process.env.NEXT_PUBLIC_MOCK_USER_EMAIL || 'tsubasa.a.283.0505@gmail.com',
+      username: process.env.NEXT_PUBLIC_MOCK_USERNAME || 'tsubasa_gym',
+      displayName: process.env.NEXT_PUBLIC_MOCK_DISPLAY_NAME || 'Tsubasa',
+      avatarUrl: undefined
+    }
+  }
+
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
@@ -286,6 +297,22 @@ export async function updateUserExtendedProfile(userId: string, data: UserProfil
 // =============================================
 
 export async function getSession() {
+  // モック認証チェック
+  if (process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true') {
+    return {
+      user: {
+        id: process.env.NEXT_PUBLIC_MOCK_USER_ID || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
+        email: process.env.NEXT_PUBLIC_MOCK_USER_EMAIL || 'tsubasa.a.283.0505@gmail.com',
+        user_metadata: {
+          username: process.env.NEXT_PUBLIC_MOCK_USERNAME || 'tsubasa_gym',
+          display_name: process.env.NEXT_PUBLIC_MOCK_DISPLAY_NAME || 'Tsubasa'
+        }
+      },
+      access_token: 'mock_token',
+      refresh_token: 'mock_refresh_token'
+    }
+  }
+
   try {
     const { data: { session } } = await supabase.auth.getSession()
     return session
