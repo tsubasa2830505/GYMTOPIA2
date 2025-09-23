@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { isFollowing, followUser, unfollowUser } from '@/lib/supabase/follows';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import type { Post } from '@/lib/supabase/posts';
@@ -99,6 +101,7 @@ function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.userId as string;
+  const { user: currentUser } = useAuth();
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileStats, setProfileStats] = useState<UserProfileStats | null>(null);
@@ -112,6 +115,11 @@ function UserProfilePage() {
   const [activeTab, setActiveTab] = useState('gym-activity');
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
 
+  // フォロー関連のstate
+  const [isCurrentlyFollowing, setIsCurrentlyFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followCheckLoading, setFollowCheckLoading] = useState(true);
+
   // Performance optimization: useCallback to prevent re-creation of functions
   const toggleTrainingDetails = useCallback((postId: string) => {
     setExpandedTraining(prev => {
@@ -124,6 +132,65 @@ function UserProfilePage() {
       return newSet
     })
   }, [])
+
+  // フォロー状態をチェック
+  const checkFollowStatus = useCallback(async () => {
+    if (!currentUser?.id || !userId || currentUser.id === userId) {
+      setFollowCheckLoading(false);
+      return;
+    }
+
+    try {
+      const { isFollowing: following } = await isFollowing(currentUser.id, userId);
+      setIsCurrentlyFollowing(following);
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+    } finally {
+      setFollowCheckLoading(false);
+    }
+  }, [currentUser?.id, userId]);
+
+  // フォロー処理
+  const handleFollow = useCallback(async () => {
+    if (!currentUser?.id || !userId || followLoading) return;
+
+    setFollowLoading(true);
+    try {
+      const { error } = await followUser(currentUser.id, userId);
+      if (!error) {
+        setIsCurrentlyFollowing(true);
+      } else {
+        console.error('Error following user:', error);
+        alert('フォローに失敗しました');
+      }
+    } catch (error) {
+      console.error('Error following user:', error);
+      alert('フォローに失敗しました');
+    } finally {
+      setFollowLoading(false);
+    }
+  }, [currentUser?.id, userId, followLoading]);
+
+  // アンフォロー処理
+  const handleUnfollow = useCallback(async () => {
+    if (!currentUser?.id || !userId || followLoading) return;
+
+    setFollowLoading(true);
+    try {
+      const { error } = await unfollowUser(currentUser.id, userId);
+      if (!error) {
+        setIsCurrentlyFollowing(false);
+      } else {
+        console.error('Error unfollowing user:', error);
+        alert('アンフォローに失敗しました');
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+      alert('アンフォローに失敗しました');
+    } finally {
+      setFollowLoading(false);
+    }
+  }, [currentUser?.id, userId, followLoading]);
 
   useEffect(() => {
     if (!userId) return;
@@ -337,6 +404,11 @@ function UserProfilePage() {
     fetchUserProfile();
   }, [userId]);
 
+  // フォロー状態をチェック
+  useEffect(() => {
+    checkFollowStatus();
+  }, [checkFollowStatus]);
+
   if (loading) {
     return (
       <div className="min-h-screen pb-20 relative overflow-hidden">
@@ -412,6 +484,54 @@ function UserProfilePage() {
                 <h1 className="text-xl sm:text-2xl font-bold text-[color:var(--foreground)]">
                   {userProfile.display_name}
                 </h1>
+
+                {/* フォローボタン - 認証済み && 自分以外のユーザーの場合のみ表示 */}
+                {currentUser && currentUser.id !== userId && (
+                  <div className="flex items-center gap-2">
+                    {followCheckLoading ? (
+                      <div className="px-4 py-2 bg-[rgba(254,255,250,0.82)] border border-[rgba(231,103,76,0.18)] rounded-lg">
+                        <div className="w-4 h-4 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={isCurrentlyFollowing ? handleUnfollow : handleFollow}
+                        disabled={followLoading}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          isCurrentlyFollowing
+                            ? 'bg-[rgba(254,255,250,0.82)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,0.9)]'
+                            : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white hover:from-[var(--gt-primary-strong)] hover:to-[var(--gt-tertiary)] shadow-[0_12px_28px_-18px_rgba(189,101,78,0.44)] hover:shadow-[0_14px_34px_-18px_rgba(189,101,78,0.5)]'
+                        } ${
+                          followLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                        }`}
+                      >
+                        {followLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            <span>{isCurrentlyFollowing ? 'アンフォロー中...' : 'フォロー中...'}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            {isCurrentlyFollowing ? (
+                              <>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                                <span>フォロー中</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                <span>フォロー</span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-[color:var(--text-subtle)] mb-1 sm:mb-2">
                 <p className="text-xs sm:text-base text-[color:var(--text-subtle)] font-medium">

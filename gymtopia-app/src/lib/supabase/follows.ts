@@ -231,83 +231,76 @@ export async function getFollowCounts(userId: string) {
 // Follow a user
 export async function followUser(followerId: string, followingId: string) {
   try {
-    // 既にフォローしているかチェック
-    const { data: existingFollow } = await getSupabaseClient()
-      .from('follows')
-      .select('id')
-      .eq('follower_id', followerId)
-      .eq('following_id', followingId)
-      .single()
+    const response = await fetch('/api/follow', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        followerId,
+        followingId,
+        action: 'follow'
+      })
+    });
 
-    if (existingFollow) {
-      return { data: existingFollow, error: null }
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'フォローに失敗しました');
     }
 
-    const { data, error } = await getSupabaseClient()
-      .from('follows')
-      .insert({
-        follower_id: followerId,
-        following_id: followingId
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-
-    // Create notification for the followed user
-    await getSupabaseClient()
-      .from('notifications')
-      .insert({
-        user_id: followingId,
-        type: 'follow',
-        title: '新しいフォロワー',
-        message: 'あなたをフォローしました',
-        related_user_id: followerId,
-        is_read: false
-      })
-
-    return { data, error: null }
+    return { data: result.data, error: null };
   } catch (error) {
-    console.error('Error following user:', error)
-    // より詳細なエラー情報を返す
-    return { data: null, error: error instanceof Error ? error.message : JSON.stringify(error) }
+    console.error('Error following user:', error);
+    return { data: null, error: error instanceof Error ? error.message : 'フォローに失敗しました' };
   }
 }
 
 // Unfollow a user
 export async function unfollowUser(followerId: string, followingId: string) {
   try {
-    const { error } = await getSupabaseClient()
-      .from('follows')
-      .delete()
-      .eq('follower_id', followerId)
-      .eq('following_id', followingId)
+    const response = await fetch('/api/follow', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        followerId,
+        followingId,
+        action: 'unfollow'
+      })
+    });
 
-    if (error) throw error
+    const result = await response.json();
 
-    return { success: true, error: null }
+    if (!response.ok) {
+      throw new Error(result.error || 'アンフォローに失敗しました');
+    }
+
+    return { success: true, error: null };
   } catch (error) {
-    console.error('Error unfollowing user:', error)
-    return { success: false, error }
+    console.error('Error unfollowing user:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'アンフォローに失敗しました' };
   }
 }
 
 // Check if user A is following user B
 export async function isFollowing(followerId: string, followingId: string) {
   try {
-    const { data, error } = await getSupabaseClient()
-      .from('follows')
-      .select('id')
-      .eq('follower_id', followerId)
-      .eq('following_id', followingId)
-      .single()
+    const response = await fetch(`/api/follow?followerId=${followerId}&followingId=${followingId}`, {
+      method: 'GET',
+    });
 
-    if (error && error.code !== 'PGRST116') throw error
+    const result = await response.json();
 
-    return { isFollowing: !!data, error: null }
+    if (!response.ok) {
+      throw new Error(result.error || 'フォロー状態の確認に失敗しました');
+    }
+
+    return { isFollowing: result.isFollowing, error: null };
   } catch (error) {
-    console.error('Error checking follow status:', error)
-    return { isFollowing: false, error }
+    console.error('Error checking follow status:', error);
+    return { isFollowing: false, error: error instanceof Error ? error.message : 'フォロー状態の確認に失敗しました' };
   }
 }
 

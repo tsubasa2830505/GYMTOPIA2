@@ -785,28 +785,36 @@ function ProfileContent() {
                 </div>
               </div>
 
-              {/* マイジム表示 */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+              {/* マイジム表示 - コンパクトデザイン */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                 {myGymSelections.primaryGym && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
-                    <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
-                      メイン: {myGymSelections.primaryGym.name}
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] rounded-full shadow-sm">
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                    </svg>
+                    <span className="text-xs font-bold text-white">
+                      {myGymSelections.primaryGym.name}
                     </span>
                   </div>
                 )}
+
                 {myGymSelections.secondaryGyms.map((gym, index) => (
-                  <div key={gym.id} className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(76,175,80,0.12)] to-[rgba(129,199,132,0.12)] rounded-full border border-[rgba(76,175,80,0.18)]">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--text-success)]" />
-                    <span className="text-xs sm:text-sm font-medium text-[color:var(--text-success)]">
-                      サブ{index + 1}: {gym.name}
+                  <div key={gym.id} className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-sm">
+                    <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                      <span className="text-xs font-bold text-white">{index + 1}</span>
+                    </span>
+                    <span className="text-xs font-bold text-white">
+                      {gym.name}
                     </span>
                   </div>
                 ))}
+
                 {!myGymSelections.primaryGym && myGymSelections.secondaryGyms.length === 0 && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(158,158,158,0.12)] to-[rgba(189,189,189,0.12)] rounded-full border border-[rgba(158,158,158,0.18)]">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--text-muted)]" />
-                    <span className="text-xs sm:text-sm font-medium text-[color:var(--text-muted)]">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full border border-gray-200">
+                    <svg className="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span className="text-xs font-medium text-gray-500">
                       マイジム未設定
                     </span>
                   </div>

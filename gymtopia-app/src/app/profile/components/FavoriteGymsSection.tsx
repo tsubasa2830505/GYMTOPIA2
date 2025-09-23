@@ -50,17 +50,24 @@ const FavoriteGymsSection = memo(function FavoriteGymsSection({
         >
           {/* Gym Image */}
           <div className="aspect-video bg-gradient-to-br from-[color:var(--gt-primary-alpha)] to-[color:var(--gt-secondary-alpha)] relative overflow-hidden">
-            {gym.gym?.image_url ? (
-              <img
-                src={gym.gym.image_url}
-                alt={gym.gym.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <MapPin className="w-12 h-12 text-white opacity-80" />
-              </div>
-            )}
+            {(() => {
+              // Use same fallback logic as GymDetailModal
+              const gymImages = gym.gym?.images && gym.gym.images.length > 0
+                ? gym.gym.images
+                : [
+                    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+                    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+                    'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+                  ];
+
+              return (
+                <img
+                  src={gymImages[0]}
+                  alt={gym.gym?.name || 'ジム画像'}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              );
+            })()}
             <div className="absolute top-3 right-3">
               <div className="bg-white/90 backdrop-blur-sm rounded-full p-1.5">
                 <Star className="w-4 h-4 text-yellow-500 fill-current" />

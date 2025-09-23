@@ -147,6 +147,7 @@ export default function GymImageUploader({ gymId, currentImages, onImagesUpdate 
                   src={image}
                   alt={`ジム画像 ${index + 1}`}
                   fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover"
                 />
               </div>

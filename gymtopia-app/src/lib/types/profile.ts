@@ -163,9 +163,9 @@ export interface FavoriteGym {
     description?: string
     rating?: number
     users_count?: number
-    image_url?: string
     prefecture?: string
     city?: string
+    address?: string
     images?: string[] | null
   }
 }

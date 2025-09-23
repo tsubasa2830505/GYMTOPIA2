@@ -12,7 +12,7 @@ export async function getUserGymSelections(userId: string): Promise<{
       .from('user_primary_gyms')
       .select(`
         gym_id,
-        gyms (
+        gyms!inner (
           id,
           name,
           address,
@@ -22,8 +22,7 @@ export async function getUserGymSelections(userId: string): Promise<{
           longitude,
           business_hours,
           website,
-          description,
-          amenities
+          description
         )
       `)
       .eq('user_id', userId)
@@ -39,7 +38,7 @@ export async function getUserGymSelections(userId: string): Promise<{
       .from('user_secondary_gyms')
       .select(`
         gym_id,
-        gyms (
+        gyms!inner (
           id,
           name,
           address,
@@ -49,8 +48,7 @@ export async function getUserGymSelections(userId: string): Promise<{
           longitude,
           business_hours,
           website,
-          description,
-          amenities
+          description
         )
       `)
       .eq('user_id', userId)
@@ -102,7 +100,7 @@ export async function updateUserPrimaryGym(userId: string, gymId: string): Promi
 export async function addSecondaryGym(userId: string, gymId: string): Promise<boolean> {
   try {
     // 既に追加されているかチェック
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing } = await supabase
       .from('user_secondary_gyms')
       .select('id')
       .eq('user_id', userId)
