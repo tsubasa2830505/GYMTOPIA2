@@ -502,13 +502,6 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-[rgba(186,122,103,0.26)] hover:shadow-md transition-shadow">
-                  <Users className="w-5 h-5 text-[color:var(--text-muted)]" />
-                  <div>
-                    <p className="text-sm font-semibold text-[color:var(--foreground)]">今日の混雑度</p>
-                    <p className="text-xs text-[color:var(--gt-secondary-strong)] font-medium">空いています</p>
-                  </div>
-                </div>
               </div>
 
               {/* CTA Buttons */}

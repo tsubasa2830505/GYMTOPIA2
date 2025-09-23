@@ -85,22 +85,7 @@ export default function AdminPage() {
   })
 
   // 設備管理用のステート
-  const [newEquipment, setNewEquipment] = useState({
-    category: '',
-    name: '',
-    maker: '',
-    count: 1,
-    maxWeight: 50
-  })
-
-  const [equipmentList, setEquipmentList] = useState<Equipment[]>([
-    { id: '1', category: 'パワーラック', name: 'エリートパワーラック', maker: 'ROGUE', count: 3 },
-    { id: '2', category: 'ベンチプレス', name: 'コンペティションベンチ', maker: 'Hammer Strength', count: 5 },
-    { id: '3', category: 'ダンベル', name: 'ヘックスダンベル', maker: 'ROGUE', maxWeight: 50 },
-    { id: '4', category: 'パワーラック', name: 'モンスターラック', maker: 'ROGUE', count: 2 },
-    { id: '5', category: 'ベンチプレス', name: 'オリンピックベンチ', maker: 'Life Fitness', count: 3 }
-  ])
-
+  const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
 
   // 詳細情報管理用の状態
   const [detailFormData, setDetailFormData] = useState<Partial<GymDetailedInfo>>({})
@@ -108,9 +93,6 @@ export default function AdminPage() {
   const [detailFormLoading, setDetailFormLoading] = useState(false)
   const [detailFormSaving, setDetailFormSaving] = useState(false)
   const [basicInfoSaving, setBasicInfoSaving] = useState(false)
-
-  const categories = ['パワーラック', 'ベンチプレス', 'ダンベル', 'ケーブルマシン', 'スミスマシン']
-  const makers = ['ROGUE', 'Hammer Strength', 'Prime Fitness', 'Cybex', 'Life Fitness', 'Technogym']
 
   // Load managed gyms on mount when user is authenticated
   useEffect(() => {
@@ -496,11 +478,6 @@ export default function AdminPage() {
     }
   }
 
-  // カテゴリが能力値型かどうかを判定
-  const isWeightType = (category: string) => {
-    return category === 'ダンベル' || category === 'バーベル' || category === 'プレート'
-  }
-
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -562,69 +539,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleAddEquipment = async () => {
-    if (!selectedGym) return
-
-    if (!newEquipment.category || !newEquipment.name || !newEquipment.maker) {
-      alert('すべての項目を入力してください')
-      return
-    }
-
-    try {
-      const equipmentData = {
-        type: (isWeightType(newEquipment.category) ? 'freeweight' : 'machine') as 'machine' | 'freeweight',
-        name: newEquipment.name,
-        brand: newEquipment.maker,
-        ...(isWeightType(newEquipment.category)
-          ? { weight_range: `最大${newEquipment.maxWeight}kg` }
-          : { count: newEquipment.count })
-      }
-
-      const added = await addGymEquipment(selectedGym.id, equipmentData)
-
-      const equipment: Equipment = {
-        id: added.id,
-        category: newEquipment.category,
-        name: newEquipment.name,
-        maker: newEquipment.maker,
-        ...(isWeightType(newEquipment.category)
-          ? { maxWeight: newEquipment.maxWeight }
-          : { count: newEquipment.count })
-      }
-
-      setEquipmentList([...equipmentList, equipment])
-      setNewEquipment({
-        category: '',
-        name: '',
-        maker: '',
-        count: 1,
-        maxWeight: 50
-      })
-
-      alert('設備を追加しました')
-    } catch (error) {
-      console.error('Error adding equipment:', error)
-      alert('設備の追加に失敗しました')
-    }
-  }
-
-  const handleDeleteEquipment = async (id: string) => {
-    if (!selectedGym) return
-
-    try {
-      const equipment = equipmentList.find(item => item.id === id)
-      if (!equipment) return
-
-      const type = isWeightType(equipment.category) ? 'freeweight' : 'machine'
-      await deleteGymEquipment(selectedGym.id, id, type)
-
-      setEquipmentList(equipmentList.filter(item => item.id !== id))
-      alert('設備を削除しました')
-    } catch (error) {
-      console.error('Error deleting equipment:', error)
-      alert('設備の削除に失敗しました')
-    }
-  }
 
 
 
@@ -909,145 +823,11 @@ export default function AdminPage() {
 
             {/* 設備管理タブ */}
             {activeTab === 'facility' && (
-              <div className="space-y-6">
-                {/* 新規設備追加フォーム */}
-                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">設備情報管理</h3>
-
-                  <div className="mb-6">
-                    <h4 className="text-[12.3px] font-medium text-[color:var(--text-subtle)] mb-3">新しい設備を追加</h4>
-
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
-                            カテゴリ
-                          </label>
-                          <select
-                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
-                            value={newEquipment.category}
-                            onChange={(e) => setNewEquipment({...newEquipment, category: e.target.value})}
-                          >
-                            <option value="">選択してください</option>
-                            {categories.map(cat => (
-                              <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
-                            設備名
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
-                            value={newEquipment.name}
-                            onChange={(e) => setNewEquipment({...newEquipment, name: e.target.value})}
-                            placeholder="例: エリートパワーラック"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
-                            メーカー
-                          </label>
-                          <select
-                            className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
-                            value={newEquipment.maker}
-                            onChange={(e) => setNewEquipment({...newEquipment, maker: e.target.value})}
-                          >
-                            <option value="">選択してください</option>
-                            {makers.map(maker => (
-                              <option key={maker} value={maker}>{maker}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[12.3px] text-[color:var(--foreground)] mb-2">
-                            {newEquipment.category && isWeightType(newEquipment.category)
-                              ? '最大重量 (kg)'
-                              : '台数'}
-                          </label>
-                          {newEquipment.category && isWeightType(newEquipment.category) ? (
-                            <input
-                              type="number"
-                              className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
-                              value={newEquipment.maxWeight}
-                              onChange={(e) => setNewEquipment({...newEquipment, maxWeight: parseInt(e.target.value) || 0})}
-                              min="1"
-                              max="999"
-                            />
-                          ) : (
-                            <input
-                              type="number"
-                              className="w-full px-3 py-2 bg-[rgba(254,255,250,0.95)] border border-[rgba(186,122,103,0.26)] rounded-[8.5px] text-[12.3px] text-[color:var(--foreground)] focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
-                              value={newEquipment.count}
-                              onChange={(e) => setNewEquipment({...newEquipment, count: parseInt(e.target.value) || 0})}
-                              min="1"
-                              max="999"
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleAddEquipment}
-                    className="w-full px-6 py-2.5 bg-[rgba(245,177,143,0.1)] text-white text-[12.3px] font-medium rounded-[8.5px] hover:bg-[color:var(--gt-primary)] transition flex items-center justify-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    設備を追加
-                  </button>
-                </div>
-
-                {/* 設備一覧 */}
-                <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
-                  <h3 className="text-[14px] font-bold text-[color:var(--foreground)] mb-4">現在の設備一覧</h3>
-
-                  <div className="space-y-3">
-                    {equipmentList.map((equipment) => (
-                      <div key={equipment.id} className="bg-white border border-[rgba(186,122,103,0.26)] rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition">
-                        <div className="flex items-center gap-3">
-                          <span className="px-2.5 py-1 bg-[rgba(254,255,250,0.95)] text-[color:var(--text-subtle)] text-[11px] font-medium rounded-md">
-                            {equipment.category}
-                          </span>
-                          <span className="text-[13px] font-bold text-[color:var(--foreground)]">
-                            {equipment.name}
-                          </span>
-                          <span className="px-2.5 py-1 bg-[rgba(231,103,76,0.08)] text-[color:var(--gt-secondary-strong)] text-[11px] font-medium rounded-md">
-                            {equipment.maker}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          <span className="text-[13px] font-medium text-[color:var(--text-subtle)]">
-                            {equipment.count !== undefined
-                              ? `${equipment.count}台`
-                              : `最大${equipment.maxWeight}kg`}
-                          </span>
-                          <button
-                            onClick={() => handleDeleteEquipment(equipment.id)}
-                            className="text-[color:var(--gt-primary)] hover:text-[color:var(--gt-primary-strong)] transition p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-
-                    {equipmentList.length === 0 && (
-                      <div className="text-center py-8 text-[color:var(--text-muted)] text-[12.3px]">
-                        設備が登録されていません
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <FacilitySection
+                equipmentList={equipmentList}
+                onUpdateEquipmentList={setEquipmentList}
+                gymId={selectedGym?.id}
+              />
             )}
 
             {/* 詳細情報管理タブ */}
