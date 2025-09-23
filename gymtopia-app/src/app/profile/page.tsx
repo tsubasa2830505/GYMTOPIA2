@@ -148,12 +148,20 @@ function ProfileContent() {
   // Tab specific loading states
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+  const [isLoadingMyTopia, setIsLoadingMyTopia] = useState(false);
   const [userFollowers, setUserFollowers] = useState<any[]>([]);
   const [userFollowing, setUserFollowing] = useState<any[]>([]);
   const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
   const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
   const [hasLoadedAchievements, setHasLoadedAchievements] = useState(false);
   const [hasLoadedFavorites, setHasLoadedFavorites] = useState(false);
+  const [hasLoadedMyTopia, setHasLoadedMyTopia] = useState(false);
+  const [visitedGyms, setVisitedGyms] = useState<Array<{
+    gym: Gym;
+    visit_count: number;
+    first_visit: string;
+    last_visit: string;
+  }>>([]);
 
   // Performance optimization: useRef to prevent duplicate data loading
   const hasLoadedData = useRef(false);
@@ -577,6 +585,74 @@ function ProfileContent() {
     }
   };
 
+  // マイトピアデータを読み込む（訪問したジム一覧）
+  const loadMyTopiaData = async () => {
+    if (hasLoadedMyTopia || isLoadingMyTopia || !userId) return;
+
+    setIsLoadingMyTopia(true);
+    try {
+      console.log('🏆 マイトピアデータ取得開始:', userId);
+
+      const supabase = getSupabaseClient();
+
+      // ユーザーが投稿したジムのIDと投稿数、初回・最新訪問日を取得
+      const { data: gymPosts, error: postsError } = await supabase
+        .from('gym_posts')
+        .select(`
+          gym_id,
+          created_at,
+          gyms (
+            id,
+            name,
+            address,
+            images,
+            description,
+            phone,
+            website,
+            latitude,
+            longitude
+          )
+        `)
+        .eq('user_id', userId)
+        .not('gym_id', 'is', null)
+        .order('created_at', { ascending: true });
+
+      if (postsError) throw postsError;
+
+      // ジムごとにデータを集計
+      const gymMap = new Map();
+      gymPosts?.forEach(post => {
+        const gymId = post.gym_id;
+        if (gymMap.has(gymId)) {
+          const existing = gymMap.get(gymId);
+          gymMap.set(gymId, {
+            ...existing,
+            visit_count: existing.visit_count + 1,
+            last_visit: post.created_at
+          });
+        } else {
+          gymMap.set(gymId, {
+            gym: post.gyms,
+            visit_count: 1,
+            first_visit: post.created_at,
+            last_visit: post.created_at
+          });
+        }
+      });
+
+      const visitedGymsList = Array.from(gymMap.values())
+        .sort((a, b) => new Date(b.last_visit).getTime() - new Date(a.last_visit).getTime());
+
+      setVisitedGyms(visitedGymsList);
+      setHasLoadedMyTopia(true);
+      console.log('✅ マイトピアデータ取得完了:', visitedGymsList.length, '軒');
+    } catch (error) {
+      console.error('❌ マイトピアデータ取得エラー:', error);
+    } finally {
+      setIsLoadingMyTopia(false);
+    }
+  };
+
   // マイジムデータを読み込む
   const loadMyGymData = async () => {
     if (!userId) return;
@@ -602,11 +678,7 @@ function ProfileContent() {
       loadAchievementsData();
     } else if (tab === 'my-topia') {
       console.log('🏆 マイトピアタブが選択されました');
-      // マイトピア（訪問ジム数）は既にuniqueGymsCountで管理されているので追加処理は不要
-    } else if (tab === 'my-gyms') {
-      console.log('🏋️ マイジムタブが選択されました');
-      loadMyGymData(); // マイジムデータをリフレッシュ
-    }
+      loadMyTopiaData(); // 訪問したジム一覧を取得
   };
 
   // ジムモーダルを開く処理
@@ -704,7 +776,7 @@ function ProfileContent() {
       <Header subtitle="プロフィール" showMenu={true} />
 
       {/* Profile Header */}
-      <div className="relative border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.95)] pt-24 sm:pt-28">
+      <div className="relative border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.95)] pt-16 sm:pt-20">
         <div className="max-w-6xl mx-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             {/* Avatar */}
@@ -741,7 +813,7 @@ function ProfileContent() {
                   プロフィール編集
                 </button>
               </div>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-[color:var(--text-subtle)] mb-1 sm:mb-3">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-[color:var(--text-subtle)] mb-1 sm:mb-2">
                 <p className="text-xs sm:text-base text-[color:var(--text-subtle)] font-medium">
                   {isLoading ? '...' : (profileData?.username ? `@${profileData.username}` : '@user')}
                 </p>
@@ -765,7 +837,7 @@ function ProfileContent() {
               </div>
 
               {/* マイジム表示 */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
                 {myGymSelections.primaryGym && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
                     <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
@@ -804,7 +876,7 @@ function ProfileContent() {
                   </div>
                 )}
               </div>
-              <p className="text-xs sm:text-sm text-[color:var(--foreground)] mb-2 sm:mb-4 px-4 sm:px-0">
+              <p className="text-xs sm:text-sm text-[color:var(--foreground)] mb-2 sm:mb-3 px-4 sm:px-0">
                 {isLoading ? '読み込み中...' : (profileData?.bio || 'プロフィール情報を設定してください')}
               </p>
 
@@ -856,7 +928,7 @@ function ProfileContent() {
           <div className="flex gap-4 sm:gap-8">
             <button
               onClick={() => handleTabChange('gym-activity')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'gym-activity' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+              className={`flex-1 sm:flex-initial py-2 px-1 relative ${activeTab === 'gym-activity' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">ジム活</span>
               <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
@@ -868,7 +940,7 @@ function ProfileContent() {
             </button>
             <button
               onClick={() => handleTabChange('achievements')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'achievements' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+              className={`flex-1 sm:flex-initial py-2 px-1 relative ${activeTab === 'achievements' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">達成記録</span>
               {activeTab === 'achievements' && (
@@ -877,7 +949,7 @@ function ProfileContent() {
             </button>
             <button
               onClick={() => handleTabChange('my-topia')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'my-topia' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+              className={`flex-1 sm:flex-initial py-2 px-1 relative ${activeTab === 'my-topia' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
               <span className="text-sm sm:text-base font-medium">マイトピア</span>
               <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
@@ -887,24 +959,12 @@ function ProfileContent() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
               )}
             </button>
-            <button
-              onClick={() => handleTabChange('my-gyms')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'my-gyms' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
-            >
-              <span className="text-sm sm:text-base font-medium">マイジム</span>
-              <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
-                {isLoading ? '...' : `${(myGymSelections.primaryGym ? 1 : 0) + myGymSelections.secondaryGyms.length}/3`}
-              </div>
-              {activeTab === 'my-gyms' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
-              )}
-            </button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+      <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4">
         {/* Gym Activity Tab */}
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
@@ -1087,34 +1147,106 @@ function ProfileContent() {
         {/* My Topia Tab */}
         {activeTab === 'my-topia' && (
           <div className="space-y-4">
-            <div className="gt-card p-6 sm:p-8 text-center">
-              <div className="text-[color:var(--gt-secondary-strong)] mb-4">
-                <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
+            {/* Visited Gyms List */}
+            {isLoadingMyTopia ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="gt-card p-4 sm:p-6">
+                    <div className="animate-pulse">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-16 h-16 bg-[rgba(231,103,76,0.16)] rounded-lg"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-3/4 mb-2"></div>
+                          <div className="h-3 bg-[rgba(231,103,76,0.16)] rounded w-1/2 mb-2"></div>
+                          <div className="h-3 bg-[rgba(231,103,76,0.16)] rounded w-1/3"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-2xl font-bold text-[color:var(--gt-secondary-strong)] mb-2">
-                {uniqueGymsCount}軒
-              </h3>
-              <h4 className="text-lg font-medium text-[color:var(--foreground)] mb-2">トピア開拓</h4>
-              <p className="text-[color:var(--text-muted)]">
-                これまでに{uniqueGymsCount}軒のジムを訪問しました
-              </p>
-            </div>
+            ) : visitedGyms.length === 0 ? (
+              <div className="gt-card p-6 sm:p-8 text-center">
+                <div className="text-[color:var(--text-muted)] mb-4">
+                  <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21 9h-3V3.23C18 2.1 16.91 1.05 15.76 1H8.24C7.09 1.05 6 2.1 6 3.23V9H3c-.55 0-1 .45-1 1s.45 1 1 1h3v8.77c0 1.13 1.09 2.18 2.24 2.23h7.52c1.15-.05 2.24-1.1 2.24-2.23V11h3c.55 0 1-.45 1-1s-.45-1-1-1zm-5 0H8V3h8v6z"/>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-[color:var(--foreground)] mb-2">まだ訪問したジムがありません</h3>
+                <p className="text-[color:var(--text-muted)]">ジムに投稿すると、マイトピアに記録されます！</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {visitedGyms.map((visitedGym) => (
+                  <div
+                    key={visitedGym.gym.id}
+                    className="gt-card p-4 sm:p-5 hover:shadow-[0_20px_46px_-26px_rgba(189,101,78,0.48)] transition-all cursor-pointer"
+                    onClick={() => handleGymClick(visitedGym.gym.id)}
+                  >
+                    {/* Gym Image */}
+                    <div className="relative mb-4">
+                      {visitedGym.gym.images && visitedGym.gym.images.length > 0 ? (
+                        <Image
+                          src={visitedGym.gym.images[0]}
+                          alt={visitedGym.gym.name}
+                          width={300}
+                          height={200}
+                          className="w-full h-32 sm:h-40 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-32 sm:h-40 bg-gradient-to-br from-[rgba(231,103,76,0.16)] to-[rgba(245,177,143,0.16)] rounded-lg flex items-center justify-center">
+                          <svg className="w-12 h-12 text-[color:var(--gt-primary)]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 9h-3V3.23C18 2.1 16.91 1.05 15.76 1H8.24C7.09 1.05 6 2.1 6 3.23V9H3c-.55 0-1 .45-1 1s.45 1 1 1h3v8.77c0 1.13 1.09 2.18 2.24 2.23h7.52c1.15-.05 2.24-1.1 2.24-2.23V11h3c.55 0 1-.45 1-1s-.45-1-1-1zm-5 0H8V3h8v6z"/>
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2">
+                        <div className="w-8 h-8 bg-[rgba(255,255,255,0.9)] rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-xs font-bold text-[color:var(--gt-primary-strong)]">
+                            {visitedGym.visit_count}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Gym Info */}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-lg text-[color:var(--foreground)] line-clamp-2">
+                        {visitedGym.gym.name}
+                      </h3>
+
+                      {visitedGym.gym.address && (
+                        <div className="flex items-center gap-1 text-[color:var(--text-muted)]">
+                          <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                          </svg>
+                          <span className="text-sm line-clamp-2">{visitedGym.gym.address}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="text-xs text-[color:var(--text-muted)]">
+                          <div>訪問回数: {visitedGym.visit_count}回</div>
+                          <div>最新訪問: {new Date(visitedGym.last_visit).toLocaleDateString('ja-JP')}</div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGymClick(visitedGym.gym.id);
+                          }}
+                          className="px-3 py-1 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white text-xs rounded-full font-medium hover:shadow-[0_12px_28px_-18px_rgba(189,101,78,0.44)] transition-all"
+                        >
+                          詳細を見る
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-          {/* My Gyms Tab */}
-          {activeTab === 'my-gyms' && (
-            <div className="gt-card p-4 sm:p-6">
-              <MyGymManager
-                userId={userId}
-                onUpdate={() => {
-                  loadMyGymData(); // Reload data when gym selections change
-                }}
-              />
-            </div>
-          )}
 
       </div>
 
