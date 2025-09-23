@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// 環境変数の安全な取得
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Service role clientを作成（RLSを迂回）
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Missing Supabase environment variables:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseServiceKey
+    });
+    return null;
   }
-});
+
+  // Service role clientを作成（RLSを迂回）
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,9 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Supabase admin client check
+    // Supabase admin client取得
+    const supabaseAdmin = getSupabaseAdmin();
     if (!supabaseAdmin) {
-      console.error('Supabase admin client not initialized');
+      console.error('Supabase admin client not initialized - missing environment variables');
       return NextResponse.json(
         { error: 'データベース接続に失敗しました' },
         { status: 500 }
@@ -147,6 +159,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: 'フォロワーIDとフォローイングIDが必要です' },
         { status: 400 }
+      );
+    }
+
+    // Supabase admin client取得
+    const supabaseAdmin = getSupabaseAdmin();
+    if (!supabaseAdmin) {
+      console.error('Supabase admin client not initialized - missing environment variables');
+      return NextResponse.json(
+        { error: 'データベース接続に失敗しました' },
+        { status: 500 }
       );
     }
 

@@ -255,7 +255,9 @@
       "Bash(/usr/bin/git tag -a v4.2.1 -m \"v4.2.1: プロフィールページ500エラー修正 + 認証エラーハンドリング改善 - PATCH版\")",
       "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/checkin\")",
       "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel env ls --scope tsubasaa2830505-7621s-projects)",
-      "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --value=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMzQyNDYsImV4cCI6MjA3MjcxMDI0Nn0.xltaH28adx1dIhsqaWllLDPEjw8iDrSglDIwj19rXnA\")"
+      "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --value=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0eXRld3F2a2d3eXV2Y3N2andtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMzQyNDYsImV4cCI6MjA3MjcxMDI0Nn0.xltaH28adx1dIhsqaWllLDPEjw8iDrSglDIwj19rXnA\")",
+      "Bash(/usr/bin/git commit -m \"🔧 v4.2.2: Vercel環境変数エラー修正 - デプロイメント再実行\n\n✅ 修正内容:\n- Supabase Service Role Key環境変数確認\n- Follow APIエラー対応\n- デプロイメント問題解決\n\n🎯 効果:\n- Vercelデプロイメント正常化\n- APIエラー解消\n- 本番環境安定性向上\n\n🔧 技術詳細:\n- SUPABASE_SERVICE_ROLE_KEY環境変数検証\n- Follow API (/api/follow) エラーハンドリング\n- ビルドプロセス最適化\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)",
+      "Bash(/usr/bin/git tag -a v4.2.2 -m \"v4.2.2: Vercel環境変数エラー修正 - デプロイメント再実行 - PATCH版\")"
     ],
     "deny": [],
     "ask": []
