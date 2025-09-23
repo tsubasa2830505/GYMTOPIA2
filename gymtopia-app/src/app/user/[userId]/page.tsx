@@ -95,7 +95,7 @@ interface UserProfile {
   location?: string;
 }
 
-export default function UserProfilePage() {
+function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.userId as string;
@@ -234,7 +234,7 @@ export default function UserProfilePage() {
         });
 
         // Set posts - transform data to match expected format
-        if (postsResult.data) {
+        if (postsResult.data && profileData) {
           console.log('Transforming posts data:', postsResult.data);
           try {
             const transformedPosts = postsResult.data.map(post => {
@@ -266,17 +266,17 @@ export default function UserProfilePage() {
                 created_at: post.created_at,
                 updated_at: post.updated_at,
                 user: {
-                  id: userProfile.id,
-                  display_name: userProfile.display_name,
-                  username: userProfile.username,
-                  avatar_url: userProfile.avatar_url,
-                  bio: userProfile.bio,
-                  joined_at: userProfile.created_at,
+                  id: profileData.id,
+                  display_name: profileData.display_name,
+                  username: profileData.username,
+                  avatar_url: profileData.avatar_url,
+                  bio: profileData.bio,
+                  joined_at: profileData.created_at,
                   is_verified: false,
                   workout_streak: 0,
                   total_workouts: 0,
-                  created_at: userProfile.created_at,
-                  updated_at: userProfile.created_at
+                  created_at: profileData.created_at,
+                  updated_at: profileData.created_at
                 },
                 gym: post.gyms ? {
                   id: post.gyms.id,
@@ -682,3 +682,5 @@ export default function UserProfilePage() {
     </div>
   );
 }
+
+export default UserProfilePage;
