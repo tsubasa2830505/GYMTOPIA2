@@ -27,6 +27,7 @@ export type GymFacilities = Record<FacilityKey, boolean>
 
 // Helper: list of all keys (useful for validation/mapping)
 export const FACILITY_KEYS: readonly FacilityKey[] = [
+  'drop_in',
   '24hours',
   'shower',
   'parking',
@@ -46,7 +47,6 @@ export const FACILITY_KEYS: readonly FacilityKey[] = [
   'barrier_free',
   'kids_room',
   'english_support',
-  'drop_in',
 ] as const
 
 // Labels and category metadata without UI icon dependencies
@@ -60,12 +60,12 @@ export interface FacilityMeta {
 }
 
 export const FACILITY_META: readonly FacilityMeta[] = [
+  { id: 'drop_in', name: 'ドロップイン', description: 'ビジター利用可能', category: 'basic' },
   { id: '24hours', name: '24時間営業', description: '深夜・早朝も利用可能', category: 'basic' },
   { id: 'shower', name: 'シャワー', description: 'シャワールーム完備', category: 'basic' },
   { id: 'parking', name: '駐車場', description: '無料/有料駐車場あり', category: 'basic' },
   { id: 'locker', name: 'ロッカー', description: '鍵付きロッカー', category: 'basic' },
   { id: 'wifi', name: 'WiFi', description: '無料WiFi利用可能', category: 'basic' },
-  { id: 'drop_in', name: 'ドロップイン', description: 'ビジター利用可能', category: 'basic' },
 
   { id: 'chalk', name: 'チョーク利用可', description: 'パワーリフティング対応', category: 'training' },
   { id: 'belt_rental', name: 'ベルト貸出', description: 'トレーニングベルト無料貸出', category: 'training' },

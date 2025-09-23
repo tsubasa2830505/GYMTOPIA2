@@ -10,12 +10,15 @@ import Header from '@/components/Header';
 import { getUserProfileStats, getWeeklyStats, getUserPosts, getUserAchievements, getUserPersonalRecords, getFavoriteGyms, getUserFollowers, getUserFollowing, updateGymPost, deleteGymPost } from '@/lib/supabase/profile';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { updatePost, deletePost as deletePostAPI } from '@/lib/supabase/posts';
+import { getUserGymSelections } from '@/lib/supabase/my-gym';
 import PostCard from '@/components/PostCard';
 import CheckinBadges from '@/components/CheckinBadges';
 import GymDetailModal from '@/components/GymDetailModal';
+import MyGymManager from '@/components/MyGymManager';
 import type { Post } from '@/lib/supabase/posts';
 import type { UserProfileStats, WeeklyStats, GymPost, FavoriteGym } from '@/lib/types/profile';
 import type { Achievement, PersonalRecord } from '@/lib/types/workout';
+import type { Gym } from '@/lib/supabase/types';
 // Material Design icons are now inline SVGs
 
 // Helper function to format date
@@ -138,6 +141,10 @@ function ProfileContent() {
   const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
   const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [myGymSelections, setMyGymSelections] = useState<{
+    primaryGym: Gym | null
+    secondaryGyms: Gym[]
+  }>({ primaryGym: null, secondaryGyms: [] });
 
   // Tab specific loading states
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
@@ -466,6 +473,9 @@ function ProfileContent() {
           // サンプルデータは使用せず、空の配列のままにして「いきたい」タブクリック時に再取得
         }
 
+        // マイジムデータを読み込み
+        await loadMyGymData();
+
       } catch (error) {
         console.error('プロフィールデータ取得エラー:', error);
         if (retryCount < maxRetries && isActive) {
@@ -579,6 +589,20 @@ function ProfileContent() {
     }
   };
 
+  // マイジムデータを読み込む
+  const loadMyGymData = async () => {
+    if (!userId) return;
+
+    try {
+      console.log('🏋️ マイジムデータ取得開始:', userId);
+      const selections = await getUserGymSelections(userId);
+      setMyGymSelections(selections);
+      console.log('✅ マイジムデータ取得完了:', selections);
+    } catch (error) {
+      console.error('❌ マイジムデータ取得エラー:', error);
+    }
+  };
+
   // タブ切り替え時の処理
   const handleTabChange = (tab: string) => {
     console.log('🔥 タブ切り替え:', tab, 'hasLoadedFavorites:', hasLoadedFavorites);
@@ -592,6 +616,9 @@ function ProfileContent() {
       console.log('💡 「いきたい」タブが選択されました');
       console.log('🔄 強制的に実データを再取得');
       forceLoadRealFavorites(); // シンプルな強制取得
+    } else if (tab === 'my-gyms') {
+      console.log('🏋️ マイジムタブが選択されました');
+      loadMyGymData(); // マイジムデータをリフレッシュ
     }
   };
 
@@ -750,14 +777,32 @@ function ProfileContent() {
                 </div>
               </div>
 
-              {/* マイジム表示 - Always show for testing */}
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
-                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
-                  <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
-                    マイジム: {homeGym ? homeGym.name : 'ゴールドジム渋谷'}
-                  </span>
-                </div>
+              {/* マイジム表示 */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
+                {myGymSelections.primaryGym && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(231,103,76,0.12)] to-[rgba(245,177,143,0.12)] rounded-full border border-[rgba(231,103,76,0.18)]">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--gt-primary-strong)]" />
+                    <span className="text-xs sm:text-sm font-medium text-[color:var(--gt-primary-strong)]">
+                      メイン: {myGymSelections.primaryGym.name}
+                    </span>
+                  </div>
+                )}
+                {myGymSelections.secondaryGyms.map((gym, index) => (
+                  <div key={gym.id} className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(76,175,80,0.12)] to-[rgba(129,199,132,0.12)] rounded-full border border-[rgba(76,175,80,0.18)]">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--text-success)]" />
+                    <span className="text-xs sm:text-sm font-medium text-[color:var(--text-success)]">
+                      サブ{index + 1}: {gym.name}
+                    </span>
+                  </div>
+                ))}
+                {!myGymSelections.primaryGym && myGymSelections.secondaryGyms.length === 0 && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[rgba(158,158,158,0.12)] to-[rgba(189,189,189,0.12)] rounded-full border border-[rgba(158,158,158,0.18)]">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[color:var(--text-muted)]" />
+                    <span className="text-xs sm:text-sm font-medium text-[color:var(--text-muted)]">
+                      マイジム未設定
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="mb-2 sm:mb-3">
@@ -844,14 +889,14 @@ function ProfileContent() {
               )}
             </button>
             <button
-              onClick={() => handleTabChange('favorites')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+              onClick={() => handleTabChange('my-gyms')}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'my-gyms' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
-              <span className="text-sm sm:text-base font-medium">マイトピア</span>
+              <span className="text-sm sm:text-base font-medium">マイジム</span>
               <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
-                {isLoading ? '...' : `${profileData?.favorite_gyms_count || 0}ジム`}
+                {isLoading ? '...' : `${(myGymSelections.primaryGym ? 1 : 0) + myGymSelections.secondaryGyms.length}/3`}
               </div>
-              {activeTab === 'favorites' && (
+              {activeTab === 'my-gyms' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
               )}
             </button>
@@ -1054,86 +1099,15 @@ function ProfileContent() {
           </div>
         )}
 
-          {/* Favorites Tab */}
-          {activeTab === 'favorites' && (
-            <div className="space-y-4">
-              {isLoading ? (
-                Array.from({ length: 4 }, (_, index) => (
-                  <div key={index} className="gt-card p-4">
-                    <div className="animate-pulse">
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(231,103,76,0.16)] rounded-lg flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <div className="h-5 bg-[rgba(231,103,76,0.16)] rounded w-3/4 mb-2"></div>
-                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-1/2 mb-2"></div>
-                          <div className="h-4 bg-[rgba(231,103,76,0.16)] rounded w-1/4"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (() => {
-                console.log('📊 イキタイタブ - UI描画時のuserFavoriteGyms.length:', userFavoriteGyms.length, 'データ:', userFavoriteGyms);
-                return userFavoriteGyms.length === 0;
-              })() ? (
-                <div className="gt-card p-8 text-center">
-                  <svg className="w-16 h-16 text-[rgba(231,103,76,0.32)] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                  </svg>
-                  <p className="text-[color:var(--text-muted)] mb-2">お気に入りジムがまだありません</p>
-                  <p className="text-[color:var(--text-muted)] text-sm">気になるジムをお気に入りに追加してみましょう！</p>
-                </div>
-              ) : (
-                userFavoriteGyms.map((favoriteGym, index) => (
-                  <button
-                    key={favoriteGym.id || index}
-                    onClick={() => handleGymClick(favoriteGym.gym?.id || favoriteGym.gym_id)}
-                    className="block w-full text-left"
-                  >
-                    <div className="gt-card p-4 hover:-translate-y-[2px] transition-transform cursor-pointer">
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[rgba(231,103,76,0.16)] rounded-lg flex-shrink-0 overflow-hidden">
-                          {(favoriteGym.gym?.image_url || (favoriteGym.gym?.images && favoriteGym.gym.images.length > 0 && favoriteGym.gym.images[0])) ? (
-                            <Image
-                              src={favoriteGym.gym.image_url || favoriteGym.gym.images[0]}
-                              alt={favoriteGym.gym.name || 'ジム画像'}
-                              width={96}
-                              height={96}
-                              className="w-full h-full object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <svg className="w-8 h-8 text-[rgba(231,103,76,0.5)]" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                        <h4 className="font-bold text-base sm:text-lg mb-1 text-[color:var(--foreground)]">
-                          {favoriteGym.gym?.name || 'ジム名不明'}
-                        </h4>
-                        <p className="text-sm text-[color:var(--text-subtle)] mb-2 flex items-center gap-1">
-                          <svg className="w-4 h-4 text-[color:var(--text-muted)]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                          </svg>
-                          {favoriteGym.gym?.prefecture && favoriteGym.gym?.city
-                            ? `${favoriteGym.gym.prefecture} ${favoriteGym.gym.city}`
-                            : favoriteGym.gym?.prefecture || favoriteGym.gym?.city || '場所不明'
-                          }
-                        </p>
-                        {favoriteGym.gym?.description && (
-                          <p className="text-xs text-[color:var(--text-muted)] mb-2">
-                            {favoriteGym.gym.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    </div>
-                  </button>
-                ))
-              )}
+          {/* My Gyms Tab */}
+          {activeTab === 'my-gyms' && (
+            <div className="gt-card p-4 sm:p-6">
+              <MyGymManager
+                userId={userId}
+                onUpdate={() => {
+                  loadMyGymData(); // Reload data when gym selections change
+                }}
+              />
             </div>
           )}
 

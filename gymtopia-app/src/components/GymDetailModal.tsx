@@ -11,6 +11,7 @@ import { getGymById, getGymMachines, getGymFreeWeights, type Gym } from '@/lib/s
 import { supabase } from '@/lib/supabase/client'
 import GymDetailedInfoDisplay from '@/components/GymDetailedInfoDisplay'
 import { useAuth } from '@/contexts/AuthContext'
+import { enrichGymWithStationInfo } from '@/lib/utils/distance'
 
 interface GymDetailModalProps {
   isOpen: boolean
@@ -470,7 +471,16 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                         style={{
                           textShadow: '2px 2px 4px rgba(255,255,255,1), 0px 0px 8px rgba(255,255,255,0.8), -1px -1px 0px rgba(255,255,255,0.8), 1px -1px 0px rgba(255,255,255,0.8), -1px 1px 0px rgba(255,255,255,0.8), 1px 1px 0px rgba(255,255,255,0.8)'
                         }}>
-                    {gymData.location.area} • 徒歩{gymData.location.walkingMinutes}分
+                    {(() => {
+                      const stationInfo = enrichGymWithStationInfo({
+                        address: gymData.address,
+                        latitude: gymData.latitude,
+                        longitude: gymData.longitude
+                      })
+                      return stationInfo.walkingMinutes > 0
+                        ? `${stationInfo.station}から徒歩${stationInfo.walkingMinutes}分`
+                        : stationInfo.area
+                    })()}
                   </span>
                 </div>
               </div>

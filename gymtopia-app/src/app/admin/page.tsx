@@ -20,12 +20,22 @@ import type { GymDetailedInfo } from '@/lib/supabase/gym-detailed-info'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
+import {
+  formatPhoneNumber,
+  validatePhoneNumber,
+  validateUrl,
+  validateImageUrl,
+  validateGymForm,
+  TEXT_LIMITS,
+  ERROR_MESSAGES
+} from '@/lib/validation/gym-form'
 import PricingSection from '@/components/GymOwnerForm/PricingSection'
 import OperatingHoursSection from '@/components/GymOwnerForm/OperatingHoursSection'
 import RulesSection from '@/components/GymOwnerForm/RulesSection'
 import BeginnerSupportSection from '@/components/GymOwnerForm/BeginnerSupportSection'
 import AccessInfoSection from '@/components/GymOwnerForm/AccessInfoSection'
 import OtherInfoSection from '@/components/GymOwnerForm/OtherInfoSection'
+import FacilitySection from './components/FacilitySection'
 
 interface Equipment {
   id: string
@@ -50,6 +60,7 @@ export default function AdminPage() {
   const [frequentPosters, setFrequentPosters] = useState<any[]>([])
   const [hasAccess, setHasAccess] = useState(false)
   const [authUser, setAuthUser] = useState<any>(null)
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -479,6 +490,36 @@ export default function AdminPage() {
   }
 
   const handleInputChange = (field: string, value: string) => {
+    // 電話番号の自動フォーマット
+    if (field === 'phone') {
+      value = formatPhoneNumber(value)
+    }
+
+    // 画像URLの処理
+    if (field === 'images') {
+      const imageArray = value.split('\n').filter(url => url.trim())
+      setFormData(prev => ({
+        ...prev,
+        basicInfo: {
+          ...prev.basicInfo,
+          images: imageArray
+        }
+      }))
+
+      // 画像URLのバリデーション
+      if (imageArray.length > 10) {
+        setFormErrors(prev => ({ ...prev, images: ERROR_MESSAGES.images.tooMany }))
+      } else {
+        const invalidImages = imageArray.filter(url => url && !validateImageUrl(url))
+        if (invalidImages.length > 0) {
+          setFormErrors(prev => ({ ...prev, images: ERROR_MESSAGES.images.invalid }))
+        } else {
+          setFormErrors(prev => ({ ...prev, images: '' }))
+        }
+      }
+      return
+    }
+
     setFormData(prev => ({
       ...prev,
       basicInfo: {
@@ -486,6 +527,49 @@ export default function AdminPage() {
         [field]: value
       }
     }))
+
+    // リアルタイムバリデーション
+    validateField(field, value)
+  }
+
+  const validateField = (field: string, value: string) => {
+    let error = ''
+
+    switch (field) {
+      case 'phone':
+        if (value && !validatePhoneNumber(value)) {
+          error = ERROR_MESSAGES.phone.invalid
+        }
+        break
+      case 'website':
+        if (value && !validateUrl(value)) {
+          error = ERROR_MESSAGES.website.invalid
+        } else if (value.length > TEXT_LIMITS.url) {
+          error = ERROR_MESSAGES.website.tooLong
+        }
+        break
+      case 'name':
+        if (value.length > TEXT_LIMITS.name) {
+          error = ERROR_MESSAGES.name.tooLong
+        }
+        break
+      case 'address':
+        if (value.length > TEXT_LIMITS.address) {
+          error = ERROR_MESSAGES.address.tooLong
+        }
+        break
+      case 'description':
+        if (value.length > TEXT_LIMITS.description) {
+          error = ERROR_MESSAGES.description.tooLong
+        }
+        break
+    }
+
+    if (error) {
+      setFormErrors(prev => ({ ...prev, [field]: error }))
+    } else {
+      setFormErrors(prev => ({ ...prev, [field]: '' }))
+    }
   }
 
   const handleServiceToggle = (service: string) => {
@@ -506,6 +590,14 @@ export default function AdminPage() {
     if (!selectedGym) {
       console.log('selectedGymが選択されていません')
       alert('ジムが選択されていません')
+      return
+    }
+
+    // フォーム全体のバリデーション
+    const validation = validateGymForm(formData)
+    if (!validation.isValid) {
+      setFormErrors(validation.errors)
+      alert('入力内容にエラーがあります。修正してください。')
       return
     }
 
@@ -907,7 +999,7 @@ export default function AdminPage() {
                             <p><strong>SelectedGym:</strong> {selectedGym ? selectedGym.name : '未選択'}</p>
                             <p><strong>DetailFormData Keys:</strong> {Object.keys(detailFormData).join(', ')}</p>
                             <p><strong>PricingSystem:</strong> {detailFormData.pricing_system ?
-                              `月額:${detailFormData.pricing_system.monthly_fee}円` : '未設定'}</p>
+                              `プラン数:${detailFormData.pricing_system.membership_plans?.length || 0}` : '未設定'}</p>
                             <p><strong>Loading:</strong> {detailFormLoading ? 'はい' : 'いいえ'}</p>
                           </div>
                         </div>

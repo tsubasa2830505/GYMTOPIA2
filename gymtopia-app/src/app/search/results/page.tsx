@@ -68,6 +68,8 @@ function SearchResultsContent() {
   const [gyms, setGyms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [displayedGyms, setDisplayedGyms] = useState<any[]>([])
+  const [showCount, setShowCount] = useState(20) // 初期表示数
   const [machineNames, setMachineNames] = useState<Record<string, string>>({})
   const [processingLikes, setProcessingLikes] = useState<Set<string>>(new Set())
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
@@ -345,13 +347,14 @@ function SearchResultsContent() {
         uniqueGyms = sortGyms(uniqueGyms, sortBy, userLocation)
 
         setGyms(uniqueGyms)
+        setDisplayedGyms(uniqueGyms.slice(0, showCount))
       }
     } catch (err) {
       console.error('Failed to fetch gyms:', err)
       setError('ジムの検索に失敗しました')
       
       // Fallback to sample data
-      setGyms([
+      const fallbackData = [
         {
           id: 1,
           name: 'プレミアムフィットネス銀座',
@@ -391,7 +394,9 @@ function SearchResultsContent() {
           dropinPrice: 2500,
           isLiked: false,
         },
-      ])
+      ]
+      setGyms(fallbackData)
+      setDisplayedGyms(fallbackData.slice(0, showCount))
     } finally {
       setLoading(false)
     }
@@ -567,10 +572,12 @@ function SearchResultsContent() {
           // Apply sorting for nearby search results too
           transformed = sortGyms(transformed, sortBy, { lat, lng: lon })
           setGyms(transformed)
+          setDisplayedGyms(transformed.slice(0, showCount))
         } catch (e: any) {
           console.error('Nearby search failed', e)
           setError('近くのジム検索に失敗しました')
           setGyms([])
+          setDisplayedGyms([])
         } finally {
           setLoading(false)
         }
@@ -579,6 +586,18 @@ function SearchResultsContent() {
       fetchGyms(newConditions)
     }
   }, [searchParams, fetchGyms])
+
+  // 表示数の更新
+  useEffect(() => {
+    if (gyms.length > 0) {
+      setDisplayedGyms(gyms.slice(0, showCount))
+    }
+  }, [gyms, showCount])
+
+  // もっと読み込む機能
+  const loadMoreGyms = () => {
+    setShowCount(prev => prev + 20)
+  }
 
   const getTotalConditionsCount = () => {
     return selectedConditions.machines.length + selectedConditions.freeWeights.length + selectedConditions.facilities.length
@@ -852,7 +871,8 @@ function SearchResultsContent() {
                 <p className="gt-body text-[color:var(--text-subtle)]">検索条件に一致するジムが見つかりませんでした</p>
               </div>
             ) : (
-              gyms.map((gym) => {
+              <>
+                {displayedGyms.map((gym) => {
                 const isSelected = selectedGymForMap?.id === gym.id
                 return (
                   <div
@@ -860,7 +880,7 @@ function SearchResultsContent() {
                     className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-[rgba(231,103,76,0.32)]' : 'hover:-translate-y-[3px]'}`}
                   >
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 overflow-hidden border border-white/60 bg-white/70">
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex-shrink-0 overflow-hidden border-2 border-white/80 bg-white/70 shadow-lg">
                         <img
                           src={gym.image}
                           alt={gym.name}
@@ -891,20 +911,28 @@ function SearchResultsContent() {
                                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-[color:var(--gt-primary)] text-[color:var(--gt-primary)]' : ''}`} />
                                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--foreground)]">{gym.likes}</span>
                               </div>
-                              <div className="text-right">
-                                {gym.monthlyPrice && gym.dropinPrice ? (
-                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
-                                    月額¥{gym.monthlyPrice.toLocaleString()} / ¥{gym.dropinPrice.toLocaleString()}
+                              <div className="flex items-center gap-3 flex-wrap justify-end">
+                                {gym.monthlyPrice && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-blue-700 rounded-full font-medium">
+                                      月額
+                                    </span>
+                                    <span className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
+                                      ¥{gym.monthlyPrice.toLocaleString()}
+                                    </span>
                                   </div>
-                                ) : gym.monthlyPrice ? (
-                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
-                                    月額¥{gym.monthlyPrice.toLocaleString()}
+                                )}
+                                {gym.dropinPrice && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-orange-700 rounded-full font-medium">
+                                      ビジター
+                                    </span>
+                                    <span className="text-sm sm:text-base font-bold text-orange-700">
+                                      ¥{gym.dropinPrice.toLocaleString()}
+                                    </span>
                                   </div>
-                                ) : gym.dropinPrice ? (
-                                  <div className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
-                                    ドロップイン¥{gym.dropinPrice.toLocaleString()}
-                                  </div>
-                                ) : (
+                                )}
+                                {!gym.monthlyPrice && !gym.dropinPrice && (
                                   <div className="text-sm sm:text-base text-[color:var(--text-muted)]">
                                     料金要問合せ
                                   </div>
@@ -961,7 +989,21 @@ function SearchResultsContent() {
                     </div>
                   </div>
                 )
-              })
+                })}
+
+                {/* もっと見るボタン */}
+                {displayedGyms.length < gyms.length && (
+                  <div className="flex justify-center pt-6">
+                    <button
+                      type="button"
+                      onClick={loadMoreGyms}
+                      className="px-8 py-3 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white rounded-2xl font-semibold shadow-[0_18px_36px_-26px_rgba(189,101,78,0.46)] hover:-translate-y-[2px] transition-all gt-pressable"
+                    >
+                      もっと見る ({gyms.length - displayedGyms.length}件)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

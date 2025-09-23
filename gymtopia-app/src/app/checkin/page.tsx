@@ -40,6 +40,7 @@ interface CheckIn {
   gym_name: string
   checked_in_at: string
   note?: string
+  has_post?: boolean  // 投稿済みかどうか
 }
 
 export default function CheckInPage() {
@@ -219,12 +220,25 @@ export default function CheckInPage() {
         .limit(10)
 
       if (!checkInsError && checkIns) {
+        // チェックインIDの配列を作成
+        const checkInIds = checkIns.map((ci: any) => ci.id)
+
+        // 各チェックインに対応する投稿があるかチェック
+        const { data: posts, error: postsError } = await supabase
+          .from('gym_posts')
+          .select('checkin_id')
+          .in('checkin_id', checkInIds)
+
+        // 投稿があるチェックインIDのセットを作成
+        const postedCheckInIds = new Set(posts?.map(p => p.checkin_id) || [])
+
         const formattedCheckIns = checkIns.map((ci: any) => ({
           id: ci.id,
           gym_id: ci.gym_id,
           gym_name: ci.gyms?.name || 'Unknown Gym',
           checked_in_at: ci.checked_in_at,
-          note: ci.note
+          note: ci.note,
+          has_post: postedCheckInIds.has(ci.id)  // 投稿済みかどうか
         }))
         setRecentCheckIns(formattedCheckIns)
 
@@ -370,7 +384,8 @@ export default function CheckInPage() {
         gym_id: selectedGym.id,
         gym_name: selectedGym.name,
         checked_in_at: new Date().toISOString(),
-        note: undefined
+        note: undefined,
+        has_post: false  // 新しいチェックインは投稿未実施
       }
       setRecentCheckIns(prev => [newCheckIn, ...prev].slice(0, 10))
 
@@ -448,7 +463,8 @@ export default function CheckInPage() {
         gym_id: gymId,
         gym_name: gym.name,
         checked_in_at: new Date().toISOString(),
-        note: undefined
+        note: undefined,
+        has_post: false  // 新しいチェックインは投稿未実施
       }
       setRecentCheckIns(prev => [newCheckIn, ...prev].slice(0, 10))
 
@@ -712,8 +728,16 @@ export default function CheckInPage() {
                   return (
                     <div key={checkIn.id} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-[color:var(--foreground)]">{checkIn.gym_name}</h3>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-[color:var(--foreground)]">{checkIn.gym_name}</h3>
+                            {checkIn.has_post && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                <Check className="w-3 h-3" />
+                                投稿済み
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-[color:var(--text-muted)]">
                             {dateStr} {timeStr}
                           </p>
@@ -723,9 +747,24 @@ export default function CheckInPage() {
                             // 投稿作成画面へ遷移（チェックインIDを渡す）
                             router.push(`/add?checkInId=${checkIn.id}&gymId=${checkIn.gym_id}&gymName=${encodeURIComponent(checkIn.gym_name)}`)
                           }}
-                          className="text-[color:var(--gt-secondary-strong)] hover:bg-[rgba(231,103,76,0.08)] px-3 py-1 rounded-full text-sm font-medium transition-colors"
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                            checkIn.has_post
+                              ? 'text-gray-500 hover:bg-gray-100 cursor-default'
+                              : 'text-[color:var(--gt-secondary-strong)] hover:bg-[rgba(231,103,76,0.08)]'
+                          }`}
+                          disabled={checkIn.has_post}
                         >
-                          投稿する
+                          {checkIn.has_post ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              投稿済み
+                            </>
+                          ) : (
+                            <>
+                              <ChevronRight className="w-4 h-4" />
+                              投稿する
+                            </>
+                          )}
                         </button>
                       </div>
                       {checkIn.note && (

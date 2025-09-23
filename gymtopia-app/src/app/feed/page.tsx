@@ -431,12 +431,6 @@ export default function FeedPage() {
       <div className="relative max-w-4xl mx-auto px-4 pt-20 sm:pt-24 py-6 space-y-6 min-h-screen">
         {/* Feed Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[color:var(--foreground)]">ジム活フィード</h2>
-            <span className="text-sm text-[color:var(--text-muted)]">
-              {posts.length}件の投稿
-            </span>
-          </div>
 
           {/* Filter Tabs */}
           <div className="grid grid-cols-3 gap-2">
