@@ -205,7 +205,7 @@ const PostForm = memo(function PostForm({
                 <div className="flex-1">
                   <div className="font-medium text-[color:var(--foreground)]">{exercise.name}</div>
                   <div className="text-sm text-[color:var(--text-muted)]">
-                    {exercise.weight}kg × {exercise.sets}セット × {exercise.reps}回
+                    {exercise.weight}kg × {exercise.reps}回 × {exercise.sets}セット
                   </div>
                 </div>
                 <div className="flex gap-2">

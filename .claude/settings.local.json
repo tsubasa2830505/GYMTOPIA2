@@ -219,7 +219,11 @@
       "WebFetch(domain:localhost)",
       "Bash(for page in \"/checkin\")",
       "Bash(mcp__supabase__execute_sql:*)",
-      "Bash(for page in \"/checkin\" \"/feed\" \"/profile\")"
+      "Bash(for page in \"/checkin\" \"/feed\" \"/profile\")",
+      "Bash(/usr/bin/git tag -a v2.2.1 -m \"v2.2.1: バックアップ実行 - UI最適化作業中状態保存 + 新機能開発準備完了\")",
+      "Bash(/usr/bin/git tag -a v2.2.2 -m \"v2.2.2: バックアップ実行 - UI最適化作業中状態保存 + 新機能開発準備完了\")",
+      "Bash(/usr/bin/git push origin --tags)",
+      "Bash(for page in \"/\" \"/profile\")"
     ],
     "deny": [],
     "ask": []

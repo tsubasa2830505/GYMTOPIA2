@@ -423,7 +423,7 @@ export class StoryImageGenerator {
             // 重量・セット・回数
             this.ctx.fillStyle = 'rgba(255, 240, 234, 0.8)';
             this.ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            const detailsText = `${exercise.weight}kg × ${exercise.sets}セット × ${exercise.reps}回`;
+            const detailsText = `${exercise.weight}kg × ${exercise.reps}回 × ${exercise.sets}セット`;
             this.ctx.fillText(detailsText, 100, currentY + 38);
 
             currentY += 80; // 次のエクササイズまでの間隔

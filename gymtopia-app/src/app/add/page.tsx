@@ -636,7 +636,7 @@ function AddGymPostContent() {
                             {exercise.speed && ` / ${exercise.speed}km/h`}
                           </>
                         ) : (
-                          `${exercise.weight}kg × ${exercise.sets}セット × ${exercise.reps}回`
+                          `${exercise.weight}kg × ${exercise.reps}回 × ${exercise.sets}セット`
                         )}
                       </p>
                     </div>

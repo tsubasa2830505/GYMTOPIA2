@@ -31,7 +31,7 @@ const formatTrainingDetails = (post: GymPost): string | null => {
   if (!post.workout_session_id || !post.training_details?.exercises) return null
 
   return post.training_details.exercises
-    .map(exercise => `${exercise.name} ${exercise.weight[0] || 0}kg × ${exercise.sets}セット × ${exercise.reps[0] || 0}回`)
+    .map(exercise => `${exercise.name} ${exercise.weight[0] || 0}kg × ${exercise.reps[0] || 0}回 × ${exercise.sets}セット`)
     .join(' • ')
 }
 

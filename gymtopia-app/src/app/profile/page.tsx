@@ -36,9 +36,9 @@ function formatPostDate(dateString: string): string {
 // Helper function to extract training details from workout session
 function formatTrainingDetails(post: GymPost): string | null {
   if (!post.workout_session_id || !post.training_details?.exercises) return null;
-  
+
   return post.training_details.exercises
-    .map(exercise => `${exercise.name} ${exercise.weight[0] || 0}kg × ${exercise.sets}セット × ${exercise.reps[0] || 0}回`)
+    .map(exercise => `${exercise.name} ${exercise.weight[0] || 0}kg × ${exercise.reps[0] || 0}回 × ${exercise.sets}セット`)
     .join(' • ');
 }
 
@@ -138,7 +138,6 @@ function ProfileContent() {
   const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [currentPostPage, setCurrentPostPage] = useState(1);
-  const [homeGym, setHomeGym] = useState<{ id: string; name: string } | null>(null);
   const [uniqueGymsCount, setUniqueGymsCount] = useState<number>(0);
   const [refreshKey, setRefreshKey] = useState(0);
   const [myGymSelections, setMyGymSelections] = useState<{
@@ -354,19 +353,8 @@ function ProfileContent() {
         // Supabaseクライアントを一度だけ取得
         const supabase = getSupabaseClient();
 
-        // ホームジムデータを取得
-        let homeGymData = null;
-        if (profileStats && profileStats.primary_gym_id) {
-          const { data: gymData } = await supabase
-            .from('gyms')
-            .select('id, name')
-            .eq('id', profileStats.primary_gym_id)
-            .maybeSingle();
-          if (gymData) {
-            homeGymData = gymData;
-            setHomeGym(gymData);
-          }
-        }
+        // ホームジムデータはマイジムシステムから取得するように変更
+        // 旧式のprimary_gym_idは使用せず、user_primary_gymsテーブルを使用
 
         // ユニークなジム数を計算（トピア開拓）
         console.log('🔍 トピア開拓データ取得開始 - userId:', userId);
@@ -403,7 +391,7 @@ function ProfileContent() {
         setWeeklyStats(weeklyData);
         setUserPosts(posts || []);
         // achievementsとfavoriteGymsは各タブクリック時に取得
-        setHomeGym(homeGymData);
+        // homeGymはマイジムシステムで管理
         // setUniqueGymsCountは早期リターンの前に移動済み
 
         // 投稿のページネーション設定
@@ -612,10 +600,9 @@ function ProfileContent() {
     // 各タブに応じて必要なデータを遅延ロード
     if (tab === 'achievements' && !hasLoadedAchievements) {
       loadAchievementsData();
-    } else if (tab === 'favorites') {
-      console.log('💡 「いきたい」タブが選択されました');
-      console.log('🔄 強制的に実データを再取得');
-      forceLoadRealFavorites(); // シンプルな強制取得
+    } else if (tab === 'my-topia') {
+      console.log('🏆 マイトピアタブが選択されました');
+      // マイトピア（訪問ジム数）は既にuniqueGymsCountで管理されているので追加処理は不要
     } else if (tab === 'my-gyms') {
       console.log('🏋️ マイジムタブが選択されました');
       loadMyGymData(); // マイジムデータをリフレッシュ
@@ -889,14 +876,14 @@ function ProfileContent() {
               )}
             </button>
             <button
-              onClick={() => handleTabChange('favorites')}
-              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+              onClick={() => handleTabChange('my-topia')}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'my-topia' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
-              <span className="text-sm sm:text-base font-medium">いきたい</span>
+              <span className="text-sm sm:text-base font-medium">マイトピア</span>
               <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
-                {isLoading ? '...' : `${userFavoriteGyms.length}件`}
+                {isLoading ? '...' : `${uniqueGymsCount}軒`}
               </div>
-              {activeTab === 'favorites' && (
+              {activeTab === 'my-topia' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
               )}
             </button>
@@ -921,21 +908,6 @@ function ProfileContent() {
         {/* Gym Activity Tab */}
         {activeTab === 'gym-activity' && (
           <div className="space-y-4">
-            {/* 新規投稿ボタン */}
-            <div className="gt-card p-4 border-2 border-dashed border-[rgba(231,103,76,0.18)] hover:border-[color:var(--gt-primary)] transition-colors">
-              <button 
-                onClick={() => router.push('/add')}
-                className="w-full flex items-center justify-center gap-3 py-3 text-[color:var(--text-muted)] hover:text-[color:var(--gt-primary-strong)] transition-colors"
-              >
-                <div className="w-10 h-10 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                  </svg>
-                </div>
-                <span className="font-medium">新しいジム活を投稿する</span>
-              </button>
-            </div>
-            
             {isLoading ? (
               // 改善されたスケルトンローディング（投稿カード風）
               <div className="space-y-4">
@@ -1108,6 +1080,26 @@ function ProfileContent() {
             {/* GPS チェックインバッジ */}
             <div className="gt-card p-4 sm:p-6">
               <CheckinBadges userId={user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'} />
+            </div>
+          </div>
+        )}
+
+        {/* My Topia Tab */}
+        {activeTab === 'my-topia' && (
+          <div className="space-y-4">
+            <div className="gt-card p-6 sm:p-8 text-center">
+              <div className="text-[color:var(--gt-secondary-strong)] mb-4">
+                <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-[color:var(--gt-secondary-strong)] mb-2">
+                {uniqueGymsCount}軒
+              </h3>
+              <h4 className="text-lg font-medium text-[color:var(--foreground)] mb-2">トピア開拓</h4>
+              <p className="text-[color:var(--text-muted)]">
+                これまでに{uniqueGymsCount}軒のジムを訪問しました
+              </p>
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getSupabaseClient } from '@/lib/supabase/client'
 import { Gym } from '@/lib/supabase/types'
 import { getUserGymSelections, updateUserPrimaryGym, addSecondaryGym, removeSecondaryGym } from '@/lib/supabase/my-gym'
 
@@ -29,7 +29,7 @@ export default function MyGymManager({ userId, onUpdate }: MyGymManagerProps) {
       setSelections(userSelections)
 
       // Load all available gyms for selection
-      const supabase = createClient()
+      const supabase = getSupabaseClient()
       const { data: gyms, error } = await supabase
         .from('gyms')
         .select('*')
