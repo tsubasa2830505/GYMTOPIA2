@@ -270,7 +270,7 @@ export async function followUser(followerId: string, followingId: string) {
   } catch (error) {
     console.error('Error following user:', error)
     // より詳細なエラー情報を返す
-    return { data: null, error: error instanceof Error ? error.message : String(error) }
+    return { data: null, error: error instanceof Error ? error.message : JSON.stringify(error) }
   }
 }
 

@@ -30,10 +30,10 @@ export async function getUserManagedGyms() {
     // gym_idのリストを作成
     const gymIds = ownerData.map(o => o.gym_id)
 
-    // gymsテーブルから該当するジムを取得
+    // gymsテーブルから該当するジムを取得（imagesフィールドを明示的に含める）
     const { data: gymsData, error: gymsError } = await supabase
       .from('gyms')
-      .select('*')
+      .select('*, images')
       .in('id', gymIds)
 
     if (gymsError) {
@@ -41,25 +41,20 @@ export async function getUserManagedGyms() {
       throw gymsError
     }
 
+    console.log('[getUserManagedGyms] Gyms data:', gymsData)
+    console.log('[getUserManagedGyms] First gym images:', gymsData?.[0]?.images)
+
     // データを結合
     const data = ownerData.map(owner => ({
       ...owner,
       gym: gymsData?.find(g => g.id === owner.gym_id) || null
     }))
 
-    const error = null
-
-    console.log('Gym owners query result:', { data, error })
-    
-    if (error) {
-      console.error('Database error:', error)
-      throw error
-    }
-    
+    console.log('Gym owners query result:', { data })
     console.log('Managed gyms found:', data?.length || 0)
     return data || []
   } catch (error) {
-    console.error('Error fetching managed gyms:', error)
+    console.error('Error fetching managed gyms:', error instanceof Error ? error.message : JSON.stringify(error))
     return []
   }
 }
@@ -131,7 +126,7 @@ export async function updateGymBasicInfo(gymId: string, updates: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error updating gym:', error)
+    console.error('Error updating gym:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -160,7 +155,7 @@ export async function addGymMachine(gymId: string, machineId: string, details?: 
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error adding machine:', error)
+    console.error('Error adding machine:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -191,7 +186,7 @@ export async function removeGymMachine(gymId: string, machineId: string) {
     }
     return true
   } catch (error) {
-    console.error('Error removing machine:', error)
+    console.error('Error removing machine:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -220,7 +215,7 @@ export async function replyToReview(gymId: string, reviewId: string, reply: stri
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error replying to review:', error)
+    console.error('Error replying to review:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -244,7 +239,7 @@ export async function getGymReviews(gymId: string) {
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error('Error fetching gym reviews:', error)
+    console.error('Error fetching gym reviews:', error instanceof Error ? error.message : JSON.stringify(error))
     return []
   }
 }
@@ -252,6 +247,7 @@ export async function getGymReviews(gymId: string) {
 // ジムの設備情報を取得
 export async function getGymEquipment(gymId: string) {
   try {
+    // まず基本的な設備情報を取得
     const { data: machines, error: machinesError } = await supabase
       .from('gym_machines')
       .select('*')
@@ -265,15 +261,55 @@ export async function getGymEquipment(gymId: string) {
       .order('created_at', { ascending: false })
 
     if (machinesError || freeWeightsError) {
+      console.error('Database error:', { machinesError, freeWeightsError })
       throw machinesError || freeWeightsError
     }
 
+    // 作成者情報が必要な設備のcreated_byを収集
+    const creatorIds = [
+      ...(machines || []).map(m => m.created_by).filter(Boolean),
+      ...(freeWeights || []).map(f => f.created_by).filter(Boolean)
+    ]
+
+    // 作成者情報を取得（重複を除去）
+    let creatorsMap: Record<string, any> = {}
+    if (creatorIds.length > 0) {
+      const uniqueCreatorIds = [...new Set(creatorIds)]
+      const { data: creators } = await supabase
+        .from('users')
+        .select('id, display_name, username, email')
+        .in('id', uniqueCreatorIds)
+
+      if (creators) {
+        creatorsMap = creators.reduce((acc, creator) => {
+          acc[creator.id] = creator
+          return acc
+        }, {} as Record<string, any>)
+      }
+    }
+
+    // 設備データに作成者情報を追加
+    const machinesWithCreators = (machines || []).map(m => ({
+      ...m,
+      creator: m.created_by ? creatorsMap[m.created_by] : null
+    }))
+
+    const freeWeightsWithCreators = (freeWeights || []).map(f => ({
+      ...f,
+      creator: f.created_by ? creatorsMap[f.created_by] : null
+    }))
+
+    console.log('Equipment loaded successfully:', {
+      machines: machinesWithCreators.length,
+      freeWeights: freeWeightsWithCreators.length
+    })
+
     return {
-      machines: machines || [],
-      freeWeights: freeWeights || []
+      machines: machinesWithCreators,
+      freeWeights: freeWeightsWithCreators
     }
   } catch (error) {
-    console.error('Error fetching gym equipment:', error)
+    console.error('Error fetching gym equipment:', error instanceof Error ? error.message : JSON.stringify(error))
     return { machines: [], freeWeights: [] }
   }
 }
@@ -301,6 +337,7 @@ export async function addGymEquipment(gymId: string, equipment: {
       brand: equipment.brand,
       count: equipment.count || 1,
       condition: equipment.condition || '良好',
+      created_by: user.id,
       updated_by: user.id
     }
 
@@ -317,7 +354,49 @@ export async function addGymEquipment(gymId: string, equipment: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error adding equipment:', error)
+    console.error('Error adding equipment:', error instanceof Error ? error.message : JSON.stringify(error))
+    throw error
+  }
+}
+
+// ジムの設備を追加（一般ユーザー用）
+export async function suggestGymEquipment(gymId: string, equipment: {
+  type: 'machine' | 'freeweight',
+  name: string,
+  brand?: string,
+  count?: number,
+  weight_range?: string,
+  condition?: string
+}) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('ログインが必要です')
+
+    const table = equipment.type === 'machine' ? 'gym_machines' : 'gym_free_weights'
+    const insertData: any = {
+      gym_id: gymId,
+      name: equipment.name,
+      brand: equipment.brand,
+      count: equipment.count || 1,
+      condition: equipment.condition || '良好',
+      created_by: user.id,
+      updated_by: user.id
+    }
+
+    if (equipment.type === 'freeweight' && equipment.weight_range) {
+      insertData.weight_range = equipment.weight_range
+    }
+
+    const { data, error } = await supabase
+      .from(table)
+      .insert(insertData as any)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Error suggesting equipment:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -342,7 +421,7 @@ export async function deleteGymEquipment(gymId: string, equipmentId: string, typ
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error deleting equipment:', error)
+    console.error('Error deleting equipment:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -373,7 +452,7 @@ export async function assignGymOwner(userId: string, gymId: string, role = 'owne
 
     return data
   } catch (error) {
-    console.error('Error assigning gym owner:', error)
+    console.error('Error assigning gym owner:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }

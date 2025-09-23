@@ -1,5 +1,5 @@
 import { supabase } from './client'
-
+import { calculateDistanceFromUser, formatDistance } from '@/lib/utils/distance'
 
 // ジムの型定義
 import type { GymFacilities, FacilityKey } from '@/types/facilities'
@@ -24,6 +24,8 @@ export interface Gym {
   phone?: string
   website?: string
   price_info?: Record<string, unknown>
+  distance?: number  // ユーザーからの距離（km）
+  distanceText?: string  // フォーマットされた距離文字列
 }
 
 // マシン設備
@@ -142,7 +144,7 @@ export async function getGyms(filters?: {
   machineTypes?: Array<string | { name: string; count?: number }>
   makers?: string[]
   categories?: string[] // target_category values
-}) {
+}, userLocation?: { lat: number; lng: number }) {
   try {
     const baseSelect = 'id, name, prefecture, city, address, latitude, longitude, images, facilities, rating, review_count, verified, description, equipment_types, price_info'
     // Include related counts for UI if needed
@@ -235,7 +237,37 @@ export async function getGyms(filters?: {
     const { data, error } = await query
 
     if (data && !error) {
-      return data as Gym[]
+      let gyms = data as Gym[]
+
+      // ユーザー位置が提供されている場合、距離を計算
+      if (userLocation) {
+        gyms = gyms.map(gym => {
+          if (gym.latitude && gym.longitude) {
+            const distance = calculateDistanceFromUser(
+              userLocation.lat,
+              userLocation.lng,
+              gym.latitude,
+              gym.longitude
+            )
+            return {
+              ...gym,
+              distance,
+              distanceText: formatDistance(distance)
+            }
+          }
+          return gym
+        })
+
+        // 距離順でソート（距離が計算されているものを優先）
+        gyms.sort((a, b) => {
+          if (a.distance === undefined && b.distance === undefined) return 0
+          if (a.distance === undefined) return 1
+          if (b.distance === undefined) return -1
+          return a.distance - b.distance
+        })
+      }
+
+      return gyms
     }
   } catch (error) {
     console.log('gyms table not found, using mock data')
@@ -329,7 +361,7 @@ export async function getGyms(filters?: {
     }
   ]
 
-  return mockGyms.filter((gym) => {
+  let filteredMockGyms = mockGyms.filter((gym) => {
     // Apply filters to mock data
     if (filters?.search && !gym.name.toLowerCase().includes(filters.search.toLowerCase())) {
       return false
@@ -342,6 +374,36 @@ export async function getGyms(filters?: {
     }
     return true
   })
+
+  // ユーザー位置が提供されている場合、モックデータにも距離を計算
+  if (userLocation) {
+    filteredMockGyms = filteredMockGyms.map(gym => {
+      if (gym.latitude && gym.longitude) {
+        const distance = calculateDistanceFromUser(
+          userLocation.lat,
+          userLocation.lng,
+          gym.latitude,
+          gym.longitude
+        )
+        return {
+          ...gym,
+          distance,
+          distanceText: formatDistance(distance)
+        }
+      }
+      return gym
+    })
+
+    // 距離順でソート
+    filteredMockGyms.sort((a, b) => {
+      if (a.distance === undefined && b.distance === undefined) return 0
+      if (a.distance === undefined) return 1
+      if (b.distance === undefined) return -1
+      return a.distance - b.distance
+    })
+  }
+
+  return filteredMockGyms
 }
 
 // ジム詳細を取得
@@ -599,6 +661,88 @@ export async function getUserFavoriteGyms() {
   }
 }
 
+// ジムの重複チェック（同じ名前と住所）
+export async function checkDuplicateGym(name: string, address: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('id')
+      .eq('name', name)
+      .eq('address', address)
+      .limit(1)
+
+    if (error) {
+      console.error('Error checking duplicate gym:', error)
+      return false
+    }
+
+    return data && data.length > 0
+  } catch (error) {
+    console.error('Error checking duplicate gym:', error)
+    return false
+  }
+}
+
+// 類似ジムの検索（同じ名前の別店舗）
+export async function findSimilarGyms(name: string): Promise<Gym[]> {
+  try {
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('*')
+      .ilike('name', `%${name}%`)
+      .limit(5)
+
+    if (error) {
+      console.error('Error finding similar gyms:', error)
+      return []
+    }
+
+    return data as Gym[]
+  } catch (error) {
+    console.error('Error finding similar gyms:', error)
+    return []
+  }
+}
+
+// 新しいジムを作成（重複チェック付き）
+export async function createGym(gymData: {
+  name: string
+  address: string
+  prefecture?: string
+  city?: string
+  latitude?: number
+  longitude?: number
+  description?: string
+  [key: string]: any
+}) {
+  try {
+    // 重複チェック
+    const isDuplicate = await checkDuplicateGym(gymData.name, gymData.address)
+    if (isDuplicate) {
+      throw new Error('同じ名前と住所のジムが既に登録されています')
+    }
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('gyms')
+      .insert({
+        ...gymData,
+        created_by: user.id,
+        status: 'active'
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Gym
+  } catch (error) {
+    console.error('Error creating gym:', error)
+    throw error
+  }
+}
+
 // チェックアウト
 export async function checkOutFromGym(checkinId: string) {
   try {
@@ -616,6 +760,66 @@ export async function checkOutFromGym(checkinId: string) {
   } catch (error) {
     console.error('Error checking out:', error)
     throw error
+  }
+}
+
+// ユーザーが行ったことがあるジム（チェックイン+投稿済み）を取得
+export async function getVisitedGyms(userId?: string): Promise<{ gym: Gym; visitCount: number; lastVisit: string }[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    const targetUserId = userId || user?.id
+
+    if (!targetUserId) return []
+
+    // チェックインして投稿もしているジムを取得
+    const { data, error } = await supabase
+      .from('gym_posts')
+      .select(`
+        gym_id,
+        created_at,
+        gym:gyms!gym_posts_gym_id_fkey (*)
+      `)
+      .eq('user_id', targetUserId)
+      .not('gym_id', 'is', null)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching visited gyms:', error)
+      return []
+    }
+
+    if (!data) return []
+
+    // ジム別に集計
+    const gymMap = new Map<string, { gym: Gym; visits: string[] }>()
+
+    data.forEach(post => {
+      if (post.gym_id && post.gym) {
+        const gymId = post.gym_id
+        if (!gymMap.has(gymId)) {
+          gymMap.set(gymId, {
+            gym: post.gym as Gym,
+            visits: []
+          })
+        }
+        gymMap.get(gymId)!.visits.push(post.created_at)
+      }
+    })
+
+    // 結果を整形
+    const result = Array.from(gymMap.entries()).map(([gymId, data]) => ({
+      gym: data.gym,
+      visitCount: data.visits.length,
+      lastVisit: data.visits[0] // 最新順に並んでいるので最初が最新
+    }))
+
+    // 訪問回数でソート（多い順）
+    result.sort((a, b) => b.visitCount - a.visitCount)
+
+    return result
+  } catch (error) {
+    console.error('Error fetching visited gyms:', error)
+    return []
   }
 }
 

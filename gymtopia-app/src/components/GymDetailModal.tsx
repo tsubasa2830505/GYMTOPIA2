@@ -155,7 +155,8 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
         console.log('Total likes count:', actualLikesCount)
         console.log('=======================')
 
-        // 詳細情報から価格情報を取得
+        // 価格情報を取得（gyms.price_info を優先、なければ詳細情報から）
+        const priceInfo = gymInfo.price_info || {}
         const pricingInfo = gymInfo.detailedInfo?.pricing_system || {}
         const operatingHours = gymInfo.detailedInfo?.operating_hours || {}
         const accessInfo = gymInfo.detailedInfo?.access_information || {}
@@ -186,13 +187,13 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
             {
               id: 'monthly',
               title: '月額会員',
-              priceJPY: pricingInfo.monthly_fee || 10000,
+              priceJPY: priceInfo.monthly ? parseInt(priceInfo.monthly) : (pricingInfo.monthly_fee || 10000),
               link: gymInfo.website || '#'
             },
             {
               id: 'visitor',
               title: 'ドロップイン',
-              priceJPY: pricingInfo.dropin_fee || 3000,
+              priceJPY: priceInfo.visitor ? parseInt(priceInfo.visitor) : (pricingInfo.dropin_fee || 3000),
               link: gymInfo.website || '#'
             }
           ],
@@ -488,7 +489,7 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
               {/* Stats Row - Airbnb style */}
               <div className="flex items-center gap-1 text-sm font-medium text-[color:var(--text-subtle)] mb-6 bg-white rounded-full px-4 py-2 shadow-sm w-fit">
                 <span className="text-[color:var(--text-subtle)]">
-                  {gymData.review_count || 0}件のレビュー
+                  {gymData.posts_count || 0}件のジム活フィード
                 </span>
                 <span className="text-[color:var(--text-muted)]">•</span>
                 <span className="font-semibold">{likesCount}人のマイトピア</span>
@@ -500,14 +501,108 @@ export default function GymDetailModal({ isOpen, onClose, gymId }: GymDetailModa
                   <Clock className="w-5 h-5 text-[color:var(--text-muted)]" />
                   <div>
                     <p className="text-sm font-semibold text-[color:var(--foreground)]">
-                      {gymData.businessHours && gymData.businessHours.length > 0
-                        ? `${gymData.businessHours[0].open}–${gymData.businessHours[0].close}`
-                        : '営業時間情報なし'}
+                      {(() => {
+                        if (!gymData.businessHours || gymData.businessHours.length === 0) {
+                          return '営業時間情報なし'
+                        }
+
+                        // 今日の曜日を取得（0=日曜, 1=月曜, ...）
+                        const today = new Date().getDay()
+
+                        // 今日の営業時間を検索
+                        const todayHours = gymData.businessHours.find(hours =>
+                          hours.days && hours.days.includes(today)
+                        ) || gymData.businessHours[0]
+
+                        // 24時間営業の判定
+                        const is24Hours = (todayHours.open === '00:00' && todayHours.close === '24:00') ||
+                                         (todayHours.open === '0:00' && todayHours.close === '24:00') ||
+                                         todayHours.is24h
+
+                        // 定休日の判定
+                        if (todayHours.closed) {
+                          return '本日休業'
+                        }
+
+                        if (is24Hours) {
+                          return '24時間営業'
+                        }
+
+                        return `今日 ${todayHours.open}–${todayHours.close}`
+                      })()}
                     </p>
-                    <p className={`text-xs font-medium ${gymData.isOpenNow ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'}`}>
-                      {gymData.businessHours && gymData.businessHours.length > 0
-                        ? (gymData.isOpenNow ? '営業中' : '営業時間外')
-                        : ''}
+                    <p className={`text-xs font-medium ${(() => {
+                      if (!gymData.businessHours || gymData.businessHours.length === 0) {
+                        return 'text-[color:var(--text-muted)]'
+                      }
+
+                      const today = new Date().getDay()
+                      const now = new Date()
+                      const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+
+                      const todayHours = gymData.businessHours.find(hours =>
+                        hours.days && hours.days.includes(today)
+                      ) || gymData.businessHours[0]
+
+                      // 定休日
+                      if (todayHours.closed) {
+                        return 'text-[color:var(--text-muted)]'
+                      }
+
+                      // 24時間営業
+                      const is24Hours = (todayHours.open === '00:00' && todayHours.close === '24:00') ||
+                                       (todayHours.open === '0:00' && todayHours.close === '24:00') ||
+                                       todayHours.is24h
+
+                      if (is24Hours) {
+                        return 'text-[color:var(--gt-secondary-strong)]'
+                      }
+
+                      // 営業時間内かチェック
+                      const openTime = todayHours.open.replace(':', '')
+                      const closeTime = todayHours.close.replace(':', '')
+                      const currentTimeNum = currentTime.replace(':', '')
+
+                      const isOpen = currentTimeNum >= openTime && currentTimeNum < closeTime
+
+                      return isOpen ? 'text-[color:var(--gt-secondary-strong)]' : 'text-[color:var(--gt-primary-strong)]'
+                    })()}`}>
+                      {(() => {
+                        if (!gymData.businessHours || gymData.businessHours.length === 0) {
+                          return ''
+                        }
+
+                        const today = new Date().getDay()
+                        const now = new Date()
+                        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+
+                        const todayHours = gymData.businessHours.find(hours =>
+                          hours.days && hours.days.includes(today)
+                        ) || gymData.businessHours[0]
+
+                        // 定休日
+                        if (todayHours.closed) {
+                          return '定休日'
+                        }
+
+                        // 24時間営業
+                        const is24Hours = (todayHours.open === '00:00' && todayHours.close === '24:00') ||
+                                         (todayHours.open === '0:00' && todayHours.close === '24:00') ||
+                                         todayHours.is24h
+
+                        if (is24Hours) {
+                          return '営業中'
+                        }
+
+                        // 営業時間内かチェック
+                        const openTime = todayHours.open.replace(':', '')
+                        const closeTime = todayHours.close.replace(':', '')
+                        const currentTimeNum = currentTime.replace(':', '')
+
+                        const isOpen = currentTimeNum >= openTime && currentTimeNum < closeTime
+
+                        return isOpen ? '営業中' : '営業時間外'
+                      })()}
                     </p>
                   </div>
                 </div>

@@ -224,7 +224,16 @@
       "Bash(/usr/bin/git tag -a v2.2.2 -m \"v2.2.2: バックアップ実行 - UI最適化作業中状態保存 + 新機能開発準備完了\")",
       "Bash(/usr/bin/git push origin --tags)",
       "Bash(for page in \"/\" \"/profile\")",
-      "Bash(/usr/bin/git commit -m \"🔄 v4.0.0: 新バージョン管理システム構築完了\n\n✅ 実装完了:\n- セマンティックバージョニング厳格ルール策定\n- MAJOR/MINOR/PATCH分類基準明確化  \n- 順次採番システム導入\n- バージョン決定フローチャート作成\n\n🎯 新ルール適用開始:\n- v4.0.0から新システム運用開始\n- 過去の混乱したタグは履歴として保持\n- 今後は厳格な順次採番を徹底\n\n📋 CLAUDE.md更新:\n- バージョン管理セクション追加\n- 具体的な運用手順を詳細記載\n- フローチャートによる判断基準明示\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)"
+      "Bash(/usr/bin/git commit -m \"🔄 v4.0.0: 新バージョン管理システム構築完了\n\n✅ 実装完了:\n- セマンティックバージョニング厳格ルール策定\n- MAJOR/MINOR/PATCH分類基準明確化  \n- 順次採番システム導入\n- バージョン決定フローチャート作成\n\n🎯 新ルール適用開始:\n- v4.0.0から新システム運用開始\n- 過去の混乱したタグは履歴として保持\n- 今後は厳格な順次採番を徹底\n\n📋 CLAUDE.md更新:\n- バージョン管理セクション追加\n- 具体的な運用手順を詳細記載\n- フローチャートによる判断基準明示\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)",
+      "Bash(/usr/bin/git commit -m \"🔧 v4.0.1: 設定ファイル・プロフィールページ調整\n\n✅ 調整内容:\n- Claude設定ファイル更新\n- プロフィールページUI微調整\n- GymDetailModal表示位置改善\n\n🎯 改善点:\n- 設定の最適化\n- ユーザー体験向上\n- 表示レイアウト調整\n\n📋 新バージョン管理システム適用:\n- v4.0.0 → v4.0.1 (PATCH)\n- 厳格な順次採番遵守\n- セマンティックバージョニング準拠\n\n🧮 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\" --no-verify)",
+      "Bash(/usr/bin/git tag -a v4.0.1 -m \"v4.0.1: 設定ファイル・プロフィールページ調整 - PATCH版\")",
+      "Bash(for page in \"/profile\" \"/feed\")",
+      "Bash(for page in \"/map\")",
+      "Bash(for page in \"/search/results\")",
+      "Bash(for page in \"/search/results?keyword=エニタイム\")",
+      "Bash(for page in \"/\" \"/feed\" \"/profile\" \"/search/results\")",
+      "Bash(for page in \"/\" \"/admin\" \"/profile\")",
+      "Bash(for page in \"/profile\" \"/feed\" \"/add\")"
     ],
     "deny": [],
     "ask": []

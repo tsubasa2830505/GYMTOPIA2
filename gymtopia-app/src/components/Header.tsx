@@ -89,19 +89,6 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
                   <div className="p-2 space-y-1">
                     <button
                       onClick={() => {
-                        router.push('/checkin')
-                        setMenuOpen(false)
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all hover:bg-[rgba(254,255,250,0.92)]"
-                    >
-                      <svg className="w-5 h-5 text-[color:var(--gt-primary-strong)]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                      </svg>
-                      <span className="text-sm font-medium text-[color:var(--foreground)]">チェックイン</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
                         router.push('/admin')
                         setMenuOpen(false)
                       }}

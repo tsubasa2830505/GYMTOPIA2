@@ -17,7 +17,19 @@ import { getMachines } from '@/lib/supabase/machines'
 import type { FacilityKey } from '@/types/facilities'
 import { getSupabaseClient } from '@/lib/supabase/client'
 import type { DatabaseGym } from '@/types/database'
-import { enrichGymWithStationInfo } from '@/lib/utils/distance'
+import { enrichGymWithStationInfo, formatDistance, calculateDistanceFromUser } from '@/lib/utils/distance'
+
+// Get lowest price and its type
+function getLowestPrice(monthlyPrice: number | null, dropinPrice: number | null) {
+  if (!monthlyPrice && !dropinPrice) return null
+  if (!monthlyPrice) return { price: dropinPrice!, type: 'ビジター', color: 'orange' }
+  if (!dropinPrice) return { price: monthlyPrice, type: '月額', color: 'blue' }
+
+  // Return the lowest price
+  return monthlyPrice <= dropinPrice
+    ? { price: monthlyPrice, type: '月額', color: 'blue' }
+    : { price: dropinPrice, type: 'ビジター', color: 'orange' }
+}
 
 // Calculate distance between two coordinates using Haversine formula
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -239,7 +251,7 @@ function SearchResultsContent() {
       // Pass all condition filters to getGyms
       // Note: conditions are handled separately in the UI, not passed to getGyms
       
-      const data = await getGyms(filters)
+      const data = await getGyms(filters, userLocation || undefined)
 
       if (data) {
         // Get user's favorite gyms
@@ -290,6 +302,7 @@ function SearchResultsContent() {
           const formatPricing = (priceInfo: any) => {
             if (!priceInfo) return '料金要問合せ'
 
+            // Use standardized field names (database migration completed)
             const monthly = priceInfo.monthly
             const visitor = priceInfo.visitor
 
@@ -308,7 +321,9 @@ function SearchResultsContent() {
             id: gym.id || `gym-${index}`, // Ensure unique ID
             name: gym.name || 'ジム名未設定',
             location: stationInfo.walkingMinutes > 0
-              ? `${stationInfo.station}から徒歩${String(stationInfo.walkingMinutes)}分`
+              ? `${stationInfo.station}から徒歩${stationInfo.walkingMinutes}分`
+              : stationInfo.station !== '最寄り駅'
+              ? `${stationInfo.station}周辺`
               : stationInfo.area,
             distance: String(stationInfo.walkingText),
             distanceFromUser: distanceFromUser, // Distance in km from user location
@@ -318,8 +333,12 @@ function SearchResultsContent() {
               ? gym.images[0]
               : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             price: formatPricing(gym.price_info),
-            monthlyPrice: gym.price_info?.monthly ? parseInt(gym.price_info.monthly) : null,
-            dropinPrice: gym.price_info?.visitor ? parseInt(gym.price_info.visitor) : null,
+            monthlyPrice: gym.price_info?.monthly
+              ? parseInt(gym.price_info.monthly)
+              : null,
+            dropinPrice: gym.price_info?.visitor
+              ? parseInt(gym.price_info.visitor)
+              : null,
             isLiked: userFavorites.includes(gym.id),
             address: gym.address || '',
             images: gym.images || [], // 全画像を保持
@@ -354,49 +373,73 @@ function SearchResultsContent() {
       setError('ジムの検索に失敗しました')
       
       // Fallback to sample data
-      const fallbackData = [
+      let fallbackData = [
         {
-          id: 1,
+          id: '1',
           name: 'プレミアムフィットネス銀座',
-          location: '銀座',
-          distance: '徒歩3分',
+          address: '東京都中央区銀座4-1-1',
+          latitude: 35.6762,
+          longitude: 139.7649,
           likes: 256,
           tags: ['プレミアム', 'サウナ'],
           image: '/gym1.jpg',
-          price: '月額¥18,400 / ドロップイン¥3,500',
           monthlyPrice: 18400,
           dropinPrice: 3500,
           isLiked: true,
         },
         {
-          id: 2,
+          id: '2',
           name: 'GOLD\'S GYM 渋谷',
-          location: '渋谷',
-          distance: '徒歩5分',
+          address: '東京都渋谷区渋谷2-21-1',
+          latitude: 35.6580,
+          longitude: 139.7016,
           likes: 189,
           tags: ['24時間', 'プール'],
           image: '/gym2.jpg',
-          price: '月額¥15,000 / ドロップイン¥3,000',
           monthlyPrice: 15000,
           dropinPrice: 3000,
           isLiked: false,
         },
         {
-          id: 3,
+          id: '3',
           name: 'エニタイムフィットネス新宿',
-          location: '新宿',
-          distance: '徒歩8分',
+          address: '東京都新宿区新宿3-29-1',
+          latitude: 35.6896,
+          longitude: 139.7006,
           likes: 145,
           tags: ['24時間営業', 'シャワー'],
           image: '/gym3.jpg',
-          price: '月額¥12,600 / ドロップイン¥2,500',
           monthlyPrice: 12600,
           dropinPrice: 2500,
           isLiked: false,
         },
       ]
-      setGyms(fallbackData)
-      setDisplayedGyms(fallbackData.slice(0, showCount))
+
+      // Process fallback data through the same pipeline as real data
+      if (userLocation) {
+        fallbackData = fallbackData.map(gym => {
+          if (gym.latitude && gym.longitude) {
+            const distance = calculateDistanceFromUser(
+              userLocation.lat, userLocation.lng, gym.latitude, gym.longitude
+            )
+            return { ...gym, distance, distanceText: formatDistance(distance) }
+          }
+          return gym
+        })
+        // Sort by distance
+        fallbackData.sort((a, b) => {
+          if (a.distance === undefined && b.distance === undefined) return 0
+          if (a.distance === undefined) return 1
+          if (b.distance === undefined) return -1
+          return a.distance - b.distance
+        })
+      }
+
+      // Apply station enrichment to fallback data
+      const enrichedFallbackData = fallbackData.map(gym => enrichGymWithStationInfo(gym))
+
+      setGyms(enrichedFallbackData)
+      setDisplayedGyms(enrichedFallbackData.slice(0, showCount))
     } finally {
       setLoading(false)
     }
@@ -535,6 +578,7 @@ function SearchResultsContent() {
           const formatPricingNearby = (priceInfo: any) => {
             if (!priceInfo) return '料金要問合せ'
 
+            // Use standardized field names (database migration completed)
             const monthly = priceInfo.monthly
             const visitor = priceInfo.visitor
 
@@ -559,8 +603,12 @@ function SearchResultsContent() {
             tags: g.equipment_types || [],
             image: g.images && g.images.length > 0 ? g.images[0] : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
             price: formatPricingNearby(g.price_info),
-            monthlyPrice: g.price_info?.monthly ? parseInt(g.price_info.monthly) : null,
-            dropinPrice: g.price_info?.visitor ? parseInt(g.price_info.visitor) : null,
+            monthlyPrice: g.price_info?.monthly
+              ? parseInt(g.price_info.monthly)
+              : null,
+            dropinPrice: g.price_info?.visitor
+              ? parseInt(g.price_info.visitor)
+              : null,
             isLiked: userFavorites.includes(g.id),
             address: g.address || '',
             images: g.images || [],
@@ -877,7 +925,8 @@ function SearchResultsContent() {
                 return (
                   <div
                     key={gym.id}
-                    className={`gt-card p-4 sm:p-6 transition-all ${isSelected ? 'ring-2 ring-[rgba(231,103,76,0.32)]' : 'hover:-translate-y-[3px]'}`}
+                    className={`gt-card p-4 sm:p-6 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[rgba(231,103,76,0.32)]' : 'hover:-translate-y-[3px]'}`}
+                    onClick={() => setSelectedGymId(gym.id)}
                   >
                     <div className="flex gap-3 sm:gap-4">
                       <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex-shrink-0 overflow-hidden border-2 border-white/80 bg-white/70 shadow-lg">
@@ -911,39 +960,47 @@ function SearchResultsContent() {
                                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${gym.isLiked ? 'fill-[color:var(--gt-primary)] text-[color:var(--gt-primary)]' : ''}`} />
                                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--foreground)]">{gym.likes}</span>
                               </div>
-                              <div className="flex items-center gap-3 flex-wrap justify-end">
-                                {gym.monthlyPrice && (
-                                  <div className="flex items-center gap-1">
-                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-blue-700 rounded-full font-medium">
-                                      月額
-                                    </span>
-                                    <span className="text-sm sm:text-base font-bold text-[color:var(--gt-primary-strong)]">
-                                      ¥{gym.monthlyPrice.toLocaleString()}
-                                    </span>
-                                  </div>
-                                )}
-                                {gym.dropinPrice && (
-                                  <div className="flex items-center gap-1">
-                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-orange-700 rounded-full font-medium">
-                                      ビジター
-                                    </span>
-                                    <span className="text-sm sm:text-base font-bold text-orange-700">
-                                      ¥{gym.dropinPrice.toLocaleString()}
-                                    </span>
-                                  </div>
-                                )}
-                                {!gym.monthlyPrice && !gym.dropinPrice && (
-                                  <div className="text-sm sm:text-base text-[color:var(--text-muted)]">
-                                    料金要問合せ
-                                  </div>
-                                )}
+                              <div className="flex items-center gap-2 flex-wrap justify-end min-h-[24px]">
+                                {(() => {
+                                  const lowestPrice = getLowestPrice(gym.monthlyPrice, gym.dropinPrice)
+                                  if (!lowestPrice) {
+                                    return (
+                                      <div className="text-sm sm:text-base text-[color:var(--text-muted)]">
+                                        料金要問合せ
+                                      </div>
+                                    )
+                                  }
+
+                                  const colorClasses = lowestPrice.color === 'blue'
+                                    ? {
+                                        bg: 'bg-gradient-to-r from-blue-500/10 to-blue-600/10',
+                                        text: 'text-blue-700',
+                                        priceText: 'text-[color:var(--gt-primary-strong)]'
+                                      }
+                                    : {
+                                        bg: 'bg-gradient-to-r from-orange-500/10 to-orange-600/10',
+                                        text: 'text-orange-700',
+                                        priceText: 'text-orange-700'
+                                      }
+
+                                  return (
+                                    <div className="flex items-center gap-1 flex-nowrap min-w-0">
+                                      <span className={`text-[10px] sm:text-xs px-2 py-0.5 ${colorClasses.bg} ${colorClasses.text} rounded-full font-medium whitespace-nowrap flex-shrink-0`}>
+                                        {lowestPrice.type}〜 ¥{lowestPrice.price.toLocaleString()}
+                                      </span>
+                                    </div>
+                                  )
+                                })()}
                               </div>
                             </div>
                           </div>
                           <div className="hidden sm:flex flex-col gap-2">
                             <button
                               type="button"
-                              onClick={() => toggleLike(gym.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleLike(gym.id);
+                              }}
                               disabled={processingLikes.has(gym.id)}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold gt-pressable transition-all ${
                                 gym.isLiked
@@ -956,7 +1013,10 @@ function SearchResultsContent() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setSelectedGymId(gym.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedGymId(gym.id);
+                              }}
                               className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white rounded-xl text-xs sm:text-sm font-semibold shadow-[0_18px_36px_-26px_rgba(189,101,78,0.46)] hover:-translate-y-[2px] transition-all"
                             >
                               詳細を見る
@@ -966,7 +1026,10 @@ function SearchResultsContent() {
                         <div className="flex gap-2 mt-3 sm:hidden">
                           <button
                             type="button"
-                            onClick={() => toggleLike(gym.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleLike(gym.id);
+                            }}
                             disabled={processingLikes.has(gym.id)}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-semibold gt-pressable transition-all ${
                               gym.isLiked
@@ -979,7 +1042,10 @@ function SearchResultsContent() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setSelectedGymId(gym.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedGymId(gym.id);
+                            }}
                             className="flex-1 py-1.5 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-primary-strong)] text-white rounded-xl text-xs font-semibold shadow-[0_14px_30px_-24px_rgba(189,101,78,0.44)]"
                           >
                             詳細を見る

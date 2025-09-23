@@ -309,12 +309,14 @@ export function calculateNearestStation(lat: number, lng: number): {
 
   const walkingMinutes = distanceToWalkingTime(minDistance)
 
-  // 徒歩30分を超える場合は「アクセス情報未設定」とする
+  // 徒歩30分を超える場合は住所ベースの推定に切り替え
   if (walkingMinutes > 30) {
+    // 住所情報を使って推定駅を取得
+    const fallbackArea = nearestArea || '詳細な場所'
     return {
-      station: '最寄り駅',
-      area: '詳細な場所',
-      walkingMinutes: 0,
+      station: nearestStation,
+      area: fallbackArea,
+      walkingMinutes: Math.min(walkingMinutes, 30), // 最大30分でキャップ
       distance: minDistance
     }
   }
@@ -499,6 +501,31 @@ export function getStationInfoFromAddress(address: string): {
 }
 
 /**
+ * 距離を読みやすい形式でフォーマット
+ */
+export function formatDistance(distance: number): string {
+  if (distance < 1) {
+    return `${Math.round(distance * 1000)}m`
+  } else if (distance < 10) {
+    return `${distance.toFixed(1)}km`
+  } else {
+    return `${Math.round(distance)}km`
+  }
+}
+
+/**
+ * ユーザー位置からジムまでの距離を計算
+ */
+export function calculateDistanceFromUser(
+  userLat: number,
+  userLng: number,
+  gymLat: number,
+  gymLng: number
+): number {
+  return calculateDistance(userLat, userLng, gymLat, gymLng)
+}
+
+/**
  * ジムデータに最寄り駅情報を追加
  */
 export function enrichGymWithStationInfo(gym: {
@@ -522,7 +549,7 @@ export function enrichGymWithStationInfo(gym: {
         area: stationInfo.area,
         station: stationInfo.station,
         walkingMinutes: stationInfo.walkingMinutes,
-        walkingText: `徒歩${stationInfo.walkingMinutes}分`
+        walkingText: stationInfo.walkingMinutes > 0 ? `徒歩${stationInfo.walkingMinutes}分` : '駅周辺'
       }
     }
   }

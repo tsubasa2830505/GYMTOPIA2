@@ -36,6 +36,7 @@ import BeginnerSupportSection from '@/components/GymOwnerForm/BeginnerSupportSec
 import AccessInfoSection from '@/components/GymOwnerForm/AccessInfoSection'
 import OtherInfoSection from '@/components/GymOwnerForm/OtherInfoSection'
 import FacilitySection from './components/FacilitySection'
+import GymImageUploader from '@/components/admin/GymImageUploader'
 
 interface Equipment {
   id: string
@@ -125,26 +126,29 @@ export default function AdminPage() {
   const loadGymEquipmentData = async (gymId: string) => {
     try {
       const equipment = await getGymEquipment(gymId)
+      console.log('Raw equipment data:', equipment)
+
       const equipmentFromDB = [
         ...equipment.machines.map((m: any) => ({
           id: m.id,
           category: 'マシン',
           name: m.name,
           maker: m.brand || 'ROGUE',
-          count: m.count || 1
+          count: m.count || 1,
+          creator: m.creator || null
         })),
         ...equipment.freeWeights.map((f: any) => ({
           id: f.id,
           category: 'フリーウェイト',
           name: f.name,
           maker: f.brand || 'ROGUE',
-          maxWeight: parseInt(f.weight_range?.replace(/[^0-9]/g, '') || '50')
+          maxWeight: parseInt(f.weight_range?.replace(/[^0-9]/g, '') || '50'),
+          creator: f.creator || null
         }))
       ]
 
-      if (equipmentFromDB.length > 0) {
-        setEquipmentList(equipmentFromDB)
-      }
+      console.log('Processed equipment data:', equipmentFromDB)
+      setEquipmentList(equipmentFromDB)
     } catch (error) {
       console.error('Error loading equipment:', error)
     }
@@ -252,9 +256,10 @@ export default function AdminPage() {
     setLoading(true)
     try {
       // Supabaseから直接認証ユーザーを取得
-      const { data: { user: supabaseUser } } = await supabase.auth.getUser()
+      const { data: { user: supabaseUser }, error: authError } = await supabase.auth.getUser()
+      console.log('Admin auth check - User:', supabaseUser, 'Error:', authError)
 
-      // デバッグモードを有効化
+      // デバッグモードを有効化（認証問題を解決するため）
       const DEBUG_MODE = true
 
       if (DEBUG_MODE && !supabaseUser) {
@@ -276,7 +281,8 @@ export default function AdminPage() {
             lng: 139.7017,
             has_24h: true,
             has_parking: false,
-            has_shower: true
+            has_shower: true,
+            images: ['https://htytewqvkgwyuvcsvjwm.supabase.co/storage/v1/object/public/gym-images/03f2693a-49a1-41f4-bf4b-be5c192d4d32/1758621011293-zq5edf.jpeg']
           }
         }]
 
@@ -361,6 +367,43 @@ export default function AdminPage() {
         setDetailFormData(testDetailData)
         console.log('DEBUG MODE: Test data injected:', testDetailData)
 
+        // デバッグモード用のformData初期化
+        const debugFirstGym = debugGymData[0].gym;
+        setFormData({
+          basicInfo: {
+            name: debugFirstGym.name || 'ハンマーストレングス渋谷',
+            area: debugFirstGym.area || '渋谷',
+            address: debugFirstGym.address || '東京都渋谷区道玄坂1-1-1',
+            openingHours: '24時間営業',
+            monthlyFee: '12800',
+            visitorFee: '3200',
+            images: debugFirstGym.images || []
+          },
+          services: {
+            '24hours': true,
+            shower: true,
+            parking: false,
+            locker: true,
+            wifi: true,
+            chalk: true,
+            belt_rental: false,
+            personal_training: false,
+            group_lesson: false,
+            studio: false,
+            sauna: false,
+            pool: false,
+            jacuzzi: false,
+            massage_chair: false,
+            cafe: false,
+            women_only: false,
+            barrier_free: false,
+            kids_room: false,
+            english_support: false,
+            drop_in: true
+          }
+        });
+        console.log('DEBUG MODE: FormData initialized with images:', debugFirstGym.images);
+
         setLoading(false)
         return
       }
@@ -390,6 +433,11 @@ export default function AdminPage() {
 
       setHasAccess(true)
       const gymsData = managedData.map((item: any) => item.gym)
+
+      console.log('[Admin] ManagedData structure:', managedData)
+      console.log('[Admin] Extracted gyms:', gymsData)
+      console.log('[Admin] First gym object:', gymsData[0])
+
       setManagedGyms(gymsData)
       setGyms(gymsData) // 互換性のため両方にセット
 
@@ -401,6 +449,9 @@ export default function AdminPage() {
         // 詳細情報を即座に読み込み
         loadGymDetailedInfo(firstGym.id, supabaseUser.id)
 
+        console.log('[Admin] Loading first gym:', firstGym.name, 'Images:', firstGym.images)
+        console.log('[Admin] Full firstGym object:', firstGym)
+
         setFormData({
           basicInfo: {
             name: firstGym.name || 'ハンマーストレングス渋谷',
@@ -408,7 +459,8 @@ export default function AdminPage() {
             address: firstGym.address || '東京都渋谷区道玄坂1-1-1',
             openingHours: firstGym.business_hours?.weekday || '24時間営業',
             monthlyFee: firstGym.price_info?.monthly || '12800',
-            visitorFee: firstGym.price_info?.visitor || '3200'
+            visitorFee: firstGym.price_info?.visitor || '3200',
+            images: firstGym.images || []
           },
           services: {
             '24hours': firstGym.business_hours?.is_24h || true,
@@ -601,6 +653,16 @@ export default function AdminPage() {
       return
     }
 
+    // 保存前に認証状態をチェック
+    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
+    console.log('Save auth check - User:', currentUser, 'Error:', authError)
+
+    if (!currentUser) {
+      console.error('保存時に認証エラー - ユーザーが認証されていません')
+      alert('認証エラー: ログインしてください')
+      return
+    }
+
     setBasicInfoSaving(true)
 
     try {
@@ -694,10 +756,14 @@ export default function AdminPage() {
                             address: gym.address || '東京都渋谷区道玄坂1-1-1',
                             openingHours: gym.business_hours?.weekday || '24時間営業',
                             monthlyFee: gym.price_info?.monthly || '12800',
-                            visitorFee: gym.price_info?.visitor || '3200'
+                            visitorFee: gym.price_info?.visitor || '3200',
+                            images: gym.images || []
                           },
                           services: formData.services
                         })
+                        // Reload detailed info for the selected gym
+                        loadGymDetailedInfo(gym.id, authUser?.id)
+                        console.log('[Admin] Selected gym changed:', gym.name, 'Images:', gym.images)
                       }
                     }}
                   >
@@ -746,6 +812,16 @@ export default function AdminPage() {
                 }`}
               >
                 詳細情報
+              </button>
+              <button
+                onClick={() => setActiveTab('images')}
+                className={`flex-1 px-4 py-2 rounded-[14.5px] text-[12.3px] font-medium transition-all ${
+                  activeTab === 'images'
+                    ? 'bg-white text-[color:var(--foreground)] shadow-sm'
+                    : 'text-[color:var(--foreground)] hover:text-[color:var(--text-subtle)]'
+                }`}
+              >
+                画像管理
               </button>
             </div>
           </div>
@@ -919,6 +995,12 @@ export default function AdminPage() {
                 equipmentList={equipmentList}
                 onUpdateEquipmentList={setEquipmentList}
                 gymId={selectedGym?.id}
+                onEquipmentUpdate={() => {
+                  // 設備更新時にデータを再読み込み
+                  if (selectedGym) {
+                    loadGymEquipmentData(selectedGym.id)
+                  }
+                }}
               />
             )}
 
@@ -1085,6 +1167,25 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* 画像管理タブ */}
+            {activeTab === 'images' && (
+              <div className="bg-white border border-[rgba(186,122,103,0.26)] rounded-[14.5px] p-[22px]">
+                <GymImageUploader
+                  gymId={selectedGym?.id || ''}
+                  currentImages={formData.basicInfo.images || []}
+                  onImagesUpdate={(images) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      basicInfo: {
+                        ...prev.basicInfo,
+                        images
+                      }
+                    }))
+                  }}
+                />
               </div>
             )}
           </div>

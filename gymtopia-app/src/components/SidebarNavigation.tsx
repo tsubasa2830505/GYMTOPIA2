@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, FileSearch, CheckCircle, Activity, User } from 'lucide-react'
+import { MapPin, FileSearch, Activity, User } from 'lucide-react'
 
 export default function SidebarNavigation() {
   const pathname = usePathname()
@@ -19,12 +19,6 @@ export default function SidebarNavigation() {
       icon: FileSearch,
       label: '検索結果',
       isActive: pathname === '/search/results' || pathname === '/search'
-    },
-    {
-      href: '/checkin',
-      icon: CheckCircle,
-      label: 'チェックイン',
-      isActive: pathname === '/checkin'
     },
     {
       href: '/feed',

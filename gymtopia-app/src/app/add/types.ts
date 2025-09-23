@@ -31,6 +31,10 @@ export interface AddPageState {
   equipmentGymName: string
   facilityFormData: any
   showEquipmentConfirmation: boolean
+  equipmentRegistrationSummary?: {
+    count: number
+    gymName: string
+  }
 }
 
 export interface PostFormProps {
@@ -50,6 +54,7 @@ export interface EquipmentFormProps {
   state: AddPageState
   onStateChange: (updates: Partial<AddPageState>) => void
   onSubmit: () => void
+  gymData?: Array<{ id: string; name: string }>
 }
 
 export interface ExerciseFormProps {

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import {
   Save, X, MapPin, Camera, Plus, Minus, Users,
   Calendar, Clock, Dumbbell, MessageSquare, Image as ImageIcon,
-  Settings, Package, Building, AlertCircle, Search
+  Settings, Package, Building, AlertCircle, Search, ChevronDown
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -21,6 +21,7 @@ import { createPost } from '@/lib/supabase/posts'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGyms } from '@/lib/supabase/gyms'
 import { getSupabaseClient } from '@/lib/supabase/client'
+import { validateExercise, validateCardio } from '@/lib/exercise-validation'
 
 interface Exercise {
   id: string
@@ -64,6 +65,8 @@ function AddGymPostContent() {
     distance: '',
     speed: ''
   })
+  const [exerciseWarnings, setExerciseWarnings] = useState<string[]>([])
+  const [exerciseErrors, setExerciseErrors] = useState<string[]>([])
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const [uploadingImages, setUploadingImages] = useState(false)
@@ -141,10 +144,14 @@ function AddGymPostContent() {
   const [selectedMachines, setSelectedMachines] = useState<Map<string, number>>(new Map())
   const [showEquipmentConfirmation, setShowEquipmentConfirmation] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [equipmentGymSearch, setEquipmentGymSearch] = useState('') // 機器登録用のジム検索
 
   // ジムリスト（Supabaseから取得）
   const [gymList, setGymList] = useState<string[]>([])
   const [gymData, setGymData] = useState<any[]>([])
+  const [gymSearch, setGymSearch] = useState('')
+  const [showGymDropdown, setShowGymDropdown] = useState(false)
+  const [recentGyms, setRecentGyms] = useState<string[]>([]) // 最近使用したジム
 
   // URLパラメータからジム情報とチェックイン情報を取得
   useEffect(() => {
@@ -171,6 +178,23 @@ function AddGymPostContent() {
       const gyms = await getGyms()
       setGymData(gyms)
       setGymList(gyms.map(gym => gym.name))
+
+      // 最近使用したジムを取得（デモユーザーで固定）
+      const supabase = getSupabaseClient()
+      const demoUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'
+      const { data: recentCheckIns } = await supabase
+        .from('gym_checkins')
+        .select('gyms(name)')
+        .eq('user_id', demoUserId)
+        .order('checked_in_at', { ascending: false })
+        .limit(5)
+
+      if (recentCheckIns) {
+        const recentGymNames = [...new Set(recentCheckIns
+          .map((ci: any) => ci.gyms?.name)
+          .filter(Boolean))]
+        setRecentGyms(recentGymNames)
+      }
     } catch (error) {
       console.error('Error loading gyms:', error)
       // フォールバック
@@ -211,18 +235,63 @@ function AddGymPostContent() {
     if (isCardio) {
       // 有酸素運動の場合は時間が必須
       if (currentExercise.name.trim() && currentExercise.duration?.trim()) {
+        // 有酸素運動の検証
+        const validation = validateCardio(
+          currentExercise.name,
+          parseFloat(currentExercise.duration),
+          currentExercise.distance ? parseFloat(currentExercise.distance) : undefined,
+          currentExercise.speed ? parseFloat(currentExercise.speed) : undefined
+        )
+
+        if (!validation.isValid) {
+          setExerciseErrors(validation.errors)
+          return
+        }
+
+        if (validation.warnings.length > 0) {
+          const proceed = window.confirm(
+            `注意:\n${validation.warnings.join('\n')}\n\nこのまま追加しますか？`
+          )
+          if (!proceed) return
+        }
+
         setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
         setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '', duration: '', distance: '', speed: '' })
         setShowExerciseForm(false)
+        setExerciseWarnings([])
+        setExerciseErrors([])
       } else {
         alert('種目名と時間を入力してください')
       }
     } else {
       // 筋トレの場合は従来通り
       if (currentExercise.name.trim() && currentExercise.weight.trim() && currentExercise.sets.trim() && currentExercise.reps.trim()) {
+        // 筋トレの検証
+        const validation = validateExercise(
+          currentExercise.name,
+          currentExercise.category || 'chest',
+          parseFloat(currentExercise.weight),
+          parseInt(currentExercise.reps),
+          parseInt(currentExercise.sets)
+        )
+
+        if (!validation.isValid) {
+          setExerciseErrors(validation.errors)
+          return
+        }
+
+        if (validation.warnings.length > 0) {
+          const proceed = window.confirm(
+            `注意:\n${validation.warnings.join('\n')}\n\nこのまま追加しますか？`
+          )
+          if (!proceed) return
+        }
+
         setExercises([...exercises, { ...currentExercise, id: Date.now().toString() }])
         setCurrentExercise({ id: '', name: '', weight: '', sets: '', reps: '', duration: '', distance: '', speed: '' })
         setShowExerciseForm(false)
+        setExerciseWarnings([])
+        setExerciseErrors([])
       } else {
         alert('すべての項目を入力してください')
       }
@@ -546,17 +615,102 @@ function AddGymPostContent() {
               <MapPin className="w-4 h-4 inline mr-2" />
               ジムを選択 <span className="text-[color:var(--gt-primary)]">*</span>
             </label>
-            <select
-              value={gymName}
-              onChange={(e) => setGymName(e.target.value)}
-              className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
-              required
-            >
-              <option value="">ジムを選択してください</option>
-              {gymList.map((gym, index) => (
-                <option key={`${gym}-${index}`} value={gym}>{gym}</option>
-              ))}
-            </select>
+            <div className="relative">
+              {/* カスタム選択ボタン */}
+              <button
+                type="button"
+                onClick={() => setShowGymDropdown(!showGymDropdown)}
+                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg text-left flex items-center justify-between hover:border-[var(--gt-primary)] transition-colors"
+              >
+                <span className={gymName ? 'text-[color:var(--foreground)]' : 'text-gray-400'}>
+                  {gymName || 'ジムを選択してください'}
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showGymDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* ドロップダウンメニュー */}
+              {showGymDropdown && (
+                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-hidden">
+                  {/* 検索フィールド */}
+                  <div className="p-3 border-b border-gray-200 sticky top-0 bg-white">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={gymSearch}
+                        onChange={(e) => setGymSearch(e.target.value)}
+                        placeholder="ジム名で検索..."
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  <div className="overflow-y-auto max-h-72">
+                    {/* 最近使用したジム */}
+                    {recentGyms.length > 0 && gymSearch === '' && (
+                      <>
+                        <div className="px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-600">
+                          最近使用したジム
+                        </div>
+                        {recentGyms.map((gym, index) => (
+                          <button
+                            key={`recent-${gym}-${index}`}
+                            type="button"
+                            onClick={() => {
+                              setGymName(gym)
+                              setShowGymDropdown(false)
+                              setGymSearch('')
+                            }}
+                            className="w-full px-4 py-2.5 text-left hover:bg-blue-50 transition-colors flex items-center gap-2"
+                          >
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm">{gym}</span>
+                          </button>
+                        ))}
+                        <div className="border-t border-gray-200 mx-3"></div>
+                      </>
+                    )}
+
+                    {/* 全ジムリスト（フィルタリング適用） */}
+                    <div className="px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-600">
+                      {gymSearch ? '検索結果' : 'すべてのジム'}
+                    </div>
+                    {gymList
+                      .filter(gym => gym.toLowerCase().includes(gymSearch.toLowerCase()))
+                      .slice(0, 20) // 表示件数を20件に制限
+                      .map((gym, index) => (
+                        <button
+                          key={`${gym}-${index}`}
+                          type="button"
+                          onClick={() => {
+                            setGymName(gym)
+                            setShowGymDropdown(false)
+                            setGymSearch('')
+                          }}
+                          className="w-full px-4 py-2.5 text-left hover:bg-blue-50 transition-colors text-sm"
+                        >
+                          {gym}
+                        </button>
+                      ))}
+
+                    {/* 検索結果が多い場合の表示 */}
+                    {gymList.filter(gym => gym.toLowerCase().includes(gymSearch.toLowerCase())).length > 20 && (
+                      <div className="px-4 py-2 text-xs text-gray-500 text-center bg-gray-50">
+                        他 {gymList.filter(gym => gym.toLowerCase().includes(gymSearch.toLowerCase())).length - 20} 件のジム
+                      </div>
+                    )}
+
+                    {/* 検索結果がない場合 */}
+                    {gymList.filter(gym => gym.toLowerCase().includes(gymSearch.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-8 text-sm text-gray-500 text-center">
+                        該当するジムが見つかりません
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 投稿内容 */}
@@ -658,6 +812,36 @@ function AddGymPostContent() {
             {/* 種目追加フォーム */}
             {showExerciseForm && (
               <div className="space-y-3 p-4 bg-[rgba(254,255,250,0.96)] rounded-lg">
+                {/* エラーメッセージ */}
+                {exerciseErrors.length > 0 && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-red-800">入力エラー</p>
+                        {exerciseErrors.map((error, index) => (
+                          <p key={index} className="text-xs text-red-700 mt-1">{error}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 警告メッセージ */}
+                {exerciseWarnings.length > 0 && (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-yellow-800">注意事項</p>
+                        {exerciseWarnings.map((warning, index) => (
+                          <p key={index} className="text-xs text-yellow-700 mt-1">{warning}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="relative">
                   <input
                     type="text"
@@ -684,15 +868,18 @@ function AddGymPostContent() {
                         type="number"
                         placeholder="時間(分) *"
                         value={currentExercise.duration}
+                        min="1"
                         onChange={(e) => {
-                          const duration = e.target.value
-                          const distance = currentExercise.distance
+                          const value = parseFloat(e.target.value);
+                          if (value < 1) return;
+                          const duration = e.target.value;
+                          const distance = currentExercise.distance;
                           // 時間と距離から速度を自動計算
                           if (duration && distance) {
-                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1)
-                            setCurrentExercise({ ...currentExercise, duration, speed })
+                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1);
+                            setCurrentExercise({ ...currentExercise, duration, speed });
                           } else {
-                            setCurrentExercise({ ...currentExercise, duration })
+                            setCurrentExercise({ ...currentExercise, duration });
                           }
                         }}
                         className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
@@ -701,15 +888,19 @@ function AddGymPostContent() {
                         type="number"
                         placeholder="距離(km)"
                         value={currentExercise.distance}
+                        min="0"
+                        step="0.1"
                         onChange={(e) => {
-                          const distance = e.target.value
-                          const duration = currentExercise.duration
+                          const value = parseFloat(e.target.value);
+                          if (value < 0) return;
+                          const distance = e.target.value;
+                          const duration = currentExercise.duration;
                           // 時間と距離から速度を自動計算
                           if (duration && distance) {
-                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1)
-                            setCurrentExercise({ ...currentExercise, distance, speed })
+                            const speed = (parseFloat(distance) / (parseFloat(duration) / 60)).toFixed(1);
+                            setCurrentExercise({ ...currentExercise, distance, speed });
                           } else {
-                            setCurrentExercise({ ...currentExercise, distance })
+                            setCurrentExercise({ ...currentExercise, distance });
                           }
                         }}
                         className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
@@ -718,7 +909,13 @@ function AddGymPostContent() {
                         type="number"
                         placeholder="速度(km/h)"
                         value={currentExercise.speed}
-                        onChange={(e) => setCurrentExercise({ ...currentExercise, speed: e.target.value })}
+                        min="0"
+                        step="0.1"
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value < 0) return;
+                          setCurrentExercise({ ...currentExercise, speed: e.target.value });
+                        }}
                         className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm bg-gray-50"
                         readOnly={!!currentExercise.duration && !!currentExercise.distance}
                         title={currentExercise.duration && currentExercise.distance ? "時間と距離から自動計算されます" : "時間と距離を入力すると自動計算されます"}
@@ -735,21 +932,37 @@ function AddGymPostContent() {
                       type="number"
                       placeholder="重量(kg)"
                       value={currentExercise.weight}
-                      onChange={(e) => setCurrentExercise({ ...currentExercise, weight: e.target.value })}
+                      min="0"
+                      step="0.5"
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (value < 0) return;
+                        setCurrentExercise({ ...currentExercise, weight: e.target.value });
+                      }}
                       className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                     />
                     <input
                       type="number"
                       placeholder="セット数"
                       value={currentExercise.sets}
-                      onChange={(e) => setCurrentExercise({ ...currentExercise, sets: e.target.value })}
+                      min="1"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        if (value < 1) return;
+                        setCurrentExercise({ ...currentExercise, sets: e.target.value });
+                      }}
                       className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                     />
                     <input
                       type="number"
                       placeholder="回数"
                       value={currentExercise.reps}
-                      onChange={(e) => setCurrentExercise({ ...currentExercise, reps: e.target.value })}
+                      min="1"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        if (value < 1) return;
+                        setCurrentExercise({ ...currentExercise, reps: e.target.value });
+                      }}
                       className="px-3 py-2 bg-white border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
                     />
                   </div>
@@ -893,19 +1106,80 @@ function AddGymPostContent() {
                 <Building className="w-4 h-4 inline mr-2" />
                 登録するジム <span className="text-[color:var(--gt-primary)]">*</span>
               </label>
+
+              {/* 検索入力 */}
+              <div className="relative mb-3">
+                <input
+                  type="text"
+                  placeholder="ジム名で検索..."
+                  value={equipmentGymSearch}
+                  onChange={(e) => setEquipmentGymSearch(e.target.value)}
+                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] focus:border-transparent"
+                />
+                {equipmentGymSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setEquipmentGymSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* ジム選択セレクト */}
               <select
                 value={equipmentGymName}
-                onChange={(e) => setEquipmentGymName(e.target.value)}
+                onChange={(e) => {
+                  setEquipmentGymName(e.target.value)
+                  setEquipmentGymSearch('') // Clear search after selection
+                }}
                 className="w-full px-4 py-3 bg-[rgba(254,255,250,0.96)] border border-[rgba(231,103,76,0.16)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                 required
               >
                 <option value="">ジムを選択してください</option>
-                {gymList.map((gym, index) => (
-                  <option key={`${gym}-admin-${index}`} value={gym}>{gym}</option>
-                ))}
+                {(() => {
+                  const filteredGyms = equipmentGymSearch
+                    ? gymList.filter(gym => gym.toLowerCase().includes(equipmentGymSearch.toLowerCase()))
+                    : gymList
+                  return filteredGyms.length > 0 ? (
+                    filteredGyms.map((gym, index) => (
+                      <option key={`${gym}-admin-${index}`} value={gym}>{gym}</option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      「{equipmentGymSearch}」に一致するジムが見つかりません
+                    </option>
+                  )
+                })()}
               </select>
+
+              {/* 検索結果の情報 */}
+              {equipmentGymSearch && (
+                <div className="mt-2 text-xs text-gray-600">
+                  {(() => {
+                    const filteredCount = gymList.filter(gym =>
+                      gym.toLowerCase().includes(equipmentGymSearch.toLowerCase())
+                    ).length
+                    return filteredCount > 0 ? (
+                      <span>{filteredCount}件のジムが見つかりました</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEquipmentGymSearch('')}
+                        className="text-blue-600 hover:text-blue-700 underline"
+                      >
+                        検索をクリア
+                      </button>
+                    )
+                  })()}
+                </div>
+              )}
+
               <p className="text-xs text-[color:var(--text-muted)] mt-2">
-                ジムオーナーまたは管理者の方のみ登録をお願いします
+                みんなで正確なジム情報を共有しましょう
               </p>
             </div>
             

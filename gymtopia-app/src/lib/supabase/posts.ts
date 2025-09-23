@@ -86,25 +86,31 @@ export async function getFeedPosts(
         }
       } else if (filter === 'same-gym') {
         // 同じジムの投稿のみを取得
-        // まずユーザーのホームジム設定を取得
-        const { data: userProfile } = await getSupabaseClient()
-          .from('user_profiles')
-          .select('primary_gym_id, secondary_gym_ids')
+        // 新しいマイジムシステムからユーザーのジム設定を取得
+        let gymIds: string[] = [];
+
+        // プライマリジムを取得
+        const { data: primaryGym } = await getSupabaseClient()
+          .from('user_primary_gyms')
+          .select('gym_id')
           .eq('user_id', actualUserId)
           .single();
 
-        let gymIds: string[] = [];
-
-        // ホームジム（primary_gym_id）を最優先で追加
-        if (userProfile?.primary_gym_id) {
-          gymIds.push(userProfile.primary_gym_id);
-          console.log('getFeedPosts: Using home gym:', userProfile.primary_gym_id);
+        if (primaryGym?.gym_id) {
+          gymIds.push(primaryGym.gym_id);
+          console.log('getFeedPosts: Using primary gym:', primaryGym.gym_id);
         }
 
-        // セカンダリジムも追加
-        if (userProfile?.secondary_gym_ids && userProfile.secondary_gym_ids.length > 0) {
-          gymIds.push(...userProfile.secondary_gym_ids);
-          console.log('getFeedPosts: Including secondary gyms:', userProfile.secondary_gym_ids);
+        // セカンダリジムを取得
+        const { data: secondaryGyms } = await getSupabaseClient()
+          .from('user_secondary_gyms')
+          .select('gym_id')
+          .eq('user_id', actualUserId);
+
+        if (secondaryGyms && secondaryGyms.length > 0) {
+          const secondaryGymIds = secondaryGyms.map(sg => sg.gym_id);
+          gymIds.push(...secondaryGymIds);
+          console.log('getFeedPosts: Including secondary gyms:', secondaryGymIds);
         }
 
         // ホームジム設定がない場合は、最近の投稿からジムを取得
@@ -141,7 +147,7 @@ export async function getFeedPosts(
     const { data, error } = await query
 
     if (error) {
-      console.error('getFeedPosts: Query error:', error)
+      console.error('getFeedPosts: Query error:', error instanceof Error ? error.message : JSON.stringify(error))
       throw error
     }
 
@@ -238,10 +244,10 @@ export async function getFeedPosts(
 
     return posts
   } catch (error) {
-    console.error('Error fetching feed posts:', error)
+    console.error('Error fetching feed posts:', error instanceof Error ? error.message : JSON.stringify(error))
     console.error('getFeedPosts: Final error details:', {
       name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
+      message: error instanceof Error ? error.message : JSON.stringify(error),
       stack: error instanceof Error ? error.stack : undefined
     })
 
@@ -278,7 +284,7 @@ export async function getUserPosts(userId: string, page = 1, limit = 10) {
 
     return posts as Post[]
   } catch (error) {
-    console.error('Error fetching user posts:', error)
+    console.error('Error fetching user posts:', error instanceof Error ? error.message : JSON.stringify(error))
     return []
   }
 }
@@ -353,7 +359,7 @@ export async function createCheckinPost(
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error creating checkin post:', error)
+    console.error('Error creating checkin post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -417,7 +423,7 @@ export async function createPost(post: {
       const { data: recentCheckin, error } = await getRecentCheckinForGym(actualUserId, post.gym_id, 24)
 
       if (error) {
-        console.error('[createPost] チェックイン検索エラー:', error)
+        console.error('[createPost] チェックイン検索エラー:', error instanceof Error ? error.message : JSON.stringify(error))
       }
 
       if (recentCheckin) {
@@ -468,7 +474,7 @@ export async function createPost(post: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error creating post:', error)
+    console.error('Error creating post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -552,7 +558,7 @@ export async function updatePost(postId: string, updates: {
 
     return data
   } catch (error) {
-    console.error('Error updating post:', error)
+    console.error('Error updating post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -590,7 +596,7 @@ export async function deletePost(postId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error deleting post:', error)
+    console.error('Error deleting post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -651,7 +657,7 @@ export async function likePost(postId: string) {
       return data
     }
   } catch (error) {
-    console.error('Error liking post:', error)
+    console.error('Error liking post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -706,7 +712,7 @@ export async function unlikePost(postId: string) {
       return true
     }
   } catch (error) {
-    console.error('Error unliking post:', error)
+    console.error('Error unliking post:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -726,7 +732,7 @@ export async function getPostComments(postId: string) {
     if (error) throw error
     return data as Comment[]
   } catch (error) {
-    console.error('Error fetching comments:', error)
+    console.error('Error fetching comments:', error instanceof Error ? error.message : JSON.stringify(error))
     return []
   }
 }
@@ -759,7 +765,7 @@ export async function createComment(comment: {
     if (error) throw error
     return data as Comment
   } catch (error) {
-    console.error('Error creating comment:', error)
+    console.error('Error creating comment:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }
@@ -775,7 +781,7 @@ export async function deleteComment(commentId: string) {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error deleting comment:', error)
+    console.error('Error deleting comment:', error instanceof Error ? error.message : JSON.stringify(error))
     throw error
   }
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Images Test</title>
+    <script>
+        async function testAdminImages() {
+            try {
+                // Fetch admin page
+                const response = await fetch('http://localhost:3001/admin');
+                const html = await response.text();
+
+                console.log('Admin page fetched');
+
+                // Check for image tab
+                const hasImageTab = html.includes('画像管理');
+                console.log('Has image tab:', hasImageTab);
+
+                // Check for gym data
+                const gymDataMatch = html.match(/SelectedGym: ([a-f0-9-]+)/);
+                if (gymDataMatch) {
+                    console.log('Selected gym ID:', gymDataMatch[1]);
+
+                    // Test direct API call to get gym data
+                    const gymResponse = await fetch(`http://localhost:3001/api/gyms/${gymDataMatch[1]}`);
+                    const gymData = await gymResponse.json();
+                    console.log('Gym data:', gymData);
+                    console.log('Images:', gymData.images);
+                }
+
+                document.getElementById('result').innerHTML = `
+                    <h2>Test Results:</h2>
+                    <p>✅ Image tab exists: ${hasImageTab}</p>
+                    <p>✅ Selected gym ID: ${gymDataMatch ? gymDataMatch[1] : 'Not found'}</p>
+                    <p>Check browser console for detailed data</p>
+                `;
+
+            } catch (error) {
+                console.error('Test failed:', error);
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        window.onload = testAdminImages;
+    </script>
+</head>
+<body>
+    <h1>Testing Admin Image Upload</h1>
+    <div id="result">Loading...</div>
+</body>
+</html>

@@ -65,7 +65,7 @@ export async function getUserGymSelections(userId: string): Promise<{
       secondaryGyms
     }
   } catch (error) {
-    console.error('Error fetching user gym selections:', error)
+    console.error('Error fetching user gym selections:', error instanceof Error ? error.message : JSON.stringify(error))
     return {
       primaryGym: null,
       secondaryGyms: []
@@ -87,13 +87,13 @@ export async function updateUserPrimaryGym(userId: string, gymId: string): Promi
       })
 
     if (error) {
-      console.error('Error updating primary gym:', error)
+      console.error('Error updating primary gym:', error instanceof Error ? error.message : JSON.stringify(error))
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error in updateUserPrimaryGym:', error)
+    console.error('Error in updateUserPrimaryGym:', error instanceof Error ? error.message : JSON.stringify(error))
     return false
   }
 }
@@ -123,13 +123,13 @@ export async function addSecondaryGym(userId: string, gymId: string): Promise<bo
       })
 
     if (error) {
-      console.error('Error adding secondary gym:', error)
+      console.error('Error adding secondary gym:', error instanceof Error ? error.message : JSON.stringify(error))
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error in addSecondaryGym:', error)
+    console.error('Error in addSecondaryGym:', error instanceof Error ? error.message : JSON.stringify(error))
     return false
   }
 }
@@ -144,13 +144,13 @@ export async function removeSecondaryGym(userId: string, gymId: string): Promise
       .eq('gym_id', gymId)
 
     if (error) {
-      console.error('Error removing secondary gym:', error)
+      console.error('Error removing secondary gym:', error instanceof Error ? error.message : JSON.stringify(error))
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error in removeSecondaryGym:', error)
+    console.error('Error in removeSecondaryGym:', error instanceof Error ? error.message : JSON.stringify(error))
     return false
   }
 }
@@ -164,13 +164,13 @@ export async function getAvailableGyms(): Promise<Gym[]> {
       .order('name')
 
     if (error) {
-      console.error('Error fetching available gyms:', error)
+      console.error('Error fetching available gyms:', error instanceof Error ? error.message : JSON.stringify(error))
       return []
     }
 
     return data as Gym[]
   } catch (error) {
-    console.error('Error in getAvailableGyms:', error)
+    console.error('Error in getAvailableGyms:', error instanceof Error ? error.message : JSON.stringify(error))
     return []
   }
 }

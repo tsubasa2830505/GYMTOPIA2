@@ -41,9 +41,11 @@ export default function MapPage() {
 
   // ジムデータを取得
   useEffect(() => {
+    if (!userLocation) return
+
     const fetchGyms = async () => {
       try {
-        const data = await getGyms()
+        const data = await getGyms(undefined, userLocation)
         setGyms(data)
       } catch (error) {
         console.error('Error fetching gyms:', error)
@@ -52,7 +54,7 @@ export default function MapPage() {
       }
     }
     fetchGyms()
-  }, [])
+  }, [userLocation])
 
   // Google Maps初期化
   useEffect(() => {
@@ -190,10 +192,10 @@ export default function MapPage() {
                 >
                   <h3 className="font-semibold text-gray-900">{gym.name}</h3>
                   <p className="text-xs text-gray-600 mt-1">{gym.address}</p>
-                  {gym.distance && (
+                  {gym.distanceText && (
                     <div className="flex items-center gap-1 mt-2">
                       <Navigation className="w-3 h-3 text-blue-600" />
-                      <span className="text-xs text-blue-600">{gym.distance}</span>
+                      <span className="text-xs text-blue-600">{gym.distanceText}</span>
                     </div>
                   )}
                 </div>

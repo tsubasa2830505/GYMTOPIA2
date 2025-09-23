@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Save, X, Camera, User, AtSign, FileText, Dumbbell, Plus, Trash2, LogOut, MapPin, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
+import MyGymManager from '@/components/MyGymManager'
 
 interface PersonalRecord {
   id: string
@@ -606,66 +607,19 @@ export default function ProfileEditPage() {
               <p className="text-xs text-[color:var(--text-muted)] mt-1">半角英数字とアンダースコアのみ使用可能</p>
             </div>
 
-            {/* ホームジム設定 */}
+            {/* マイジム設定 */}
             <div>
-              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">
+              <label className="block text-sm font-medium text-[color:var(--foreground)] mb-4">
                 <MapPin className="w-4 h-4 inline mr-1" />
-                ホームジム
+                マイジム設定
               </label>
-              {primaryGymName ? (
-                <div className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.92)] border border-[rgba(231,103,76,0.18)] rounded-lg">
-                  <div>
-                    <p className="font-medium text-[color:var(--foreground)]">{primaryGymName}</p>
-                    <p className="text-sm text-[color:var(--text-subtle)]">メインジム</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setPrimaryGymId('')
-                      setPrimaryGymName('')
-                    }}
-                    className="text-sm text-[color:var(--gt-primary-strong)] hover:text-[color:var(--gt-primary-strong)]"
-                  >
-                    解除
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={gymSearchQuery}
-                      onChange={(e) => {
-                        setGymSearchQuery(e.target.value)
-                        searchGyms(e.target.value)
-                      }}
-                      className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
-                      placeholder="ジム名で検索..."
-                    />
-                    {isSearchingGym && (
-                      <div className="absolute right-3 top-3">
-                        <div className="animate-spin h-5 w-5 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full"></div>
-                      </div>
-                    )}
-                  </div>
-                  {gymSearchResults.length > 0 && (
-                    <div className="bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg max-h-48 overflow-y-auto">
-                      {gymSearchResults.map((gym) => (
-                        <button
-                          key={gym.id}
-                          onClick={() => selectGym(gym)}
-                          className="w-full text-left px-4 py-3 hover:bg-[rgba(254,255,250,0.95)] border-b border-[rgba(231,103,76,0.1)] last:border-b-0"
-                        >
-                          <p className="font-medium text-[color:var(--foreground)]">{gym.name}</p>
-                          {gym.address && (
-                            <p className="text-sm text-[color:var(--text-subtle)]">{gym.address}</p>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              <p className="text-xs text-[color:var(--text-muted)] mt-1">よく通うジムを設定できます</p>
+              <MyGymManager
+                userId={user?.id || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac'}
+                onUpdate={() => {
+                  // データ更新時の処理（必要に応じて）
+                  console.log('マイジムデータが更新されました');
+                }}
+              />
             </div>
 
             {/* 自己紹介 */}

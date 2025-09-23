@@ -119,10 +119,10 @@ export default function GymFeedPage() {
     return (
       <div className="min-h-screen bg-[color:var(--background)]">
         <Header />
-        <div className="flex max-w-7xl mx-auto px-4">
-          <SidebarNavigation className="hidden lg:block" />
-          <main className="flex-1 lg:ml-64 py-6">
-            <div className="max-w-2xl mx-auto">
+        <div className="flex justify-center px-4 pt-16">
+          <SidebarNavigation className="hidden lg:block fixed left-0 top-16" />
+          <main className="w-full max-w-2xl py-6">
+            <div className="w-full">
               <div className="animate-pulse space-y-4">
                 <div className="h-12 bg-[rgba(254,255,250,0.92)] rounded-lg"></div>
                 <div className="h-32 bg-[rgba(254,255,250,0.92)] rounded-lg"></div>
@@ -139,10 +139,10 @@ export default function GymFeedPage() {
     return (
       <div className="min-h-screen bg-[color:var(--background)]">
         <Header />
-        <div className="flex max-w-7xl mx-auto px-4">
-          <SidebarNavigation className="hidden lg:block" />
-          <main className="flex-1 lg:ml-64 py-6">
-            <div className="max-w-2xl mx-auto text-center">
+        <div className="flex justify-center px-4 pt-16">
+          <SidebarNavigation className="hidden lg:block fixed left-0 top-16" />
+          <main className="w-full max-w-2xl py-6">
+            <div className="w-full text-center">
               <h1 className="text-2xl font-bold text-[color:var(--foreground)] mb-4">ジムが見つかりません</h1>
               <Link
                 href="/"
@@ -162,11 +162,11 @@ export default function GymFeedPage() {
     <div className="min-h-screen bg-[color:var(--background)]">
       <Header />
 
-      <div className="flex max-w-7xl mx-auto px-4">
-        <SidebarNavigation className="hidden lg:block" />
+      <div className="flex justify-center px-4 pt-16">
+        <SidebarNavigation className="hidden lg:block fixed left-0 top-16" />
 
-        <main className="flex-1 lg:ml-64 py-6">
-          <div className="max-w-2xl mx-auto">
+        <main className="w-full max-w-2xl py-6">
+          <div className="w-full">
             {/* Header */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">

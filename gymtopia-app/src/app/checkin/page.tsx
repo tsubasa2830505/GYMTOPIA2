@@ -223,10 +223,11 @@ export default function CheckInPage() {
         // チェックインIDの配列を作成
         const checkInIds = checkIns.map((ci: any) => ci.id)
 
-        // 各チェックインに対応する投稿があるかチェック
+        // 各チェックインに対応する投稿があるかチェック（同じユーザーの投稿のみ）
         const { data: posts, error: postsError } = await supabase
           .from('gym_posts')
           .select('checkin_id')
+          .eq('user_id', demoUserId)  // 同じユーザーの投稿のみ
           .in('checkin_id', checkInIds)
 
         // 投稿があるチェックインIDのセットを作成
@@ -742,30 +743,18 @@ export default function CheckInPage() {
                             {dateStr} {timeStr}
                           </p>
                         </div>
-                        <button
-                          onClick={() => {
-                            // 投稿作成画面へ遷移（チェックインIDを渡す）
-                            router.push(`/add?checkInId=${checkIn.id}&gymId=${checkIn.gym_id}&gymName=${encodeURIComponent(checkIn.gym_name)}`)
-                          }}
-                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                            checkIn.has_post
-                              ? 'text-gray-500 hover:bg-gray-100 cursor-default'
-                              : 'text-[color:var(--gt-secondary-strong)] hover:bg-[rgba(231,103,76,0.08)]'
-                          }`}
-                          disabled={checkIn.has_post}
-                        >
-                          {checkIn.has_post ? (
-                            <>
-                              <Check className="w-4 h-4" />
-                              投稿済み
-                            </>
-                          ) : (
-                            <>
-                              <ChevronRight className="w-4 h-4" />
-                              投稿する
-                            </>
-                          )}
-                        </button>
+                        {!checkIn.has_post && (
+                          <button
+                            onClick={() => {
+                              // 投稿作成画面へ遷移（チェックインIDを渡す）
+                              router.push(`/add?checkInId=${checkIn.id}&gymId=${checkIn.gym_id}&gymName=${encodeURIComponent(checkIn.gym_name)}`)
+                            }}
+                            className="px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 text-[color:var(--gt-secondary-strong)] hover:bg-[rgba(231,103,76,0.08)]"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                            投稿する
+                          </button>
+                        )}
                       </div>
                       {checkIn.note && (
                         <p className="mt-2 text-sm text-[color:var(--text-muted)]">{checkIn.note}</p>

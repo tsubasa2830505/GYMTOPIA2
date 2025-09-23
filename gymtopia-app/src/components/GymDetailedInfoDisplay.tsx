@@ -70,11 +70,30 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
 
       if (Array.isArray(value)) {
         return (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {value.map((item, index) => (
               <div key={index} className="text-sm text-[color:var(--text-subtle)] flex items-start gap-2">
                 <span className="text-[color:var(--gt-primary)] mt-1.5">•</span>
-                <span>{typeof item === 'object' ? JSON.stringify(item) : item}</span>
+                <div className="flex-1">
+                  {typeof item === 'object' ? (
+                    <div className="space-y-1">
+                      {Object.entries(item).map(([itemKey, itemValue]) => (
+                        <div key={itemKey} className="flex items-center gap-2">
+                          <span className="font-medium text-[color:var(--foreground)]">
+                            {itemKey === 'name' ? itemValue : `${itemKey}: ${itemValue}`}
+                          </span>
+                          {itemKey === 'price' && typeof itemValue === 'number' && (
+                            <span className="text-[color:var(--gt-primary)] font-semibold">
+                              ¥{itemValue.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span>{item}</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -82,6 +101,46 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
       }
 
       if (typeof value === 'object') {
+        // 営業時間の特別処理
+        if (label && label.includes('Regular Hours')) {
+          const dayNames = {
+            monday: '月曜日',
+            tuesday: '火曜日',
+            wednesday: '水曜日',
+            thursday: '木曜日',
+            friday: '金曜日',
+            saturday: '土曜日',
+            sunday: '日曜日'
+          }
+
+          const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+          return (
+            <div className="grid grid-cols-1 gap-2">
+              {dayOrder.map(day => {
+                const dayData = value[day]
+                if (!dayData) return null
+
+                return (
+                  <div key={day} className="flex items-center justify-between py-2 px-3 bg-[rgba(254,255,250,0.8)] rounded-lg">
+                    <span className="font-medium text-[color:var(--foreground)]">
+                      {dayNames[day]}
+                    </span>
+                    <span className="text-sm text-[color:var(--text-subtle)]">
+                      {dayData.is_24h || dayData.closed === false ?
+                        <span className="text-[color:var(--gt-primary)] font-semibold">24時間営業</span> :
+                        dayData.closed ?
+                        <span className="text-[color:var(--text-muted)]">定休日</span> :
+                        `${dayData.open || '00:00'} - ${dayData.close || '24:00'}`
+                      }
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        }
+
         return (
           <div className="space-y-3">
             {Object.entries(value).map(([key, val]) => {
@@ -92,7 +151,7 @@ export default function GymDetailedInfoDisplay({ gymId }: GymDetailedInfoDisplay
                   <div className="text-xs font-medium text-[color:var(--text-muted)] mb-1">
                     {displayKey}
                   </div>
-                  {renderValue(val)}
+                  {renderValue(val, displayKey)}
                 </div>
               )
             })}
