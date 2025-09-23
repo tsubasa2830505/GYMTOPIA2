@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Gym } from '@/lib/supabase/types'
-import { toast } from '@/hooks/use-toast'
 import { getUserGymSelections, updateUserPrimaryGym, addSecondaryGym, removeSecondaryGym } from '@/lib/supabase/my-gym'
 
 interface MyGymManagerProps {
@@ -41,11 +40,7 @@ export default function MyGymManager({ userId, onUpdate }: MyGymManagerProps) {
 
     } catch (error) {
       console.error('Failed to load gym data:', error)
-      toast({
-        title: "エラー",
-        description: "ジム情報の読み込みに失敗しました",
-        variant: "destructive",
-      })
+      alert('ジム情報の読み込みに失敗しました')
     } finally {
       setLoading(false)
     }
@@ -62,17 +57,10 @@ export default function MyGymManager({ userId, onUpdate }: MyGymManagerProps) {
       await loadData()
       onUpdate?.()
 
-      toast({
-        title: "更新完了",
-        description: `${gym.name}をメインジムに設定しました`,
-      })
+      alert(`${gym.name}をメインジムに設定しました`)
     } catch (error) {
       console.error('Failed to update primary gym:', error)
-      toast({
-        title: "エラー",
-        description: "メインジムの設定に失敗しました",
-        variant: "destructive",
-      })
+      alert('メインジムの設定に失敗しました')
     } finally {
       setUpdating(false)
     }
@@ -85,17 +73,10 @@ export default function MyGymManager({ userId, onUpdate }: MyGymManagerProps) {
       await loadData()
       onUpdate?.()
 
-      toast({
-        title: "追加完了",
-        description: `${gym.name}をサブジムに追加しました`,
-      })
+      alert(`${gym.name}をサブジムに追加しました`)
     } catch (error) {
       console.error('Failed to add secondary gym:', error)
-      toast({
-        title: "エラー",
-        description: "サブジムの追加に失敗しました",
-        variant: "destructive",
-      })
+      alert('サブジムの追加に失敗しました')
     } finally {
       setUpdating(false)
     }
@@ -108,17 +89,10 @@ export default function MyGymManager({ userId, onUpdate }: MyGymManagerProps) {
       await loadData()
       onUpdate?.()
 
-      toast({
-        title: "削除完了",
-        description: "サブジムから削除しました",
-      })
+      alert('サブジムから削除しました')
     } catch (error) {
       console.error('Failed to remove secondary gym:', error)
-      toast({
-        title: "エラー",
-        description: "サブジムの削除に失敗しました",
-        variant: "destructive",
-      })
+      alert('サブジムの削除に失敗しました')
     } finally {
       setUpdating(false)
     }

@@ -652,7 +652,7 @@ export async function likePost(postId: string) {
     }
   } catch (error) {
     console.error('Error liking post:', error)
-    return null
+    throw error
   }
 }
 
@@ -707,7 +707,7 @@ export async function unlikePost(postId: string) {
     }
   } catch (error) {
     console.error('Error unliking post:', error)
-    return false
+    throw error
   }
 }
 

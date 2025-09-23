@@ -889,6 +889,18 @@ function ProfileContent() {
               )}
             </button>
             <button
+              onClick={() => handleTabChange('favorites')}
+              className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'favorites' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
+            >
+              <span className="text-sm sm:text-base font-medium">いきたい</span>
+              <div className="text-xs text-[color:var(--text-muted)] font-medium mt-0.5 sm:mt-1">
+                {isLoading ? '...' : `${userFavoriteGyms.length}件`}
+              </div>
+              {activeTab === 'favorites' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--gt-primary)]"></div>
+              )}
+            </button>
+            <button
               onClick={() => handleTabChange('my-gyms')}
               className={`flex-1 sm:flex-initial py-2 sm:py-3 px-1 relative ${activeTab === 'my-gyms' ? 'text-[color:var(--gt-primary-strong)]' : 'text-[color:var(--text-muted)]'} hover:text-[color:var(--foreground)] transition`}
             >
@@ -987,6 +999,7 @@ function ProfileContent() {
                       post={postForCard}
                       currentUserId={user?.id}
                       showActions={true} // ストーリー機能を含むアクションと編集・削除を表示
+                      showInstagramButton={true} // プロフィールページでのみInstagramボタンを表示
                       onToggleTraining={() => toggleTrainingDetails(post.id)}
                       expandedTraining={expandedTraining}
                       onEdit={() => handleEditPost(post)}

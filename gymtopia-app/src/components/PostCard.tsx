@@ -17,6 +17,7 @@ interface PostCardProps {
   onToggleTraining?: () => void;
   expandedTraining?: Set<string>;
   showActions?: boolean;
+  showInstagramButton?: boolean; // プロフィールページでのみInstagramボタンを表示
 }
 
 export default function PostCard({
@@ -28,6 +29,7 @@ export default function PostCard({
   onToggleTraining,
   expandedTraining = new Set(),
   showActions = true,
+  showInstagramButton = false,
 }: PostCardProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [generatingStory, setGeneratingStory] = useState(false);
@@ -284,8 +286,8 @@ export default function PostCard({
               )}
             </button>
 
-            {/* Story Button - 自分の投稿のみ表示 */}
-            {currentUserId && post.user.id === currentUserId && (
+            {/* Story Button - プロフィールページの自分の投稿のみ表示 */}
+            {showInstagramButton && currentUserId && post.user.id === currentUserId && (
               <button
                 onClick={handleGenerateStory}
                 disabled={generatingStory}

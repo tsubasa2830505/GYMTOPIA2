@@ -299,7 +299,8 @@ export default function FeedPage() {
         console.log('いいね追加完了');
       }
     } catch (error) {
-      console.error('Error toggling like:', error);
+      console.error('Error liking post:', error);
+      alert('いいねの処理に失敗しました');
     }
   };
 

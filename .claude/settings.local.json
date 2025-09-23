@@ -217,7 +217,9 @@
       "Bash(/usr/bin/git tag -a v2.0.0 -m \"v2.0.0: 管理画面↔GYM詳細モーダル完全統合マイルストーン - 全セクション100%連携・完全データフロー確立\")",
       "Bash(VERCEL_TOKEN=2f2GpJnu7CGewTunxUCn2i91 npx vercel list --scope tsubasaa2830505-7621s-projects)",
       "WebFetch(domain:localhost)",
-      "Bash(for page in \"/checkin\")"
+      "Bash(for page in \"/checkin\")",
+      "Bash(mcp__supabase__execute_sql:*)",
+      "Bash(for page in \"/checkin\" \"/feed\" \"/profile\")"
     ],
     "deny": [],
     "ask": []
