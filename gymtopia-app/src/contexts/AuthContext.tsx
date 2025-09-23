@@ -21,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  console.log('🔥🔥🔥 AuthProvider initialized 🔥🔥🔥')
   const [user, setUser] = useState<SessionUser | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -46,8 +47,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    console.log('🚀🚀🚀 AuthProvider useEffect triggered 🚀🚀🚀')
     // Check if we should use mock auth (for development or testing in production)
     const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
+    console.log('🔧 NEXT_PUBLIC_USE_MOCK_AUTH:', process.env.NEXT_PUBLIC_USE_MOCK_AUTH)
+    console.log('🔧 useMockAuth:', useMockAuth)
+    console.log('🔧 isLoggedOut:', isLoggedOut)
 
     if (useMockAuth && !isLoggedOut) {
       console.log('📱 AuthContext: Using mock auth for development')

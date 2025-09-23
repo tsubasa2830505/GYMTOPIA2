@@ -219,6 +219,38 @@ export default function ProfileEditPage() {
     console.log('保存処理開始')
     console.log('User:', user)
 
+    // バリデーションチェック
+    if (!name.trim()) {
+      alert('名前を入力してください')
+      return
+    }
+
+    if (name.trim().length > 50) {
+      alert('名前は50文字以内で入力してください')
+      return
+    }
+
+    if (!username.trim()) {
+      alert('ユーザー名を入力してください')
+      return
+    }
+
+    if (username.length > 30) {
+      alert('ユーザー名は30文字以内で入力してください')
+      return
+    }
+
+    // ユーザー名の形式チェック（英数字とアンダースコアのみ）
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      alert('ユーザー名は半角英数字とアンダースコアのみ使用可能です')
+      return
+    }
+
+    if (bio.length > 150) {
+      alert('自己紹介は150文字以内で入力してください')
+      return
+    }
+
     // モック認証の場合はログ出力のみ
     if (user?.email === 'taro@example.com') {
       console.log('モック認証ユーザーでの保存処理を開始')
@@ -582,10 +614,17 @@ export default function ProfileEditPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (newValue.length <= 50) {
+                    setName(newValue);
+                  }
+                }}
+                maxLength={50}
                 className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                 placeholder="表示名を入力"
               />
+              <p className="text-xs text-[color:var(--text-muted)] mt-1">{name.length} / 50文字</p>
             </div>
 
             {/* ユーザー名 */}
@@ -599,12 +638,22 @@ export default function ProfileEditPage() {
                 <input
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    // 英数字とアンダースコアのみ許可し、30文字以内に制限
+                    if (/^[a-zA-Z0-9_]*$/.test(newValue) && newValue.length <= 30) {
+                      setUsername(newValue);
+                    }
+                  }}
+                  maxLength={30}
                   className="w-full pl-8 pr-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)]"
                   placeholder="username"
                 />
               </div>
-              <p className="text-xs text-[color:var(--text-muted)] mt-1">半角英数字とアンダースコアのみ使用可能</p>
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-[color:var(--text-muted)]">半角英数字とアンダースコアのみ使用可能</p>
+                <p className="text-xs text-[color:var(--text-muted)]">{username.length} / 30文字</p>
+              </div>
             </div>
 
             {/* マイジム設定 */}
@@ -630,12 +679,35 @@ export default function ProfileEditPage() {
               </label>
               <textarea
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (newValue.length <= 150) {
+                    setBio(newValue);
+                  }
+                }}
                 rows={4}
-                className="w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)] resize-none"
+                maxLength={150}
+                className={`w-full px-4 py-3 bg-[rgba(254,255,250,0.95)] border-2 ${
+                  bio.length > 140
+                    ? 'border-[rgba(231,103,76,0.4)] focus:border-[color:var(--gt-primary-strong)]'
+                    : 'border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)]'
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-[color:var(--foreground)] resize-none`}
                 placeholder="自己紹介を入力"
               />
-              <p className="text-xs text-[color:var(--text-muted)] mt-1">{bio.length} / 150文字</p>
+              <p className={`text-xs mt-1 ${
+                bio.length > 140
+                  ? 'text-[color:var(--gt-primary-strong)]'
+                  : bio.length > 120
+                    ? 'text-[color:var(--gt-secondary-strong)]'
+                    : 'text-[color:var(--text-muted)]'
+              }`}>
+                {bio.length} / 150文字
+                {bio.length > 140 && (
+                  <span className="ml-2 text-[color:var(--gt-primary-strong)]">
+                    残り{150 - bio.length}文字
+                  </span>
+                )}
+              </p>
             </div>
           </div>
 

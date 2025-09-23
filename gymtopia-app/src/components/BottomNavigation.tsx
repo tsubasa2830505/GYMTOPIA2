@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, Search, Activity, User, Check } from 'lucide-react'
+import { MapPin, Search, Activity, User, CheckCircle } from 'lucide-react'
 
 export default function BottomNavigation() {
   const pathname = usePathname()
@@ -22,7 +22,7 @@ export default function BottomNavigation() {
     },
     {
       href: '/checkin',
-      icon: Check,
+      icon: CheckCircle,
       label: 'チェックイン',
       isActive: pathname === '/checkin'
     },

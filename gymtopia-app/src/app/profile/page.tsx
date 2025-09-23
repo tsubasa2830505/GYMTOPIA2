@@ -445,23 +445,68 @@ function ProfileContent() {
           favoriteGyms = await getFavoriteGyms(userId);
           console.log('✅ 初期読み込み - ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
           console.log('📋 初期読み込み - 取得したいきたいデータ:', favoriteGyms);
+
+          // 画像データを統合
+          if (favoriteGyms.length > 0) {
+            const enrichedFavoriteGyms = await Promise.all(
+              favoriteGyms.map(async (favoriteGym) => {
+                try {
+                  const response = await fetch(`/api/gyms/${favoriteGym.gym_id || favoriteGym.id}`);
+                  if (response.ok) {
+                    const gymData = await response.json();
+                    const gymInfo = gymData.gym;
+                    return {
+                      ...favoriteGym,
+                      gym: {
+                        ...favoriteGym.gym,
+                        images: gymInfo.images && gymInfo.images.length > 0 ? gymInfo.images : [
+                          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+                          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+                          'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+                        ]
+                      }
+                    };
+                  }
+                } catch (error) {
+                  console.warn('初期読み込み画像データ取得エラー:', error);
+                }
+                return {
+                  ...favoriteGym,
+                  gym: {
+                    ...favoriteGym.gym,
+                    images: favoriteGym.gym?.images && favoriteGym.gym.images.length > 0 ? favoriteGym.gym.images : [
+                      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+                      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+                      'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+                    ]
+                  }
+                };
+              })
+            );
+            favoriteGyms = enrichedFavoriteGyms;
+            console.log('🖼️ 初期読み込み - 画像データ統合完了');
+          }
         } catch (error) {
           console.error('❌ 初期読み込み - いきたいデータ取得エラー:', error);
         }
 
         // 実データがある場合は即座に設定
         if (favoriteGyms.length > 0) {
-          console.log('🎯 初期読み込み - 実データを設定:', favoriteGyms.length, '件');
+          console.log('🎯 初期読み込み - 画像データ統合済み実データを設定:', favoriteGyms.length, '件');
           setUserFavoriteGyms(favoriteGyms);
           setHasLoadedFavorites(true); // 実データを設定したらロード完了とマーク
-          console.log('✅ 初期読み込み - 実データ設定完了:', favoriteGyms.length, '件');
+          console.log('✅ 初期読み込み - 画像データ統合済み実データ設定完了:', favoriteGyms.length, '件');
         } else {
           console.log('⚠️ 初期読み込み - 実データが0件のため、サンプルデータは使用しない');
           // サンプルデータは使用せず、空の配列のままにして「いきたい」タブクリック時に再取得
         }
 
-        // マイジムデータを読み込み
-        await loadMyGymData();
+        // マイジムデータを読み込み（エラーを無視）
+        try {
+          await loadMyGymData();
+        } catch (error) {
+          console.warn('マイジムデータ取得をスキップ:', error);
+        }
 
       } catch (error) {
         console.error('プロフィールデータ取得エラー:', error);
@@ -491,7 +536,7 @@ function ProfileContent() {
         clearTimeout(retryTimeout);
       }
     };
-  }, [userId]); // Depend on userId to ensure execution when userId is available
+  }, [userId]); // Dependencies restored to fix 500 errors
 
   // プロフィール編集後の画像更新のためのフォーカスイベントリスナー
   useEffect(() => {
@@ -560,10 +605,57 @@ function ProfileContent() {
       console.log('✅ いきたいタブクリック - データ取得:', favoriteGyms.length, '件');
       console.log('📋 いきたいタブクリック - データ詳細:', favoriteGyms);
 
-      if (favoriteGyms.length > 0) {
-        console.log('🎯 いきたいタブクリック - 実データを設定:', favoriteGyms.length, '件');
-        setUserFavoriteGyms(favoriteGyms);
-        console.log('✅ いきたいタブクリック - 実データ設定完了');
+      // 各ジムに対して最新の画像データを取得して統合
+      const enrichedFavoriteGyms = await Promise.all(
+        favoriteGyms.map(async (favoriteGym) => {
+          try {
+            // APIから最新のジム情報（画像含む）を取得
+            const response = await fetch(`/api/gyms/${favoriteGym.gym_id || favoriteGym.id}`);
+            if (response.ok) {
+              const gymData = await response.json();
+              const gymInfo = gymData.gym;
+
+              // ジム情報に画像データを統合
+              return {
+                ...favoriteGym,
+                gym: {
+                  ...favoriteGym.gym,
+                  images: gymInfo.images && gymInfo.images.length > 0 ? gymInfo.images : [
+                    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+                    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+                    'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+                  ]
+                }
+              };
+            }
+          } catch (error) {
+            console.warn('画像データ取得エラー:', error);
+          }
+
+          // エラーの場合は元のデータにフォールバック画像を適用して返す
+          return {
+            ...favoriteGym,
+            gym: {
+              ...favoriteGym.gym,
+              images: favoriteGym.gym?.images && favoriteGym.gym.images.length > 0 ? favoriteGym.gym.images : [
+                'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&h=600&fit=crop'
+              ]
+            }
+          };
+        })
+      );
+
+      if (enrichedFavoriteGyms.length > 0) {
+        console.log('🎯 いきたいタブクリック - 画像データ統合済み実データを設定:', enrichedFavoriteGyms.length, '件');
+        console.log('🖼️ 画像データ確認:', enrichedFavoriteGyms.map(gym => ({
+          name: gym.gym?.name,
+          images: gym.gym?.images?.length || 0,
+          firstImage: gym.gym?.images?.[0]
+        })));
+        setUserFavoriteGyms(enrichedFavoriteGyms);
+        console.log('✅ いきたいタブクリック - 画像データ統合済み実データ設定完了');
       } else {
         console.log('⚠️ いきたいタブクリック - データが0件');
       }
@@ -608,6 +700,8 @@ function ProfileContent() {
       console.log('✅ マイジムデータ取得完了:', selections);
     } catch (error) {
       console.error('❌ マイジムデータ取得エラー:', error);
+      // エラーの場合は空の状態に設定
+      setMyGymSelections({ primaryGym: null, secondaryGyms: [] });
     }
   };
 
@@ -626,7 +720,11 @@ function ProfileContent() {
       loadFavoritesData(); // お気に入りジム一覧を取得
     } else if (tab === 'my-gyms') {
       console.log('🏋️ マイジムタブが選択されました');
-      loadMyGymData(); // マイジムデータをリフレッシュ
+      try {
+        loadMyGymData(); // マイジムデータをリフレッシュ
+      } catch (error) {
+        console.warn('マイジムデータリフレッシュエラー:', error);
+      }
     }
   };
 
@@ -789,8 +887,9 @@ function ProfileContent() {
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                 {myGymSelections.primaryGym && (
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] rounded-full shadow-sm">
+                    {/* Instagram風 ホームアイコン */}
                     <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                     </svg>
                     <span className="text-xs font-bold text-white">
                       {myGymSelections.primaryGym.name}
@@ -800,9 +899,10 @@ function ProfileContent() {
 
                 {myGymSelections.secondaryGyms.map((gym, index) => (
                   <div key={gym.id} className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-sm">
-                    <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">{index + 1}</span>
-                    </span>
+                    {/* Instagram風 位置アイコン */}
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
                     <span className="text-xs font-bold text-white">
                       {gym.name}
                     </span>
