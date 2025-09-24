@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimiters } from '@/lib/middleware/rateLimit'
+import { logger } from '@/lib/utils/logger'
+import { validateUUIDs } from '@/lib/utils/validation'
 
 // 長期運用を考慮した堅牢な環境変数チェック
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -26,11 +29,17 @@ function createSupabaseServiceClient() {
 }
 
 export async function POST(request: NextRequest) {
+  // レート制限チェック
+  const rateLimitResult = await rateLimiters.api(request)
+  if (rateLimitResult) {
+    return rateLimitResult
+  }
+
   try {
     // 環境変数の検証（ビルド時エラー回避）
     const validation = validateEnvironmentVariables()
     if (!validation.isValid) {
-      console.error('Environment configuration error:', validation.error)
+      logger.error('Environment configuration error:', validation.error)
       return NextResponse.json(
         {
           error: 'Avatar upload service is temporarily unavailable',
@@ -56,6 +65,15 @@ export async function POST(request: NextRequest) {
     if (!file || !userId) {
       return NextResponse.json(
         { error: 'File and userId are required' },
+        { status: 400 }
+      )
+    }
+
+    // UUID検証
+    const uuidError = validateUUIDs({ userId })
+    if (uuidError) {
+      return NextResponse.json(
+        { error: uuidError },
         { status: 400 }
       )
     }
@@ -113,7 +131,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Avatar upload error:', error)
+    logger.error('Avatar upload error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

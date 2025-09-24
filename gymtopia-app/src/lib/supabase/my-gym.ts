@@ -1,5 +1,5 @@
 import { supabase } from './client'
-import type { Gym } from './types'
+import type { Gym } from '@/lib/types/gym'
 
 // ユーザーのジム選択データを取得
 export async function getUserGymSelections(userId: string): Promise<{

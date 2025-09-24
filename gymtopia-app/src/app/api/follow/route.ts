@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimiters } from '@/lib/middleware/rateLimit';
+import { logger } from '@/lib/utils/logger';
+import { validateUUIDs } from '@/lib/utils/validation';
 
 // 環境変数の安全な取得
 function getSupabaseAdmin() {
@@ -7,7 +10,7 @@ function getSupabaseAdmin() {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Missing Supabase environment variables:', {
+    logger.error('Missing Supabase environment variables:', {
       hasUrl: !!supabaseUrl,
       hasKey: !!supabaseServiceKey
     });
@@ -24,21 +27,36 @@ function getSupabaseAdmin() {
 }
 
 export async function POST(request: NextRequest) {
+  // レート制限チェック
+  const rateLimitResult = await rateLimiters.api(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const { followerId, followingId, action } = await request.json();
 
-    console.log('Follow API POST request:', { followerId, followingId, action });
+    logger.log('Follow API POST request:', { followerId, followingId, action });
 
     if (!followerId || !followingId) {
-      console.error('Missing required parameters:', { followerId, followingId });
+      logger.error('Missing required parameters:', { followerId, followingId });
       return NextResponse.json(
         { error: 'フォロワーIDとフォローイングIDが必要です' },
         { status: 400 }
       );
     }
 
+    // UUID検証
+    const uuidError = validateUUIDs({ followerId, followingId });
+    if (uuidError) {
+      return NextResponse.json(
+        { error: uuidError },
+        { status: 400 }
+      );
+    }
+
     if (followerId === followingId) {
-      console.error('Cannot follow self:', { followerId, followingId });
+      logger.error('Cannot follow self:', { followerId, followingId });
       return NextResponse.json(
         { error: '自分自身をフォローすることはできません' },
         { status: 400 }
@@ -48,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Supabase admin client取得
     const supabaseAdmin = getSupabaseAdmin();
     if (!supabaseAdmin) {
-      console.error('Supabase admin client not initialized - missing environment variables');
+      logger.error('Supabase admin client not initialized - missing environment variables');
       return NextResponse.json(
         { error: 'データベース接続に失敗しました' },
         { status: 500 }
@@ -56,56 +74,44 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'follow') {
-      // フォロー処理
-      // 既にフォローしているかチェック
-      const { data: existingFollow } = await supabaseAdmin
-        .from('follows')
-        .select('id')
-        .eq('follower_id', followerId)
-        .eq('following_id', followingId)
-        .single();
-
-      if (existingFollow) {
-        return NextResponse.json(
-          { message: '既にフォローしています', data: existingFollow },
-          { status: 200 }
-        );
-      }
-
-      // フォロー追加
+      // フォロー処理を最適化: upsert を使用して重複チェックと挿入を一回で行う
       const { data, error } = await supabaseAdmin
         .from('follows')
-        .insert({
+        .upsert({
           follower_id: followerId,
           following_id: followingId
+        }, {
+          onConflict: 'follower_id,following_id',
+          ignoreDuplicates: true
         })
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating follow:', error);
+        logger.error('Error creating follow:', error);
         return NextResponse.json(
           { error: 'フォローに失敗しました' },
           { status: 500 }
         );
       }
 
-      // 通知を作成（オプション）
-      try {
-        await supabaseAdmin
-          .from('notifications')
-          .insert({
-            user_id: followingId,
-            type: 'follow',
-            title: '新しいフォロワー',
-            message: 'あなたをフォローしました',
-            related_user_id: followerId,
-            is_read: false
-          });
-      } catch (notificationError) {
-        console.warn('Failed to create notification:', notificationError);
-        // 通知作成に失敗してもフォローは成功とする
-      }
+      // 通知作成を非同期で実行（応答時間を改善）
+      setImmediate(async () => {
+        try {
+          await supabaseAdmin
+            .from('notifications')
+            .insert({
+              user_id: followingId,
+              type: 'follow',
+              title: '新しいフォロワー',
+              message: 'あなたをフォローしました',
+              related_user_id: followerId,
+              is_read: false
+            });
+        } catch (notificationError) {
+          logger.warn('Failed to create notification:', notificationError);
+        }
+      });
 
       return NextResponse.json(
         { message: 'フォローしました', data },
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
         .eq('following_id', followingId);
 
       if (error) {
-        console.error('Error unfollowing:', error);
+        logger.error('Error unfollowing:', error);
         return NextResponse.json(
           { error: 'アンフォローに失敗しました' },
           { status: 500 }
@@ -141,7 +147,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Follow API error:', error);
+    logger.error('Follow API error:', error);
     return NextResponse.json(
       { error: 'サーバーエラーが発生しました' },
       { status: 500 }
@@ -150,6 +156,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // レート制限チェック
+  const rateLimitResult = await rateLimiters.api(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const followerId = searchParams.get('followerId');
@@ -162,10 +174,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // UUID検証
+    const uuidError = validateUUIDs({ followerId, followingId });
+    if (uuidError) {
+      return NextResponse.json(
+        { error: uuidError },
+        { status: 400 }
+      );
+    }
+
     // Supabase admin client取得
     const supabaseAdmin = getSupabaseAdmin();
     if (!supabaseAdmin) {
-      console.error('Supabase admin client not initialized - missing environment variables');
+      logger.error('Supabase admin client not initialized - missing environment variables');
       return NextResponse.json(
         { error: 'データベース接続に失敗しました' },
         { status: 500 }
@@ -181,7 +202,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error checking follow status:', error);
+      logger.error('Error checking follow status:', error);
       return NextResponse.json(
         { error: 'フォロー状態の確認に失敗しました' },
         { status: 500 }
@@ -194,7 +215,7 @@ export async function GET(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Follow check API error:', error);
+    logger.error('Follow check API error:', error);
     return NextResponse.json(
       { error: 'サーバーエラーが発生しました' },
       { status: 500 }

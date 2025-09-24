@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, Suspense } from 'react';
+import { logger } from '@/lib/utils/logger';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -115,14 +116,14 @@ function ProfileContent() {
   // 🚀 強制的に実データを取得して設定する関数 - v2
   const forceLoadRealFavorites = async () => {
     const targetUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-    console.log('🔥🔥🔥 強制実データ取得開始 🔥🔥🔥', targetUserId);
+    logger.debug('🔥🔥🔥 強制実データ取得開始 🔥🔥🔥', targetUserId);
     try {
       const realData = await getFavoriteGyms(targetUserId);
-      console.log('✅ 強制取得結果:', realData.length, '件');
-      console.log('📋 強制取得データ詳細:', realData);
+      logger.debug('✅ 強制取得結果:', realData.length, '件');
+      logger.debug('📋 強制取得データ詳細:', realData);
       if (realData.length > 0) {
         setUserFavoriteGyms(realData);
-        console.log('🎯 強制実データ設定完了:', realData.length, '件');
+        logger.debug('🎯 強制実データ設定完了:', realData.length, '件');
       }
     } catch (error) {
       console.error('❌ 強制実データ取得エラー:', error);
@@ -131,7 +132,7 @@ function ProfileContent() {
 
   // コンポーネント初期化時に即座に実行
   useEffect(() => {
-    console.log('🚀🚀🚀 forceLoadRealFavorites用useEffect実行！🚀🚀🚀');
+    logger.debug('🚀🚀🚀 forceLoadRealFavorites用useEffect実行！🚀🚀🚀');
     forceLoadRealFavorites();
   }, []);
   const [expandedTraining, setExpandedTraining] = useState<Set<string>>(new Set());
@@ -189,22 +190,22 @@ function ProfileContent() {
   // 🚀 強制的に実データを取得して設定する関数を最初に定義
   const forceLoadRealFavoritesInline = async () => {
     const targetUserId = '8ac9e2a5-a702-4d04-b871-21e4a423b4ac';
-    console.log('🔥🔥🔥 インライン強制実データ取得開始 🔥🔥🔥', targetUserId);
+    logger.debug('🔥🔥🔥 インライン強制実データ取得開始 🔥🔥🔥', targetUserId);
     try {
       const realData = await getFavoriteGyms(targetUserId);
-      console.log('✅ インライン強制取得結果:', realData.length, '件');
-      console.log('📋 インライン強制取得データ詳細:', realData);
+      logger.debug('✅ インライン強制取得結果:', realData.length, '件');
+      logger.debug('📋 インライン強制取得データ詳細:', realData);
       if (realData.length > 0) {
         setUserFavoriteGyms(realData);
-        console.log('🎯 インライン強制実データ設定完了:', realData.length, '件');
+        logger.debug('🎯 インライン強制実データ設定完了:', realData.length, '件');
       }
     } catch (error) {
       console.error('❌ インライン強制実データ取得エラー:', error);
     }
   };
 
-  console.log('💡💡💡 コンポーネント再レンダリング 💡💡💡');
-  console.log('📊 現在の状態:', {
+  logger.debug('💡💡💡 コンポーネント再レンダリング 💡💡💡');
+  logger.debug('📊 現在の状態:', {
     user: user,
     userId: userId,
     isLoading: isLoading,
@@ -216,14 +217,14 @@ function ProfileContent() {
   // レンダリング中の直接呼び出しを削除（useEffect内で処理）
 
   // Debug log
-  console.log('🐛 ProfilePage Debug:', { user, userId, isLoading });
+  logger.debug('🐛 ProfilePage Debug:', { user, userId, isLoading });
 
   // Add debug log right before useEffect
-  console.log('🚀 About to define useEffect...');
+  logger.debug('🚀 About to define useEffect...');
 
   useEffect(() => {
-    console.log('🔥🔥🔥 useEffect実行開始 - 初期状態チェック 🔥🔥🔥');
-    console.log('📊 初期状態:', {
+    logger.debug('🔥🔥🔥 useEffect実行開始 - 初期状態チェック 🔥🔥🔥');
+    logger.debug('📊 初期状態:', {
       hasLoadedData: hasLoadedData.current,
       isLoadingData: isLoadingData.current,
       userId: userId,
@@ -232,11 +233,11 @@ function ProfileContent() {
 
     // Prevent duplicate loading - デバッグ時は強制実行
     if (hasLoadedData.current || isLoadingData.current) {
-      console.log('⏭️ 重複ロードを防止（デバッグ時は無視）');
+      logger.debug('⏭️ 重複ロードを防止（デバッグ時は無視）');
       // return; // デバッグ時はコメントアウト
     }
 
-    console.log('📋 useEffect triggered with:', {
+    logger.debug('📋 useEffect triggered with:', {
       isLoadingData: isLoadingData.current,
       hasLoadedData: hasLoadedData.current,
       user,
@@ -244,11 +245,11 @@ function ProfileContent() {
     });
 
     // For debugging: Always proceed regardless of user state
-    console.log('🔧 DEBUG: Always proceeding with data load for debugging');
-    console.log('⚠️ Auth context state:', { user, userId });
+    logger.debug('🔧 DEBUG: Always proceeding with data load for debugging');
+    logger.debug('⚠️ Auth context state:', { user, userId });
 
     // Fetch real data from database
-    console.log('📱 Fetching real user data from database...', { user, userId });
+    logger.debug('📱 Fetching real user data from database...', { user, userId });
 
     let isActive = true;
     let retryCount = 0;
@@ -256,15 +257,15 @@ function ProfileContent() {
     const maxRetries = 3;
 
     async function loadProfileData() {
-      console.log('🚀🚀🚀 loadProfileData関数実行開始 🚀🚀🚀');
-      console.log('📊 loadProfileData内の状態:', {
+      logger.debug('🚀🚀🚀 loadProfileData関数実行開始 🚀🚀🚀');
+      logger.debug('📊 loadProfileData内の状態:', {
         isActive: isActive,
         userId: userId,
         userIdExists: !!userId
       });
 
       if (!isActive || !userId) {
-        console.log('⏭️ loadProfileData早期リターン:', { isActive, userId: !!userId });
+        logger.debug('⏭️ loadProfileData早期リターン:', { isActive, userId: !!userId });
         // return; // デバッグ時はコメントアウト
       }
 
@@ -272,11 +273,11 @@ function ProfileContent() {
       isLoadingData.current = true;
 
       try {
-        console.log('🔄 データベースから実際のデータを取得中...', userId);
+        logger.debug('🔄 データベースから実際のデータを取得中...', userId);
         setIsLoading(true);
 
         // 段階的ローディング: 重要なデータを優先的に読み込み
-        console.log('🚀 最重要データを優先読み込み...');
+        logger.debug('🚀 最重要データを優先読み込み...');
 
         // Phase 1: ユーザーの基本情報とプロフィール統計（最重要）
         let profileStats = await getUserProfileStats(userId, true).catch((error) => {
@@ -309,7 +310,7 @@ function ProfileContent() {
 
         // Phase 1結果を即座にUIに反映（最初の表示を高速化）
         setProfileData(profileStats);
-        console.log('✅ プロフィール基本情報 読み込み完了');
+        logger.debug('✅ プロフィール基本情報 読み込み完了');
 
         // 基本情報が取得できたらローディングを停止
         setIsLoading(false);
@@ -336,7 +337,7 @@ function ProfileContent() {
           } as WeeklyStats;
         }
         setWeeklyStats(weeklyData);
-        console.log('✅ 週間統計 読み込み完了');
+        logger.debug('✅ 週間統計 読み込み完了');
 
         // Phase 3: 投稿データ（表示される可能性が高い）
         let posts = await getUserPosts(userId, 1, POSTS_PER_PAGE).catch((error) => {
@@ -348,13 +349,13 @@ function ProfileContent() {
           console.warn('⚠️ 投稿データが取得できませんでした。');
         }
         setUserPosts(posts);
-        console.log('✅ 投稿データ 読み込み完了');
+        logger.debug('✅ 投稿データ 読み込み完了');
 
 
         // メインローディング終了（ここで画面が使える状態に）
         hasLoadedData.current = true;
         isLoadingData.current = false;
-        console.log('🎉 メインローディング完了！');
+        logger.debug('🎉 メインローディング完了！');
 
         // Phase 4: 週間統計（達成記録タブで使用）のみ先に取得
         // 他のデータは各タブをクリックした時に取得する
@@ -366,12 +367,12 @@ function ProfileContent() {
         // 旧式のprimary_gym_idは使用せず、user_primary_gymsテーブルを使用
 
         // ユニークなジム数を計算（トピア開拓）- 新しいgetVisitedGyms関数を使用
-        console.log('🔍 トピア開拓データ取得開始 - userId:', userId);
+        logger.debug('🔍 トピア開拓データ取得開始 - userId:', userId);
         try {
           const visitedGymsForCount = await getVisitedGyms(userId);
           const gymsCount = visitedGymsForCount.length;
-          console.log('✅ 開拓済みジム数:', gymsCount);
-          console.log('🎯 setUniqueGymsCount呼び出し - 値:', gymsCount);
+          logger.debug('✅ 開拓済みジム数:', gymsCount);
+          logger.debug('🎯 setUniqueGymsCount呼び出し - 値:', gymsCount);
           setUniqueGymsCount(gymsCount);
         } catch (error) {
           console.error('❌ トピア開拓データ取得エラー:', error);
@@ -380,10 +381,10 @@ function ProfileContent() {
 
         if (!isActive) return;
 
-        console.log('📊 データベースから取得したプロフィール:', profileStats);
-        console.log('📝 投稿数:', posts?.length || 0);
-        console.log('❤️ お気に入りジム数:', 0); // favoriteGymsはまだ取得されていない
-        console.log('🏋️ トピア開拓（訪問ジム数）:', uniqueGymsCount);
+        logger.debug('📊 データベースから取得したプロフィール:', profileStats);
+        logger.debug('📝 投稿数:', posts?.length || 0);
+        logger.debug('❤️ お気に入りジム数:', 0); // favoriteGymsはまだ取得されていない
+        logger.debug('🏋️ トピア開拓（訪問ジム数）:', uniqueGymsCount);
 
         // データベースから取得したデータを設定
         setProfileData(profileStats);
@@ -441,10 +442,10 @@ function ProfileContent() {
         // 実際のユーザーのいきたいデータを取得
         let favoriteGyms: FavoriteGym[] = [];
         try {
-          console.log('🔍 初期読み込み - いきたいデータ取得開始 - ユーザーID:', userId);
+          logger.debug('🔍 初期読み込み - いきたいデータ取得開始 - ユーザーID:', userId);
           favoriteGyms = await getFavoriteGyms(userId);
-          console.log('✅ 初期読み込み - ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
-          console.log('📋 初期読み込み - 取得したいきたいデータ:', favoriteGyms);
+          logger.debug('✅ 初期読み込み - ユーザーのいきたいデータを取得:', favoriteGyms.length, '件');
+          logger.debug('📋 初期読み込み - 取得したいきたいデータ:', favoriteGyms);
 
           // 画像データを統合
           if (favoriteGyms.length > 0) {
@@ -484,7 +485,7 @@ function ProfileContent() {
               })
             );
             favoriteGyms = enrichedFavoriteGyms;
-            console.log('🖼️ 初期読み込み - 画像データ統合完了');
+            logger.debug('🖼️ 初期読み込み - 画像データ統合完了');
           }
         } catch (error) {
           console.error('❌ 初期読み込み - いきたいデータ取得エラー:', error);
@@ -492,12 +493,12 @@ function ProfileContent() {
 
         // 実データがある場合は即座に設定
         if (favoriteGyms.length > 0) {
-          console.log('🎯 初期読み込み - 画像データ統合済み実データを設定:', favoriteGyms.length, '件');
+          logger.debug('🎯 初期読み込み - 画像データ統合済み実データを設定:', favoriteGyms.length, '件');
           setUserFavoriteGyms(favoriteGyms);
           setHasLoadedFavorites(true); // 実データを設定したらロード完了とマーク
-          console.log('✅ 初期読み込み - 画像データ統合済み実データ設定完了:', favoriteGyms.length, '件');
+          logger.debug('✅ 初期読み込み - 画像データ統合済み実データ設定完了:', favoriteGyms.length, '件');
         } else {
-          console.log('⚠️ 初期読み込み - 実データが0件のため、サンプルデータは使用しない');
+          logger.debug('⚠️ 初期読み込み - 実データが0件のため、サンプルデータは使用しない');
           // サンプルデータは使用せず、空の配列のままにして「いきたい」タブクリック時に再取得
         }
 
@@ -512,7 +513,7 @@ function ProfileContent() {
         console.error('プロフィールデータ取得エラー:', error);
         if (retryCount < maxRetries && isActive) {
           retryCount++;
-          console.log(`🔄 リトライ中 (${retryCount}/${maxRetries})`);
+          logger.debug(`🔄 リトライ中 (${retryCount}/${maxRetries})`);
           isLoadingData.current = false; // Reset loading flag before retry
           retryTimeout = setTimeout(loadProfileData, 1000);
           return;
@@ -541,7 +542,7 @@ function ProfileContent() {
   // プロフィール編集後の画像更新のためのフォーカスイベントリスナー
   useEffect(() => {
     const handleFocus = () => {
-      console.log('🔄 Page gained focus, forcing profile refresh...');
+      logger.debug('🔄 Page gained focus, forcing profile refresh...');
       hasLoadedData.current = false;
       isLoadingData.current = false;
       setRefreshKey(prev => prev + 1);
@@ -554,7 +555,7 @@ function ProfileContent() {
   useEffect(() => {
     const refreshParam = searchParams.get('refresh');
     if (refreshParam) {
-      console.log('🔄 Refresh parameter detected, clearing cache and reloading data...');
+      logger.debug('🔄 Refresh parameter detected, clearing cache and reloading data...');
       hasLoadedData.current = false;
       isLoadingData.current = false;
       setRefreshKey(prev => prev + 1);
@@ -571,7 +572,7 @@ function ProfileContent() {
 
     setIsLoadingAchievements(true);
     try {
-      console.log('📊 達成記録データを取得中...');
+      logger.debug('📊 達成記録データを取得中...');
 
       const [achievements, personalRecords] = await Promise.all([
         getUserAchievements(userId).catch(() => []),
@@ -582,7 +583,7 @@ function ProfileContent() {
       setUserPersonalRecords(personalRecords);
       setHasLoadedAchievements(true);
 
-      console.log('✅ 達成記録データ取得完了');
+      logger.debug('✅ 達成記録データ取得完了');
     } catch (error) {
       console.error('達成記録データ取得エラー:', error);
     } finally {
@@ -594,16 +595,16 @@ function ProfileContent() {
   const loadFavoritesData = async () => {
     if (isLoadingFavorites || !userId) return;
 
-    console.log('🔍 いきたいタブクリック - データ取得開始 - ユーザーID:', userId);
-    console.log('🔍 現在のhasLoadedFavorites:', hasLoadedFavorites);
-    console.log('🔍 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
+    logger.debug('🔍 いきたいタブクリック - データ取得開始 - ユーザーID:', userId);
+    logger.debug('🔍 現在のhasLoadedFavorites:', hasLoadedFavorites);
+    logger.debug('🔍 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
 
     setIsLoadingFavorites(true);
 
     try {
       const favoriteGyms = await getFavoriteGyms(userId);
-      console.log('✅ いきたいタブクリック - データ取得:', favoriteGyms.length, '件');
-      console.log('📋 いきたいタブクリック - データ詳細:', favoriteGyms);
+      logger.debug('✅ いきたいタブクリック - データ取得:', favoriteGyms.length, '件');
+      logger.debug('📋 いきたいタブクリック - データ詳細:', favoriteGyms);
 
       // 各ジムに対して最新の画像データを取得して統合
       const enrichedFavoriteGyms = await Promise.all(
@@ -648,16 +649,16 @@ function ProfileContent() {
       );
 
       if (enrichedFavoriteGyms.length > 0) {
-        console.log('🎯 いきたいタブクリック - 画像データ統合済み実データを設定:', enrichedFavoriteGyms.length, '件');
-        console.log('🖼️ 画像データ確認:', enrichedFavoriteGyms.map(gym => ({
+        logger.debug('🎯 いきたいタブクリック - 画像データ統合済み実データを設定:', enrichedFavoriteGyms.length, '件');
+        logger.debug('🖼️ 画像データ確認:', enrichedFavoriteGyms.map(gym => ({
           name: gym.gym?.name,
           images: gym.gym?.images?.length || 0,
           firstImage: gym.gym?.images?.[0]
         })));
         setUserFavoriteGyms(enrichedFavoriteGyms);
-        console.log('✅ いきたいタブクリック - 画像データ統合済み実データ設定完了');
+        logger.debug('✅ いきたいタブクリック - 画像データ統合済み実データ設定完了');
       } else {
-        console.log('⚠️ いきたいタブクリック - データが0件');
+        logger.debug('⚠️ いきたいタブクリック - データが0件');
       }
 
       setHasLoadedFavorites(true);
@@ -674,14 +675,14 @@ function ProfileContent() {
 
     setIsLoadingMyTopia(true);
     try {
-      console.log('🏆 マイトピアデータ取得開始:', userId);
+      logger.debug('🏆 マイトピアデータ取得開始:', userId);
 
       // 新しいgetVisitedGyms関数を使用してチェックイン+投稿済みジムを取得
       const visitedGymsList = await getVisitedGyms(userId);
 
       setVisitedGyms(visitedGymsList);
       setHasLoadedMyTopia(true);
-      console.log('✅ マイトピアデータ取得完了:', visitedGymsList.length, '軒');
+      logger.debug('✅ マイトピアデータ取得完了:', visitedGymsList.length, '軒');
     } catch (error) {
       console.error('❌ マイトピアデータ取得エラー:', error);
     } finally {
@@ -694,10 +695,10 @@ function ProfileContent() {
     if (!userId) return;
 
     try {
-      console.log('🏋️ マイジムデータ取得開始:', userId);
+      logger.debug('🏋️ マイジムデータ取得開始:', userId);
       const selections = await getUserGymSelections(userId);
       setMyGymSelections(selections);
-      console.log('✅ マイジムデータ取得完了:', selections);
+      logger.debug('✅ マイジムデータ取得完了:', selections);
     } catch (error) {
       console.error('❌ マイジムデータ取得エラー:', error);
       // エラーの場合は空の状態に設定
@@ -708,18 +709,18 @@ function ProfileContent() {
 
   // タブ切り替え時の処理
   const handleTabChange = (tab: string) => {
-    console.log('🔥 タブ切り替え:', tab, 'hasLoadedFavorites:', hasLoadedFavorites);
-    console.log('🔥 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
+    logger.debug('🔥 タブ切り替え:', tab, 'hasLoadedFavorites:', hasLoadedFavorites);
+    logger.debug('🔥 現在のuserFavoriteGymsの件数:', userFavoriteGyms.length);
     setActiveTab(tab);
 
     // 各タブに応じて必要なデータを遅延ロード
     if (tab === 'achievements' && !hasLoadedAchievements) {
       loadAchievementsData();
     } else if (tab === 'my-topia') {
-      console.log('❤️ マイトピアタブが選択されました - お気に入りジムを表示');
+      logger.debug('❤️ マイトピアタブが選択されました - お気に入りジムを表示');
       loadFavoritesData(); // お気に入りジム一覧を取得
     } else if (tab === 'my-gyms') {
-      console.log('🏋️ マイジムタブが選択されました');
+      logger.debug('🏋️ マイジムタブが選択されました');
       try {
         loadMyGymData(); // マイジムデータをリフレッシュ
       } catch (error) {
@@ -794,7 +795,7 @@ function ProfileContent() {
     setIsLoadingMorePosts(true);
     try {
       const nextPage = currentPostPage + 1;
-      console.log('Loading more posts, page:', nextPage);
+      logger.debug('Loading more posts, page:', nextPage);
 
       const morePosts = await getUserPosts(userId, nextPage, POSTS_PER_PAGE);
 
