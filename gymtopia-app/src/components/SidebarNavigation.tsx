@@ -2,43 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, FileSearch, Activity, User, CheckCircle } from 'lucide-react'
+import { NAVIGATION_ITEMS, checkIsActive } from '@/constants/navigation'
 
 export default function SidebarNavigation() {
   const pathname = usePathname()
 
-  const navItems = [
-    {
-      href: '/',
-      icon: MapPin,
-      label: 'ジムを探す',
-      isActive: pathname === '/'
-    },
-    {
-      href: '/search/results',
-      icon: FileSearch,
-      label: '検索結果',
-      isActive: pathname === '/search/results' || pathname === '/search'
-    },
-    {
-      href: '/checkin',
-      icon: CheckCircle,
-      label: 'チェックイン',
-      isActive: pathname === '/checkin'
-    },
-    {
-      href: '/feed',
-      icon: Activity,
-      label: 'フィード',
-      isActive: pathname === '/feed'
-    },
-    {
-      href: '/profile',
-      icon: User,
-      label: 'プロフィール',
-      isActive: pathname === '/profile'
-    },
-  ]
+  const navItems = NAVIGATION_ITEMS.map((item) => ({
+    ...item,
+    icon: item.iconDesktop || item.icon, // デスクトップ版アイコンがあれば使用
+    isActive: checkIsActive(pathname, item.href, item.matchPaths),
+  }))
 
   return (
     <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border-r border-[rgba(231,103,76,0.18)] z-[60] flex-col py-6">

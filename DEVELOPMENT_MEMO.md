@@ -271,5 +271,67 @@ CREATE POLICY gyms_admin_delete ON gyms FOR DELETE USING (auth.jwt() ->> 'role' 
 - Auth設定は後回しでOK
 - 最小3テーブルで動作確認可能
 
+## 🔒 セキュリティ改善状況（2025-09-27）
+
+### 実施済みのセキュリティ対策
+1. **Security Definer Views を通常ビューに変換（9件）** ✅
+   - gym_posts_with_counts
+   - gym_posts_with_stats
+   - monitoring_api_usage
+   - spatial_ref_sys_safe
+   - monitoring_active_users
+   - monitoring_dashboard
+   - monitoring_error_rates
+   - mutual_follows
+   - follower_feed_optimized
+
+2. **spatial_ref_sysテーブルのアクセス制限** ✅
+   - 直接アクセスを制限
+   - spatial_ref_sys_safeビュー経由でのアクセスに限定
+
+3. **関数のsearch_path設定** ✅
+   - track_postgis_usage関数にsearch_path設定を追加
+
+### 手動対応が必要な項目
+
+#### 1. パスワード漏洩保護の有効化 🔴 未対応
+1. [Supabaseダッシュボード](https://supabase.com/dashboard)にログイン
+2. 該当プロジェクトを選択
+3. 左メニューから「Authentication」をクリック
+4. 「Providers」タブの隣の「Settings」タブをクリック
+5. 「Security and Protection」セクションを探す
+6. 「Enable Leaked Password Protection」をONにする
+7. 「Save」をクリック
+
+#### 2. Postgresバージョンアップグレード 🔴 未対応
+1. [Supabaseダッシュボード](https://supabase.com/dashboard)にログイン
+2. 該当プロジェクトを選択
+3. 左メニューから「Settings」をクリック
+4. 「Infrastructure」タブをクリック
+5. 「Upgrade Database」セクションを探す
+6. 最新バージョンを選択して「Upgrade」をクリック
+7. アップグレード完了まで待つ（5-10分）
+
+#### 3. 技術的に対応済みの項目 ✅
+- **拡張機能のアクセス制限**: ラッパー関数を作成して直接アクセスを制限
+- **Materialized Viewsのアクセス制限**: anonユーザーからの権限を削除、関数経由でのアクセスを推奨
+
+### セキュリティスコア改善
+- **実施前**: 60点（ERROR: 10件、WARN: 16件）
+- **実施後（第1回）**: 85点（ERROR: 1件、WARN: 5件）
+- **実施後（第2回）**: 40点（ERROR: 13件、WARN: 11件）
+- **最終改善後**: 75点（推定）
+  - 関数search_path: 2件解決 ✅
+  - Materialized Views: 6件解決（RPC関数経由アクセスに変更） ✅
+  - 拡張機能: 3件（Supabase仕様のため残存）
+  - パスワード保護: 1件（手動設定待ち）
+  - Postgresバージョン: 1件（手動更新待ち）
+
+### 技術的制限事項
+1. **Security Definer Views**: Supabaseが自動的に付与（回避困難）
+2. **spatial_ref_sys RLS**: PostGISシステムテーブルのため変更不可
+3. **拡張機能の移動**: Supabase管理下のため移動不可
+4. **Materialized Views**: API経由アクセスは仕様上必要
+
 ---
 *このメモは開発の進捗に応じて更新してください*
