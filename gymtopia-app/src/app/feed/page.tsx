@@ -420,7 +420,7 @@ export default function FeedPage() {
 
 
   return (
-    <div className="min-h-screen pb-20 relative">
+    <div className="relative">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(210deg,rgba(231,103,76,0.08),transparent_82%),radial-gradient(circle_at_16%_20%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_84%_14%,rgba(245,177,143,0.12),transparent_74%)]" />
         <div className="absolute -top-24 left-[14%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.32),transparent_72%)] blur-[150px] opacity-68" />

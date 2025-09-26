@@ -411,7 +411,7 @@ function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-20 relative overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(231,103,76,0.08),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_18%,rgba(245,177,143,0.12),transparent_76%)]" />
           <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />
@@ -430,7 +430,7 @@ function UserProfilePage() {
 
   if (error || !userProfile) {
     return (
-      <div className="min-h-screen pb-20 relative overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(231,103,76,0.08),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_18%,rgba(245,177,143,0.12),transparent_76%)]" />
           <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />
@@ -453,7 +453,7 @@ function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(231,103,76,0.08),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_18%,rgba(245,177,143,0.12),transparent_76%)]" />
         <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />

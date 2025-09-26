@@ -95,7 +95,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(198deg,rgba(231,103,76,0.08),transparent_82%),radial-gradient(circle_at_18%_20%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_12%,rgba(245,177,143,0.12),transparent_74%)]" />
         <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.22),transparent_70%)] blur-[140px] opacity-70" />

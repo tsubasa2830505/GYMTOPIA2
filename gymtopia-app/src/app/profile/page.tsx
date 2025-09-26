@@ -815,7 +815,7 @@ function ProfileContent() {
   };
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(200deg,rgba(231,103,76,0.08),transparent_84%),radial-gradient(circle_at_18%_22%,rgba(240,142,111,0.14),transparent_68%),radial-gradient(circle_at_86%_18%,rgba(245,177,143,0.12),transparent_76%)]" />
         <div className="absolute -top-28 right-16 h-88 w-88 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.34),transparent_72%)] blur-[160px] opacity-72" />
@@ -1324,7 +1324,7 @@ function ProfileContent() {
 export default function ProfilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[color:var(--bg-primary)] flex items-center justify-center">
+      <div className="bg-[color:var(--bg-primary)] flex items-center justify-center min-h-[80vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[color:var(--gt-primary-strong)] mx-auto mb-4"></div>
           <p className="text-[color:var(--text-muted)]">読み込み中...</p>

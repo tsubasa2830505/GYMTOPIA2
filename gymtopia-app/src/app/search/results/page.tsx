@@ -475,8 +475,17 @@ function SearchResultsContent() {
           setUserLocation(location);
         },
         (error) => {
-          console.error('❌ 位置情報取得エラー:', error);
-          console.error('エラーコード:', error.code, 'メッセージ:', error.message);
+          // 位置情報エラーの詳細ログ（開発環境でのデバッグ用）
+          if (process.env.NODE_ENV === 'development') {
+            const errorMessages: { [key: number]: string } = {
+              1: 'PERMISSION_DENIED: 位置情報の許可が拒否されました',
+              2: 'POSITION_UNAVAILABLE: 位置情報が利用できません',
+              3: 'TIMEOUT: 位置情報の取得がタイムアウトしました'
+            };
+
+            console.log('📍 位置情報取得スキップ:', errorMessages[error.code] || `不明なエラー (code: ${error.code})`);
+            console.log('💡 ヒント: 位置情報を許可すると、現在地から近いジムを表示できます');
+          }
           // Don't set default location - let user see actual position
           // Users can still use the map without location permission
         },

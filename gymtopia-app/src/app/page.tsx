@@ -65,7 +65,7 @@ export default function Home() {
   const hasAnySelection = () => totalSelections > 0
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.26),transparent_68%)] blur-3xl opacity-70" />
       <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(240,142,111,0.2),transparent_70%)] blur-3xl opacity-65" />
 
