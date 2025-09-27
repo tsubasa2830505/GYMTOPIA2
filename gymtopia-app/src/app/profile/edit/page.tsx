@@ -41,6 +41,7 @@ export default function ProfileEditPage() {
 
   // Privacy Settings
   const [gymActivityPrivate, setGymActivityPrivate] = useState(false)
+  const [isPrivateAccount, setIsPrivateAccount] = useState(false)
   const [showStatsPublic, setShowStatsPublic] = useState(true)
   const [showAchievementsPublic, setShowAchievementsPublic] = useState(true)
   const [showFavoriteGymsPublic, setShowFavoriteGymsPublic] = useState(true)
@@ -106,6 +107,7 @@ export default function ProfileEditPage() {
       setAvatarUrl(data.avatar_url || '')
       // プライバシー設定を取得
       setGymActivityPrivate(data.gym_activity_private || false)
+      setIsPrivateAccount(data.is_private || false)
       setShowStatsPublic(data.show_stats_public !== false)
       setShowAchievementsPublic(data.show_achievements_public !== false)
       setShowFavoriteGymsPublic(data.show_favorite_gyms_public !== false)
@@ -371,6 +373,7 @@ export default function ProfileEditPage() {
               bio: bio,
               avatar_url: uploadedAvatarUrl,
               gym_activity_private: gymActivityPrivate,
+              is_private: isPrivateAccount,
               show_stats_public: showStatsPublic,
               show_achievements_public: showAchievementsPublic,
               show_favorite_gyms_public: showFavoriteGymsPublic,
@@ -400,6 +403,7 @@ export default function ProfileEditPage() {
               bio: bio,
               avatar_url: uploadedAvatarUrl,
               gym_activity_private: gymActivityPrivate,
+              is_private: isPrivateAccount,
               show_stats_public: showStatsPublic,
               show_achievements_public: showAchievementsPublic,
               show_favorite_gyms_public: showFavoriteGymsPublic,
@@ -711,90 +715,6 @@ export default function ProfileEditPage() {
             </div>
           </div>
 
-          {/* パーソナルレコード */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-[color:var(--foreground)] flex items-center gap-2">
-                <Dumbbell className="w-4 h-4" />
-                パーソナルレコード
-              </h3>
-              {!showRecordForm && (
-                <button
-                  onClick={() => setShowRecordForm(true)}
-                  className="px-3 py-1 bg-[rgba(231,103,76,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg text-sm font-medium hover:bg-[rgba(231,103,76,0.22)] transition-colors flex items-center gap-1"
-                >
-                  <Plus className="w-3 h-3" />
-                  追加
-                </button>
-              )}
-            </div>
-
-            {/* 既存のレコード */}
-            <div className="space-y-2 mb-4">
-              {personalRecords.map((record) => (
-                <div key={record.id} className="flex items-center justify-between p-3 bg-[rgba(254,255,250,0.95)] rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-[color:var(--foreground)]">{record.exercise}</p>
-                    <p className="text-sm text-[color:var(--text-subtle)]">
-                      {record.weight}kg × {record.reps}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveRecord(record.id)}
-                    className="p-2 text-[color:var(--gt-primary)] hover:bg-[rgba(224,112,122,0.12)] rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* レコード追加フォーム */}
-            {showRecordForm && (
-              <div className="space-y-3 p-4 bg-[rgba(254,255,250,0.95)] rounded-lg">
-                <input
-                  type="text"
-                  placeholder="種目名（例：ベンチプレス）"
-                  value={newRecord.exercise}
-                  onChange={(e) => setNewRecord({ ...newRecord, exercise: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="重量(kg)"
-                    value={newRecord.weight}
-                    onChange={(e) => setNewRecord({ ...newRecord, weight: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="回数（例：5回×3セット）"
-                    value={newRecord.reps}
-                    onChange={(e) => setNewRecord({ ...newRecord, reps: e.target.value })}
-                    className="px-3 py-2 bg-white border-2 border-[rgba(231,103,76,0.18)] focus:border-[color:var(--gt-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gt-primary)] text-sm"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleAddRecord}
-                    className="flex-1 px-3 py-2 bg-[color:var(--gt-primary)] text-white rounded-lg text-sm font-medium hover:bg-[color:var(--gt-primary-strong)] transition-colors"
-                  >
-                    追加
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowRecordForm(false)
-                      setNewRecord({ id: '', exercise: '', weight: '', reps: '' })
-                    }}
-                    className="flex-1 px-3 py-2 bg-[rgba(231,103,76,0.12)] text-[color:var(--foreground)] rounded-lg text-sm font-medium hover:bg-[rgba(254,255,250,0.82)] transition-colors"
-                  >
-                    キャンセル
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* トレーニング設定 */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -867,6 +787,32 @@ export default function ProfileEditPage() {
             </h3>
 
             <div className="space-y-4">
+              {/* 非公開アカウント設定 */}
+              <div className={`p-4 rounded-lg border ${isPrivateAccount ? 'bg-[rgba(224,112,122,0.12)] border-[rgba(231,103,76,0.26)]' : 'bg-[rgba(254,255,250,0.95)] border-[rgba(231,103,76,0.16)]'}`}>
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    {isPrivateAccount ? <Lock className="w-5 h-5 text-[color:var(--gt-primary)]" /> : <Eye className="w-5 h-5 text-[color:var(--gt-secondary)]" />}
+                    <div>
+                      <span className="text-sm font-medium text-[color:var(--foreground)]">非公開アカウント</span>
+                      <p className="text-xs text-[color:var(--text-subtle)] mt-1">
+                        有効にすると、フォローリクエストの承認が必要になります
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPrivateAccount(!isPrivateAccount)}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      isPrivateAccount ? 'bg-[color:var(--gt-primary-strong)]' : 'bg-[rgba(223,233,255,0.9)]'
+                    }`}
+                  >
+                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                      isPrivateAccount ? 'translate-x-6' : ''
+                    }`} />
+                  </button>
+                </label>
+              </div>
+
               {/* ジム活動全体の非公開設定 */}
               <div className={`p-4 rounded-lg border ${gymActivityPrivate ? 'bg-[rgba(224,112,122,0.12)] border-[rgba(231,103,76,0.26)]' : 'bg-[rgba(254,255,250,0.95)] border-[rgba(231,103,76,0.16)]'}`}>
                 <label className="flex items-center justify-between cursor-pointer">
@@ -959,6 +905,18 @@ export default function ProfileEditPage() {
                     </button>
                   </label>
                 </>
+              )}
+
+              {/* フォローリクエスト管理（非公開アカウントの場合のみ） */}
+              {isPrivateAccount && (
+                <div className="pt-4 border-t border-[rgba(231,103,76,0.18)]">
+                  <button
+                    onClick={() => router.push('/profile/follow-requests')}
+                    className="w-full px-4 py-3 bg-[rgba(231,103,76,0.14)] text-[color:var(--gt-primary-strong)] rounded-lg font-medium hover:bg-[rgba(231,103,76,0.22)] transition-colors"
+                  >
+                    フォローリクエストを管理
+                  </button>
+                </div>
               )}
 
               {gymActivityPrivate && (

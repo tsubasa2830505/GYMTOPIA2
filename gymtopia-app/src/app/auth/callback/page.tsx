@@ -1,20 +1,25 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // URLからコードとエラーを取得
-        const params = new URLSearchParams(window.location.search)
-        const code = params.get('code')
-        const error_description = params.get('error_description')
-        
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+
+        // URLからcodeとerror_descriptionを取得
+        const code = searchParams.get('code')
+        const error_description = searchParams.get('error_description')
+
         if (error_description) {
           console.error('OAuth error:', error_description)
           router.push('/auth/login')
@@ -22,9 +27,9 @@ export default function AuthCallbackPage() {
         }
 
         if (code) {
-          // コードを使ってセッションを交換
+          // PKCE認証フローでセッションを交換
           const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-          
+
           if (error) {
             console.error('Session exchange error:', error)
             router.push('/auth/login')
@@ -32,19 +37,21 @@ export default function AuthCallbackPage() {
           }
 
           if (data?.session) {
-            console.log('Login successful, redirecting to admin...')
-            // ログイン成功 - adminページへリダイレクト
-            router.push('/admin')
+            console.log('Login successful, redirecting to home...')
+            // ログイン成功 - redirectToパラメータがあればそこに、なければホームページへ
+            const redirectTo = searchParams.get('redirectTo') || '/'
+            router.push(redirectTo)
             return
           }
         }
 
         // コードがない場合は既存のセッションをチェック
         const { data: { session } } = await supabase.auth.getSession()
-        
+
         if (session) {
-          console.log('Existing session found, redirecting to admin...')
-          router.push('/admin')
+          console.log('Existing session found, redirecting to home...')
+          const redirectTo = searchParams.get('redirectTo') || '/'
+          router.push(redirectTo)
         } else {
           console.log('No session found, redirecting to login...')
           router.push('/auth/login')
@@ -56,7 +63,7 @@ export default function AuthCallbackPage() {
     }
 
     handleCallback()
-  }, [router])
+  }, [router, searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[rgba(254,255,250,0.96)]">

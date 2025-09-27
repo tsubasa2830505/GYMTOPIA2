@@ -65,9 +65,10 @@ export default function Home() {
   const hasAnySelection = () => totalSelections > 0
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(231,103,76,0.26),transparent_68%)] blur-3xl opacity-70" />
-      <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(240,142,111,0.2),transparent_70%)] blur-3xl opacity-65" />
+    <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 min-h-screen">
+      <div className="pointer-events-none absolute -top-24 right-16 h-60 w-60 rounded-full bg-[radial-gradient(circle_at_center,rgba(251,146,60,0.3),transparent_68%)] blur-3xl opacity-60" />
+      <div className="pointer-events-none absolute top-[45%] -left-28 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.25),transparent_70%)] blur-3xl opacity-55" />
+      <div className="pointer-events-none absolute bottom-20 right-1/3 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(245,101,101,0.2),transparent_65%)] blur-2xl opacity-50" />
 
       <Header subtitle="ジムを探す" />
 
@@ -87,19 +88,19 @@ export default function Home() {
             }}
           />
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(231,103,76,0.82)] via-[rgba(201,86,61,0.76)] to-[rgba(240,142,111,0.7)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/85 via-red-500/80 to-amber-500/75" />
 
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center items-center h-full px-6">
-            <p className="text-[color:var(--gt-on-primary)]/85 max-w-xl mx-auto text-base sm:text-lg drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-3 sm:mb-4 font-semibold whitespace-nowrap">
+            <p className="text-white/90 max-w-xl mx-auto text-base sm:text-lg drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] mb-3 sm:mb-4 font-semibold whitespace-nowrap">
               妥協ゼロ、条件はフル装備。
             </p>
-            <h2 className="gt-heading-xl sm:gt-heading-2xl font-black mb-6 sm:mb-8 leading-tight text-[color:var(--gt-on-primary)] drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)] sm:whitespace-nowrap">
+            <h2 className="text-3xl sm:text-5xl font-black mb-6 sm:mb-8 leading-tight text-white drop-shadow-[0_12px_30px_rgba(0,0,0,0.4)] sm:whitespace-nowrap">
               <span className="whitespace-nowrap">全国から見つける、</span><br className="sm:hidden" /><span className="whitespace-nowrap">あなたのジムトピア</span>
             </h2>
             <button
               onClick={handleStartSearch}
-              className="bg-white/95 backdrop-blur-sm px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-[color:var(--gt-primary-strong)] shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:scale-105 hover:bg-white transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
+              className="bg-white/95 backdrop-blur-sm px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-orange-600 shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:scale-105 hover:bg-white hover:shadow-[0_12px_32px_rgba(0,0,0,0.3)] transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               ジムトピアを探す
@@ -109,20 +110,20 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="col-span-1 lg:col-span-2">
-            <div className="gt-card rounded-[32px] border border-[rgba(231,103,76,0.2)] backdrop-blur-sm">
+            <div className="bg-white/90 backdrop-blur-xl rounded-[32px] border border-gray-200/60 shadow-2xl shadow-gray-200/40">
               <div
-                className="relative p-4 sm:p-6 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(254,255,250,0.9)]"
+                className="relative p-4 sm:p-6 border-b border-gray-200/60 bg-gradient-to-r from-white/95 to-gray-50/95"
                 ref={conditionSectionRef}
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.24),rgba(240,142,111,0.14))] flex items-center justify-center shadow-[0_14px_34px_-22px_rgba(189,101,78,0.42)]">
-                        <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[color:var(--gt-primary-strong)]" />
+                      <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center shadow-lg shadow-orange-200/50">
+                        <Search className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                       </div>
                       <div>
-                        <h2 className="text-base sm:text-lg font-bold text-[color:var(--foreground)]">設備条件を選ぶ</h2>
-                        <p className="gt-body-muted hidden sm:block">マシンや設備、通いやすさなどの基準を並べて、街のジムを絞り込みましょう。</p>
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900">設備条件を選ぶ</h2>
+                        <p className="text-gray-600 text-sm hidden sm:block">マシンや設備、通いやすさなどの基準を並べて、街のジムを絞り込みましょう。</p>
                       </div>
                     </div>
                     {totalSelections > 0 && (
@@ -132,7 +133,7 @@ export default function Home() {
                           setSelectedFreeWeights(new Set())
                           setSelectedFacilities(new Set())
                         }}
-                        className="text-[10px] sm:text-xs font-semibold text-[color:var(--text-muted)] underline-offset-4 hover:underline"
+                        className="text-[10px] sm:text-xs font-semibold text-gray-500 underline-offset-4 hover:underline hover:text-gray-700"
                       >
                         条件をクリア
                       </button>
@@ -140,10 +141,10 @@ export default function Home() {
                   </div>
 
                   {totalSelections > 0 && (
-                    <div className="rounded-3xl border border-[rgba(231,103,76,0.2)] bg-[rgba(254,255,250,0.96)] px-4 py-4 sm:px-5 sm:py-5 shadow-[0_24px_50px_-32px_rgba(189,101,78,0.48)] animate-pulse-once">
+                    <div className="rounded-3xl border border-gray-200/60 bg-white/96 px-4 py-4 sm:px-5 sm:py-5 shadow-xl shadow-gray-200/30 animate-pulse-once">
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-sm font-semibold text-[color:var(--text-subtle)]">選択中の条件</span>
-                        <span className="gt-badge">{totalSelections}</span>
+                        <span className="text-sm font-semibold text-gray-700">選択中の条件</span>
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">{totalSelections}</span>
                       </div>
                       <div className="flex flex-wrap gap-2.5">
                         {Array.from(selectedMachines.entries()).map(([machineId, count]) => (
@@ -212,7 +213,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6 border-b border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.88)]">
+              <div className="p-4 sm:p-6 border-b border-gray-200/60 bg-gradient-to-r from-gray-50/90 to-white/90">
                 <div className="gt-tab-track flex gap-1">
                   <button
                     onClick={() => setActiveTab('machine')}
@@ -242,7 +243,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className={`p-4 sm:p-6 overflow-y-auto bg-[rgba(254,255,250,0.92)] transition-all duration-500 ${
+              <div className={`p-4 sm:p-6 overflow-y-auto bg-white/95 transition-all duration-500 ${
                 isSearchMode ? 'max-h-[calc(100vh-200px)]' : 'max-h-[500px]'
               }`}>
                 {activeTab === 'machine' && (
@@ -267,10 +268,10 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="p-4 sm:p-6 border-t border-[rgba(231,103,76,0.18)] bg-[rgba(247,250,255,0.9)]">
+              <div className="p-4 sm:p-6 border-t border-gray-200/60 bg-gradient-to-r from-gray-50/90 to-white/90">
                 <button
                   onClick={goToSearchResults}
-                  className="w-full gt-pill-button justify-center text-sm sm:text-base"
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-full font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Search className="w-5 h-5" />
                   {totalSelections > 0
@@ -282,26 +283,26 @@ export default function Home() {
           </div>
 
           <div className="col-span-1 hidden lg:block">
-            <div className="gt-card p-6 sticky top-24 backdrop-blur-[8px] border border-[rgba(231,103,76,0.2)]">
-              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-[rgba(231,103,76,0.18)] bg-[radial-gradient(circle_at_20%_16%,rgba(96,134,255,0.18),transparent_60%),linear-gradient(180deg,rgba(247,250,255,0.96),rgba(234,242,255,0.9))] p-6">
+            <div className="bg-white/90 backdrop-blur-xl p-6 sticky top-24 rounded-3xl border border-gray-200/60 shadow-2xl shadow-gray-200/40">
+              <div className="-m-6 mb-6 rounded-t-[28px] border-b border-gray-200/60 bg-gradient-to-br from-orange-50/80 to-red-50/80 p-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(231,103,76,0.28),rgba(96,134,255,0.24))] flex items-center justify-center shadow-[0_20px_42px_-30px_rgba(189,101,78,0.46)]">
-                    <MapPin className="w-5 h-5 text-[color:var(--gt-on-primary)]" />
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center shadow-lg shadow-orange-200/50">
+                    <MapPin className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="gt-heading-md text-[color:var(--foreground)]">選択した条件</h3>
-                    <p className="gt-body-muted">{totalSelections}個の条件を選択中</p>
+                    <h3 className="text-lg font-semibold text-gray-900">選択した条件</h3>
+                    <p className="text-gray-600 text-sm">{totalSelections}個の条件を選択中</p>
                   </div>
                 </div>
               </div>
 
               {!hasAnySelection() ? (
                 <div className="text-center py-12">
-                  <div className="w-14 h-14 bg-[rgba(254,255,250,0.94)] border border-[rgba(231,103,76,0.18)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_18px_40px_-30px_rgba(189,101,78,0.45)]">
-                    <Calendar className="w-7 h-7 text-[color:var(--text-muted)]" />
+                  <div className="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-gray-200/50">
+                    <Calendar className="w-7 h-7 text-gray-400" />
                   </div>
-                  <p className="gt-title-sm text-[color:var(--foreground)] mb-2">条件を選択してください</p>
-                  <p className="gt-body-muted">
+                  <p className="text-lg font-semibold text-gray-900 mb-2">条件を選択してください</p>
+                  <p className="text-gray-600 text-sm">
                     マシン・設備・施設条件を選択して<br />
                     理想のジムを見つけましょう
                   </p>
@@ -311,16 +312,16 @@ export default function Home() {
                   {Array.from(selectedMachines.entries()).map(([machineId, count]) => (
                     <div
                       key={`machine-summary-${machineId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
+                      className="bg-white/80 border border-gray-200/60 flex items-center justify-between p-3 rounded-2xl shadow-lg shadow-gray-200/30"
                     >
-                      <span className="gt-label-lg text-[color:var(--gt-secondary-strong)]">{count > 1 ? `${machineId} (${count}台)` : machineId}</span>
+                      <span className="text-sm font-medium text-gray-700">{count > 1 ? `${machineId} (${count}台)` : machineId}</span>
                       <button
                         onClick={() => {
                           const newMachines = new Map(selectedMachines)
                           newMachines.delete(machineId)
                           setSelectedMachines(newMachines)
                         }}
-                        className="text-[color:var(--gt-secondary-strong)] hover:text-[color:var(--gt-secondary-strong)] text-sm leading-none"
+                        className="text-gray-500 hover:text-red-500 text-sm leading-none transition-colors"
                       >
                         ×
                       </button>
@@ -330,16 +331,16 @@ export default function Home() {
                   {Array.from(selectedFreeWeights).map((weightId) => (
                     <div
                       key={`weight-summary-${weightId}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
+                      className="bg-white/80 border border-gray-200/60 flex items-center justify-between p-3 rounded-2xl shadow-lg shadow-gray-200/30"
                     >
-                      <span className="gt-label-lg text-[color:var(--gt-primary-strong)]">{weightId}</span>
+                      <span className="text-sm font-medium text-gray-700">{weightId}</span>
                       <button
                         onClick={() => {
                           const newWeights = new Set(selectedFreeWeights)
                           newWeights.delete(weightId)
                           setSelectedFreeWeights(newWeights)
                         }}
-                        className="text-[color:var(--gt-primary-strong)] hover:text-[color:var(--gt-primary-strong)] text-sm leading-none"
+                        className="text-gray-500 hover:text-red-500 text-sm leading-none transition-colors"
                       >
                         ×
                       </button>
@@ -349,16 +350,16 @@ export default function Home() {
                   {Array.from(selectedFacilities).map((facility) => (
                     <div
                       key={`facility-summary-${facility}`}
-                      className="gt-surface-outline flex items-center justify-between p-3 rounded-2xl shadow-[0_16px_36px_-28px_rgba(189,101,78,0.44)]"
+                      className="bg-white/80 border border-gray-200/60 flex items-center justify-between p-3 rounded-2xl shadow-lg shadow-gray-200/30"
                     >
-                      <span className="gt-label-lg" style={{ color: 'var(--gt-tertiary-strong)' }}>{facility}</span>
+                      <span className="text-sm font-medium text-gray-700">{facility}</span>
                       <button
                         onClick={() => {
                           const newFacilities = new Set(selectedFacilities)
                           newFacilities.delete(facility)
                           setSelectedFacilities(newFacilities)
                         }}
-                        className="text-[color:var(--gt-tertiary-strong)] hover:text-[color:var(--gt-tertiary-strong)] text-sm leading-none"
+                        className="text-gray-500 hover:text-red-500 text-sm leading-none transition-colors"
                       >
                         ×
                       </button>

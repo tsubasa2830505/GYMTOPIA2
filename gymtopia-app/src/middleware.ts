@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { setSecurityHeaders, validateAPIRequest, logSecurityEvent } from '@/lib/middleware/security'
+
+// Public paths that don't require authentication
+const publicPaths = [
+  '/auth/login',
+  '/auth/signup',
+  '/auth/reset-password',
+  '/auth/callback',
+  '/auth/verify-email',
+  // ジム検索・閲覧機能（ログインなしでアクセス可能）
+  '/',
+  '/map',
+  '/search',
+  '/search/results',
+  '/gyms'
+]
 
 export async function middleware(request: NextRequest) {
   // Create response
@@ -15,6 +31,76 @@ export async function middleware(request: NextRequest) {
         reason: 'Security validation failed'
       })
       return securityValidation
+    }
+  }
+
+  // Check authentication for protected routes
+  const pathname = request.nextUrl.pathname
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
+
+  if (!isPublicPath && !pathname.startsWith('/api/') && !pathname.startsWith('/_next/')) {
+    try {
+      // Create Supabase middleware client
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll()
+            },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value, options }) => {
+                response.cookies.set(name, value, options)
+              })
+            },
+          },
+        }
+      )
+
+      // Get session
+      const { data: { session }, error } = await supabase.auth.getSession()
+
+      // If no session and not on a public path, redirect to login
+      if (!session || error) {
+        const redirectUrl = new URL('/auth/login', request.url)
+        redirectUrl.searchParams.set('redirectTo', pathname)
+        return NextResponse.redirect(redirectUrl)
+      }
+    } catch (error) {
+      console.error('Middleware auth error:', error)
+      // On error, redirect to login as a safety measure
+      const redirectUrl = new URL('/auth/login', request.url)
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // If user is authenticated and trying to access auth pages (not public content), redirect to home
+  if (isPublicPath && pathname.startsWith('/auth/') && pathname !== '/auth/callback') {
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll()
+            },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value, options }) => {
+                response.cookies.set(name, value, options)
+              })
+            },
+          },
+        }
+      )
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    } catch (error) {
+      console.error('Middleware redirect error:', error)
     }
   }
 

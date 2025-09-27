@@ -41,7 +41,7 @@ export default function SidebarNavigation() {
   ]
 
   return (
-    <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-[rgba(254,255,250,0.92)] backdrop-blur-xl border-r border-[rgba(231,103,76,0.18)] z-[60] flex-col py-6">
+    <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-white/95 via-gray-50/95 to-zinc-100/95 backdrop-blur-xl border-r border-gray-200/60 z-[60] flex-col py-6 shadow-xl">
       {/* Navigation Items */}
       <div className="flex-1 px-3 mt-8">
         <div className="space-y-1">
@@ -51,8 +51,8 @@ export default function SidebarNavigation() {
               href={item.href}
               className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 group ${
                 item.isActive
-                  ? 'bg-[color:var(--gt-primary)] text-white shadow-lg'
-                  : 'text-[color:var(--text-muted)] hover:bg-[rgba(231,103,76,0.08)] hover:text-[color:var(--foreground)]'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                  : 'text-gray-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 hover:text-gray-900'
               }`}
             >
               <item.icon
@@ -70,8 +70,8 @@ export default function SidebarNavigation() {
       </div>
 
       {/* Footer */}
-      <div className="px-6 pt-4 border-t border-[rgba(231,103,76,0.18)]">
-        <div className="text-xs text-[color:var(--text-muted)] text-center">
+      <div className="px-6 pt-4 border-t border-gray-200/60">
+        <div className="text-xs text-gray-500 text-center">
           © 2024 GYMTOPIA
         </div>
       </div>

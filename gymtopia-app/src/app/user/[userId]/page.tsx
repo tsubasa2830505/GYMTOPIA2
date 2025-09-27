@@ -8,6 +8,7 @@ import { getSupabaseClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { isFollowing, followUser, unfollowUser } from '@/lib/supabase/follows';
 import Header from '@/components/Header';
+import FollowButton from '@/components/FollowButton';
 import PostCard from '@/components/PostCard';
 import type { Post } from '@/lib/supabase/posts';
 import type { UserProfileStats, WeeklyStats, GymPost, FavoriteGym } from '@/lib/types/profile';
@@ -487,50 +488,10 @@ function UserProfilePage() {
 
                 {/* フォローボタン - 認証済み && 自分以外のユーザーの場合のみ表示 */}
                 {currentUser && currentUser.id !== userId && (
-                  <div className="flex items-center gap-2">
-                    {followCheckLoading ? (
-                      <div className="px-4 py-2 bg-[rgba(254,255,250,0.82)] border border-[rgba(231,103,76,0.18)] rounded-lg">
-                        <div className="w-4 h-4 border-2 border-[color:var(--gt-primary-strong)] border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={isCurrentlyFollowing ? handleUnfollow : handleFollow}
-                        disabled={followLoading}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          isCurrentlyFollowing
-                            ? 'bg-[rgba(254,255,250,0.82)] text-[color:var(--text-subtle)] border border-[rgba(231,103,76,0.18)] hover:bg-[rgba(254,255,250,0.9)]'
-                            : 'bg-gradient-to-r from-[var(--gt-primary)] to-[var(--gt-secondary)] text-white hover:from-[var(--gt-primary-strong)] hover:to-[var(--gt-tertiary)] shadow-[0_12px_28px_-18px_rgba(189,101,78,0.44)] hover:shadow-[0_14px_34px_-18px_rgba(189,101,78,0.5)]'
-                        } ${
-                          followLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                        }`}
-                      >
-                        {followLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                            <span>{isCurrentlyFollowing ? 'アンフォロー中...' : 'フォロー中...'}</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {isCurrentlyFollowing ? (
-                              <>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                                <span>フォロー中</span>
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                                </svg>
-                                <span>フォロー</span>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </button>
-                    )}
-                  </div>
+                  <FollowButton
+                    targetUserId={userId}
+                    className="px-4 py-2 text-sm"
+                  />
                 )}
               </div>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-[color:var(--text-subtle)] mb-1 sm:mb-2">

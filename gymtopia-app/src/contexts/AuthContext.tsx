@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Session } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { SessionUser, AuthState } from '@/lib/types/user'
 import { getCurrentUser, onAuthStateChange, getSession } from '@/lib/supabase/auth'
 import { logger } from '@/lib/utils/logger'
@@ -26,8 +27,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedOut, setIsLoggedOut] = useState(false)
-
   const refreshUser = async () => {
     try {
       logger.log('📱 AuthContext: Refreshing user...')
@@ -41,54 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const mockSignOut = () => {
-    logger.log('📱 AuthContext: Mock sign out')
+    logger.log('📱 AuthContext: Sign out')
     setUser(null)
     setSession(null)
-    setIsLoggedOut(true)
   }
 
   useEffect(() => {
     logger.log('🚀🚀🚀 AuthProvider useEffect triggered 🚀🚀🚀')
-    // Check if we should use mock auth (for development or testing in production)
-    const useMockAuth = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true'
-    logger.log('🔧 NEXT_PUBLIC_USE_MOCK_AUTH:', process.env.NEXT_PUBLIC_USE_MOCK_AUTH)
-    logger.log('🔧 useMockAuth:', useMockAuth)
-    logger.log('🔧 isLoggedOut:', isLoggedOut)
-
-    if (useMockAuth && !isLoggedOut) {
-      logger.log('📱 AuthContext: Using mock auth for development')
-      // Get mock user data from environment variables or use defaults
-      const mockUser: SessionUser = {
-        id: process.env.NEXT_PUBLIC_MOCK_USER_ID || '8ac9e2a5-a702-4d04-b871-21e4a423b4ac',
-        email: process.env.NEXT_PUBLIC_MOCK_USER_EMAIL || 'tsubasa.a.283.0505@gmail.com',
-        username: process.env.NEXT_PUBLIC_MOCK_USERNAME || 'tsubasa_gym',
-        displayName: process.env.NEXT_PUBLIC_MOCK_DISPLAY_NAME || 'Tsubasa',
-        avatarUrl: process.env.NEXT_PUBLIC_MOCK_AVATAR_URL || null
-      }
-      logger.log('📱 AuthContext: Setting mock user:', mockUser)
-      setUser(mockUser)
-      setSession({
-        access_token: 'mock-token',
-        refresh_token: 'mock-refresh',
-        expires_in: 3600,
-        expires_at: Date.now() + 3600000,
-        token_type: 'bearer',
-        user: {
-          id: mockUser.id,
-          email: mockUser.email!,
-          user_metadata: { username: mockUser.username, display_name: mockUser.displayName }
-        }
-      } as any)
-      setIsLoading(false)
-      logger.log('📱 AuthContext: Mock auth setup complete')
-      return
-    } else if (useMockAuth && isLoggedOut) {
-      logger.log('📱 AuthContext: User is logged out, staying logged out')
-      setUser(null)
-      setSession(null)
-      setIsLoading(false)
-      return
-    }
 
     // Initial session check
     getSession().then((session) => {
