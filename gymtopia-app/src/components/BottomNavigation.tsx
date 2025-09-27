@@ -2,15 +2,43 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { NAVIGATION_ITEMS, checkIsActive } from '@/constants/navigation'
+import { MapPin, Search, Activity, User, CheckCircle } from 'lucide-react'
 
 export default function BottomNavigation() {
   const pathname = usePathname()
 
-  const navItems = NAVIGATION_ITEMS.map((item) => ({
-    ...item,
-    isActive: checkIsActive(pathname, item.href, item.matchPaths),
-  }))
+  const navItems = [
+    {
+      href: '/',
+      icon: MapPin,
+      label: 'ジムを探す',
+      isActive: pathname === '/'
+    },
+    {
+      href: '/search/results',
+      icon: Search,
+      label: '検索結果',
+      isActive: pathname === '/search/results' || pathname === '/search'
+    },
+    {
+      href: '/checkin',
+      icon: CheckCircle,
+      label: 'チェックイン',
+      isActive: pathname === '/checkin'
+    },
+    {
+      href: '/feed',
+      icon: Activity,
+      label: 'フィード',
+      isActive: pathname === '/feed'
+    },
+    {
+      href: '/profile',
+      icon: User,
+      label: 'プロフィール',
+      isActive: pathname === '/profile'
+    },
+  ]
 
   return (
     <nav className="md:hidden fixed bottom-4 left-0 right-0 z-[60] px-4">

@@ -45,14 +45,7 @@
       "mcp__supabase__get_advisors",
       "Bash(npm run dev:*)",
       "Bash(npm run dev:kill:*)",
-      "Bash(SKIP_HOOKS=true git commit -m \"🔄 v4.2.1: セキュリティ強化とナビゲーション改善\n\n### 🔒 Supabaseセキュリティ強化\n- Security Definer Views を通常ビューに変換（8件）\n- Materialized Views のAPI公開制限を実装\n- Function Search Path セキュリティ修正（19件）\n- RLS（Row Level Security）ポリシー強化\n- 認証セキュリティ機能の追加\n\n### 🎯 ナビゲーション改善\n- サイドバーナビゲーションにチェックイン機能追加\n- デスクトップ版ナビゲーションを左サイドバーに統一\n- Headerから重複ナビゲーションを削除\n- 位置情報エラーハンドリングを改善\n\n### 🐛 バグ修正\n- DB接続問題の解決（モック認証設定）\n- 開発環境の安定性向上\n- React Server Components エラー対応\n\n### 📊 セキュリティスコア\n- ERROR レベル脆弱性: 41件 → 実質0件\n- 技術的に対応可能な全セキュリティ問題を解決\n- エンタープライズレベルのセキュリティを達成\")",
-      "mcp__zen__thinkdeep",
-      "Bash(npx supabase:*)",
-      "Bash(open:*)",
-      "Bash(rm:*)",
-      "mcp__zen__consensus",
-      "Bash(SKIP_HOOKS=true git add -A)",
-      "Bash(SKIP_HOOKS=true git commit -m \"🔧 v4.2.6: UI表示問題の修正\n\n### 🐛 バグ修正\n- 重複フォルダ (gymtopia-app/gymtopia-app/) を削除\n- ビルドキャッシュをクリアして再構築\n- 全画面のUI表示崩れを解消\n\n### 🧹 クリーンアップ\n- 不要な重複ファイルを削除\n- プロジェクト構造を整理\n- 開発環境の安定性向上\n\n### ✅ 動作確認\n- 全ページのUI表示が正常\n- Tailwind CSSが正しく適用\n- 開発サーバーが安定動作\")"
+      "Bash(SKIP_HOOKS=true git commit -m \"🔄 v4.2.1: セキュリティ強化とナビゲーション改善\n\n### 🔒 Supabaseセキュリティ強化\n- Security Definer Views を通常ビューに変換（8件）\n- Materialized Views のAPI公開制限を実装\n- Function Search Path セキュリティ修正（19件）\n- RLS（Row Level Security）ポリシー強化\n- 認証セキュリティ機能の追加\n\n### 🎯 ナビゲーション改善\n- サイドバーナビゲーションにチェックイン機能追加\n- デスクトップ版ナビゲーションを左サイドバーに統一\n- Headerから重複ナビゲーションを削除\n- 位置情報エラーハンドリングを改善\n\n### 🐛 バグ修正\n- DB接続問題の解決（モック認証設定）\n- 開発環境の安定性向上\n- React Server Components エラー対応\n\n### 📊 セキュリティスコア\n- ERROR レベル脆弱性: 41件 → 実質0件\n- 技術的に対応可能な全セキュリティ問題を解決\n- エンタープライズレベルのセキュリティを達成\")"
     ],
     "deny": [],
     "ask": []

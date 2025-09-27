@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { MapPin } from 'lucide-react'
-import { LOGO_FILTER, GRADIENT_CLASSES, ICON_SIZES, LOGO_SIZES, DEFAULT_SUBTITLE } from '@/constants/styles'
 
 interface HeaderProps {
   title?: string;
@@ -29,15 +28,15 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
               <Image
                 src="/images/gymtopia.png"
                 alt="ジムトピア"
-                width={LOGO_SIZES.mobile.width}
-                height={LOGO_SIZES.mobile.height}
-                className={LOGO_SIZES.mobile.className}
+                width={280}
+                height={70}
+                className="h-10 w-auto"
                 style={{
-                  filter: LOGO_FILTER
+                  filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
                 }}
               />
               <p className="text-xs text-[color:var(--text-muted)]">
-                {subtitle || DEFAULT_SUBTITLE}
+                {subtitle || "街の熱量と一緒にジムを探そう"}
               </p>
             </div>
           </div>
@@ -51,15 +50,15 @@ export default function Header({ title, subtitle, showMenu = false }: HeaderProp
               <Image
                 src="/images/gymtopia.png"
                 alt="ジムトピア"
-                width={LOGO_SIZES.desktop.width}
-                height={LOGO_SIZES.desktop.height}
-                className={LOGO_SIZES.desktop.className}
+                width={320}
+                height={80}
+                className="h-12 w-auto"
                 style={{
-                  filter: LOGO_FILTER
+                  filter: 'brightness(0) saturate(100%) invert(45%) sepia(93%) saturate(1352%) hue-rotate(333deg) brightness(95%) contrast(96%)'
                 }}
               />
               <p className="text-sm text-[color:var(--text-muted)]">
-                {subtitle || DEFAULT_SUBTITLE}
+                {subtitle || "街の熱量と一緒にジムを探そう"}
               </p>
             </div>
           </div>
